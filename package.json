@@ -1,0 +1,75 @@
+{
+  "name": "frontend",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@auth0/auth0-react": "^2.1.1",
+    "@blockchain-lib/common": "2.0.2",
+    "@kbc-lib/coffee-trading-management-lib": "1.0.7",
+    "@dagrejs/dagre": "^1.0.2",
+    "@react-pdf-viewer/core": "^3.12.0",
+    "@reduxjs/toolkit": "^1.9.5",
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "@types/jest": "^27.5.2",
+    "@types/node": "^16.18.34",
+    "@types/react": "^18.2.7",
+    "@types/react-dom": "^18.2.4",
+    "@unece/cotton-fetch": "1.0.0",
+    "antd": "^5.5.2",
+    "base64url": "^3.0.1",
+    "dayjs": "^1.11.8",
+    "node-sass": "^7.0.3",
+    "pdfjs-dist": "3.10.111",
+    "react": "^18.2.0",
+    "react-app-rewired": "^2.2.1",
+    "react-dom": "^18.2.0",
+    "react-graph-vis": "^1.0.7",
+    "react-redux": "^8.1.3",
+    "react-router-dom": "^6.11.2",
+    "react-scripts": "5.0.1",
+    "reactflow": "^11.7.4",
+    "stream-browserify": "^3.0.0",
+    "typescript": "^4.9.5",
+    "uuid": "^9.0.0",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test",
+    "coverage": "npm run test -- --coverage .",
+    "eject": "react-app-rewired eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@types/qrcode": "^1.5.0",
+    "@types/uuid": "^9.0.1",
+    "prettier": "^3.0.3"
+  },
+  "jest": {
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/src/index.tsx",
+      "/src/reportWebVitals.ts"
+    ]
+  }
+}

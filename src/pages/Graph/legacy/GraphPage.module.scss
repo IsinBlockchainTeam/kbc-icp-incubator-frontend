@@ -1,0 +1,38 @@
+$title_height: 5rem;
+
+.ApplyButton{
+  margin-top: 10px;
+}
+
+.GraphContainer {
+  position: relative;
+  //display: grid;
+  //grid-template-columns: 6fr 20rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  height: calc(100% - 4rem);
+}
+.MainContent {
+  width: 100%;
+  height: calc(100vh - #{$title_height});
+}
+.GraphVisContainer {
+  width: 100%;
+  height: calc(100vh - 10rem);
+}
+.TitleSection {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: $title_height;
+  font-size: 20px;
+  h1 {
+    color: #368EDE;
+    font-size: 34px;
+    display: block;
+    padding: 10px 20px 0 10px;
+    margin: 0;
+  }
+}

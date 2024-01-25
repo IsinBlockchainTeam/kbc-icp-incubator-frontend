@@ -1,0 +1,23 @@
+.ButtonsContainer {
+  display: flex;
+  flex-direction: row;
+
+  .CertificateButton {
+    width: 100%;
+    margin-left: 5px;
+    margin-bottom: 5px;
+    background-color: #189400;
+    border: none;
+    cursor: pointer;
+    color: white;
+
+    &:hover {
+      background-color: #148300;
+    }
+  }
+}
+
+.ShowSupplyChainBtn {
+  width: 100%;
+  margin-bottom: 1rem;
+}

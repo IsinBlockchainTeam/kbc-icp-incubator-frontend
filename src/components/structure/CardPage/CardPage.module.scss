@@ -1,0 +1,12 @@
+.Card {
+  max-width: 1200px;
+  margin: auto;
+  box-shadow: 1px 1px #888;
+  border-radius: 10px;
+}
+
+// for column grid inside the card page component
+.ant-col-14 {
+  width: 100%;
+  max-width: 100%;
+}

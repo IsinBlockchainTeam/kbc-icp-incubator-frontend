@@ -1,0 +1,198 @@
+.Card {
+  top: 0;
+  right: 0;
+  height: calc(100vh - 4rem);
+  background-color: #40484F;
+  color: white;
+  text-align: left;
+  padding: 1vh 1rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  .Topic {
+    margin-bottom: 3rem;
+  }
+  .CardContent {
+    height: calc(100vh - 4rem);
+    overflow-y: auto;
+  }
+  .ResizeContainer {
+    font-size: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 4rem;
+    height: 4rem;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+
+    &:hover {
+      background-color: lighten(#343A40, 10%);
+    }
+  }
+}
+.CardCompressed {
+  width: 4.1rem;
+  display: flex;
+  justify-content: space-between;
+  .VerticalText {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    color: #368EDE;
+    font-size: 26px;
+    font-weight: normal;
+    text-align: right;
+  }
+
+}
+.CardExpanded {
+  width: 50rem;
+
+  h1 {
+    font-size: 30px;
+    font-weight: normal;
+    color: #368EDE;
+  }
+}
+.Divider {
+  width: 90%;
+  height: 2px;
+  background-color: rgba(255, 255, 255, 0.1);
+  margin: 2rem auto;
+}
+.CertificateRowClickable {
+  cursor: pointer;
+  &:hover {
+    background-color: lighten(#343A40, 10%);
+  }
+}
+.CertificateRow {
+  display: grid;
+  grid-template-columns: 1fr 5fr;
+  grid-column-gap: 1rem;
+  min-height: 3rem;
+  color: white;
+  .IconLinkContainer {
+    font-size: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .CertOk {
+    color: #4edb34;
+  }
+  .CertPending {
+    color: #c87800;
+  }
+  .CertNonOk{
+    color: #ff0000;
+  }
+  .MainLinkContainer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+  }
+  .CertContainer {
+    display: grid;
+    grid-template-columns: 6fr 1fr;
+    font-size: 14px;
+    .CertificationIconContainer {
+      display: flex;
+      align-items: center;
+      margin-right: 5px;
+      margin-left: 5px;
+      img {
+        height: 120px;
+        width: 120px;
+        border-radius: 50%;
+      }
+
+    }
+  }
+}
+.ValidIcon {
+  color: #4edb34 !important;
+}
+.SelectedRow {
+  color: #368EDE;
+  border-left: 3px solid #368EDE;
+}
+.InfoRow {
+  font-size: 1.1rem;
+  display: grid;
+  grid-template-columns: 2fr 3fr;
+  grid-column-gap: 1rem;
+  min-height: 3rem;
+  color: white;
+  .InfoLeftContainer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    font-weight: bold;
+    color: white;
+  }
+  .InfoRightContainer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+  }
+}
+.InfoContainer {
+  font-size: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 4rem;
+  height: 4rem;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+.Tooltip {
+  font-size: 18px !important;
+}
+.InfoButton {
+  height: 4rem;
+  width: 4rem;
+  top: 4.5rem;
+  right: 0.5rem;
+  background-color: #343A40;
+  z-index: 4;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 30px;
+  position: fixed;
+  color: #368EDE;
+}
+@media (max-width: 1224px){
+  h1 {
+    font-size: 23px !important;
+  }
+  .CardExpanded {
+    position: fixed !important;
+    top: 3.9rem;
+    left: 0;
+    width: 100%;
+    z-index: 5;
+  }
+  .ResizeContainer {
+    position: fixed !important;
+    background-color: lighten(#343A40, 10%);
+  }
+  .Topic {
+    margin-bottom: 1rem !important;
+  }
+  .InfoRow {
+    min-height: 2rem;
+    font-size: 1rem;
+  }
+  .CertificateRow {
+    min-height: 2rem;
+  }
+  .CertContainer {
+    font-size: 0.8rem !important;
+  }
+}

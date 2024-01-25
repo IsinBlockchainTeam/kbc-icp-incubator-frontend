@@ -1,0 +1,35 @@
+.Link {
+  color: #FFF;
+  text-decoration: none;
+
+  &:hover {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+  }
+}
+
+.ErrorText {
+  color: red;
+}
+
+.ShowSupplyChainBtn {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+:global {
+
+  label {
+    font-weight: bold;
+    font-size: 1.5rem;
+  }
+
+  .custom-file {
+    label {
+      font-size: 1rem !important;
+    }
+  }
+}
+
+
+
