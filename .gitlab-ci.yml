@@ -1,0 +1,25 @@
+image: docker:latest
+services:
+  - docker:dind
+
+stages:
+  - build
+
+frontend-build:
+  stage: build
+  only:
+    - dev
+    - main
+  script:
+    - cp $WEBAPP_UI_BUILD_FILE .conf.webapp-ui
+    # Generate the Typescript Client and compile it to Js
+    # TODO Add the backend client dependency to the frontend
+    - docker run --rm -v "${PWD}/utils/clients:/local" openapitools/openapi-generator-cli:v5.3.1 generate -i /local/unece-tracking-openapi.json -g typescript-fetch -c /local/config.json -o /local/unece-cotton-fetch
+    - docker build -t client_compiler ./utils/clients
+    # Move the Typescript Client where it can be accessed by the frontend
+    - mkdir ./frontend/clients
+    - docker cp $(docker create --rm client_compiler):/app ./frontend/clients/unece-cotton-fetch
+    # Build the frontend
+    - docker build -f docker/frontend/FrontendDockerfile $(for i in `cat .conf.webapp-ui`; do out="--build-arg $i $out" ; done; echo $out;out="") --build-arg BLOCKCHAIN_LIB_REGISTRY_DOMAIN=$BLOCKCHAIN_LIB_REGISTRY_DOMAIN --build-arg BLOCKCHAIN_LIB_REGISTRY_READ_TOKEN=$BLOCKCHAIN_LIB_REGISTRY_READ_TOKEN --build-arg COFFEE_TRADING_LIB_REGISTRY_DOMAIN=$COFFEE_TRADING_LIB_REGISTRY_DOMAIN --build-arg COFFEE_TRADING_LIB_REGISTRY_READ_TOKEN=$COFFEE_TRADING_LIB_REGISTRY_READ_TOKEN -t gitlab-core.supsi.ch:5050/dti-isin/giuliano.gremlich/blockchain/coffe-trading/kbc-platform .
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker push gitlab-core.supsi.ch:5050/dti-isin/giuliano.gremlich/blockchain/coffe-trading/kbc-platform

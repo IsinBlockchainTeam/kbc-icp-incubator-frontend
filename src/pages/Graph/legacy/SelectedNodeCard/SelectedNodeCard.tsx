@@ -157,7 +157,7 @@ export const SelectedNodeCard = (props: Props) => {
                             </div>
 
                             <div className={styles.CertificationIconContainer}>
-                                <a href={c.processingStandardSiteUrl} target={"_blank"}>
+                                <a href={c.processingStandardSiteUrl} target={"_blank"} rel="noreferrer">
                                     <img src={c.processingStandardLogoPath} />
                                 </a>
                             </div>
@@ -217,7 +217,7 @@ export const SelectedNodeCard = (props: Props) => {
                                         </div>
 
                                         <div className={styles.CertificationIconContainer}>
-                                            <a href={certificate.processingStandardSiteUrl} target={"_blank"}>
+                                            <a href={certificate.processingStandardSiteUrl} target={"_blank"} rel="noreferrer">
                                                 <img src={certificate.processingStandardLogoPath} />
                                             </a>
                                         </div>

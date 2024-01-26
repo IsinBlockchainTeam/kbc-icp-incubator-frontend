@@ -1,24 +1,25 @@
 import {
-    Signer,
-    SignerUtils,
+    BasicTradeDriver,
+    BasicTradeService,
+    DocumentDriver,
+    DocumentService,
+    GraphService,
+    MaterialDriver,
+    MaterialService,
+    OfferDriver,
+    OfferService,
+    OrderTradeDriver,
+    OrderTradeService,
     RelationshipDriver,
     RelationshipService,
-    DocumentService,
-    DocumentDriver,
-    TradeService,
-    TradeDriver,
-    GraphService,
-    TransformationService,
-    TransformationDriver,
-    MaterialService,
-    MaterialDriver,
-    OfferService,
-    OfferDriver,
-    TradeManagerService,
+    Signer,
+    SignerUtils,
     TradeManagerDriver,
-    BasicTradeDriver, BasicTradeService, OrderTradeService, OrderTradeDriver,
+    TradeManagerService,
+    TransformationDriver,
+    TransformationService,
 } from "@kbc-lib/coffee-trading-management-lib";
-import { IPFSService, PinataIPFSDriver } from '@blockchain-lib/common';
+import {IPFSService, PinataIPFSDriver} from '@blockchain-lib/common';
 import {contractAddresses, pinataConfiguration} from "../constants";
 import {getWalletAddress} from "../utils/storage";
 
