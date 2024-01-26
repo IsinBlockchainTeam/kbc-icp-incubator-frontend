@@ -29,7 +29,6 @@ ARG REACT_APP_PINATA_GATEWAY_TOKEN=pinata_gateway_token
 # ---------------------------------------------------------------------------------------------
 
 WORKDIR /app
-COPY clients/unece-cotton-fetch /app/clients/unece-cotton-fetch
 COPY config-overrides.js /app/
 COPY package.json /app/
 COPY tsconfig.json /app/
