@@ -38,7 +38,7 @@ COPY src /app/src
 RUN npm config set @blockchain-lib:registry https://$BLOCKCHAIN_LIB_REGISTRY_DOMAIN
 RUN npm config set -- "//$BLOCKCHAIN_LIB_REGISTRY_DOMAIN:_authToken" "$BLOCKCHAIN_LIB_REGISTRY_READ_TOKEN"
 
-RUN npm config set @coffe-trading-lib:registry https://$COFFEE_TRADING_LIB_REGISTRY_DOMAIN
+RUN npm config set @kbc-lib:registry https://$COFFEE_TRADING_LIB_REGISTRY_DOMAIN
 RUN npm config set -- "//$COFFEE_TRADING_LIB_REGISTRY_DOMAIN:_authToken" "$COFFEE_TRADING_LIB_REGISTRY_READ_TOKEN"
 
 RUN npm config set @unece:registry https://$UNECE_COTTON_FETCH_REGISTRY_DOMAIN
