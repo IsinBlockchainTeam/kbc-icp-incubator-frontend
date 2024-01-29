@@ -56,11 +56,11 @@ export const TradeView = () => {
             <Col span={10}>
                 <Form.Item label="Material Name" name="materialName">
                     <Space.Compact block>
-                        <Input placeholder={line.material.name} />
-                        <Button disabled={false} type="primary"
-                                onClick={() => navigate(`/graph/${line.material.id}${trade?.supplier.toLowerCase() !== getWalletAddress()?.toLowerCase() ? `?supplier=${trade?.supplier}` : ''}`)}>
-                            Show Supply Chain
-                        </Button>
+                            <Input placeholder={line.material ? line.material.name: "No material assigned"} />
+                            <Button disabled={!line.material} type="primary"
+                                    onClick={() => navigate(`/graph/${line.material?.id}${trade?.supplier.toLowerCase() !== getWalletAddress()?.toLowerCase() ? `?supplier=${trade?.supplier}` : ''}`)}>
+                                Show Supply Chain
+                            </Button>
                     </Space.Compact>
                 </Form.Item>
             </Col>

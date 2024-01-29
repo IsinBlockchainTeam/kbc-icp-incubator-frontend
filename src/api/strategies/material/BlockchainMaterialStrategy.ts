@@ -12,11 +12,11 @@ export class BlockchainMaterialStrategy extends Strategy implements MaterialStra
         this._materialService = BlockchainLibraryUtils.getMaterialService();
     }
     async getMaterials(): Promise<MaterialPresentable[]> {
-        const materials = await this._materialService.getMaterials(this._walletAddress);
+        const materials = await this._materialService.getMaterialsOfCreator(this._walletAddress);
         return materials.map(m =>
             new MaterialPresentable()
                 .setId(m.id)
-                .setName(m.name)
+                .setName(m.productCategory.name)
         );
     }
 

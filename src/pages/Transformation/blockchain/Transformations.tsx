@@ -4,14 +4,14 @@ import {TransformationService} from "../../../api/services/TransformationService
 import {ColumnsType} from "antd/es/table";
 import {Table, TableProps} from "antd";
 import {CardPage} from "../../../components/structure/CardPage/CardPage";
-import {TransformationPresentable} from "../../../api/types/TransformationPresentable";
-import {BlockchainTransformationStrategy} from "../../../api/strategies/transformation/BlockchainTransformationStrategy";
+import {AssetOperationPresentable} from "../../../api/types/AssetOperationPresentable";
+import {BlockchainAssetOperationStrategy} from "../../../api/strategies/asset_operation/BlockchainAssetOperationStrategy";
 
 export const Transformations = () => {
-    const [transformations, setTransformations] = useState<TransformationPresentable[]>();
+    const [transformations, setTransformations] = useState<AssetOperationPresentable[]>();
     const loadData = async () => {
         try {
-            const transformationService = new TransformationService(new BlockchainTransformationStrategy());
+            const transformationService = new TransformationService(new BlockchainAssetOperationStrategy());
             const transformations = await transformationService.getTransformations();
             setTransformations(transformations.map(t => {
                 // @ts-ignore
@@ -24,7 +24,7 @@ export const Transformations = () => {
         }
     }
 
-    const columns: ColumnsType<TransformationPresentable> = [
+    const columns: ColumnsType<AssetOperationPresentable> = [
         {
             title: 'Id',
             dataIndex: 'id',
@@ -46,7 +46,7 @@ export const Transformations = () => {
         }
     ];
 
-    const onChange: TableProps<TransformationPresentable>['onChange'] = (pagination, filters, sorter, extra) => {
+    const onChange: TableProps<AssetOperationPresentable>['onChange'] = (pagination, filters, sorter, extra) => {
         console.log('params', pagination, filters, sorter, extra);
     };
 

@@ -1,6 +1,6 @@
 import { MaterialPresentable } from "./MaterialPresentable";
 
-export class TransformationPresentable {
+export class AssetOperationPresentable {
     private _id: number;
     private _name: string;
     private _inputMaterials: MaterialPresentable[];

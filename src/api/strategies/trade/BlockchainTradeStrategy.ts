@@ -46,6 +46,8 @@ export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<T
     async getGeneralTrades(): Promise<TradePresentable[]> {
         console.log("getGeneralTrades")
         const trades: Map<string, TradeType> = await this._tradeManagerService.getTradesAndTypes();
+        console.log("TYPE", await this._tradeManagerService.getTradeType(1));
+        console.log("TYPE", await this._tradeManagerService.getTradeType(2));
         let tradePresentables: TradePresentable[] = [];
 
         console.log("trades: ", trades)
@@ -71,10 +73,10 @@ export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<T
                     .setCommissioner(commissioner)
                     .setLines(lines.map(tl => new TradeLinePresentable()
                         .setId(tl.id)
-                        .setMaterial(new MaterialPresentable()
-                            .setId(tl.materialsId[0])
-                            .setName(tl.productCategory))))
-                    .setType(type));
+                        .setMaterial(tl.material ? new MaterialPresentable()
+                            .setId(tl.material.id)
+                            .setName(tl.productCategory.name): undefined)))
+                        .setType(type));
             }
         }
 
@@ -105,7 +107,9 @@ export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<T
                         .setCustomer(resp.customer)
                         .setLines(lines ? lines.map(tl => new TradeLinePresentable()
                             .setId(tl.id)
-                            .setMaterial(new MaterialPresentable().setId(tl.materialsId[0]).setName(tl.productCategory))) : [])
+                            .setMaterial(tl.material ? new MaterialPresentable()
+                                .setId(tl.material.id)
+                                .setName(tl.productCategory.name): undefined)): [])
                         .setType(TradeType.BASIC)
                         .setStatus(await basicTradeService.getTradeStatus())
                 }
@@ -133,7 +137,9 @@ export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<T
                         .setSupplier(resp.supplier)
                         .setLines(orderLines.map(ol => new TradeLinePresentable()
                             .setId(ol.id)
-                            .setMaterial(new MaterialPresentable().setId(ol.materialsId[0]).setName(ol.productCategory))
+                            .setMaterial(ol.material ? new MaterialPresentable()
+                                .setId(ol.material.id)
+                                .setName(ol.productCategory.name): undefined)
                             .setQuantity(ol.quantity)
                             .setPrice(new TradeLinePrice().setAmount(ol.price.amount).setFiat(ol.price.fiat))))
                         .setType(TradeType.ORDER)

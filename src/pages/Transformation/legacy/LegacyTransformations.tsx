@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {TransformationPlanPresentable} from "@unece/cotton-fetch";
 import {NotificationType, openNotification} from "../../../utils/notification";
 import {TransformationService} from "../../../api/services/TransformationService";
-import {LegacyTransformationStrategy} from "../../../api/strategies/transformation/LegacyTransformationStrategy";
+import {LegacyAssetOperationStrategy} from "../../../api/strategies/asset_operation/LegacyAssetOperationStrategy";
 import {ColumnsType} from "antd/es/table";
 import {Table, TableProps} from "antd";
 import {CardPage} from "../../../components/structure/CardPage/CardPage";
@@ -14,7 +14,7 @@ export const LegacyTransformations = () => {
     const [transformations, setTransformations] = useState<TransformationPlanPresentable[]>();
     const loadData = async () => {
         try {
-            const transformationService = new TransformationService(new LegacyTransformationStrategy());
+            const transformationService = new TransformationService(new LegacyAssetOperationStrategy());
             const transformations = await transformationService.getTransformations();
             setTransformations(transformations.map(t => {
                 // @ts-ignore

@@ -1,14 +1,14 @@
-import {TransformationStrategy} from "./TransformationStrategy";
+import {AssetOperationStrategy} from "./AssetOperationStrategy";
 import TransformationPlanControllerApi from "../../controllers/unece/TransformationPlanControllerApi";
 import {TransformationPlanPresentable} from "@unece/cotton-fetch";
 import {Strategy} from "../Strategy";
-import Transformation from "../../../models/Transformation";
+import AssetOperation from "../../../models/AssetOperation";
 
-export class LegacyTransformationStrategy extends Strategy implements TransformationStrategy<TransformationPlanPresentable, Transformation> {
+export class LegacyAssetOperationStrategy extends Strategy implements AssetOperationStrategy<TransformationPlanPresentable, AssetOperation> {
     constructor() {
         super(false);
     }
-    async getTransformations(): Promise<TransformationPlanPresentable[]> {
+    async getAssetOperations(): Promise<TransformationPlanPresentable[]> {
         return TransformationPlanControllerApi.getAllMyTransformationPlans();
         // const transformations = await TransformationPlanControllerApi.getAllMyTransformationPlans();
         // return transformations.map(t =>
@@ -19,7 +19,7 @@ export class LegacyTransformationStrategy extends Strategy implements Transforma
         // );
     }
 
-    async getTransformationById(id: number): Promise<TransformationPlanPresentable> {
+    async getAssetOperationById(id: number): Promise<TransformationPlanPresentable> {
         return TransformationPlanControllerApi.getTransformationPlan({id});
     }
 

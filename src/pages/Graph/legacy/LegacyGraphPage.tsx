@@ -25,7 +25,7 @@ import {
     getTradesFromEdge
 } from "../../../utils/supplyChainGraphUtils";
 import dayjs from "dayjs";
-import Transformation from "../../../models/Transformation";
+import AssetOperation from "../../../models/AssetOperation";
 import Material from "../../../models/Material";
 import Trade from "../../../models/Trade";
 import {NotificationType, openNotification} from "../../../utils/notification";
@@ -177,7 +177,7 @@ export const LegacyGraphPage = () => {
                 return;
             } else if (event.nodes.length === 1) {//Node clicked
                 const node = graphState.nodes.find(n => n.id === event.nodes[0]) || null;
-                const transformation = supplyChain?.transformations?.filter((t: Transformation) => t?.id === node?.id)?.[0] || null;
+                const transformation = supplyChain?.transformations?.filter((t: AssetOperation) => t?.id === node?.id)?.[0] || null;
                 const outputMaterial = supplyChain?.materials?.filter((m: Material) => m?.id === transformation?.output_material_ids[0])?.[0] || null;
                 const facility = supplyChain?.companiesInfo?.filter((c: CompanyInfo) => c?.name === transformation?.executor_company_id)?.[0] || null;
 
@@ -244,7 +244,7 @@ export const LegacyGraphPage = () => {
                         c.status || null
                     ))) || []
                 )),
-                resp?.transformations?.map((t: SupplyChainTransformationPresentable) => new Transformation(t.id || -1,
+                resp?.transformations?.map((t: SupplyChainTransformationPresentable) => new AssetOperation(t.id || -1,
                     t.name || '',
                     t.productCategory || '',
                     t.outputMaterialIds || [],
@@ -293,7 +293,7 @@ export const LegacyGraphPage = () => {
         setGraphState((gs: { "nodes": Node[], "edges": Edge[], "key": string }) => {
             const newNodes = gs.nodes
                 .map((node: Node) => {
-                    const transformation = supplyChain?.transformations?.filter((t: Transformation) => t?.id === node?.id)?.[0] || null;
+                    const transformation = supplyChain?.transformations?.filter((t: AssetOperation) => t?.id === node?.id)?.[0] || null;
                     const facility = supplyChain?.companiesInfo?.filter((c: CompanyInfo) => c?.name === transformation?.executor_company_id)?.[0] || null;
                     return {
                         ...node,

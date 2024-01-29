@@ -1,5 +1,5 @@
 import { SustainabilityCriterionPresentable } from "@unece/cotton-fetch";
-import Transformation from "../models/Transformation";
+import AssetOperation from "../models/AssetOperation";
 import CompanyInfo from "../models/CompanyInfo";
 import Trade from "../models/Trade";
 import Edge from "../models/Edge";
@@ -14,8 +14,8 @@ export const partialValidNodeEdgeColor = "#e5bf00";
 
 export const getNodeColor = (
   sustainabilityCriterion: SustainabilityCriterionPresentable | null,
-  transformation: Transformation | null,
-  allTransformations: Transformation[],
+  transformation: AssetOperation | null,
+  allTransformations: AssetOperation[],
 ) => {
   // console.log(transformation?.name, allTransformations
   //     .flatMap(t => t.certificates))
@@ -125,49 +125,49 @@ export const getSustainabilityCriteriaCondition = (
 export const getNodeLabel = (sc: SustainabilityCriterionPresentable | null) => {
   switch (sc?.name) {
     case "Origin":
-      return (t: Transformation | null, f: CompanyInfo | null) =>
+      return (t: AssetOperation | null, f: CompanyInfo | null) =>
         (t?.processesNames || []).join(", ") +
         "\n" +
         [f?.visibleName, f?.region, f?.country]
           .filter((c) => c && c !== "")
           .join(", ");
     case "Organic":
-      return (t: Transformation | null, f: CompanyInfo | null) =>
+      return (t: AssetOperation | null, f: CompanyInfo | null) =>
         (t?.processesNames || []).join(", ") +
         "\n" +
         [f?.visibleName, t?.name]
           .filter((info) => info && info !== "")
           .join(", ");
     case "Chemical":
-      return (t: Transformation | null, f: CompanyInfo | null) =>
+      return (t: AssetOperation | null, f: CompanyInfo | null) =>
         (t?.processesNames || []).join(", ") +
         "\n" +
         [f?.visibleName, t?.name]
           .filter((info) => info && info !== "")
           .join(", ");
     case "Recycled":
-      return (t: Transformation | null, f: CompanyInfo | null) =>
+      return (t: AssetOperation | null, f: CompanyInfo | null) =>
         (t?.processesNames || []).join(", ") +
         "\n" +
         [f?.visibleName, t?.name]
           .filter((info) => info && info !== "")
           .join(", ");
     case "Quality":
-      return (t: Transformation | null, f: CompanyInfo | null) =>
+      return (t: AssetOperation | null, f: CompanyInfo | null) =>
         (t?.processesNames || []).join(", ") +
         "\n" +
         [f?.visibleName, t?.name]
           .filter((info) => info && info !== "")
           .join(", ");
     case "Social":
-      return (t: Transformation | null, f: CompanyInfo | null) =>
+      return (t: AssetOperation | null, f: CompanyInfo | null) =>
         (t?.processesNames || []).join(", ") +
         "\n" +
         [f?.visibleName, t?.name]
           .filter((info) => info && info !== "")
           .join(", ");
     default:
-      return (t: Transformation | null, f: CompanyInfo | null) =>
+      return (t: AssetOperation | null, f: CompanyInfo | null) =>
         (t?.processesNames || []).join(", ") +
         "\n" +
         [f?.visibleName, t?.name]
@@ -223,7 +223,7 @@ const findSourceTrades = (
 };
 
 const findCompany = (
-  transformation: Transformation | undefined,
+  transformation: AssetOperation | undefined,
   supplyChainInfo: SupplyChainInfo,
 ) => {
   if (!transformation) return undefined;
@@ -245,7 +245,7 @@ export const findTransformation = (
 };
 
 export const expandTransformation = async (
-  transformation: Transformation,
+  transformation: AssetOperation,
   to_node: Node,
   supplyChainInfo: SupplyChainInfo,
 ): Promise<{ nodes: Node[]; edges: Edge[] }> => {

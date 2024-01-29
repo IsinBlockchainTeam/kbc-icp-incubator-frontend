@@ -1,6 +1,6 @@
 import Certificate from "./Certificate";
 
-class Transformation {
+class AssetOperation {
     id: number;
     name: string;
     product_category: string;
@@ -36,4 +36,4 @@ class Transformation {
     }
 }
 
-export default Transformation;
+export default AssetOperation;

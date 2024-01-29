@@ -8,7 +8,7 @@ import DatePicker from "../../../components/DatePicker/DatePicker";
 import {useNavigate, useParams} from "react-router-dom";
 import {ConfirmationCertificationPresentable, TransformationPlanPresentable} from "@unece/cotton-fetch";
 import {TransformationService} from "../../../api/services/TransformationService";
-import {LegacyTransformationStrategy} from "../../../api/strategies/transformation/LegacyTransformationStrategy";
+import {LegacyAssetOperationStrategy} from "../../../api/strategies/asset_operation/LegacyAssetOperationStrategy";
 import {CertificationService} from "../../../api/services/CertificationService";
 import {LegacyCertificationStrategy} from "../../../api/strategies/certification/LegacyCertificationStrategy";
 
@@ -19,7 +19,7 @@ export const LegacyTransformationView = () => {
     const [transformation, setTransformation] = useState<TransformationPlanPresentable>();
     const [certifications, setCertifications] = useState<ConfirmationCertificationPresentable[]>([]);
     const getTransformationInfo = async (id: number) => {
-        const transformationService = new TransformationService(new LegacyTransformationStrategy());
+        const transformationService = new TransformationService(new LegacyAssetOperationStrategy());
         const resp = await transformationService.getTransformationById(id);
         resp && setTransformation(resp);
     }

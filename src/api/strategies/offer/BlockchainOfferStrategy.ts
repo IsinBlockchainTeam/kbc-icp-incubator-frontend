@@ -17,6 +17,6 @@ export class BlockchainOfferStrategy extends Strategy implements OfferStrategy<O
         return offers.map(o => new OfferPresentable()
             .setId(o.id)
             .setOwner(o.owner)
-            .setProductCategory(o.productCategory));
+            .setProductCategory(o.productCategory.name));
     }
 }
