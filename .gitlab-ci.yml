@@ -6,6 +6,13 @@ stages:
 unit-test:
   stage: test
   before_script: 
+    - npm config set @blockchain-lib:registry https://$BLOCKCHAIN_LIB_REGISTRY_DOMAIN
+    - npm config set -- "//$BLOCKCHAIN_LIB_REGISTRY_DOMAIN:_authToken" "$BLOCKCHAIN_LIB_REGISTRY_READ_TOKEN"
+    - npm config set @kbc-lib:registry https://$COFFEE_TRADING_LIB_REGISTRY_DOMAIN
+    - npm config set -- "//$COFFEE_TRADING_LIB_REGISTRY_DOMAIN:_authToken" "$COFFEE_TRADING_LIB_REGISTRY_READ_TOKEN"
+    - npm config set @unece:registry https://$UNECE_COTTON_FETCH_REGISTRY_DOMAIN
+    - npm config set -- "//$UNECE_COTTON_FETCH_REGISTRY_DOMAIN:_authToken" "$UNECE_COTTON_FETCH_REGISTRY_READ_TOKEN"
+
     - npm install
   only:
     - dev

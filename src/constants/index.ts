@@ -8,8 +8,8 @@ export const storage = {
 };
 
 export const requestPath = {
-  MATTR_PROXY_BASE_URL: `${process.env.REACT_APP_LOCAL_DEV ? checkAndGetEnvironmentVariable(process.env.REACT_APP_MATTR_PROXY_URL, "Mattr proxy URL must be defined") : '/mattr'}/api`,
-  BACKEND_BASE_URL: `${process.env.REACT_APP_LOCAL_DEV ? checkAndGetEnvironmentVariable(process.env.REACT_APP_BACKEND_URL, "UNECE backend URL must be defined") : '/unece'}/api`,
+  MATTR_PROXY_BASE_URL: `${checkAndGetEnvironmentVariable(process.env.REACT_APP_MATTR_PROXY_URL, "Mattr proxy URL must be defined")}/api`,
+  BACKEND_BASE_URL: `${checkAndGetEnvironmentVariable(process.env.REACT_APP_BACKEND_URL, "UNECE backend URL must be defined")}/api`,
 };
 
 export const contractAddresses = {
