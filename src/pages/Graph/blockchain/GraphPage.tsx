@@ -47,7 +47,9 @@ export const GraphPage = () => {
         g.setGraph({ rankdir: 'LR' });
         (async () => {
             const graphService = new GraphService(new BlockchainGraphStrategy());
-            const result = await graphService.computeGraph(parseInt(materialId!), supplier);
+            console.log("Requesting graph for material", materialId);
+            const result = await graphService.computeGraph(parseInt(materialId!));
+            console.log("GRAPH", result)
 
             result.nodes.forEach(node => {
                 g.setNode(node.resourceId, {width: nodeWidth, height: nodeHeight});

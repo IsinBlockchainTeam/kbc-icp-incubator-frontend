@@ -11,6 +11,6 @@ export class BlockchainGraphStrategy extends Strategy implements GraphStrategy<G
     }
 
     async computeGraph(materialId: number, supplier?: string): Promise<GraphData> {
-        return this._graphService.computeGraph(supplier || this._walletAddress, materialId);
+        return this._graphService.computeGraph(materialId);
     }
 }

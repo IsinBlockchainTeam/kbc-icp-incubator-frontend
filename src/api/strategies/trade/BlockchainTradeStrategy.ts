@@ -44,13 +44,8 @@ export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<T
     // }
 
     async getGeneralTrades(): Promise<TradePresentable[]> {
-        console.log("getGeneralTrades")
         const trades: Map<string, TradeType> = await this._tradeManagerService.getTradesAndTypes();
-        console.log("TYPE", await this._tradeManagerService.getTradeType(1));
-        console.log("TYPE", await this._tradeManagerService.getTradeType(2));
         let tradePresentables: TradePresentable[] = [];
-
-        console.log("trades: ", trades)
 
         const processTrades = async () => {
             for (const [address, type] of trades) {
