@@ -13,13 +13,23 @@ import styles from "./Graph.module.scss";
 import {Radio, RadioChangeEvent} from 'antd';
 import 'reactflow/dist/style.css';
 import {useLocation, useParams} from "react-router-dom";
-import {BlockchainGraphStrategy} from "../../../api/strategies/graph/BlockchainGraphStrategy";
+import {
+    BlockchainGraphData,
+    BlockchainGraphStrategy,
+} from "../../../api/strategies/graph/BlockchainGraphStrategy";
 import {GraphService} from "../../../api/services/GraphService";
 
 const MapNode = memo(() => {
     return (
         <div
-            style={{height: 666, width: 1010, backgroundImage: 'url(/world.svg)', backgroundSize: 'cover', backgroundRepeat: 'no-repeat', backgroundPosition: 'center'}}
+            style={{
+                height: 666,
+                width: 1010,
+                backgroundImage: 'url(/world.svg)',
+                backgroundSize: 'cover',
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'center'
+            }}
         />
     );
 });
@@ -34,7 +44,7 @@ const nodeWidth = 172;
 const nodeHeight = 36;
 
 export const GraphPage = () => {
-    const { materialId } = useParams();
+    const {materialId} = useParams();
     const location = useLocation();
     const [graphType, setGraphType] = useState('simple');
 
@@ -44,15 +54,13 @@ export const GraphPage = () => {
     const supplier = new URLSearchParams(location.search).get('supplier');
 
     useEffect(() => {
-        g.setGraph({ rankdir: 'LR' });
+        g.setGraph({rankdir: 'LR'});
         (async () => {
             const graphService = new GraphService(new BlockchainGraphStrategy());
-            console.log("Requesting graph for material", materialId);
-            const result = await graphService.computeGraph(parseInt(materialId!));
-            console.log("GRAPH", result)
+            const result: BlockchainGraphData = await graphService.computeGraph(parseInt(materialId!));
 
             result.nodes.forEach(node => {
-                g.setNode(node.resourceId, {width: nodeWidth, height: nodeHeight});
+                g.setNode(node.name, {width: nodeWidth, height: nodeHeight});
             });
             result.edges.forEach(edge => {
                 g.setEdge(edge.from, edge.to);
@@ -63,12 +71,12 @@ export const GraphPage = () => {
             Dagre.layout(g);
 
             const tempNodes: Array<Node> = result.nodes.map(node => ({
-                id: node.resourceId,
+                id: node.name,
                 position: {
-                    x: g.node(node.resourceId).x,
-                    y: g.node(node.resourceId).y
+                    x: g.node(node.name).x,
+                    y: g.node(node.name).y
                 },
-                data: {label: node.resourceId},
+                data: {label: node.name},
                 sourcePosition: Position.Right,
                 targetPosition: Position.Left,
                 zIndex: 2,
@@ -105,9 +113,9 @@ export const GraphPage = () => {
     return (
         <>
             GraphPage type: <Radio.Group value={graphType} onChange={handleGraphTypeChange} style={{marginBottom: 10}}>
-                <Radio.Button value="simple">Simple</Radio.Button>
-                <Radio.Button value="map">Map</Radio.Button>
-            </Radio.Group>
+            <Radio.Button value="simple">Simple</Radio.Button>
+            <Radio.Button value="map">Map</Radio.Button>
+        </Radio.Group>
             <CardPage title="GraphPage">
 
                 <div className={styles.GraphContainer}>
