@@ -1,23 +1,22 @@
 import React, {memo, useEffect, useState} from "react";
 import Dagre from '@dagrejs/dagre';
 import ReactFlow, {
-    Background, BackgroundVariant,
+    Background,
+    BackgroundVariant,
+    Node,
     Position,
     ReactFlowProvider,
     useEdgesState,
-    useNodesState,
-    Node
+    useNodesState
 } from 'reactflow';
 import {CardPage} from "../../../components/structure/CardPage/CardPage";
 import styles from "./Graph.module.scss";
 import {Radio, RadioChangeEvent} from 'antd';
 import 'reactflow/dist/style.css';
 import {useLocation, useParams} from "react-router-dom";
-import {
-    BlockchainGraphData,
-    BlockchainGraphStrategy,
-} from "../../../api/strategies/graph/BlockchainGraphStrategy";
+import {BlockchainGraphData, BlockchainGraphStrategy,} from "../../../api/strategies/graph/BlockchainGraphStrategy";
 import {GraphService} from "../../../api/services/GraphService";
+import {AssetOperationType} from "@kbc-lib/coffee-trading-management-lib";
 
 const MapNode = memo(() => {
     return (
@@ -51,8 +50,6 @@ export const GraphPage = () => {
     const [nodes, setNodes, onNodesChange] = useNodesState([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
-    const supplier = new URLSearchParams(location.search).get('supplier');
-
     useEffect(() => {
         g.setGraph({rankdir: 'LR'});
         (async () => {
@@ -76,12 +73,13 @@ export const GraphPage = () => {
                     x: g.node(node.name).x,
                     y: g.node(node.name).y
                 },
+                type: node.type.toString(),
+                style: { background: node.type === AssetOperationType.TRANSFORMATION ? '#ADD8E6' : '#90EE90' },
                 data: {label: node.name},
                 sourcePosition: Position.Right,
                 targetPosition: Position.Left,
                 zIndex: 2,
                 draggable: graphType !== 'map',
-                style: {background: '#ADD8E6'},
             }))
             if (graphType === 'map') {
                 tempNodes.push({
