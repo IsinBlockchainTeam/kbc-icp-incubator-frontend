@@ -10,8 +10,6 @@ import {Link} from "react-router-dom";
 import {getEnumKeyByValue, setParametersPath} from "../../../utils/utils";
 import {paths} from "../../../constants";
 import {TradeType} from "@kbc-lib/coffee-trading-management-lib";
-import {TradeLinePresentable} from "../../../api/types/TradeLinePresentable";
-import {MaterialPresentable} from "../../../api/types/MaterialPresentable";
 
 export const Trades = () => {
     const [trades, setTrades] = React.useState<TradePresentable[]>();
@@ -19,7 +17,6 @@ export const Trades = () => {
         try {
             const tradeService = new TradeService(new BlockchainTradeStrategy());
             const trades = await tradeService.getGeneralTrades();
-            console.log("trades: ", trades)
 
             setTrades(trades.map(t => {
                 // @ts-ignore

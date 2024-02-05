@@ -1,5 +1,5 @@
 import styles from "./Login.module.scss";
-import { QRCode, Space, Timeline } from "antd";
+import {Button, QRCode, Space, Timeline} from "antd";
 import React, { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { request } from "../../utils/request";
@@ -29,6 +29,10 @@ export const MattrLogin = () => {
   };
 
   const handleUpdateSubjectClaims = (subjectClaims: OrganizationCredential) => {
+    subjectClaims.podServerUrl = "https://localhost/";
+    subjectClaims.podClientId = "consortium_cc4abc0a-ac60-4367-9790-f61a51ce2ada";
+    subjectClaims.podClientSecret = "119c831ba0445bbde59aaea030646fb11f9fdbd1728a852fbede580ff646f689f6a43514bde27a8227568a9d0622ba65abf56df986c18a7959e17ddee34100fb";
+    console.log("fake login: ", subjectClaims);
     dispatch(updateSubjectClaims(subjectClaims));
   };
 
@@ -115,6 +119,8 @@ export const MattrLogin = () => {
           size={300}
         />
       </Space>
+      {/* TODO: to remove and also hard coded data  */}
+      <Button onClick={() => handleUpdateSubjectClaims({})}>Fake Login</Button>
     </div>
   );
 };

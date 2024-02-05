@@ -2,10 +2,8 @@ import React, { useEffect } from "react";
 import { Worker } from "@react-pdf-viewer/core";
 import Routes from "./routes/routes";
 import {
-  getAPIToken,
-  getMattrAPIToken,
-  setAPIToken,
-  setMattrAPIToken,
+  getMattrAPIToken, getUneceAPIToken, isBlockchainViewMode,
+  setMattrAPIToken, setUneceAPIToken,
 } from "./utils/storage";
 import InfoControllerApi from "./api/controllers/unece/InfoControllerApi";
 import { mattrAuthenticationController } from "./api";
@@ -17,10 +15,10 @@ export const App = () => {
       if (resp.access_token) setMattrAPIToken(resp.access_token);
     }
 
-    if (!getAPIToken()) {
+    if (!getUneceAPIToken() && !isBlockchainViewMode()) {
       const username = "evandro", password = "user";
       const resp = await InfoControllerApi.login({ username, password });
-      if (resp.token) setAPIToken(resp.token);
+      if (resp.token) setUneceAPIToken(resp.token);
     }
   };
 

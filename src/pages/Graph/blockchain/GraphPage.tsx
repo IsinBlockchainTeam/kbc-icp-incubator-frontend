@@ -56,10 +56,10 @@ export const GraphPage = () => {
             const graphService = new GraphService(new BlockchainGraphStrategy());
             const result: BlockchainGraphData = await graphService.computeGraph(parseInt(materialId!));
 
-            result.nodes.forEach(node => {
+            result.nodes.forEach((node: any) => {
                 g.setNode(node.name, {width: nodeWidth, height: nodeHeight});
             });
-            result.edges.forEach(edge => {
+            result.edges.forEach((edge: any) => {
                 g.setEdge(edge.from, edge.to);
             });
 
@@ -67,7 +67,7 @@ export const GraphPage = () => {
 
             Dagre.layout(g);
 
-            const tempNodes: Array<Node> = result.nodes.map(node => ({
+            const tempNodes: Array<Node> = result.nodes.map((node: any) => ({
                 id: node.name,
                 position: {
                     x: g.node(node.name).x,
@@ -93,7 +93,7 @@ export const GraphPage = () => {
                 })
             }
             setNodes(tempNodes);
-            setEdges(result.edges.map(edge => ({
+            setEdges(result.edges.map((edge: any) => ({
                 id: edge.from + '-' + edge.to,
                 source: edge.from,
                 target: edge.to,

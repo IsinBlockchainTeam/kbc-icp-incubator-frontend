@@ -1,11 +1,17 @@
 import { createSlice } from "@reduxjs/toolkit";
+import {CompanyPodInfo} from "../../api/types/solid";
+
+type State = {
+  subjectDid: string;
+  subjectClaims: CompanyPodInfo | undefined;
+}
 
 const authSlice = createSlice({
   name: "auth",
   initialState: {
     subjectDid: "",
-    subjectClaims: null,
-  },
+    subjectClaims: undefined,
+  } as State,
   reducers: {
     updateSubjectDid: (state, action) => {
       state.subjectDid = action.payload;

@@ -19,10 +19,9 @@ import {
     TradeManagerDriver,
     TradeManagerService,
     AssetOperationDriver,
-    AssetOperationService,
+    AssetOperationService, TradeService, TradeDriver,
 } from "@kbc-lib/coffee-trading-management-lib";
-import {IPFSService, PinataIPFSDriver} from '@blockchain-lib/common';
-import {contractAddresses, pinataConfiguration} from "../constants";
+import {contractAddresses} from "../constants";
 import {getWalletAddress} from "../utils/storage";
 
 
@@ -47,6 +46,11 @@ export class BlockchainLibraryUtils {
         return new TradeManagerService(tradeManagerDriver);
     }
 
+    static getTradeService = (tradeContractAddress: string): TradeService => {
+        const tradeDriver = new TradeDriver(this._getSigner(), tradeContractAddress);
+        return new TradeService(tradeDriver);
+    }
+
     static getBasicTradeService = (address: string): BasicTradeService => {
         const basicTradeDriver: BasicTradeDriver = new BasicTradeDriver(this._getSigner(), address, contractAddresses.MATERIAL(), contractAddresses.PRODUCT_CATEGORY());
         return new BasicTradeService(basicTradeDriver)
@@ -68,12 +72,7 @@ export class BlockchainLibraryUtils {
     }
 
     static getGraphService = (): GraphService => {
-        return new GraphService(this._getSigner(), BlockchainLibraryUtils.getTradeManagerService(), BlockchainLibraryUtils.getAssetOperationService());
-    }
-
-    static getIPFSService = (): IPFSService => {
-        const pinataDriver = new PinataIPFSDriver(pinataConfiguration.API_KEY(), pinataConfiguration.SECRET_API_KEY(), pinataConfiguration.API_GATEWAY_URL(), pinataConfiguration.API_GATEWAY_TOKEN());
-        return new IPFSService(pinataDriver);
+        return new GraphService(BlockchainLibraryUtils.getTradeManagerService(), BlockchainLibraryUtils.getAssetOperationService(), this._getSigner());
     }
 
     static getOfferService = (): OfferService => {

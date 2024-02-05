@@ -15,26 +15,39 @@ import {DocumentService} from "../../../api/services/DocumentService";
 import {BlockchainDocumentStrategy} from "../../../api/strategies/document/BlockchainDocumentStrategy";
 import {TradeType} from "@kbc-lib/coffee-trading-management-lib";
 import {getWalletAddress} from "../../../utils/storage";
+import {useSelector} from "react-redux";
+import {RootState} from "../../../redux/types";
+import {NotificationType, openNotification} from "../../../utils/notification";
 
 export const TradeView = () => {
     const navigate = useNavigate();
     const {id} = useParams();
     const location = useLocation();
     const type = parseInt(new URLSearchParams(location.search).get('type')!);
+    const subjectClaims = useSelector((state: RootState) => state.auth.subjectClaims);
 
     const [trade, setTrade] = useState<TradePresentable>();
     const [documents, setDocuments] = useState<DocumentPresentable[]>();
     const [loadingDocuments, setLoadingDocuments] = useState<boolean>(true);
 
     const getTradeInfo = async (id: number, type: number) => {
-        const tradeService = new TradeService(new BlockchainTradeStrategy());
+        const tradeService = new TradeService(new BlockchainTradeStrategy({
+            serverUrl: subjectClaims!.podServerUrl!,
+            clientId: subjectClaims!.podClientId!,
+            clientSecret: subjectClaims!.podClientSecret!
+        }));
         const resp = await tradeService.getTradeByIdAndType(id, type);
         resp && setTrade(resp);
     }
 
     const getTradeDocuments = async (id: number) => {
-        const documentService = new DocumentService(new BlockchainDocumentStrategy());
+        const documentService = new DocumentService(new BlockchainDocumentStrategy({
+            serverUrl: subjectClaims!.podServerUrl!,
+            clientId: subjectClaims!.podClientId!,
+            clientSecret: subjectClaims!.podClientSecret!
+        }));
         const resp = await documentService.getDocumentsByTransactionIdAndType(id, 'trade');
+        console.log("documents: ", resp)
         resp && setDocuments(resp);
     }
 
@@ -44,6 +57,10 @@ export const TradeView = () => {
     }
 
     useEffect(() => {
+        if (!subjectClaims || !(subjectClaims.podClientSecret && subjectClaims.podClientId && subjectClaims.podServerUrl)) {
+            openNotification("Error", "No information about company storage", NotificationType.ERROR);
+            return;
+        }
         (async () => {
             await getTradeInfo(parseInt(id!), type);
             await getTradeDocuments(parseInt(id!));

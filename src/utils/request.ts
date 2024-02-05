@@ -1,9 +1,9 @@
-import { getAPIToken, getMattrAPIToken } from "./storage";
+import { getUneceAPIToken, getMattrAPIToken } from "./storage";
 
 export const request = async (
-  url: string,
-  options: any,
-  contentType = "application/json",
+    url: string,
+    options: any,
+    contentType = "application/json",
 ): Promise<any> => {
   let headers = {
     "Content-Type": contentType,
@@ -19,12 +19,12 @@ export const request = async (
       "x-api-token-info": getMattrAPIToken(),
     };
   }
-  if (getAPIToken()) {
+  if (getUneceAPIToken()) {
     // @ts-ignore
     headers = {
       ...headers,
       // @ts-ignore
-      Authorization: "Bearer " + getAPIToken(),
+      Authorization: "Bearer " + getUneceAPIToken(),
     };
   }
   // options = {

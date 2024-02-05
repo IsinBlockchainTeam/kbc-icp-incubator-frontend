@@ -1,7 +1,8 @@
 import { checkAndGetEnvironmentVariable } from "../utils/utils";
 
 export const storage = {
-  API_TOKEN: "API_TOKEN",
+  UNECE_API_TOKEN: "UNECE_API_TOKEN",
+  SOLID_API_TOKEN: "SOLID_API_TOKEN",
   MATTR_API_TOKEN: "MATTR_API_TOKEN",
   WALLET_ADDRESS: "WALLET_ADDRESS",
   BLOCKCHAIN_VIEW_MODE: "BLOCKCHAIN_VIEW_MODE",
@@ -9,6 +10,7 @@ export const storage = {
 
 export const requestPath = {
   MATTR_PROXY_BASE_URL: `${process.env.REACT_APP_LOCAL_DEV ? checkAndGetEnvironmentVariable(process.env.REACT_APP_MATTR_PROXY_URL, "Mattr proxy URL must be defined") : '/mattr'}/api`,
+  BC_SYNC_BASE_URL: `${process.env.REACT_APP_BC_SYNC_URL ? checkAndGetEnvironmentVariable(process.env.REACT_APP_BC_SYNC_URL, "Blockchain sync URL must be defined") : '/bcsync'}/api`,
   BACKEND_BASE_URL: `${process.env.REACT_APP_LOCAL_DEV ? checkAndGetEnvironmentVariable(process.env.REACT_APP_BACKEND_URL, "UNECE backend URL must be defined") : '/unece'}/api`,
 };
 
@@ -21,29 +23,6 @@ export const contractAddresses = {
     DOCUMENT: () => checkAndGetEnvironmentVariable(process.env.REACT_APP_CONTRACT_DOCUMENT, "Document contract address must be defined"),
     OFFER: () => checkAndGetEnvironmentVariable(process.env.REACT_APP_CONTRACT_OFFER, "Offer contract address must be defined")
 }
-
-export const pinataConfiguration = {
-  API_KEY: () =>
-    checkAndGetEnvironmentVariable(
-      process.env.REACT_APP_PINATA_API_KEY,
-      "Pinata API key must be defined",
-    ),
-  SECRET_API_KEY: () =>
-    checkAndGetEnvironmentVariable(
-      process.env.REACT_APP_PINATA_SECRET_API_KEY,
-      "Pinata secret API key must be defined",
-    ),
-  API_GATEWAY_URL: () =>
-    checkAndGetEnvironmentVariable(
-      process.env.REACT_APP_PINATA_GATEWAY_URL,
-      "Pinata API gateway url must be defined",
-    ),
-  API_GATEWAY_TOKEN: () =>
-    checkAndGetEnvironmentVariable(
-      process.env.REACT_APP_PINATA_GATEWAY_TOKEN,
-      "Pinata API gateway token must be defined",
-    ),
-};
 
 export const paths = {
   HOME: "/",

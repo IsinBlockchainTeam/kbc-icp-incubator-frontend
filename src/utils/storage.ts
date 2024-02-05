@@ -1,4 +1,5 @@
 import {storage} from "../constants";
+import { SolidToken } from '../api/types/solid';
 
 export const getMattrAPIToken = (): string | null => {
     return sessionStorage.getItem(storage.MATTR_API_TOKEN);
@@ -8,12 +9,31 @@ export const setMattrAPIToken = (token: string) => {
     sessionStorage.setItem(storage.MATTR_API_TOKEN, token);
 }
 
-export const getAPIToken = (): string | null => {
-    return sessionStorage.getItem(storage.API_TOKEN);
+export const getUneceAPIToken = (): string | null => {
+    return sessionStorage.getItem(storage.UNECE_API_TOKEN);
 }
 
-export const setAPIToken = (token: string) => {
-    sessionStorage.setItem(storage.API_TOKEN, token);
+export const setUneceAPIToken = (token: string) => {
+    sessionStorage.setItem(storage.UNECE_API_TOKEN, token);
+}
+
+export const getSolidAPIToken = async (): Promise<SolidToken | null> => {
+    const token = sessionStorage.getItem(storage.SOLID_API_TOKEN);
+    if (!token) return null;
+    const solidToken = JSON.parse(token);
+    const keyPair = await window.crypto.subtle.generateKey(solidToken.dpopKey.privateKey.algorithm, solidToken.dpopKey.privateKey.extractable, solidToken.dpopKey.privateKey.usages)
+    return {...solidToken, dpopKey: {...solidToken.dpopKey, privateKey: keyPair.privateKey}};
+}
+
+export const setSolidAPIToken = (token: SolidToken) => {
+    let dpopPrivateKey = token.dpopKey.privateKey as CryptoKey;
+    const privateKey = {
+        algorithm: dpopPrivateKey.algorithm,
+        extractable: dpopPrivateKey.extractable,
+        type: dpopPrivateKey.type,
+        usages: dpopPrivateKey.usages,
+    }
+    sessionStorage.setItem(storage.SOLID_API_TOKEN, JSON.stringify({...token, dpopKey: {...token.dpopKey, privateKey}}));
 }
 
 export const setWalletAddress = (address: string) => {
