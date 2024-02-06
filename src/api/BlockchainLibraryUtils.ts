@@ -72,7 +72,7 @@ export class BlockchainLibraryUtils {
     }
 
     static getGraphService = (): GraphService => {
-        return new GraphService(BlockchainLibraryUtils.getTradeManagerService(), BlockchainLibraryUtils.getAssetOperationService(), this._getSigner());
+        return new GraphService(this._getSigner(), BlockchainLibraryUtils.getTradeManagerService(), BlockchainLibraryUtils.getAssetOperationService());
     }
 
     static getOfferService = (): OfferService => {
