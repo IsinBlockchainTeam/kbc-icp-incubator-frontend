@@ -19,7 +19,6 @@ import {
     TransformationDriver,
     TransformationService,
 } from "@kbc-lib/coffee-trading-management-lib";
-import {IPFSService, PinataIPFSDriver} from '@blockchain-lib/common';
 import {contractAddresses, pinataConfiguration} from "../constants";
 import {getWalletAddress} from "../utils/storage";
 
@@ -62,11 +61,6 @@ export class BlockchainLibraryUtils {
 
     static getGraphService = (): GraphService => {
         return new GraphService(BlockchainLibraryUtils.getTradeManagerService(), BlockchainLibraryUtils.getTransformationService(), this._getSigner());
-    }
-
-    static getIPFSService = (): IPFSService => {
-        const pinataDriver = new PinataIPFSDriver(pinataConfiguration.API_KEY(), pinataConfiguration.SECRET_API_KEY(), pinataConfiguration.API_GATEWAY_URL(), pinataConfiguration.API_GATEWAY_TOKEN());
-        return new IPFSService(pinataDriver);
     }
 
     static getOfferService = (): OfferService => {
