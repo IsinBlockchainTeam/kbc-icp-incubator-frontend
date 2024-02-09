@@ -56,6 +56,8 @@ export const GraphPage = () => {
             const graphService = new GraphService(new BlockchainGraphStrategy());
             const result: BlockchainGraphData = await graphService.computeGraph(parseInt(materialId!));
 
+            console.log(result)
+
             result.nodes.forEach((node: any) => {
                 g.setNode(node.name, {width: nodeWidth, height: nodeHeight});
             });
@@ -73,7 +75,6 @@ export const GraphPage = () => {
                     x: g.node(node.name).x,
                     y: g.node(node.name).y
                 },
-                type: node.type.toString(),
                 style: { background: node.type === AssetOperationType.TRANSFORMATION ? '#ADD8E6' : '#90EE90' },
                 data: {label: node.name},
                 sourcePosition: Position.Right,

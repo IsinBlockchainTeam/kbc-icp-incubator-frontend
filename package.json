@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@auth0/auth0-react": "^2.1.1",
-    "@kbc-lib/coffee-trading-management-lib": "1.0.8",
+    "@kbc-lib/coffee-trading-management-lib": "file:../coffee-trading-management-lib/src",
     "@dagrejs/dagre": "^1.0.2",
     "@inrupt/solid-client": "^2.0.0",
     "@inrupt/solid-client-authn-browser": "^2.0.0",
