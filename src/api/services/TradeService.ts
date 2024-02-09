@@ -49,4 +49,9 @@ export class TradeService<T, R> extends Service {
         return this._strategy.getShippingById!(id);
     }
 
+    async putBasicTrade(id: number, trade: T): Promise<void> {
+        this.checkMethodImplementation(this._strategy.putBasicTrade);
+        return this._strategy.putBasicTrade!(id, trade);
+    }
+
 }

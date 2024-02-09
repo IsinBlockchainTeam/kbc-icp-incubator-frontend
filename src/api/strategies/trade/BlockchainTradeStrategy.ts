@@ -1,6 +1,8 @@
 import {TradeStrategy} from "./TradeStrategy";
 import {TradePresentable} from "../../types/TradePresentable";
 import {
+    BasicTrade,
+    BasicTradeService,
     IConcreteTradeService,
     Line,
     Trade, TradeManagerService,
@@ -127,6 +129,7 @@ export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<T
 
                     trade
                         .setId(resp.tradeId)
+                        .setCommissioner(resp.commissioner)
                         .setCustomer(resp.customer)
                         .setIncoterms(orderMetadata.incoterms)
                         .setPaymentDeadline(new Date(resp.paymentDeadline))
@@ -154,5 +157,13 @@ export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<T
                 throw new CustomError(HttpStatusCode.BAD_REQUEST, "Wrong trade type");
         }
         return trade;
+    }
+
+    async putBasicTrade(id: number, trade: TradePresentable): Promise<void> {
+        this.checkService(this._solidService);
+        const tradeManagerService: TradeManagerService = BlockchainLibraryUtils.getTradeManagerService();
+        const tradeService: BasicTradeService = BlockchainLibraryUtils.getBasicTradeService(await tradeManagerService.getTrade(id));
+        const oldTrade: BasicTrade = await tradeService.getTrade();
+        oldTrade.name !== trade.name && await tradeService.setName(trade.name!);
     }
 }
