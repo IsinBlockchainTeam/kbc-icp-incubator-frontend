@@ -44,6 +44,7 @@ export const paths = {
   CERTIFICATIONS: "/certifications",
   CERTIFICATION_VIEW: "/certifications/:type/:id",
   TRADES: "/trades",
+  TRADE_NEW: "/trades/new",
   TRADE_VIEW: "/trades/:id",
 };
 

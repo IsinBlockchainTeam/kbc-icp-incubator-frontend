@@ -28,6 +28,7 @@ import LegacyCertifications from "../pages/transactions/legacy/certifications/Le
 import LegacyCertificationView from "../pages/transactions/legacy/certifications/LegacyCertificationView";
 import TradeView from "../pages/transactions/blockchain/TradeView";
 import Offers from "../pages/offers/Offers";
+import {TradeNew} from "../pages/transactions/blockchain/TradeNew";
 
 export default () => {
 
@@ -49,6 +50,7 @@ export default () => {
                     <Route path={paths.OFFERS} element={<Offers />}/>
                     <Route path={paths.MATERIALS} element={<Materials />}/>
                     <Route path={paths.TRADES} element={<Trades />}/>
+                    <Route path={paths.TRADE_NEW} element={<TradeNew />}/>
                     <Route path={paths.TRADE_VIEW} element={<TradeView />}/>
                     <Route path={paths.CERTIFICATIONS} element={<LegacyCertifications />}/>
                     <Route path={paths.CERTIFICATION_VIEW} element={<LegacyCertificationView />}/>

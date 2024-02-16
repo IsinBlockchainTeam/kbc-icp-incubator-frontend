@@ -4,7 +4,7 @@ import * as React from "react";
 
 type Props = {
     children?: any,
-    title: React.ReactNode
+    title: React.ReactNode,
 }
 
 export const CardPage = (props: Props) => {

@@ -18,5 +18,7 @@ export interface TradeStrategy<T, R> {
 
     putBasicTrade?: (id: number, trade: T) => Promise<void>;
 
+    saveBasicTrade?: (trade: T) => Promise<void>;
+
     putOrderTrade?: (trade: T) => Promise<void>;
 }

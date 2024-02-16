@@ -16,6 +16,7 @@ import {RootState} from "../../../redux/types";
 import {NotificationType, openNotification} from "../../../utils/notification";
 import {FormElement, FormElementType, GenericForm} from "../../../components/GenericForm/GenericForm";
 import {EditOutlined} from "@ant-design/icons";
+import {paths} from "../../../constants";
 
 export const TradeView = () => {
     const navigate = useNavigate();
@@ -105,8 +106,7 @@ export const TradeView = () => {
             required: true,
             defaultValue: trade?.name,
             disabled,
-        });
-        elements.push({type: FormElementType.TITLE, span: 24, label: 'Line Items'},)
+        }, {type: FormElementType.TITLE, span: 24, label: 'Line Items'});
 
         trade?.lines.forEach((line) => elements.push({
                 type: FormElementType.INPUT,
@@ -122,7 +122,8 @@ export const TradeView = () => {
                 span: 4,
                 name: 'button',
                 label: 'Show Supply Chain',
-                disabled: !line.material
+                disabled: !line.material,
+                onClick: () => navigate(`/graph/${line.material?.id}`)
             },
         ));
     } else {

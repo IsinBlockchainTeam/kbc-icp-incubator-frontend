@@ -5,14 +5,17 @@ import {TradeService} from "../../../api/services/TradeService";
 import {BlockchainTradeStrategy} from "../../../api/strategies/trade/BlockchainTradeStrategy";
 import {TradePresentable} from "../../../api/types/TradePresentable";
 import {ColumnsType} from "antd/es/table";
-import {Table, TableProps} from "antd";
-import {Link} from "react-router-dom";
+import {Button, Table, TableProps} from "antd";
+import {Link, useNavigate} from "react-router-dom";
 import {getEnumKeyByValue, setParametersPath} from "../../../utils/utils";
 import {paths} from "../../../constants";
 import {TradeType} from "@kbc-lib/coffee-trading-management-lib";
+import {PlusOutlined} from "@ant-design/icons";
 
 export const Trades = () => {
     const [trades, setTrades] = React.useState<TradePresentable[]>();
+    const navigate = useNavigate();
+
     const loadData = async () => {
         try {
             const tradeService = new TradeService(new BlockchainTradeStrategy());
@@ -23,8 +26,7 @@ export const Trades = () => {
                 t['key'] = `${t.id}_${t.supplier}`;
                 return t;
             }));
-        }
-        catch (e: any) {
+        } catch (e: any) {
             console.log("error: ", e);
             openNotification("Error", e.message, NotificationType.ERROR);
         }
@@ -112,10 +114,18 @@ export const Trades = () => {
     }, []);
 
     return (
-        <CardPage title="Trades">
-            <Table columns={columns} dataSource={trades} onChange={onChange} />
+        <CardPage title={
+            <div
+                style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                Trades
+                <Button type="primary" icon={<PlusOutlined/>} onClick={() => navigate(paths.TRADE_NEW)}>
+                    New Trade
+                </Button>
+            </div>
+        }>
+            <Table columns={columns} dataSource={trades} onChange={onChange}/>
         </CardPage>
-);
+    );
 }
 
 export default Trades;

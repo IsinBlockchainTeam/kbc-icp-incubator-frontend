@@ -5,6 +5,12 @@
   border-radius: 10px;
 }
 
+.TitleWithButton {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 // for column grid inside the card page component
 .ant-col-14 {
   width: 100%;
