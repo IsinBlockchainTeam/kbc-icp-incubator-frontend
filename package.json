@@ -4,11 +4,11 @@
   "private": true,
   "dependencies": {
     "@auth0/auth0-react": "^2.1.1",
-    "@kbc-lib/coffee-trading-management-lib": "1.0.8",
     "@dagrejs/dagre": "^1.0.2",
     "@inrupt/solid-client": "^2.0.0",
     "@inrupt/solid-client-authn-browser": "^2.0.0",
     "@inrupt/solid-client-authn-core": "^2.0.0",
+    "@kbc-lib/coffee-trading-management-lib": "1.0.8",
     "@react-pdf-viewer/core": "^3.12.0",
     "@reduxjs/toolkit": "^1.9.5",
     "@testing-library/jest-dom": "^5.16.5",
@@ -63,6 +63,7 @@
     ]
   },
   "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@types/qrcode": "^1.5.0",
     "@types/uuid": "^9.0.1",
     "prettier": "^3.0.3"

@@ -9,6 +9,11 @@ export class TransformationService<T, R> extends Service {
         this._strategy = strategy;
     }
 
+    async saveTransformation(transformation: T): Promise<void> {
+        this.checkMethodImplementation(this._strategy.saveAssetOperation);
+        await this._strategy.saveAssetOperation!(transformation);
+    }
+
     async getTransformations(): Promise<T[]> {
         return this._strategy.getAssetOperations();
     }
