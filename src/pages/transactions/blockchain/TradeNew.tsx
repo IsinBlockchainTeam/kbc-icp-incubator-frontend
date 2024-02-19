@@ -282,6 +282,7 @@ export const TradeNew = () => {
         }
         if(type === TradeType.BASIC) {
             await tradeService.saveBasicTrade(values);
+            openNotification("Basic trade registered", `Basic trade ${values.name} has been registered correctly!`, NotificationType.SUCCESS, 1);
         }
     }
 

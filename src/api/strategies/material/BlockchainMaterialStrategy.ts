@@ -23,9 +23,7 @@ export class BlockchainMaterialStrategy extends Strategy implements MaterialStra
     }
 
     async getMaterials(): Promise<MaterialPresentable[]> {
-        console.log(this._walletAddress);
         const materials = await this._materialService.getMaterialsOfCreator(this._walletAddress);
-        console.log(materials);
         return materials.map(m =>
             new MaterialPresentable()
                 .setId(m.id)

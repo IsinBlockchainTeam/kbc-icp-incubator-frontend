@@ -20,9 +20,9 @@ export const MaterialNew = () => {
             type: FormElementType.INPUT,
             span: 8,
             name: 'product-category-id',
-            label: 'Product Category Id',
+            label: 'Product Category ID',
             required: true,
-            regex: '[0-9]+',
+            regex: '^\\d+$',
             defaultValue: '',
             disabled: false,
         },
@@ -32,7 +32,7 @@ export const MaterialNew = () => {
     const onSubmit = async (values: any) => {
         const productCategoryId: number = parseInt(values['product-category-id']);
         await materialService.saveMaterial(productCategoryId);
-        openNotification("Material registered", `Material referencing product category with ID "${productCategoryId}" has been registered correctly!`, NotificationType.SUCCESS);
+        openNotification("Material registered", `Material referencing product category with ID "${productCategoryId}" has been registered correctly!`, NotificationType.SUCCESS, 1);
         navigate(paths.MATERIALS);
     }
 

@@ -31,7 +31,7 @@ export const ProductCategoryNew = () => {
             name: 'quality',
             label: 'Quality',
             required: true,
-            regex: '[0-9]+',
+            regex: '^\\d+$',
             defaultValue: '',
             disabled: false,
         },
@@ -48,7 +48,7 @@ export const ProductCategoryNew = () => {
 
     const onSubmit = async (values: any) => {
         await materialService.saveProductCategory(values.name, values.quality, values.description);
-        openNotification("Product category registered", `Product category "${values.name}" has been registered correctly!`, NotificationType.SUCCESS);
+        openNotification("Product category registered", `Product category "${values.name}" has been registered correctly!`, NotificationType.SUCCESS, 1);
         navigate(paths.MATERIALS);
     }
 

@@ -55,8 +55,6 @@ export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<T
         tradeIds.push(...await this._tradeManagerService.getTradeIdsOfCommissioner(this._walletAddress));
         let tradePresentables: TradePresentable[] = [];
 
-        console.log(tradeIds);
-
         if (!tradeIds.length) return tradePresentables;
 
         const tradeContractAddresses = await Promise.all(tradeIds.map(async id => this._tradeManagerService.getTrade(id)));
@@ -120,7 +118,6 @@ export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<T
                         .setType(TradeType.BASIC)
                         .setStatus(await basicTradeService.getTradeStatus())
                 }
-                console.log(resp)
                 break;
             case TradeType.ORDER:
                 const orderTradeService = BlockchainLibraryUtils.getOrderTradeService(address);

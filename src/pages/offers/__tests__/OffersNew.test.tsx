@@ -1,7 +1,7 @@
 import {useNavigate} from "react-router-dom";
-import MaterialNew from "../MaterialNew";
+import {OfferService} from "../../../api/services/OfferService";
+import OffersNew from "../OffersNew";
 import {render, screen, waitFor} from "@testing-library/react";
-import {MaterialService} from "../../../api/services/MaterialService";
 import userEvent from "@testing-library/user-event";
 import {paths} from "../../../constants";
 
@@ -9,55 +9,56 @@ jest.mock('react-router-dom', () => ({
     ...jest.requireActual('react-router-dom'),
     useNavigate: jest.fn(),
 }));
-jest.mock('../../../api/services/MaterialService');
-jest.mock('../../../api/strategies/material/BlockchainMaterialStrategy');
+jest.mock('../../../api/services/OfferService');
+jest.mock('../../../api/strategies/offer/BlockchainOfferStrategy');
 
-
-describe('Materials New', () => {
+describe('Offers New', () => {
     const navigate = jest.fn();
-    const mockedSaveMaterial = jest.fn();
+    const mockedSaveOffer = jest.fn();
 
     beforeEach(() => {
         (useNavigate as jest.Mock).mockReturnValue(navigate);
-        (MaterialService as jest.Mock).mockImplementation(() => ({
-            saveMaterial: mockedSaveMaterial
+        (OfferService as jest.Mock).mockImplementation(() => ({
+            saveOffer: mockedSaveOffer
         }));
         jest.spyOn(console, 'log').mockImplementation(jest.fn());
         jest.spyOn(console, 'error').mockImplementation(jest.fn());
         jest.clearAllMocks();
-    })
+    });
 
     it('should render correctly', () => {
-        render(<MaterialNew />);
+        render(<OffersNew />);
 
-        expect(screen.getByText('New Material')).toBeInTheDocument();
-        expect(screen.getByRole('button', {name: 'delete Delete Material'})).toBeInTheDocument();
+        expect(screen.getByText('New Offer')).toBeInTheDocument();
+        expect(screen.getByRole('button', {name: 'delete Delete Offer'})).toBeInTheDocument();
         expect(screen.getByText('Data')).toBeInTheDocument();
+        expect(screen.getByText('Offeror Company Address')).toBeInTheDocument();
         expect(screen.getByText('Product Category ID')).toBeInTheDocument();
         expect(screen.getByRole('button', {name: 'Submit'})).toBeInTheDocument();
     });
 
     it('should call onSubmit function when clicking on submit button', async () => {
-        render(<MaterialNew />);
+        render(<OffersNew />);
 
+        userEvent.type(screen.getByRole('textbox', {name: 'Offeror Company Address'}), '0x1234567890123456789012345678901234567890');
         userEvent.type(screen.getByRole('textbox', {name: 'Product Category ID'}), '1');
         userEvent.click(screen.getByRole('button', {name: 'Submit'}));
 
         await waitFor(() => {
-            expect(mockedSaveMaterial).toHaveBeenCalledTimes(1);
+            expect(mockedSaveOffer).toHaveBeenCalledTimes(1);
             expect(navigate).toHaveBeenCalledTimes(1);
-            expect(navigate).toHaveBeenCalledWith(paths.MATERIALS);
+            expect(navigate).toHaveBeenCalledWith(paths.OFFERS);
         });
     });
 
-    it('should navigate to \'Materials\' when clicking on \'Delete Material\' button', async () => {
-        render(<MaterialNew />);
+    it('should navigate to \'Offers\' when clicking on \'Delete Offer\' button', async () => {
+        render(<OffersNew />);
 
-        userEvent.click(screen.getByRole('button', {name: 'delete Delete Material'}));
+        userEvent.click(screen.getByRole('button', {name: 'delete Delete Offer'}));
 
         await waitFor(() => {
             expect(navigate).toHaveBeenCalledTimes(1);
-            expect(navigate).toHaveBeenCalledWith(paths.MATERIALS);
+            expect(navigate).toHaveBeenCalledWith(paths.OFFERS);
         });
     });
 });

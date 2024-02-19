@@ -28,7 +28,7 @@ export const AssetOperationsNew = () => {
         name: 'input-material-id-1',
         label: 'Input Material Id',
         required: true,
-        regex: '[0-9]+',
+        regex: '^\\d+$',
         defaultValue: '',
         disabled: false,
     },
@@ -41,7 +41,7 @@ export const AssetOperationsNew = () => {
             name: `input-material-id-${getInputMaterialIndex()}`,
             label: 'Input Material Id',
             required: true,
-            regex: '[0-9]+',
+            regex: '^\\d+$',
             defaultValue: '',
             disabled: false,
         },
@@ -90,7 +90,7 @@ export const AssetOperationsNew = () => {
                 name: 'output-material-id',
                 label: 'Output Material Id',
                 required: true,
-                regex: '[0-9]+',
+                regex: '^\\d+$',
                 defaultValue: '',
                 disabled: false,
             },
@@ -112,7 +112,7 @@ export const AssetOperationsNew = () => {
         assetOperation.setInputMaterials(inputMaterialIds);
 
         await transformationService.saveTransformation(assetOperation);
-        openNotification("Asset operation registered", `Asset operation "${assetOperation.name}" has been registered correctly!`, NotificationType.SUCCESS);
+        openNotification("Asset operation registered", `Asset operation "${assetOperation.name}" has been registered correctly!`, NotificationType.SUCCESS, 1);
         navigate(paths.ASSET_OPERATIONS);
     }
 

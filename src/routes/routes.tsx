@@ -32,6 +32,8 @@ import {TradeNew} from "../pages/transactions/blockchain/TradeNew";
 import ProductCategoryNew from "../pages/Material/ProductCategoryNew";
 import MaterialNew from "../pages/Material/MaterialNew";
 import AssetOperationsNew from "../pages/AssetOperations/blockchain/AssetOperationsNew";
+import OffersNew from "../pages/offers/OffersNew";
+import OffersSupplierNew from "../pages/offers/OffersSupplierNew";
 
 export default () => {
 
@@ -51,6 +53,8 @@ export default () => {
                     <Route path={paths.SHIPMENT_VIEW} element={<LegacyShipmentView />}/>
                     <Route path={paths.PARTNERS} element={<RouteViewMode component={LegacyPartners} blockchainComponent={Partners} />}/>
                     <Route path={paths.OFFERS} element={<Offers />}/>
+                    <Route path={paths.OFFERS_NEW} element={<OffersNew />}/>
+                    <Route path={paths.OFFERS_SUPPLIER_NEW} element={<OffersSupplierNew />}/>
                     <Route path={paths.MATERIALS} element={<Materials />}/>
                     <Route path={paths.MATERIAL_NEW} element={<MaterialNew />}/>
                     <Route path={paths.PRODUCT_CATEGORY_NEW} element={<ProductCategoryNew />}/>
