@@ -56,8 +56,6 @@ export const GraphPage = () => {
             const graphService = new GraphService(new BlockchainGraphStrategy());
             const result: BlockchainGraphData = await graphService.computeGraph(parseInt(materialId!));
 
-            console.log(result)
-
             result.nodes.forEach((node: any) => {
                 g.setNode(node.name, {width: nodeWidth, height: nodeHeight});
             });
