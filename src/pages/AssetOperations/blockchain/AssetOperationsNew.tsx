@@ -18,7 +18,7 @@ export const AssetOperationsNew = () => {
 
     const transformationService = new TransformationService(new BlockchainAssetOperationStrategy());
 
-    const getInputMaterialIndex = () => {
+    const getLineIndex = () => {
         return (inputMaterials.length + 1) / 3 + 1;
     }
 
@@ -38,7 +38,7 @@ export const AssetOperationsNew = () => {
         setInputMaterials([...inputMaterials, {
             type: FormElementType.INPUT,
             span: 8,
-            name: `input-material-id-${getInputMaterialIndex()}`,
+            name: `input-material-id-${getLineIndex()}`,
             label: 'Input Material Id',
             required: true,
             regex: '^\\d+$',
@@ -48,10 +48,10 @@ export const AssetOperationsNew = () => {
             {
                 type: FormElementType.BUTTON,
                 span: 4,
-                name: `delete-input-material-${getInputMaterialIndex()}`,
+                name: `delete-input-material-${getLineIndex()}`,
                 label: 'Delete input material',
                 disabled: false,
-                onClick: () => deleteInputMaterial(getInputMaterialIndex())
+                onClick: () => deleteInputMaterial(getLineIndex())
             },
             {type: FormElementType.SPACE, span: 12},]);
     }

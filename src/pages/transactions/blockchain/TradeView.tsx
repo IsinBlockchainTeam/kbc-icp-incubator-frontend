@@ -238,7 +238,8 @@ export const TradeView = () => {
                 span: 4,
                 name: 'button',
                 label: 'Show Supply Chain',
-                disabled: !line.material
+                disabled: !line.material,
+                onClick: () => {}
             },
             {
                 type: FormElementType.INPUT,
