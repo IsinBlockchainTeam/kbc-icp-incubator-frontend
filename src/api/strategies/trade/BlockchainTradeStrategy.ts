@@ -14,18 +14,18 @@ import {MaterialPresentable} from "../../types/MaterialPresentable";
 import {CustomError} from "../../../utils/error/CustomError";
 import {HttpStatusCode} from "../../../utils/error/HttpStatusCode";
 import {TradeLinePresentable, TradeLinePrice} from "../../types/TradeLinePresentable";
-import {SolidService} from "../../services/SolidService";
+import {SolidServerService} from "../../services/SolidServerService";
 import {CompanyPodInfo} from "../../types/solid";
 
 export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<TradePresentable, Trade> {
     private readonly _tradeManagerService: TradeManagerService;
-    private readonly _solidService?: SolidService;
+    private readonly _solidService?: SolidServerService;
 
     constructor(solidPodInfo?: CompanyPodInfo) {
         super(true);
         this._tradeManagerService = BlockchainLibraryUtils.getTradeManagerService();
         if (solidPodInfo)
-            this._solidService = new SolidService(solidPodInfo.serverUrl, solidPodInfo.clientId, solidPodInfo.clientSecret);
+            this._solidService = new SolidServerService(solidPodInfo.serverUrl, solidPodInfo.clientId, solidPodInfo.clientSecret);
     }
     // async getOrders(): Promise<TradePresentable[]> {
     //     const orders = await this._tradeService.getOrders(this._walletAddress);

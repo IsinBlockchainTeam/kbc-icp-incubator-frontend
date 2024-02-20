@@ -1,5 +1,5 @@
 import {storage} from "../constants";
-import { SolidToken } from '../api/types/solid';
+import {SolidToken} from "@blockchain-lib/common";
 
 export const getMattrAPIToken = (): string | null => {
     return sessionStorage.getItem(storage.MATTR_API_TOKEN);

@@ -1,7 +1,6 @@
 import React, {useState} from "react";
 import styles from './Login.module.scss';
 import {Card} from "antd";
-import {Auth0Login} from "./Auth0Login";
 import {WalletLogin} from "./WalletLogin";
 import {MattrLogin} from "./MattrLogin";
 

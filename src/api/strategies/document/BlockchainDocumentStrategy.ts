@@ -6,17 +6,17 @@ import {BlockchainLibraryUtils} from "../../BlockchainLibraryUtils";
 import {ErrorHandler} from "../../../utils/error/ErrorHandler";
 import {HttpStatusCode} from "../../../utils/error/HttpStatusCode";
 import {CompanyPodInfo} from "../../types/solid";
-import {SolidService} from "../../services/SolidService";
+import {SolidServerService} from "../../services/SolidServerService";
 
 export class BlockchainDocumentStrategy extends Strategy implements DocumentStrategy<DocumentPresentable> {
     private readonly _documentService: DocumentService;
-    private readonly _solidService?: SolidService;
+    private readonly _solidService?: SolidServerService;
 
     constructor(solidPodInfo?: CompanyPodInfo) {
         super(true);
         this._documentService = BlockchainLibraryUtils.getDocumentService();
         if (solidPodInfo)
-            this._solidService = new SolidService(solidPodInfo.serverUrl, solidPodInfo.clientId, solidPodInfo.clientSecret);
+            this._solidService = new SolidServerService(solidPodInfo.serverUrl, solidPodInfo.clientId, solidPodInfo.clientSecret);
     }
 
     async getDocumentsByTransactionIdAndType(id: number, type: string): Promise<DocumentPresentable[]> {
