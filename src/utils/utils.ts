@@ -121,3 +121,7 @@ export const formatClaims = (credential: any): OrganizationCredential => {
 
   return result;
 };
+
+export const formatAddress = (address: string): string => {
+    return address.length > 8 ? address.substring(0, 6) + "..." + address.substring(address.length - 4) : address;
+}

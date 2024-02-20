@@ -1,6 +1,8 @@
-import Search from "antd/es/input/Search";
 import React from "react";
 import styles from "./Search.module.scss";
+import {Input} from "antd";
+
+const { Search } = Input;
 
 type Props = {
     placeholder: string,

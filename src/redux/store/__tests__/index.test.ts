@@ -9,6 +9,6 @@ describe("UNIT TEST: authSlice", () => {
     const initialState: RootState = store.getState();
 
     expect(initialState.auth.subjectDid).toBe("");
-    expect(initialState.auth.subjectClaims).toBeNull();
+    expect(initialState.auth.subjectClaims).toBeUndefined();
   });
 });

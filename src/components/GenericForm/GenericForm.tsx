@@ -1,6 +1,7 @@
 import React from "react";
 import {Button, Col, DatePicker, Divider, Form, Input, Row} from "antd";
 import { Viewer} from "@react-pdf-viewer/core";
+import {Dayjs} from "dayjs";
 
 export enum FormElementType {
     TITLE = 'title',
@@ -27,6 +28,7 @@ type DisableableElement = Omit<LabeledElement, 'type'> & {
     label: string,
     name: string,
     disabled: boolean,
+    onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void
 }
 
 type EditableElement = Omit<DisableableElement, 'type'> & {
@@ -74,7 +76,7 @@ export const GenericForm = (props: Props) => {
                         label={' '}
                         name={element.name}
                     >
-                        <Button type="primary" block disabled={element.disabled}>{element.label}</Button>
+                        <Button type="primary" block disabled={element.disabled} onClick={element.onClick}>{element.label}</Button>
                     </Form.Item>
                 </Col>
             )

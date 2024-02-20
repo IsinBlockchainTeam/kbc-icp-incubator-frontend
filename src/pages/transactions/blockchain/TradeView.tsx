@@ -2,11 +2,8 @@ import React, {useEffect, useState} from "react";
 import {CardPage} from "../../../components/structure/CardPage/CardPage";
 import {useLocation, useNavigate, useParams} from "react-router-dom";
 import {TradeService} from "../../../api/services/TradeService";
-import {Button, Carousel, Col, Collapse, Divider, Form, Input, Row, Space, Spin, Tag} from "antd";
-import styles from "../../../components/form/TradeForm.module.scss";
+import {Spin, Tag} from "antd";
 import dayjs from "dayjs";
-import DatePicker from "../../../components/DatePicker/DatePicker";
-import {ScrollMode, SpecialZoomLevel, Viewer, ViewMode} from "@react-pdf-viewer/core";
 import {getEnumKeyByValue, isValueInEnum} from "../../../utils/utils";
 import {TradePresentable} from "../../../api/types/TradePresentable";
 import {DocumentPresentable} from "../../../api/types/DocumentPresentable";
@@ -14,10 +11,12 @@ import {BlockchainTradeStrategy} from "../../../api/strategies/trade/BlockchainT
 import {DocumentService} from "../../../api/services/DocumentService";
 import {BlockchainDocumentStrategy} from "../../../api/strategies/document/BlockchainDocumentStrategy";
 import {TradeType} from "@kbc-lib/coffee-trading-management-lib";
-import {getWalletAddress} from "../../../utils/storage";
 import {useSelector} from "react-redux";
 import {RootState} from "../../../redux/types";
 import {NotificationType, openNotification} from "../../../utils/notification";
+import {FormElement, FormElementType, GenericForm} from "../../../components/GenericForm/GenericForm";
+import {EditOutlined} from "@ant-design/icons";
+import {paths} from "../../../constants";
 
 export const TradeView = () => {
     const navigate = useNavigate();
@@ -29,13 +28,15 @@ export const TradeView = () => {
     const [trade, setTrade] = useState<TradePresentable>();
     const [documents, setDocuments] = useState<DocumentPresentable[]>();
     const [loadingDocuments, setLoadingDocuments] = useState<boolean>(true);
+    const [disabled, setDisabled] = useState<boolean>(true);
+
+    const tradeService = new TradeService(new BlockchainTradeStrategy({
+        serverUrl: subjectClaims!.podServerUrl!,
+        clientId: subjectClaims!.podClientId!,
+        clientSecret: subjectClaims!.podClientSecret!
+    }));
 
     const getTradeInfo = async (id: number, type: number) => {
-        const tradeService = new TradeService(new BlockchainTradeStrategy({
-            serverUrl: subjectClaims!.podServerUrl!,
-            clientId: subjectClaims!.podClientId!,
-            clientSecret: subjectClaims!.podClientSecret!
-        }));
         const resp = await tradeService.getTradeByIdAndType(id, type);
         resp && setTrade(resp);
     }
@@ -47,13 +48,7 @@ export const TradeView = () => {
             clientSecret: subjectClaims!.podClientSecret!
         }));
         const resp = await documentService.getDocumentsByTransactionIdAndType(id, 'trade');
-        console.log("documents: ", resp)
         resp && setDocuments(resp);
-    }
-
-    const printConstraint = (constraint: string | Date | undefined): string => {
-        if (!constraint) return 'Not specified';
-        return constraint instanceof Date ? constraint.toLocaleDateString() : constraint;
     }
 
     useEffect(() => {
@@ -68,230 +63,248 @@ export const TradeView = () => {
         })();
     }, []);
 
-    const positionRows = trade?.lines?.map((line, index) => {
-        const lineRow = <Row gutter={[8, 8]} key={index}>
-            <Col span={10}>
-                <Form.Item label="Material Name" name="materialName">
-                    <Space.Compact block>
-                            <Input placeholder={line.material ? line.material.name: "No material assigned"} />
-                            <Button disabled={!line.material} type="primary"
-                                    onClick={() => navigate(`/graph/${line.material?.id}${trade?.supplier.toLowerCase() !== getWalletAddress()?.toLowerCase() ? `?supplier=${trade?.supplier}` : ''}`)}>
-                                Show Supply Chain
-                            </Button>
-                    </Space.Compact>
-                </Form.Item>
-            </Col>
-            { type === TradeType.ORDER &&
-                <>
-                    <Col span={10}>
-                        <Form.Item label="Quantity" name="quantity">
-                            <Input placeholder={`${line.quantity}`} />
-                        </Form.Item>
-                    </Col>
-                    <Col span={4}>
-                        <Form.Item label="Price" name="price">
-                            <Input placeholder={`${line.price?.amount} ${line.price?.fiat}`} />
-                        </Form.Item>
-                    </Col>
-                </>
-            }
-        </Row>;
+    const elements: FormElement[] = [
+        {type: FormElementType.TITLE, span: 24, label: 'Actors'},
+        {
+            type: FormElementType.INPUT,
+            span: 8,
+            name: 'supplier',
+            label: 'Supplier',
+            required: true,
+            defaultValue: trade?.supplier,
+            disabled,
+            regex: '0x[a-fA-F0-9]{40}'
+        },
+        {
+            type: FormElementType.INPUT,
+            span: 8,
+            name: 'customer',
+            label: 'Customer',
+            required: true,
+            defaultValue: trade?.customer,
+            disabled,
+            regex: '0x[a-fA-F0-9]{40}'
+        },
+        {
+            type: FormElementType.INPUT,
+            span: 8,
+            name: 'commissioner',
+            label: 'Commissioner',
+            required: true,
+            defaultValue: trade?.commissioner,
+            disabled,
+            regex: '0x[a-fA-F0-9]{40}'
+        },
+    ];
 
-        const documentsCarousel = <Carousel className={styles.CustomCarousel} dotPosition="top">
-            { documents?.filter(d => d.transactionLines?.map(l => l.id).includes(line.id)).length ?
-                documents.filter(d => d.transactionLines?.map(l => l.id).includes(line.id)).map(document => {
-                    return <div className={styles.DocumentArea} key={document.id}>
-                        { document.contentType?.includes("pdf") ?
-                            <div className={styles.Preview} style={{maxHeight: `calc(5 * 120px)`, overflow: 'scroll'}}>
-                                <Viewer
-                                    fileUrl={URL.createObjectURL(document.content!)}
-                                    viewMode={ViewMode.SinglePage}
-                                    defaultScale={SpecialZoomLevel.PageWidth}
-                                    scrollMode={ScrollMode.Vertical}
-                                />
-                            </div>
-                            :
-                            document.contentType?.includes("image") ?
-                                <img
-                                    src={URL.createObjectURL(document.content!)}
-                                    style={{width: '100%'}}
-                                />
-                                :
-                                <p className={`${styles.ErrorText} ${styles.DocumentPreview} text-center`}>Preview not supported</p>
-                        }
-                    </div>
-                })
-                :
-                <div>There are no documents</div>
-            }
-        </Carousel>;
+    if (trade?.type === TradeType.BASIC) {
+        elements.push({
+            type: FormElementType.INPUT,
+            span: 12,
+            name: 'name',
+            label: 'Name',
+            required: true,
+            defaultValue: trade?.name,
+            disabled,
+        }, {type: FormElementType.TITLE, span: 24, label: 'Line Items'});
 
-        return <div key={index} >
-            <Row gutter={[8, 8]}>
-                <Col span={24}>
-                    <Collapse ghost items={[{
-                        key: '1',
-                        label: lineRow,
-                        children: documentsCarousel
-                    }]} />
-                </Col>
-            </Row>
-        </div>
-    });
+        trade?.lines.forEach((line) => elements.push({
+                type: FormElementType.INPUT,
+                span: 8,
+                name: 'material-name',
+                label: 'Material Name',
+                required: true,
+                defaultValue: line.material?.name,
+                disabled,
+            },
+            {
+                type: FormElementType.BUTTON,
+                span: 4,
+                name: 'button',
+                label: 'Show Supply Chain',
+                disabled: !line.material,
+                onClick: () => navigate(`/graph/${line.material?.id}`)
+            },
+        ));
+    } else {
+        elements.push({type: FormElementType.TITLE, span: 24, label: 'Constraints'},
+            {
+                type: FormElementType.INPUT,
+                span: 4,
+                name: 'incoterms',
+                label: 'Incoterms',
+                required: true,
+                defaultValue: trade?.incoterms,
+                disabled,
+            },
+            {type: FormElementType.SPACE, span: 20},
+            {
+                type: FormElementType.DATE,
+                span: 12,
+                name: 'payment-deadline',
+                label: 'Payment Deadline',
+                required: true,
+                defaultValue: dayjs(trade?.paymentDeadline),
+                disabled,
+            },
+            {
+                type: FormElementType.DATE,
+                span: 12,
+                name: 'document-delivery-deadline',
+                label: 'Document Delivery Deadline',
+                required: true,
+                defaultValue: dayjs(trade?.documentDeliveryDeadline),
+                disabled,
+            },
+            {
+                type: FormElementType.INPUT,
+                span: 12,
+                name: 'shipper',
+                label: 'Shipper',
+                required: true,
+                defaultValue: trade?.shipper,
+                disabled,
+            },
+            {
+                type: FormElementType.INPUT,
+                span: 12,
+                name: 'arbiter',
+                label: 'Arbiter',
+                required: true,
+                defaultValue: trade?.arbiter,
+                disabled,
+                regex: '0x[a-fA-F0-9]{40}'
+            },
+            {
+                type: FormElementType.INPUT,
+                span: 12,
+                name: 'shipping-port',
+                label: 'Shipping Port',
+                required: true,
+                defaultValue: trade?.shippingPort,
+                disabled,
+            },
+            {
+                type: FormElementType.DATE,
+                span: 12,
+                name: 'shipping-deadline',
+                label: 'Shipping Deadline',
+                required: true,
+                defaultValue: dayjs(trade?.shippingDeadline),
+                disabled,
+            },
+            {
+                type: FormElementType.INPUT,
+                span: 12,
+                name: 'delivery-port',
+                label: 'Delivery Port',
+                required: true,
+                defaultValue: trade?.deliveryPort,
+                disabled,
+            },
+            {
+                type: FormElementType.DATE,
+                span: 12,
+                name: 'delivery-deadline',
+                label: 'Delivery Deadline',
+                required: true,
+                defaultValue: dayjs(trade?.deliveryDeadline),
+                disabled,
+            },
+            {
+                type: FormElementType.INPUT,
+                span: 12,
+                name: 'escrow',
+                label: 'Escrow',
+                required: true,
+                defaultValue: trade?.escrow,
+                disabled,
+                regex: '0x[a-fA-F0-9]{40}'
+            },
+            {type: FormElementType.TITLE, span: 24, label: 'Line Items'},
+        );
+
+        trade?.lines.forEach((line) => elements.push({
+                type: FormElementType.INPUT,
+                span: 8,
+                name: 'material-name',
+                label: 'Material Name',
+                required: true,
+                defaultValue: line.material?.name,
+                disabled,
+            },
+            {
+                type: FormElementType.BUTTON,
+                span: 4,
+                name: 'button',
+                label: 'Show Supply Chain',
+                disabled: !line.material
+            },
+            {
+                type: FormElementType.INPUT,
+                span: 8,
+                name: 'quantity',
+                label: 'Quantity',
+                required: true,
+                defaultValue: line.quantity,
+                disabled,
+            },
+            {
+                type: FormElementType.INPUT,
+                span: 4,
+                name: 'price',
+                label: 'Price',
+                required: true,
+                defaultValue: `${line.price?.amount} ${line.price?.fiat}`,
+                disabled,
+            },
+        ))
+    }
+
+    documents?.forEach((document) => elements.push({
+        type: FormElementType.DOCUMENT_PREVIEW,
+        span: 24,
+        name: document.name,
+        label: document.name,
+        required: true,
+        content: document.content,
+        disabled,
+    }))
+
+    const onSubmit = async (values: any) => {
+        if (values['delivery-deadline'] <= values['shipping-deadline']) {
+            openNotification("Invalid dates", '', NotificationType.ERROR);
+        }
+        if(trade?.type === TradeType.BASIC) {
+            await tradeService.putBasicTrade(trade.id, values);
+        }
+        setDisabled(true);
+    }
 
     if (!trade)
-        return <Spin style={{width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center'}}/>;
+        return <Spin
+            style={{width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center'}}/>;
     if (!isValueInEnum(type, TradeType))
         return <div>Wrong type</div>;
 
+
     return (
         <CardPage title={
-            <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
+            <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
                 {getEnumKeyByValue(TradeType, type)}
-                {trade.status && <Tag color='green' key={trade.status}>{trade.status?.toUpperCase()}</Tag>}
-            </div>}>
-            <Form layout="vertical" disabled fields={[
-                {name: ['paymentDeadline'], value: dayjs(trade.paymentDeadline)},
-                {name: ['documentDeliveryDeadline'], value: dayjs(trade.documentDeliveryDeadline)},
-                {name: ['deliveryDeadline'], value: dayjs(trade.deliveryDeadline)},
-                {name: ['shippingDeadline'], value: dayjs(trade.shippingDeadline)},
-            ]}>
-                <Row gutter={[8, 8]}>
-                    <Col style={{flex: 1}}>
-                        <Form.Item label="Supplier" name="supplier">
-                            <Input placeholder={trade.supplier}/>
-                        </Form.Item>
-                    </Col>
-                    <Col style={{flex: 1}}>
-                        { type === TradeType.ORDER ?
-                            <Form.Item label="Customer" name="customer">
-                                <Input placeholder={trade.customer} />
-                            </Form.Item>
-                            :
-                            <Form.Item label="Name" name="name">
-                                <Input placeholder={trade.name} />
-                            </Form.Item>
-                        }
-
-                    </Col>
-                </Row>
-
-                { type === TradeType.ORDER &&
-                    <>
-                        <Divider>Constraints</Divider>
-                        <Row gutter={[8, 8]}>
-                            <Col span={4}>
-                                <Form.Item label="Incoterms" name="incoterms">
-                                    <Input placeholder={printConstraint(trade.incoterms)}/>
-                                </Form.Item>
-                            </Col>
-                            <Col span={10}>
-                                <Form.Item label="Payment Deadline" name="paymentDeadline">
-                                    <DatePicker/>
-                                </Form.Item>
-                            </Col>
-                            <Col span={10}>
-                                <Form.Item label="Document Delivery Deadline" name="documentDeliveryDeadline">
-                                    <DatePicker/>
-                                </Form.Item>
-                            </Col>
-                        </Row>
-
-                        <Row gutter={[8, 8]}>
-                            <Col span={12}>
-                                <Form.Item label="Shipper" name="shipper">
-                                    <Input placeholder={printConstraint(trade.shipper)}/>
-                                </Form.Item>
-                            </Col>
-                            <Col span={12}>
-                                <Form.Item label="Arbiter" name="arbiter">
-                                    <Input placeholder={printConstraint(trade.arbiter)}/>
-                                </Form.Item>
-                            </Col>
-                        </Row>
-
-                        <Row gutter={[8, 8]}>
-                            <Col span={12}>
-                                <Form.Item label="Shipping Port" name="shippingPort">
-                                    <Input placeholder={printConstraint(trade.shippingPort)}/>
-                                </Form.Item>
-                            </Col>
-                            <Col span={12}>
-                                <Form.Item label="Shipping Deadline" name="shippingDeadline">
-                                    <DatePicker/>
-                                </Form.Item>
-                            </Col>
-                        </Row>
-
-                        <Row gutter={[8, 8]}>
-                            <Col span={12}>
-                                <Form.Item label="Delivery Port" name="deliveryPort">
-                                    <Input placeholder={printConstraint(trade.deliveryPort)}/>
-                                </Form.Item>
-                            </Col>
-                            <Col span={12}>
-                                <Form.Item label="Delivery Deadline" name="deliveryDeadline">
-                                    <DatePicker/>
-                                </Form.Item>
-                            </Col>
-                        </Row>
-
-                        <Row gutter={[8, 8]}>
-                            <Col span={12}>
-                                <Form.Item label="Escrow" name="escrow">
-                                    <Input placeholder={printConstraint(trade.escrow)}/>
-                                </Form.Item>
-                            </Col>
-                        </Row>
-                    </>
-                }
-
-                <Row gutter={[8, 8]}>
-                    <Col span={24}>
-                        <Carousel className={styles.CustomCarousel} dotPosition="top">
-                            {loadingDocuments ? (<Spin/>)
-                                : (
-                                    documents ?
-                                        documents.filter(d => !d.transactionLines).map(document => {
-                                            return <div className={styles.DocumentArea} key={document.id}>
-                                                {document.contentType?.includes("pdf") ?
-                                                    <div className={styles.Preview}
-                                                         style={{maxHeight: `calc(5 * 120px)`, overflow: 'scroll'}}>
-                                                        <Viewer
-                                                            fileUrl={URL.createObjectURL(document.content!)}
-                                                            viewMode={ViewMode.SinglePage}
-                                                            defaultScale={SpecialZoomLevel.PageWidth}
-                                                            scrollMode={ScrollMode.Vertical}
-                                                        />
-                                                    </div>
-                                                    :
-                                                    document.contentType?.includes("image") ?
-                                                        <img
-                                                            src={URL.createObjectURL(document.content!)}
-                                                            style={{width: '100%'}}
-                                                        />
-                                                        :
-                                                        <p className={`${styles.ErrorText} ${styles.DocumentPreview} text-center`}>Preview
-                                                            not supported</p>
-                                                }
-                                            </div>
-                                        })
-                                        :
-                                        <div>There are no documents</div>
-
-                                )
-                            }
-
-                        </Carousel>
-                    </Col>
-                </Row>
-
-                <Divider/>
-
-                <h1>Line Items</h1>
-                {positionRows}
-            </Form>
+                <div style={{display: 'flex', alignItems: 'center'}}>
+                    {trade?.status && (
+                        <Tag color='green' key={trade.status}>
+                            {trade.status?.toUpperCase()}
+                        </Tag>
+                    )}
+                    <EditOutlined style={{marginLeft: '8px'}} onClick={() => setDisabled(!disabled)}/>
+                </div>
+            </div>}
+        >
+            <GenericForm elements={elements} submittable={!disabled} onSubmit={onSubmit}/>
         </CardPage>
+
     )
 }
 

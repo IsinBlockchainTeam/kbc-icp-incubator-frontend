@@ -49,14 +49,14 @@ const legacyItems: MenuItem[] = [
     getItem("Order", paths.ORDERS, <FormOutlined />),
     getItem("Shipments", paths.SHIPMENTS, <FormOutlined />),
   ]),
-  getItem("Transformations", paths.TRANSFORMATIONS, <ExperimentOutlined />),
+  getItem("Transformations", paths.ASSET_OPERATIONS, <ExperimentOutlined />),
   getItem("Certifications", paths.CERTIFICATIONS, <ContainerOutlined />),
 ];
 
 const blockchainItems: MenuItem[] = [
   getItem("Trades", paths.TRADES, <SwapOutlined />),
   getItem("Materials", paths.MATERIALS, <GoldOutlined />),
-  getItem("Transformations", paths.TRANSFORMATIONS, <ExperimentOutlined />),
+  getItem("Transformations", paths.ASSET_OPERATIONS, <ExperimentOutlined />),
   getItem("Partners", paths.PARTNERS, <TeamOutlined />),
   getItem("Offers", paths.OFFERS, <AuditOutlined />)
 ];

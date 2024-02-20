@@ -2,18 +2,22 @@ import React, {useEffect, useState} from "react";
 import {NotificationType, openNotification} from "../../../utils/notification";
 import {TransformationService} from "../../../api/services/TransformationService";
 import {ColumnsType} from "antd/es/table";
-import {Table, TableProps} from "antd";
+import {Button, Table, TableProps} from "antd";
 import {CardPage} from "../../../components/structure/CardPage/CardPage";
 import {AssetOperationPresentable} from "../../../api/types/AssetOperationPresentable";
 import {BlockchainAssetOperationStrategy} from "../../../api/strategies/asset_operation/BlockchainAssetOperationStrategy";
+import {PlusOutlined} from "@ant-design/icons";
+import {paths} from "../../../constants";
+import {useNavigate} from "react-router-dom";
 
-export const Transformations = () => {
-    const [transformations, setTransformations] = useState<AssetOperationPresentable[]>();
+export const AssetOperations = () => {
+    const navigate = useNavigate();
+    const [assetOperations, setAssetOperations] = useState<AssetOperationPresentable[]>();
     const loadData = async () => {
         try {
             const transformationService = new TransformationService(new BlockchainAssetOperationStrategy());
             const transformations = await transformationService.getTransformations();
-            setTransformations(transformations.map(t => {
+            setAssetOperations(transformations.map(t => {
                 // @ts-ignore
                 t['key'] = t.id;
                 return t;
@@ -55,10 +59,17 @@ export const Transformations = () => {
     }, []);
 
     return (
-        <CardPage title="Transformations">
-            <Table columns={columns} dataSource={transformations} onChange={onChange}/>
+        <CardPage title={<div
+            style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+            Asset Operations
+                <Button type="primary" icon={<PlusOutlined/>} onClick={() => navigate(paths.ASSET_OPERATIONS_NEW)}
+                        style={{marginRight: '16px'}}>
+                    New Asset Operation
+                </Button>
+        </div>}>
+            <Table columns={columns} dataSource={assetOperations} onChange={onChange}/>
         </CardPage>
     )
 }
 
-export default Transformations;
+export default AssetOperations;

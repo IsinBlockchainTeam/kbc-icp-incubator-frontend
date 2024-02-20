@@ -17,6 +17,11 @@ export class BlockchainAssetOperationStrategy extends Strategy implements AssetO
         this._assetOperationService = BlockchainLibraryUtils.getAssetOperationService();
         this._materialService = BlockchainLibraryUtils.getMaterialService();
     }
+
+    async saveAssetOperation(assetOperation: AssetOperationPresentable): Promise<void> {
+        await this._assetOperationService.registerAssetOperation(assetOperation.name, assetOperation.inputMaterials.map(m => m.id), assetOperation.outputMaterial.id);
+    }
+
     async getRawAssetOperations(): Promise<AssetOperation[]> {
         return this._assetOperationService.getAssetOperationsOfCreator(this._walletAddress);
     }

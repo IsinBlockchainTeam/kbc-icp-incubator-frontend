@@ -1,8 +1,10 @@
 import {TradeStrategy} from "./TradeStrategy";
 import {TradePresentable} from "../../types/TradePresentable";
 import {
+    BasicTrade,
+    BasicTradeService,
     IConcreteTradeService,
-    Line,
+    Line, LineRequest,
     Trade, TradeManagerService,
     TradeType
 } from "@kbc-lib/coffee-trading-management-lib";
@@ -127,6 +129,7 @@ export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<T
 
                     trade
                         .setId(resp.tradeId)
+                        .setCommissioner(resp.commissioner)
                         .setCustomer(resp.customer)
                         .setIncoterms(orderMetadata.incoterms)
                         .setPaymentDeadline(new Date(resp.paymentDeadline))
@@ -154,5 +157,27 @@ export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<T
                 throw new CustomError(HttpStatusCode.BAD_REQUEST, "Wrong trade type");
         }
         return trade;
+    }
+
+    async saveBasicTrade(trade: TradePresentable): Promise<void> {
+        this.checkService(this._solidService);
+
+        const tradeManagerService: TradeManagerService = BlockchainLibraryUtils.getTradeManagerService();
+        // TODO: fix external url
+        const newTrade: BasicTrade = await tradeManagerService.registerBasicTrade(trade.supplier, trade.customer!, trade.commissioner!, 'externalUrl', trade.name!);
+        if (trade.lines) {
+            const basicTradeService: BasicTradeService = BlockchainLibraryUtils.getBasicTradeService(await tradeManagerService.getTrade(newTrade.tradeId));
+            await Promise.all(trade.lines.map(async line => {
+                await basicTradeService.addLine(new LineRequest(line.material?.id!));
+            }));
+        }
+    }
+
+    async putBasicTrade(id: number, trade: TradePresentable): Promise<void> {
+        this.checkService(this._solidService);
+        const tradeManagerService: TradeManagerService = BlockchainLibraryUtils.getTradeManagerService();
+        const tradeService: BasicTradeService = BlockchainLibraryUtils.getBasicTradeService(await tradeManagerService.getTrade(id));
+        const oldTrade: BasicTrade = await tradeService.getTrade();
+        oldTrade.name !== trade.name && await tradeService.setName(trade.name!);
     }
 }
