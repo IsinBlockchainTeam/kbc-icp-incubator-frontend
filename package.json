@@ -5,8 +5,8 @@
   "dependencies": {
     "@auth0/auth0-react": "^2.1.1",
     "@blockchain-lib/common": "../../Blockchain_Library/one_lib_to_rule_them_all/packages/common/",
-    "@kbc-lib/coffee-trading-management-lib": "1.0.8",
     "@dagrejs/dagre": "^1.0.2",
+    "@kbc-lib/coffee-trading-management-lib": "1.0.8",
     "@react-pdf-viewer/core": "^3.12.0",
     "@reduxjs/toolkit": "^1.9.5",
     "@testing-library/jest-dom": "^5.16.5",
@@ -19,6 +19,7 @@
     "@unece/cotton-fetch": "1.0.0",
     "antd": "^5.5.2",
     "base64url": "^3.0.1",
+    "buffer": "^6.0.3",
     "dayjs": "^1.11.8",
     "node-sass": "9.0.0",
     "pdfjs-dist": "3.10.111",

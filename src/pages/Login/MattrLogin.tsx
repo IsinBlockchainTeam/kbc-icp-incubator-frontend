@@ -30,8 +30,8 @@ export const MattrLogin = () => {
 
   const handleUpdateSubjectClaims = (subjectClaims: OrganizationCredential) => {
     subjectClaims.podServerUrl = "https://localhost/";
-    subjectClaims.podClientId = "consortium_fa99a708-7e2e-450e-ba59-462a35609835";
-    subjectClaims.podClientSecret = "8a9e2ed6a6a5c216e958ffc732f5c7d9cd9b2441caa47a470b10031b386d27bc9a0edad9fb1fa21807ef72d0de8947d0bfa1fb97265da6907dd45f3dcaeb4661";
+    subjectClaims.podClientId = "consortium-coffe-com-token-1708433819496_c556915c-f737-4a62-a3be-6aad7b7c8e02";
+    subjectClaims.podClientSecret = "3c410b50230b886b607d558f937788e948dd94be6cb4fe9ba52bcbadf4e5aee9e718daada00b0e7591a9c53efaaf516a92afed69d0ba515f5e888ab8bafbb8a3";
     console.log("fake login: ", subjectClaims);
     dispatch(updateSubjectClaims(subjectClaims));
   };

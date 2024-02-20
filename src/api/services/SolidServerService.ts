@@ -9,7 +9,7 @@ import {
 
 export class SolidServerService extends Service {
     private _solidService: SolidServiceWithACL;
-    private _companySession: SolidSession;
+    private readonly _companySession: SolidSession;
 
     constructor(serverUrl: string, clientId: string, clientSecret: string) {
         super();
