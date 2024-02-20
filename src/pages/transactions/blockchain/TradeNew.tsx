@@ -12,8 +12,10 @@ import {TradeService} from "../../../api/services/TradeService";
 import {BlockchainTradeStrategy} from "../../../api/strategies/trade/BlockchainTradeStrategy";
 import {useSelector} from "react-redux";
 import {RootState} from "../../../redux/types";
-import {TradeLinePresentable} from "../../../api/types/TradeLinePresentable";
+import {TradeLinePresentable, TradeLinePrice} from "../../../api/types/TradeLinePresentable";
 import {MaterialPresentable} from "../../../api/types/MaterialPresentable";
+import {v4 as uuid} from 'uuid';
+import dayjs from "dayjs";
 
 const {Text} = Typography;
 
@@ -29,6 +31,8 @@ export const TradeNew = () => {
     const [type, setType] = useState<TradeType>(TradeType.BASIC);
 
     const [lines, setLines] = useState<FormElement[]>([]);
+
+    const [lineOrder, setLineOrder] = useState<string[]>([]);
 
     const basicLine: FormElement[] = [
         {
@@ -73,18 +77,20 @@ export const TradeNew = () => {
         },
         {type: FormElementType.SPACE, span: 6},];
 
-    const getLineIndex = () => {
-        console.log('length', lines.length)
-        return type === TradeType.BASIC ? (lines.length + 1) / 3 + 1 : (lines.length + 1) / 4 + 1;
+    const getLineId = (): string => {
+        const id: string = uuid();
+        setLineOrder((prev) => [...prev, id]);
+        return id;
     }
 
     const addLine = () => {
+        const id: string = getLineId();
         if (type === TradeType.BASIC) {
             setLines((prev) => [...prev,
                 {
                     type: FormElementType.INPUT,
                     span: 8,
-                    name: `product-category-id-${getLineIndex()}`,
+                    name: `product-category-id-${id}`,
                     label: 'Product Category Id',
                     required: true,
                     defaultValue: '',
@@ -92,10 +98,10 @@ export const TradeNew = () => {
                 }, {
                     type: FormElementType.BUTTON,
                     span: 4,
-                    name: `delete-line-${getLineIndex()}`,
+                    name: `delete-line-${id}`,
                     label: 'Delete line',
                     disabled: false,
-                    onClick: () => deleteLine(getLineIndex()),
+                    onClick: () => deleteLine(id),
                     buttonType: 'default',
                     additionalProperties: 'danger'
                 },
@@ -105,7 +111,7 @@ export const TradeNew = () => {
                 {
                     type: FormElementType.INPUT,
                     span: 6,
-                    name: `product-category-id-${getLineIndex()}`,
+                    name: `product-category-id-${id}`,
                     label: 'Product Category Id',
                     required: true,
                     defaultValue: '',
@@ -114,7 +120,7 @@ export const TradeNew = () => {
                 {
                     type: FormElementType.INPUT,
                     span: 6,
-                    name: `quantity-${getLineIndex()}`,
+                    name: `quantity-${id}`,
                     label: 'Quantity',
                     required: true,
                     regex: '^\\d+$',
@@ -124,7 +130,7 @@ export const TradeNew = () => {
                 {
                     type: FormElementType.INPUT,
                     span: 6,
-                    name: `price-${getLineIndex()}`,
+                    name: `price-${id}`,
                     label: 'Price',
                     required: true,
                     defaultValue: '',
@@ -133,10 +139,10 @@ export const TradeNew = () => {
                 {
                     type: FormElementType.BUTTON,
                     span: 6,
-                    name: `delete-line-${getLineIndex()}`,
+                    name: `delete-line-${id}`,
                     label: 'Delete line',
                     disabled: false,
-                    onClick: () => deleteLine(getLineIndex()),
+                    onClick: () => deleteLine(id),
                     buttonType: 'default',
                     additionalProperties: 'danger'
                 }
@@ -144,8 +150,19 @@ export const TradeNew = () => {
         }
     }
 
-    const deleteLine = (index: number) => {
-        console.log('deleting line', index);
+    const deleteLine = (id: string) => {
+        let index: number;
+        setLineOrder((currentLineOrder) => {
+            index = currentLineOrder.indexOf(id);
+            return currentLineOrder.filter((_, i) => i !== index);
+        });
+
+        setLines((currentLines) => {
+            const start: number = type === TradeType.BASIC ? 2 + index * 3 : index * 4;
+            const end: number = type === TradeType.BASIC ? 2 + index * 3 + 3 : index * 4 + 4;
+
+            return currentLines.filter((_, i) => i < start || i >= end);
+        });
     }
 
     useEffect(() => {
@@ -273,7 +290,7 @@ export const TradeNew = () => {
                 {
                     type: FormElementType.INPUT,
                     span: 12,
-                    name: 'shipping-port',
+                    name: 'shippingPort',
                     label: 'Shipping Port',
                     required: true,
                     defaultValue: '',
@@ -291,7 +308,7 @@ export const TradeNew = () => {
                 {
                     type: FormElementType.INPUT,
                     span: 12,
-                    name: 'delivery-port',
+                    name: 'deliveryPort',
                     label: 'Delivery Port',
                     required: true,
                     defaultValue: '',
@@ -302,6 +319,24 @@ export const TradeNew = () => {
                     span: 12,
                     name: 'delivery-deadline',
                     label: 'Delivery Deadline',
+                    required: true,
+                    defaultValue: '',
+                    disabled: false,
+                },
+                {
+                    type: FormElementType.INPUT,
+                    span: 12,
+                    name: 'agreedAmount',
+                    label: 'Agreed Amount',
+                    required: true,
+                    defaultValue: '',
+                    disabled: false,
+                },
+                {
+                    type: FormElementType.INPUT,
+                    span: 12,
+                    name: 'tokenAddress',
+                    label: 'Token Address',
                     required: true,
                     defaultValue: '',
                     disabled: false,
@@ -334,16 +369,32 @@ export const TradeNew = () => {
     }
 
     const onSubmit = async (values: any) => {
-
         for (const key in values) {
+            let id: string;
             if (key.startsWith('product-category-id-')) {
-                const id: number = parseInt(key.split('-')[3]);
-                (values['lines'] ||= []).push(new TradeLinePresentable(id, new MaterialPresentable(values[key])));
+                id = key.split('-')[3];
+                if(type === TradeType.BASIC)
+                    (values['lines'] ||= []).push(new TradeLinePresentable(0, new MaterialPresentable(values[key])));
+                else {
+                    const materialId: number = parseInt(values[`product-category-id-${id}`]);
+                    const quantity: number = parseInt(values[`quantity-${id}`]);
+                    const price: number = parseInt(values[`price-${id}`].split(' ')[0]);
+                    const fiat: string = values[`price-${id}`].split(' ')[1];
+                    const line: TradeLinePresentable = new TradeLinePresentable(0, new MaterialPresentable(materialId), quantity, new TradeLinePrice(price, fiat));
+                    (values['lines'] ||= []).push(line);
+                }
             }
         }
         if (type === TradeType.BASIC) {
             await tradeService.saveBasicTrade(values);
-            openNotification("Basic trade registered", `Basic trade ${values.name} has been registered correctly!`, NotificationType.SUCCESS, 1);
+            openNotification("Basic trade registered", `Basic trade "${values.name}" has been registered correctly!`, NotificationType.SUCCESS, 1);
+        } else {
+            values['paymentDeadline'] = dayjs(values['payment-deadline']).toDate();
+            values['documentDeliveryDeadline'] = values['document-delivery-deadline'].toDate();
+            values['shippingDeadline'] = (values['shipping-deadline']).toDate();
+            values['deliveryDeadline'] = values['delivery-deadline'].toDate();
+            await tradeService.saveOrderTrade(values);
+            openNotification("Order trade registered", `Order trade has been registered correctly!`, NotificationType.SUCCESS, 1);
         }
     }
 

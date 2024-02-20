@@ -59,4 +59,8 @@ export class TradeService<T, R> extends Service {
         return this._strategy.putBasicTrade!(id, trade);
     }
 
+    async saveOrderTrade(trade: T): Promise<void> {
+        this.checkMethodImplementation(this._strategy.saveOrderTrade);
+        return this._strategy.saveOrderTrade!(trade);
+    }
 }

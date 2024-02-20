@@ -4,7 +4,7 @@ import {
     BasicTrade,
     BasicTradeService,
     IConcreteTradeService,
-    Line, LineRequest,
+    Line, LineRequest, OrderLinePrice, OrderLineRequest, OrderTrade, OrderTradeService,
     Trade, TradeManagerService,
     TradeType
 } from "@kbc-lib/coffee-trading-management-lib";
@@ -179,5 +179,20 @@ export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<T
         const tradeService: BasicTradeService = BlockchainLibraryUtils.getBasicTradeService(await tradeManagerService.getTrade(id));
         const oldTrade: BasicTrade = await tradeService.getTrade();
         oldTrade.name !== trade.name && await tradeService.setName(trade.name!);
+    }
+
+    async saveOrderTrade(trade: TradePresentable): Promise<void> {
+        this.checkService(this._solidService);
+        const tradeManagerService: TradeManagerService = BlockchainLibraryUtils.getTradeManagerService();
+
+        console.log(trade)
+
+        const newTrade: OrderTrade = await tradeManagerService.registerOrderTrade(trade.supplier, trade.customer!, trade.commissioner!, 'externalUrl', (trade.paymentDeadline!).getTime(), (trade.documentDeliveryDeadline!).getTime(), trade.arbiter!, (trade.shippingDeadline!).getTime(), (trade.deliveryDeadline!).getTime(), trade.agreedAmount!, trade.tokenAddress!);
+        if (trade.lines) {
+            const orderTradeService: OrderTradeService = BlockchainLibraryUtils.getOrderTradeService(await tradeManagerService.getTrade(newTrade.tradeId));
+            await Promise.all(trade.lines.map(async line => {
+                await orderTradeService.addLine(new OrderLineRequest(line.material?.id!, line.quantity!, new OrderLinePrice(line.price!.amount, line.price!.fiat)));
+            }));
+        }
     }
 }

@@ -18,6 +18,8 @@ export class TradePresentable {
     private _shippingDeadline?: Date;
     private _deliveryPort?: string;
     private _deliveryDeadline?: Date;
+    private _agreedAmount?: number;
+    private _tokenAddress?: string;
     private _escrow?: string;
     private _status?: string;
     private _type: TradeType;
@@ -92,6 +94,14 @@ export class TradePresentable {
 
     get deliveryDeadline(): Date | undefined {
         return this._deliveryDeadline;
+    }
+
+    get agreedAmount(): number | undefined {
+        return this._agreedAmount;
+    }
+
+    get tokenAddress(): string | undefined {
+        return this._tokenAddress;
     }
 
     get escrow(): string | undefined {
@@ -174,6 +184,16 @@ export class TradePresentable {
 
     setDeliveryDeadline(value: Date | undefined): this {
         this._deliveryDeadline = value;
+        return this;
+    }
+
+    setAgreedAmount(value: number | undefined): this {
+        this._agreedAmount = value;
+        return this;
+    }
+
+    setTokenAddress(value: string | undefined): this {
+        this._tokenAddress = value;
         return this;
     }
 
