@@ -118,6 +118,27 @@ export const AssetOperationsNew = () => {
                 defaultValue: '',
                 disabled: false,
             },
+            {type: FormElementType.TITLE, span: 24, label: 'Coordinates'},
+            {
+                type: FormElementType.INPUT,
+                span: 12,
+                name: 'latitude',
+                label: 'Latitude',
+                required: true,
+                regex: regex.COORDINATES,
+                defaultValue: '',
+                disabled: false,
+            },
+            {
+                type: FormElementType.INPUT,
+                span: 12,
+                name: 'longitude',
+                label: 'Longitude',
+                required: true,
+                regex: regex.COORDINATES,
+                defaultValue: '',
+                disabled: false,
+            },
         ])
     }, [inputMaterials]);
 
@@ -125,6 +146,8 @@ export const AssetOperationsNew = () => {
         const assetOperation: AssetOperationPresentable = new AssetOperationPresentable();
         assetOperation.setName(values['name']);
         assetOperation.setOutputMaterial(new MaterialPresentable(values['output-material-id']));
+        assetOperation.setLatitude(values['latitude']);
+        assetOperation.setLongitude(values['longitude']);
 
         const inputMaterialIds: MaterialPresentable[] = [];
         for (const key in values) {

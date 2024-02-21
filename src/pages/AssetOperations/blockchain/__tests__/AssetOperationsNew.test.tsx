@@ -35,6 +35,8 @@ describe('Asset Operations New', () => {
         expect(screen.getByText('Name')).toBeInTheDocument();
         expect(screen.getByText('Input Material Id')).toBeInTheDocument();
         expect(screen.getByText('Output Material Id')).toBeInTheDocument();
+        expect(screen.getByText('Latitude')).toBeInTheDocument();
+        expect(screen.getByText('Longitude')).toBeInTheDocument();
         expect(screen.getByRole('button', {name: 'Submit'})).toBeInTheDocument();
     });
 
@@ -44,6 +46,8 @@ describe('Asset Operations New', () => {
         userEvent.type(screen.getByRole('textbox', {name: 'Name'}), 'Test');
         userEvent.type(screen.getByRole('textbox', {name: 'Input Material Id'}), '1');
         userEvent.type(screen.getByRole('textbox', {name: 'Output Material Id'}), '2');
+        userEvent.type(screen.getByRole('textbox', {name: 'Latitude'}), '40.730610');
+        userEvent.type(screen.getByRole('textbox', {name: 'Longitude'}), '-73.935242');
         userEvent.click(screen.getByRole('button', {name: 'Submit'}));
 
         await waitFor(() => {
