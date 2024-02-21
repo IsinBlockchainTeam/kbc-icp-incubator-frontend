@@ -8,6 +8,7 @@ import {CardPage} from "../../components/structure/CardPage/CardPage";
 import {Button} from "antd";
 import {DeleteOutlined} from "@ant-design/icons";
 import React from "react";
+import {regex} from "../../utils/regex";
 
 export const OffersNew = () => {
     const navigate = useNavigate();
@@ -22,7 +23,7 @@ export const OffersNew = () => {
             name: 'offeror',
             label: 'Offeror Company Address',
             required: true,
-            regex: '0x[a-fA-F0-9]{40}',
+            regex: regex.ETHEREUM_ADDRESS,
             defaultValue: '',
             disabled: false
         },
@@ -32,7 +33,7 @@ export const OffersNew = () => {
             name: 'product-category-id',
             label: 'Product Category ID',
             required: true,
-            regex: '^\\d+$',
+            regex: regex.ONLY_DIGITS,
             defaultValue: '',
             disabled: false
         },

@@ -8,6 +8,7 @@ import {useNavigate} from "react-router-dom";
 import {BlockchainMaterialStrategy} from "../../api/strategies/material/BlockchainMaterialStrategy";
 import {MaterialService} from "../../api/services/MaterialService";
 import {NotificationType, openNotification} from "../../utils/notification";
+import {regex} from "../../utils/regex";
 
 export const ProductCategoryNew = () => {
     const navigate = useNavigate();
@@ -31,7 +32,7 @@ export const ProductCategoryNew = () => {
             name: 'quality',
             label: 'Quality',
             required: true,
-            regex: '^\\d+$',
+            regex: regex.ONLY_DIGITS,
             defaultValue: '',
             disabled: false,
         },

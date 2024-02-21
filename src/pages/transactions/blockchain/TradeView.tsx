@@ -17,6 +17,7 @@ import {NotificationType, openNotification} from "../../../utils/notification";
 import {FormElement, FormElementType, GenericForm} from "../../../components/GenericForm/GenericForm";
 import {EditOutlined} from "@ant-design/icons";
 import {paths} from "../../../constants";
+import {regex} from "../../../utils/regex";
 
 export const TradeView = () => {
     const navigate = useNavigate();
@@ -73,7 +74,7 @@ export const TradeView = () => {
             required: true,
             defaultValue: trade?.supplier,
             disabled,
-            regex: '0x[a-fA-F0-9]{40}'
+            regex: regex.ETHEREUM_ADDRESS
         },
         {
             type: FormElementType.INPUT,
@@ -83,7 +84,7 @@ export const TradeView = () => {
             required: true,
             defaultValue: trade?.customer,
             disabled,
-            regex: '0x[a-fA-F0-9]{40}'
+            regex: regex.ETHEREUM_ADDRESS
         },
         {
             type: FormElementType.INPUT,
@@ -93,7 +94,7 @@ export const TradeView = () => {
             required: true,
             defaultValue: trade?.commissioner,
             disabled,
-            regex: '0x[a-fA-F0-9]{40}'
+            regex: regex.ETHEREUM_ADDRESS
         },
     ];
 
@@ -173,7 +174,7 @@ export const TradeView = () => {
                 required: true,
                 defaultValue: trade?.arbiter,
                 disabled,
-                regex: '0x[a-fA-F0-9]{40}'
+                regex: regex.ETHEREUM_ADDRESS
             },
             {
                 type: FormElementType.INPUT,
@@ -219,7 +220,7 @@ export const TradeView = () => {
                 required: true,
                 defaultValue: trade?.escrow,
                 disabled,
-                regex: '0x[a-fA-F0-9]{40}'
+                regex: regex.ETHEREUM_ADDRESS
             },
             {type: FormElementType.TITLE, span: 24, label: 'Line Items'},
         );

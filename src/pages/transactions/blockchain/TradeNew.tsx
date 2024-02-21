@@ -16,6 +16,7 @@ import {TradeLinePresentable, TradeLinePrice} from "../../../api/types/TradeLine
 import {MaterialPresentable} from "../../../api/types/MaterialPresentable";
 import {v4 as uuid} from 'uuid';
 import dayjs from "dayjs";
+import {regex} from "../../../utils/regex";
 
 const {Text} = Typography;
 
@@ -32,7 +33,7 @@ export const TradeNew = () => {
 
     const [lines, setLines] = useState<FormElement[]>([]);
 
-    const [lineOrder, setLineOrder] = useState<string[]>([]);
+    const [, setLineOrder] = useState<string[]>([]);
 
     const basicLine: FormElement[] = [
         {
@@ -41,6 +42,7 @@ export const TradeNew = () => {
             name: 'product-category-id-1',
             label: 'Product Category Id',
             required: true,
+            regex: regex.ONLY_DIGITS,
             defaultValue: '',
             disabled: false,
         },
@@ -53,6 +55,7 @@ export const TradeNew = () => {
             name: `product-category-id-1`,
             label: 'Product Category Id',
             required: true,
+            regex: regex.ONLY_DIGITS,
             defaultValue: '',
             disabled: false,
         },
@@ -62,7 +65,7 @@ export const TradeNew = () => {
             name: `quantity-1`,
             label: 'Quantity',
             required: true,
-            regex: '^\\d+$',
+            regex: regex.ONLY_DIGITS,
             defaultValue: '',
             disabled: false,
         },
@@ -123,7 +126,7 @@ export const TradeNew = () => {
                     name: `quantity-${id}`,
                     label: 'Quantity',
                     required: true,
-                    regex: '^\\d+$',
+                    regex: regex.ONLY_DIGITS,
                     defaultValue: '',
                     disabled: false,
                 },
@@ -154,7 +157,7 @@ export const TradeNew = () => {
         let index: number;
         setLineOrder((currentLineOrder) => {
             index = currentLineOrder.indexOf(id);
-            return currentLineOrder.filter((_, i) => i !== index);
+            return currentLineOrder.filter((lineId) => lineId !== id);
         });
 
         setLines((currentLines) => {
@@ -186,7 +189,7 @@ export const TradeNew = () => {
             name: 'supplier',
             label: 'Supplier',
             required: true,
-            regex: '0x[a-fA-F0-9]{40}',
+            regex: regex.ETHEREUM_ADDRESS,
             defaultValue: '',
             disabled: false,
         },
@@ -196,7 +199,7 @@ export const TradeNew = () => {
             name: 'customer',
             label: 'Customer',
             required: true,
-            regex: '0x[a-fA-F0-9]{40}',
+            regex: regex.ETHEREUM_ADDRESS,
             defaultValue: '',
             disabled: false,
         },
@@ -206,7 +209,7 @@ export const TradeNew = () => {
             name: 'commissioner',
             label: 'Commissioner',
             required: true,
-            regex: '0x[a-fA-F0-9]{40}',
+            regex: regex.ETHEREUM_ADDRESS,
             defaultValue: '',
             disabled: false,
         },
@@ -285,7 +288,7 @@ export const TradeNew = () => {
                     required: true,
                     defaultValue: '',
                     disabled: false,
-                    regex: '0x[a-fA-F0-9]{40}'
+                    regex: regex.ETHEREUM_ADDRESS
                 },
                 {
                     type: FormElementType.INPUT,
@@ -329,6 +332,7 @@ export const TradeNew = () => {
                     name: 'agreedAmount',
                     label: 'Agreed Amount',
                     required: true,
+                    regex: regex.ONLY_DIGITS,
                     defaultValue: '',
                     disabled: false,
                 },
@@ -338,6 +342,7 @@ export const TradeNew = () => {
                     name: 'tokenAddress',
                     label: 'Token Address',
                     required: true,
+                    regex: regex.ETHEREUM_ADDRESS,
                     defaultValue: '',
                     disabled: false,
                 },

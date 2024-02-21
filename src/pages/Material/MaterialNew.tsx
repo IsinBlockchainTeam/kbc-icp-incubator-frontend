@@ -8,6 +8,7 @@ import {useNavigate} from "react-router-dom";
 import {BlockchainMaterialStrategy} from "../../api/strategies/material/BlockchainMaterialStrategy";
 import {MaterialService} from "../../api/services/MaterialService";
 import {NotificationType, openNotification} from "../../utils/notification";
+import {regex} from "../../utils/regex";
 
 export const MaterialNew = () => {
     const navigate = useNavigate();
@@ -22,11 +23,10 @@ export const MaterialNew = () => {
             name: 'product-category-id',
             label: 'Product Category ID',
             required: true,
-            regex: '^\\d+$',
+            regex: regex.ONLY_DIGITS,
             defaultValue: '',
             disabled: false,
         },
-
     ];
 
     const onSubmit = async (values: any) => {

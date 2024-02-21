@@ -12,52 +12,76 @@ import React, {useEffect, useState} from "react";
 import {MaterialPresentable} from "../../../api/types/MaterialPresentable";
 import {AssetOperationPresentable} from "../../../api/types/AssetOperationPresentable";
 import {NotificationType, openNotification} from "../../../utils/notification";
+import {v4 as uuid} from "uuid";
+import {regex} from "../../../utils/regex";
 
 export const AssetOperationsNew = () => {
     const navigate = useNavigate();
 
     const transformationService = new TransformationService(new BlockchainAssetOperationStrategy());
 
-    const getLineIndex = () => {
-        return (inputMaterials.length + 1) / 3 + 1;
-    }
-
-    const [inputMaterials, setInputMaterials] = useState<FormElement[]>([{
-        type: FormElementType.INPUT,
-        span: 8,
-        name: 'input-material-id-1',
-        label: 'Input Material Id',
-        required: true,
-        regex: '^\\d+$',
-        defaultValue: '',
-        disabled: false,
-    },
-        {type: FormElementType.SPACE, span: 16},]);
-
-    const addInputMaterial = () => {
-        setInputMaterials([...inputMaterials, {
+    const [inputMaterials, setInputMaterials] = useState<FormElement[]>([
+        {
             type: FormElementType.INPUT,
             span: 8,
-            name: `input-material-id-${getLineIndex()}`,
+            name: 'input-material-id-1',
             label: 'Input Material Id',
             required: true,
-            regex: '^\\d+$',
+            regex: regex.ONLY_DIGITS,
             defaultValue: '',
             disabled: false,
         },
+        {type: FormElementType.SPACE, span: 16},
+    ]);
+
+    const [, setLineOrder] = useState<string[]>([]);
+
+    const getLineId = (): string => {
+        const id: string = uuid();
+        setLineOrder((prev) => [...prev, id]);
+        return id;
+    }
+
+    const addInputMaterial = () => {
+        const id: string = getLineId();
+        setInputMaterials([...inputMaterials,
+            {
+                type: FormElementType.INPUT,
+                span: 8,
+                name: `input-material-id-${id}`,
+                label: 'Input Material Id',
+                required: true,
+                regex: regex.ONLY_DIGITS,
+                defaultValue: '',
+                disabled: false,
+            },
             {
                 type: FormElementType.BUTTON,
                 span: 4,
-                name: `delete-input-material-${getLineIndex()}`,
+                name: `delete-input-material-${id}`,
                 label: 'Delete input material',
                 disabled: false,
-                onClick: () => deleteInputMaterial(getLineIndex())
+                onClick: () => deleteInputMaterial(id),
+                buttonType: 'default',
+                additionalProperties: 'danger',
             },
-            {type: FormElementType.SPACE, span: 12},]);
+            {type: FormElementType.SPACE, span: 12},
+        ]);
     }
 
-    const deleteInputMaterial = (index: number) => {
-        console.log("deleting", index);
+    const deleteInputMaterial = (id: string) => {
+        let index: number;
+        setLineOrder((currentLineOrder) => {
+            index = currentLineOrder.indexOf(id);
+            return currentLineOrder.filter((lineId) => lineId !== id);
+        });
+
+        setInputMaterials((currentInputMaterials) => {
+            const start: number = 2 + index * 3;
+            const end = start + 3;
+
+            return currentInputMaterials.filter((_, i) => i < start || i >= end);
+        });
     }
 
     const [elements, setElements] = useState<FormElement[]>([]);
@@ -90,7 +114,7 @@ export const AssetOperationsNew = () => {
                 name: 'output-material-id',
                 label: 'Output Material Id',
                 required: true,
-                regex: '^\\d+$',
+                regex: regex.ONLY_DIGITS,
                 defaultValue: '',
                 disabled: false,
             },
@@ -103,8 +127,8 @@ export const AssetOperationsNew = () => {
         assetOperation.setOutputMaterial(new MaterialPresentable(values['output-material-id']));
 
         const inputMaterialIds: MaterialPresentable[] = [];
-        for(const key in values){
-            if(key.startsWith('input-material-id-')){
+        for (const key in values) {
+            if (key.startsWith('input-material-id-')) {
                 const id: number = parseInt(values[key]);
                 inputMaterialIds.push(new MaterialPresentable(id))
             }

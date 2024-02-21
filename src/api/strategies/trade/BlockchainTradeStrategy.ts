@@ -163,7 +163,6 @@ export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<T
         this.checkService(this._solidService);
 
         const tradeManagerService: TradeManagerService = BlockchainLibraryUtils.getTradeManagerService();
-        // TODO: fix external url
         const newTrade: BasicTrade = await tradeManagerService.registerBasicTrade(trade.supplier, trade.customer!, trade.commissioner!, 'externalUrl', trade.name!);
         if (trade.lines) {
             const basicTradeService: BasicTradeService = BlockchainLibraryUtils.getBasicTradeService(await tradeManagerService.getTrade(newTrade.tradeId));

@@ -30,4 +30,13 @@ export class SolidServerService extends Service {
         return getFileFromSolid(fileUrl, { fetch });
     }
 
+    public async createResource(targetUrl: string, podUserSession: SolidSession, isContainer: boolean, metadata?: any): Promise<string> {
+        await this._solidService.createDatasetWithOverwrite(targetUrl, podUserSession, isContainer);
+        if (metadata) await this._solidService.setResourceMetadata(targetUrl, podUserSession, metadata);
+        return targetUrl;
+    }
+
+    public async composeWebId(pathParameters: string[]): Promise<string> {
+        return this._solidService.composeWebId(pathParameters);
+    }
 }

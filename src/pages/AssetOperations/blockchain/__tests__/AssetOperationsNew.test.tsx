@@ -72,7 +72,6 @@ describe('Asset Operations New', () => {
         await waitFor(() => {
             const inputMaterials = screen.getAllByText('Input Material Id');
             expect(inputMaterials).toHaveLength(2);
-            expect(inputMaterials[1]).toHaveAttribute('for', 'generic-form_input-material-id-2');
         });
     });
 
@@ -80,10 +79,13 @@ describe('Asset Operations New', () => {
         render(<AssetOperationsNew />);
 
         userEvent.click(screen.getByText('New input material'));
-
         await waitFor(() => {
-            userEvent.click(screen.getByText('Delete input material'));
-            expect(console.log).toHaveBeenCalledWith('deleting', 2);
+            expect(screen.getAllByText('Input Material Id')).toHaveLength(2);
+        });
+
+        userEvent.click(screen.getByText('Delete input material'));
+        await waitFor(() => {
+            expect(screen.getAllByText('Input Material Id')).toHaveLength(1);
         });
     });
 });

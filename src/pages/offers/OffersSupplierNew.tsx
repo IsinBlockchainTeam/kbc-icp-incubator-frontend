@@ -9,6 +9,7 @@ import {Button} from "antd";
 import {DeleteOutlined} from "@ant-design/icons";
 import React from "react";
 import {formatAddress} from "../../utils/utils";
+import {regex} from "../../utils/regex";
 
 export const OffersSupplierNew = () => {
     const navigate = useNavigate();
@@ -23,7 +24,7 @@ export const OffersSupplierNew = () => {
             name: 'supplier-address',
             label: 'Supplier Address',
             required: true,
-            regex: '0x[a-fA-F0-9]{40}',
+            regex: regex.ETHEREUM_ADDRESS,
             defaultValue: '',
             disabled: false
         },
