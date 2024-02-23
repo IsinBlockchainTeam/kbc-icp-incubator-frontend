@@ -1,5 +1,6 @@
 import {FormElement, FormElementType, GenericForm} from "../GenericForm";
 import {fireEvent, render} from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 
 jest.mock('antd', () => {
     const antd = jest.requireActual('antd');
@@ -52,10 +53,11 @@ describe('GenericForm', () => {
         expect(dividers[0].innerHTML).toContain('Text 1');
         expect(dividers[1].innerHTML).toContain('Text 2');
     });
-    it('should render correctly DisableableElements', () => {
+    it('should render correctly ClickableElement', () => {
+        const mockedOnClick = jest.fn();
         const elements: FormElement[] = [
-            { type: FormElementType.BUTTON, span: 4, name: 'button', label: 'Button 1', disabled: false},
-            { type: FormElementType.BUTTON, span: 12, name: 'button', label: 'Button 2', disabled: true},
+            { type: FormElementType.BUTTON, span: 4, name: 'button', label: 'Button 1', disabled: false, onClick: mockedOnClick},
+            { type: FormElementType.BUTTON, span: 12, name: 'button', label: 'Button 2', disabled: true, onClick: mockedOnClick},
         ];
         const tree = render(<GenericForm elements={elements}/>);
 
@@ -70,6 +72,11 @@ describe('GenericForm', () => {
         expect(buttons[0].innerHTML).toContain('Button 1');
         expect(buttons[1]).toHaveAttribute('disabled');
         expect(buttons[1].innerHTML).toContain('Button 2');
+
+        userEvent.click(buttons[0]);
+        expect(mockedOnClick).toHaveBeenCalledTimes(1);
+        userEvent.click(buttons[1]);
+        expect(mockedOnClick).toHaveBeenCalledTimes(2);
     });
     it('should render correctly EditableElements', () => {
         const elements: FormElement[] = [

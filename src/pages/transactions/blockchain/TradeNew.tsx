@@ -40,7 +40,7 @@ export const TradeNew = () => {
             type: FormElementType.INPUT,
             span: 8,
             name: 'product-category-id-1',
-            label: 'Product Category Id',
+            label: 'Product Category ID',
             required: true,
             regex: regex.ONLY_DIGITS,
             defaultValue: '',
@@ -53,7 +53,7 @@ export const TradeNew = () => {
             type: FormElementType.INPUT,
             span: 6,
             name: `product-category-id-1`,
-            label: 'Product Category Id',
+            label: 'Product Category ID',
             required: true,
             regex: regex.ONLY_DIGITS,
             defaultValue: '',
@@ -94,7 +94,7 @@ export const TradeNew = () => {
                     type: FormElementType.INPUT,
                     span: 8,
                     name: `product-category-id-${id}`,
-                    label: 'Product Category Id',
+                    label: 'Product Category ID',
                     required: true,
                     defaultValue: '',
                     disabled: false,
@@ -115,7 +115,7 @@ export const TradeNew = () => {
                     type: FormElementType.INPUT,
                     span: 6,
                     name: `product-category-id-${id}`,
-                    label: 'Product Category Id',
+                    label: 'Product Category ID',
                     required: true,
                     defaultValue: '',
                     disabled: false,
@@ -161,8 +161,11 @@ export const TradeNew = () => {
         });
 
         setLines((currentLines) => {
-            const start: number = type === TradeType.BASIC ? 2 + index * 3 : index * 4;
-            const end: number = type === TradeType.BASIC ? 2 + index * 3 + 3 : index * 4 + 4;
+            const start: number = type === TradeType.BASIC ? 2 + index * 3 : 4 + index * 4;
+            const end: number = type === TradeType.BASIC ? 2 + index * 3 + 3 : 8 +index * 4;
+            console.log("index", index);
+            console.log("start", start);
+            console.log("end", end);
 
             return currentLines.filter((_, i) => i < start || i >= end);
         });
@@ -377,7 +380,7 @@ export const TradeNew = () => {
         for (const key in values) {
             let id: string;
             if (key.startsWith('product-category-id-')) {
-                id = key.split('-')[3];
+                id = key.split('product-category-id-')[1];
                 if(type === TradeType.BASIC)
                     (values['lines'] ||= []).push(new TradeLinePresentable(0, new MaterialPresentable(values[key])));
                 else {
@@ -401,6 +404,7 @@ export const TradeNew = () => {
             await tradeService.saveOrderTrade(values);
             openNotification("Order trade registered", `Order trade has been registered correctly!`, NotificationType.SUCCESS, 1);
         }
+        navigate(paths.TRADES);
     }
 
     return (
@@ -413,7 +417,6 @@ export const TradeNew = () => {
                 </Button>
             </div>
         }>
-
             <div style={{display: "flex", alignItems: "center"}}>
                 <Text style={{marginRight: '16px'}} strong>Trade Type:</Text>
                 <Dropdown menu={menuProps} trigger={['click']}>

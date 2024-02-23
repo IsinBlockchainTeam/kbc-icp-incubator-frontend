@@ -91,7 +91,7 @@ export const GenericForm = (props: Props) => {
         },
         [FormElementType.BUTTON]: (element: FormElement, index: number) => {
             element = element as ClickableElement;
-            const { span, label, name, disabled = false, onClick, buttonType = 'default', icon = undefined, block = true, additionalProperties = undefined } = element;
+            const { span, label, name, disabled, onClick, buttonType = 'default', icon = undefined, block = true, additionalProperties = undefined } = element;
             const additionalProps = additionalProperties ? mapAdditionalPropertiesToButtonProps[additionalProperties] : {};
 
             return (

@@ -49,3 +49,17 @@ This package is written in TypeScript.
 If you want to develop locally, follow these steps:
 - Make sure you have built the _Coffee Trading Management Lib_ `src` package
 - Inside file `package.json` change the `@kbc-lib/coffee-trading-management-lib` dependency to the local path of the `src` package. Use the following format: `"@kbc-lib/coffee-trading-management-lib": "file:<relative-path-to-src-package>"`
+
+## Troubleshooting
+When signing transactions using Metamask after restarting the local _Hardhat_ blockchain, you may encounter the following error:
+```
+MetaMask - RPC Error: Internal JSON-RPC error. 
+{code: -32603, message: "Internal JSON-RPC error."}
+```
+This is due to the fact that Metamask is trying to contact the local blockchain with the latest known block number, but the blockchain has been restarted and the block number has been reset.
+To fix this, you can reset the block number used by Metamask following these steps:
+1. Press on the Metamask extension in the top right corner of your browser
+2. Press on the three dots in the top right corner of the Metamask extension
+3. Press on `Settings`
+4. Press on `Advanced`
+5. Press on `Clear activity tab data`

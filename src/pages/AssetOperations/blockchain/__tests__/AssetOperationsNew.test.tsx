@@ -33,8 +33,8 @@ describe('Asset Operations New', () => {
         expect(screen.getByRole('button', {name: 'delete Delete Asset Operation'})).toBeInTheDocument();
         expect(screen.getByText('Data')).toBeInTheDocument();
         expect(screen.getByText('Name')).toBeInTheDocument();
-        expect(screen.getByText('Input Material Id')).toBeInTheDocument();
-        expect(screen.getByText('Output Material Id')).toBeInTheDocument();
+        expect(screen.getByText('Input Material ID')).toBeInTheDocument();
+        expect(screen.getByText('Output Material ID')).toBeInTheDocument();
         expect(screen.getByText('Latitude')).toBeInTheDocument();
         expect(screen.getByText('Longitude')).toBeInTheDocument();
         expect(screen.getByRole('button', {name: 'Submit'})).toBeInTheDocument();
@@ -44,8 +44,8 @@ describe('Asset Operations New', () => {
         render(<AssetOperationsNew />);
 
         userEvent.type(screen.getByRole('textbox', {name: 'Name'}), 'Test');
-        userEvent.type(screen.getByRole('textbox', {name: 'Input Material Id'}), '1');
-        userEvent.type(screen.getByRole('textbox', {name: 'Output Material Id'}), '2');
+        userEvent.type(screen.getByRole('textbox', {name: 'Input Material ID'}), '1');
+        userEvent.type(screen.getByRole('textbox', {name: 'Output Material ID'}), '2');
         userEvent.type(screen.getByRole('textbox', {name: 'Latitude'}), '40.730610');
         userEvent.type(screen.getByRole('textbox', {name: 'Longitude'}), '-73.935242');
         userEvent.click(screen.getByRole('button', {name: 'Submit'}));
@@ -74,7 +74,7 @@ describe('Asset Operations New', () => {
         userEvent.click(screen.getByText('New input material'));
 
         await waitFor(() => {
-            const inputMaterials = screen.getAllByText('Input Material Id');
+            const inputMaterials = screen.getAllByText('Input Material ID');
             expect(inputMaterials).toHaveLength(2);
         });
     });
@@ -84,12 +84,12 @@ describe('Asset Operations New', () => {
 
         userEvent.click(screen.getByText('New input material'));
         await waitFor(() => {
-            expect(screen.getAllByText('Input Material Id')).toHaveLength(2);
+            expect(screen.getAllByText('Input Material ID')).toHaveLength(2);
         });
 
         userEvent.click(screen.getByText('Delete input material'));
         await waitFor(() => {
-            expect(screen.getAllByText('Input Material Id')).toHaveLength(1);
+            expect(screen.getAllByText('Input Material ID')).toHaveLength(1);
         });
     });
 });
