@@ -8,6 +8,7 @@ export const storage = {
 };
 
 export const requestPath = {
+  VERAMO_PROXY_URL: `${checkAndGetEnvironmentVariable(process.env.REACT_APP_VERAMO_PROXY_URL, "Veramo proxy URL must be defined")}`,
   MATTR_PROXY_BASE_URL: `${checkAndGetEnvironmentVariable(process.env.REACT_APP_MATTR_PROXY_URL, "Mattr proxy URL must be defined")}/api`,
   BACKEND_BASE_URL: `${checkAndGetEnvironmentVariable(process.env.REACT_APP_BACKEND_URL, "UNECE backend URL must be defined")}/api`,
 };

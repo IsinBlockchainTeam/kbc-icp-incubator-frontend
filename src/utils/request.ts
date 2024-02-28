@@ -3,11 +3,12 @@ import { getAPIToken, getMattrAPIToken } from "./storage";
 export const request = async (
   url: string,
   options: any,
-  contentType = "application/json",
+  contentType = "application/json"
 ): Promise<any> => {
   let headers = {
     "Content-Type": contentType,
     Accept: "application/json",
+    "ngrok-skip-browser-warning": "true",
     // 'Sec-Fetch-Site': 'same-site'
   };
 

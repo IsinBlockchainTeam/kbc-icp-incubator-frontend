@@ -19,6 +19,7 @@ import { getResolver as ethrDidResolver } from "ethr-did-resolver";
 import { Resolver } from "did-resolver";
 import { MessageHandler } from "@veramo/message-handler";
 import { DIDComm, DIDCommMessageHandler, IDIDComm } from "@veramo/did-comm";
+import { ISelectiveDisclosure, SelectiveDisclosure } from "@veramo/selective-disclosure";
 
 const INFURA_PROJECT_ID = "14bc392775034b3d80988f5211a95985";
 
@@ -28,7 +29,8 @@ export const agent = createAgent<
     IResolver &
     ICredentialVerifier &
     IMessageHandler &
-    IDIDComm
+    IDIDComm &
+    ISelectiveDisclosure
 >({
   plugins: [
     new KeyManager({
@@ -58,5 +60,6 @@ export const agent = createAgent<
       messageHandlers: [new DIDCommMessageHandler()],
     }),
     new DIDComm(),
+    new SelectiveDisclosure(),
   ],
 });
