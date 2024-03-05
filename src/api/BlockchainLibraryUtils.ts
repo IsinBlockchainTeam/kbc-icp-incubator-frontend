@@ -71,13 +71,13 @@ export class BlockchainLibraryUtils {
         return new DocumentService(documentDriver);
     }
 
-    static getGraphService = (): GraphService => {
-        return new GraphService(this._getSigner(), BlockchainLibraryUtils.getTradeManagerService(), BlockchainLibraryUtils.getAssetOperationService());
-    }
-
     static getOfferService = (): OfferService => {
         const offerDriver: OfferDriver = new OfferDriver(this._getSigner(), contractAddresses.OFFER(), contractAddresses.PRODUCT_CATEGORY());
         return new OfferService(offerDriver);
+    }
+
+    static getGraphService = (): GraphService => {
+        return new GraphService(this._getSigner(), BlockchainLibraryUtils.getTradeManagerService(), BlockchainLibraryUtils.getAssetOperationService());
     }
 
     private static _getSigner = (): Signer => {
