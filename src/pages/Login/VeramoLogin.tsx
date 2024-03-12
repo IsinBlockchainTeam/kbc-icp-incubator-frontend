@@ -4,10 +4,15 @@ import { useEffect, useState } from "react";
 import { requestPath } from "../../constants";
 import { request } from "../../utils/request";
 import { v4 as uuid } from "uuid";
+import { openNotification, NotificationType } from "../../utils/notification";
+import { formatDid } from "../../utils/utils";
+import { useDispatch } from "react-redux";
+import { updateSubjectDid } from "../../redux/reducers/authSlice";
 
 export default function VeramoLogin() {
   const [qrCodeURL, setQrCodeURL] = useState<string>("");
-  const [requestId, setRequestId] = useState<string>("");
+  const [challengeId, setChallengeId] = useState<string>("");
+  const dispatch = useDispatch();
 
   const requestAuthPresentation = async () => {
     // const id = uuid();
@@ -38,8 +43,6 @@ export default function VeramoLogin() {
       {
         method: "POST",
         body: JSON.stringify({
-          issuerDid:
-            "did:ethr:goerli:0x5a49c60f856d9B411224C58e69A4d1B248Bdd46c",
           tag: uuid(),
           claimType: "",
           reason: "Please, authenticate yourself",
@@ -48,6 +51,7 @@ export default function VeramoLogin() {
     );
     console.log("RESPONSE", response);
     setQrCodeURL(response.qrcode);
+    setChallengeId(response.offer.id);
   };
 
   useEffect(() => {
@@ -55,31 +59,39 @@ export default function VeramoLogin() {
   }, []);
 
   useEffect(() => {
-    if (requestId) {
-      // const interval = setInterval(async () => {
-      //   const message = await request(
-      //     `${requestPath.VERAMO_PROXY_URL}/api/services/verifier?requestId=${requestId}`,
-      //     { method: "GET" }
-      //   );
-      //   if (message) {
-      //     clearInterval(interval);
-      //     if (!message.protected) return;
-      //     console.log("MESSAGE", message);
-      //     const unpackRequest = {
-      //       message: JSON.stringify(message),
-      //     };
-      //     console.log("UNPACK REQUEST", unpackRequest);
-      //     const unpackedMessage =
-      //       await veramoService.unpackDIDCommMessage(unpackRequest);
-      //     console.log("UNPACKED MESSAGE", unpackedMessage);
-      //     setRequestId("");
-      //   } else {
-      //     console.log("NO MESSAGE");
-      //   }
-      // }, 1000);
-      // return () => clearInterval(interval);
+    if (challengeId) {
+      const interval = setInterval(async () => {
+        const message = await request(
+          `${requestPath.VERIFIER_BACKEND_URL}/presentations/callback/validated?challengeId=${challengeId}`,
+          { method: "GET" }
+        );
+        if (message) {
+          console.log("MESSAGE", message);
+
+          clearInterval(interval);
+          setChallengeId("");
+          const subjectDid = message.body.holder;
+          if (!subjectDid) {
+            openNotification(
+              "Error",
+              "No subject DID found",
+              NotificationType.ERROR
+            );
+            return;
+          }
+          dispatch(updateSubjectDid(subjectDid));
+          openNotification(
+            "Authenticated",
+            `User with DID ${formatDid(message.body.holder)} has authenticated succesfully`,
+            NotificationType.SUCCESS
+          );
+        } else {
+          console.log("NO MESSAGE");
+        }
+      }, 1000);
+      return () => clearInterval(interval);
     }
-  }, [requestId]);
+  }, [challengeId]);
 
   return (
     <div className={styles.ContentContainer}>
