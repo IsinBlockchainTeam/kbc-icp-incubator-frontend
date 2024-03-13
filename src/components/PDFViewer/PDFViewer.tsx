@@ -4,7 +4,7 @@ import {Document} from "../GenericForm/GenericForm";
 import {Viewer} from "@react-pdf-viewer/core";
 import PDFUploader from "../PDFUploader/PDFUploader";
 
-export default function PDFViewer(element: Document, index: number) {
+export default function PDFViewer(element: Document, index: number, normFile: (e: any) => any) {
     const {height = '100%', content, uploadable} = element;
     const [file, setFile] = useState<Blob>();
 

@@ -19,9 +19,9 @@ export const Home = () => {
     }
 
     const elements: FormElement[] = [
-        { type: FormElementType.INPUT, span: 12, label: 'First Name', name: 'first-name', required: true, disabled: false, defaultValue: '', block: false, regex: '^[a-zA-Z ]+$' },
         { type: FormElementType.DOCUMENT, span: 12, label: 'Document Preview', name: 'first-document', uploadable: true, content: firstDocument, required: false, height: '50vh' },
         { type: FormElementType.DOCUMENT, span: 12, label: 'Document Preview', name: 'second-document', uploadable: true, content: secondDocument, required: false, height: '50vh' },
+        { type: FormElementType.INPUT, span: 12, label: 'First Name', name: 'first-name', required: true, disabled: false, defaultValue: '', block: false, regex: '^[a-zA-Z ]+$' },
     ];
 
     const onSubmit = (values: any) => {

@@ -1,7 +1,7 @@
 import React from 'react';
 import {InboxOutlined} from '@ant-design/icons';
 import type {UploadProps} from 'antd';
-import {Upload} from 'antd';
+import {Upload, Form} from 'antd';
 import {NotificationType, openNotification} from "../../utils/notification";
 import {RcFile} from "antd/lib/upload";
 
@@ -38,12 +38,22 @@ export default function PDFUploader({onFileUpload}: PDFUploaderProps) {
         },
     };
 
+    const normFile = (e: any) => {
+        console.log('Upload event:', e);
+        if (Array.isArray(e)) {
+            return e;
+        }
+        return e?.fileList;
+    };
+
     return (
+        <Form.Item name="prova" valuePropName="fileList" getValueFromEvent={normFile} noStyle>
         <Dragger {...props}>
             <p className="ant-upload-drag-icon">
                 <InboxOutlined/>
             </p>
             <p className="ant-upload-text">Click or drag PDF file to this area to upload</p>
         </Dragger>
+        </Form.Item>
     )
 }

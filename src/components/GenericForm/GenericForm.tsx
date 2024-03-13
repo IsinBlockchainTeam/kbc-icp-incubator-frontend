@@ -1,10 +1,11 @@
 import React from "react";
-import {Button, Col, DatePicker, Divider, Form, Input, Row, Spin} from "antd";
+import {Button, Col, DatePicker, Divider, Form, Input, Row, Upload, type UploadProps} from "antd";
 import {Spinner, Viewer} from "@react-pdf-viewer/core";
-import {UploadOutlined} from "@ant-design/icons";
+import {InboxOutlined, UploadOutlined} from "@ant-design/icons";
 import PDFUploader from "../PDFUploader/PDFUploader";
 import {RcFile} from "antd/lib/upload";
 import PDFViewer from "../PDFViewer/PDFViewer";
+import {NotificationType, openNotification} from "../../utils/notification";
 
 export enum FormElementType {
     TITLE = 'title',
@@ -171,16 +172,16 @@ export const GenericForm = (props: Props) => {
         },
         [FormElementType.DOCUMENT]: (element: FormElement, index: number) => {
             element = element as Document;
+
             return (
-                <Col span={element.span} key={index}>
-                    <Form.Item
-                        labelCol={{span: 24}}
-                        label={element.label}
-                        name={element.name}
-                    >
-                        <PDFViewer {...element} key={index}/>
-                    </Form.Item>
-                </Col>
+                <>
+                    <Col span={element.span} key={index}>
+                        <Form.Item label={element.label}>
+                            <PDFViewer {...element} />
+                        </Form.Item>
+                    </Col>
+                </>
+
             )
         },
     }
