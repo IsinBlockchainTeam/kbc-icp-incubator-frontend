@@ -263,15 +263,15 @@ export const TradeView = () => {
         ))
     }
 
-    documents?.forEach((document) => elements.push({
-        type: FormElementType.DOCUMENT_PREVIEW,
-        span: 24,
-        name: document.name,
-        label: document.name,
-        required: true,
-        content: document.content,
-        disabled,
-    }))
+    // documents?.forEach((document) => elements.push({
+    //     type: FormElementType.DOCUMENT,
+    //     span: 24,
+    //     name: document.name,
+    //     label: document.name,
+    //     required: true,
+    //     content: document.content,
+    //     disabled,
+    // }))
 
     const onSubmit = async (values: any) => {
         if (values['delivery-deadline'] <= values['shipping-deadline']) {

@@ -1,6 +1,7 @@
 import React from "react";
-import {Button, Col, DatePicker, Divider, Form, Input, Row} from "antd";
-import { Viewer} from "@react-pdf-viewer/core";
+import {Button, Col, DatePicker, Divider, Form, Input, Row, Spin} from "antd";
+import {Spinner, Viewer} from "@react-pdf-viewer/core";
+import {UploadOutlined} from "@ant-design/icons";
 
 export enum FormElementType {
     TITLE = 'title',
@@ -8,9 +9,10 @@ export enum FormElementType {
     DATE = 'date',
     SPACE = 'space',
     BUTTON = 'button',
-    DOCUMENT_PREVIEW = 'document',
+    DOCUMENT = 'document',
 }
-export type FormElement = BasicElement | LabeledElement | ClickableElement | EditableElement | DocumentElement;
+
+export type FormElement = BasicElement | LabeledElement | ClickableElement | EditableElement | Document;
 
 type BasicElement = {
     type: FormElementType.SPACE,
@@ -41,27 +43,28 @@ type ClickableElement = Omit<LabeledElement, 'type'> & {
 }
 type AdditionalButtonProperties = 'danger' | 'ghost' | 'loading';
 const mapAdditionalPropertiesToButtonProps: Record<AdditionalButtonProperties, Record<string, any>> = {
-    'danger': { danger: true },
-    'ghost': { ghost: true },
-    'loading': { loading: true },
+    'danger': {danger: true},
+    'ghost': {ghost: true},
+    'loading': {loading: true},
 };
 
 type EditableElement = Omit<LabeledElement, 'type'> & {
     type: FormElementType.INPUT | FormElementType.DATE,
     name: string,
     disabled: boolean,
-    block?: boolean,
     defaultValue: any,
     required: boolean,
+    block?: boolean,
     regex?: string
 }
 
-type DocumentElement = Omit<LabeledElement, 'type'> & {
-    type: FormElementType.DOCUMENT_PREVIEW,
+type Document = Omit<LabeledElement, 'type'> & {
+    type: FormElementType.DOCUMENT,
     name: string,
-    disabled: boolean,
-    content: Blob,
+    uploadable: boolean,
     required: boolean,
+    content?: Blob,
+    height?: `${number}px` | `${number}%` | `${number}vh` | 'auto',
 }
 
 type Props = {
@@ -76,7 +79,7 @@ export const GenericForm = (props: Props) => {
     const elementComponent = {
         [FormElementType.SPACE]: (element: FormElement, index: number) => {
             element = element as BasicElement;
-            const { span} = element;
+            const {span} = element;
             return (
                 <Col span={span} key={index}>
                 </Col>
@@ -84,24 +87,35 @@ export const GenericForm = (props: Props) => {
         },
         [FormElementType.TITLE]: (element: FormElement, index: number) => {
             element = element as LabeledElement;
-            const { span, label } = element;
+            const {span, label} = element;
             return (
                 <Col span={span} key={index}><Divider>{label}</Divider></Col>
             )
         },
         [FormElementType.BUTTON]: (element: FormElement, index: number) => {
             element = element as ClickableElement;
-            const { span, label, name, disabled = false, onClick, buttonType = 'default', icon = undefined, block = true, additionalProperties = undefined } = element;
+            const {
+                span,
+                label,
+                name,
+                disabled = false,
+                onClick,
+                buttonType = 'default',
+                icon = undefined,
+                block = true,
+                additionalProperties = undefined
+            } = element;
             const additionalProps = additionalProperties ? mapAdditionalPropertiesToButtonProps[additionalProperties] : {};
 
             return (
                 <Col span={span} key={index}>
                     <Form.Item
-                        labelCol={{ span: 24 }}
+                        labelCol={{span: 24}}
                         label={' '}
                         name={name}
                     >
-                        <Button type={buttonType} block={block} disabled={disabled} onClick={onClick} icon={icon} {...additionalProps}>{label}</Button>
+                        <Button type={buttonType} block={block} disabled={disabled} onClick={onClick}
+                                icon={icon} {...additionalProps}>{label}</Button>
                     </Form.Item>
                 </Col>
             );
@@ -111,12 +125,15 @@ export const GenericForm = (props: Props) => {
             return (
                 <Col span={element.span} key={index}>
                     <Form.Item
-                        labelCol={{ span: 24 }}
+                        labelCol={{span: 24}}
                         label={element.label}
                         name={element.name}
                         rules={[
-                            { required: element.required, message: `Please insert ${element.label}!` },
-                            { pattern: new RegExp(element.regex || '.*'), message: `Please enter a valid ${element.label}!` }
+                            {required: element.required, message: `Please insert ${element.label}!`},
+                            {
+                                pattern: new RegExp(element.regex || '.*'),
+                                message: `Please enter a valid ${element.label}!`
+                            }
                         ]}>
                         <Input
                             type={element.type}
@@ -134,10 +151,10 @@ export const GenericForm = (props: Props) => {
             return (
                 <Col span={element.span} key={index}>
                     <Form.Item
-                        labelCol={{ span: 24 }}
+                        labelCol={{span: 24}}
                         label={element.label}
                         name={element.name}
-                        rules={[{ required: element.required, message: `Please insert ${element.label}!` }]}>
+                        rules={[{required: element.required, message: `Please insert ${element.label}!`}]}>
                         <DatePicker
                             disabled={element.disabled}
                             placeholder={`Enter ${element.label}`}
@@ -149,29 +166,43 @@ export const GenericForm = (props: Props) => {
                 </Col>
             )
         },
-        [FormElementType.DOCUMENT_PREVIEW]: (element: FormElement, index: number) => {
-            element = element as DocumentElement;
+        [FormElementType.DOCUMENT]: (element: FormElement, index: number) => {
+            element = element as Document;
+            const {height = '100%', content, uploadable} = element;
             return (
-                <Col span={element.span} key={index}>
-                    <Form.Item
-                        labelCol={{ span: 24 }}
-                        label={element.label}
-                        name={element.name}
-                    >
-                        <div style={{
-                            border: '1px solid #d9d9d9',
-                            borderRadius: '6px',
-                            height: '200px',
-                            width: '100%',
-                            overflowY: 'scroll'
-                        }}>
-                            <Viewer
-                                fileUrl='https://pdfobject.com/pdf/sample.pdf'
-                                // fileUrl={URL.createObjectURL(element.content!)}
-                            />
-                        </div>
-                    </Form.Item>
-                </Col>
+                <>
+                    <Col span={element.span} key={index}>
+                        <Form.Item
+                            labelCol={{span: 24}}
+                            label={element.label}
+                            name={element.name}
+                        >
+                            <div style={{
+                                border: '1px solid #d9d9d9',
+                                borderRadius: '6px',
+                                height,
+                                width: '100%',
+                                overflowY: 'scroll',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }}
+                            >
+                                {content ? (
+                                    <>
+                                        <Viewer
+                                            fileUrl={URL.createObjectURL(content)}
+                                        />
+                                    </>
+                                ) : (
+                                    <Spin/>
+                                )}
+                            </div>
+                            {uploadable && <Button type={"primary"} icon={<UploadOutlined />}>Upload</Button>}
+                        </Form.Item>
+                    </Col>
+                </>
             )
         },
     }

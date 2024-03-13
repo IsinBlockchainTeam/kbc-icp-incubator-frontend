@@ -101,7 +101,7 @@ describe('GenericForm', () => {
     });
     it('should render correctly EditableElements', () => {
         const elements: FormElement[] = [
-            { type: FormElementType.DOCUMENT_PREVIEW, span: 24, name: 'document', label: 'Document 1', required: true, content: new Blob(), disabled: false},
+            { type: FormElementType.DOCUMENT, span: 24, name: 'document', label: 'Document 1', required: true, content: new Blob(), disabled: false},
         ];
         const tree = render(<GenericForm elements={elements}/>);
 
