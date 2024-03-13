@@ -2,6 +2,9 @@ import React from "react";
 import {Button, Col, DatePicker, Divider, Form, Input, Row, Spin} from "antd";
 import {Spinner, Viewer} from "@react-pdf-viewer/core";
 import {UploadOutlined} from "@ant-design/icons";
+import PDFUploader from "../PDFUploader/PDFUploader";
+import {RcFile} from "antd/lib/upload";
+import PDFViewer from "../PDFViewer/PDFViewer";
 
 export enum FormElementType {
     TITLE = 'title',
@@ -58,7 +61,7 @@ type EditableElement = Omit<LabeledElement, 'type'> & {
     regex?: string
 }
 
-type Document = Omit<LabeledElement, 'type'> & {
+export type Document = Omit<LabeledElement, 'type'> & {
     type: FormElementType.DOCUMENT,
     name: string,
     uploadable: boolean,
@@ -168,41 +171,16 @@ export const GenericForm = (props: Props) => {
         },
         [FormElementType.DOCUMENT]: (element: FormElement, index: number) => {
             element = element as Document;
-            const {height = '100%', content, uploadable} = element;
             return (
-                <>
-                    <Col span={element.span} key={index}>
-                        <Form.Item
-                            labelCol={{span: 24}}
-                            label={element.label}
-                            name={element.name}
-                        >
-                            <div style={{
-                                border: '1px solid #d9d9d9',
-                                borderRadius: '6px',
-                                height,
-                                width: '100%',
-                                overflowY: 'scroll',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                            }}
-                            >
-                                {content ? (
-                                    <>
-                                        <Viewer
-                                            fileUrl={URL.createObjectURL(content)}
-                                        />
-                                    </>
-                                ) : (
-                                    <Spin/>
-                                )}
-                            </div>
-                            {uploadable && <Button type={"primary"} icon={<UploadOutlined />}>Upload</Button>}
-                        </Form.Item>
-                    </Col>
-                </>
+                <Col span={element.span} key={index}>
+                    <Form.Item
+                        labelCol={{span: 24}}
+                        label={element.label}
+                        name={element.name}
+                    >
+                        <PDFViewer {...element} key={index}/>
+                    </Form.Item>
+                </Col>
             )
         },
     }
