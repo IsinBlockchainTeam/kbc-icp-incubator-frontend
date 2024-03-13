@@ -18,10 +18,12 @@ jest.mock('antd', () => {
     };
 });
 
-jest.mock('@react-pdf-viewer/core', () => {
+jest.mock('../../PDFViewer/PDFViewer', () => {
     return {
-        Viewer: ({children, ...props}: any) => <div {...props} data-testid="viewer">{children}</div>,
-    };
+        __esModule: true,
+        default: function PDFViewerMock({ children, ...props }: any) {
+            return <div {...props} data-testid="pdfviewer">{children}</div>;
+        },}
 });
 
 describe('GenericForm', () => {
@@ -52,10 +54,10 @@ describe('GenericForm', () => {
         expect(dividers[0].innerHTML).toContain('Text 1');
         expect(dividers[1].innerHTML).toContain('Text 2');
     });
-    it('should render correctly DisableableElements', () => {
+    it('should render correctly ClickableElements', () => {
         const elements: FormElement[] = [
-            { type: FormElementType.BUTTON, span: 4, name: 'button', label: 'Button 1', disabled: false},
-            { type: FormElementType.BUTTON, span: 12, name: 'button', label: 'Button 2', disabled: true},
+            { type: FormElementType.BUTTON, span: 4, name: 'button', label: 'Button 1', disabled: false, onClick: () => {}},
+            { type: FormElementType.BUTTON, span: 12, name: 'button', label: 'Button 2', disabled: true, onClick: () => {}},
         ];
         const tree = render(<GenericForm elements={elements}/>);
 
@@ -101,7 +103,17 @@ describe('GenericForm', () => {
     });
     it('should render correctly EditableElements', () => {
         const elements: FormElement[] = [
-            { type: FormElementType.DOCUMENT, span: 24, name: 'document', label: 'Document 1', required: true, content: new Blob(), disabled: false},
+            { type: FormElementType.INPUT, span: 24, name: 'input-element', label: 'Input 1', required: true, disabled: false, defaultValue: 'test'},
+        ];
+        const tree = render(<GenericForm elements={elements}/>);
+
+        const formitem = tree.getByTestId('form-item');
+        expect(formitem).toHaveAttribute('label', 'Input 1');
+        expect(formitem).toHaveAttribute('name', 'input-element');
+    });
+    it('should render correctly DocumentElements', () => {
+        const elements: FormElement[] = [
+            { type: FormElementType.DOCUMENT, span: 24, name: 'document', label: 'Document 1', required: true, content: new Blob(), uploadable: true, loading: false},
         ];
         const tree = render(<GenericForm elements={elements}/>);
 
@@ -109,12 +121,13 @@ describe('GenericForm', () => {
         expect(formitem).toHaveAttribute('label', 'Document 1');
         expect(formitem).toHaveAttribute('name', 'document');
 
-        const viewer = tree.getByTestId('viewer');
-        expect(viewer).toBeDefined();
+        const pdfViewer = tree.getByTestId('pdfviewer');
+        expect(pdfViewer).toBeDefined();
     });
     it('should call onSubmit', () => {
         const elements: FormElement[] = [
             { type: FormElementType.INPUT, span: 12, name: 'input', label: 'Input 1', required: false, defaultValue: '', disabled: false, regex: '0x[a-fA-F0-9]{40}'},
+            { type: FormElementType.DOCUMENT, span: 24, name: 'document', label: 'Document 1', required: true, content: new Blob(), uploadable: true, loading: false},
         ];
         const onSubmit = jest.fn();
         const tree = render(<GenericForm elements={elements} submittable={true} onSubmit={onSubmit}/>);
@@ -122,7 +135,7 @@ describe('GenericForm', () => {
         const form = tree.getByTestId('form');
         expect(form).toBeDefined();
         fireEvent.submit(form);
-        expect(onSubmit).toHaveBeenCalled();
+        expect(onSubmit).toHaveBeenCalledTimes(1);
+        expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({document: new Blob()}));
     });
-
 });

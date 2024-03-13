@@ -1,12 +1,12 @@
 import {Spin} from "antd";
 import React, {useEffect, useState} from "react";
-import {Document} from "../GenericForm/GenericForm";
+import {DocumentElement} from "../GenericForm/GenericForm";
 import {Viewer} from "@react-pdf-viewer/core";
 import PDFUploader from "../PDFUploader/PDFUploader";
 import {ContainerTwoTone} from '@ant-design/icons';
 
 export interface PDFViewerProps {
-    element: Document;
+    element: DocumentElement;
     onDocumentChange: (name: string, file?: Blob) => void;
 }
 

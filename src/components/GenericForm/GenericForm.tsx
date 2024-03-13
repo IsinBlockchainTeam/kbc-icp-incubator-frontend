@@ -16,7 +16,7 @@ export enum FormElementType {
     DOCUMENT = 'document',
 }
 
-export type FormElement = BasicElement | LabeledElement | ClickableElement | EditableElement | Document;
+export type FormElement = BasicElement | LabeledElement | ClickableElement | EditableElement | DocumentElement;
 
 type BasicElement = {
     type: FormElementType.SPACE,
@@ -62,7 +62,7 @@ type EditableElement = Omit<LabeledElement, 'type'> & {
     regex?: string
 }
 
-export type Document = Omit<LabeledElement, 'type'> & {
+export type DocumentElement = Omit<LabeledElement, 'type'> & {
     type: FormElementType.DOCUMENT,
     name: string,
     uploadable: boolean,
@@ -85,7 +85,7 @@ export const GenericForm = (props: Props) => {
     useEffect(() => {
         props.elements.forEach((element) => {
             if (element.type === FormElementType.DOCUMENT) {
-                const doc = element as Document;
+                const doc = element as DocumentElement;
                 if (doc.content) {
                     documents.set(doc.name, doc.content);
                 }
@@ -188,7 +188,7 @@ export const GenericForm = (props: Props) => {
             )
         },
         [FormElementType.DOCUMENT]: (element: FormElement, index: number) => {
-            element = element as Document;
+            element = element as DocumentElement;
 
             return (
                 <>
