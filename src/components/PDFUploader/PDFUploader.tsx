@@ -1,18 +1,18 @@
 import React from 'react';
 import {InboxOutlined} from '@ant-design/icons';
-import type {UploadProps} from 'antd';
-import {Upload, Form} from 'antd';
+import {Button, UploadProps} from 'antd';
+import {Upload} from 'antd';
 import {NotificationType, openNotification} from "../../utils/notification";
-import {RcFile} from "antd/lib/upload";
+import {RollbackOutlined} from "@ant-design/icons";
 
 const {Dragger} = Upload;
 
 export interface PDFUploaderProps {
     onFileUpload: (file: Blob) => void;
-    name: string;
+    onRevert: () => void;
 }
 
-export default function PDFUploader({onFileUpload, name}: PDFUploaderProps) {
+export default function PDFUploader({onFileUpload, onRevert}: PDFUploaderProps) {
     const props: UploadProps = {
         name: 'file',
         multiple: false,
@@ -21,9 +21,9 @@ export default function PDFUploader({onFileUpload, name}: PDFUploaderProps) {
         action: 'https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188',
         maxCount: 1,
         showUploadList: false,
-        beforeUpload: (file: RcFile) => {
+        beforeUpload: (file) => {
             if (file.type !== 'application/pdf') {
-                openNotification('Error', 'You can only upload PDF files', NotificationType.ERROR);
+                openNotification('Unsupported format', 'You can only upload PDF files', NotificationType.ERROR);
                 return Upload.LIST_IGNORE;
             }
             onFileUpload(file);
@@ -39,23 +39,22 @@ export default function PDFUploader({onFileUpload, name}: PDFUploaderProps) {
         },
     };
 
-    const normFile = (e: any) => {
-        if (Array.isArray(e)) {
-            return e;
-        }
-        console.log("Not an array");
-        console.log(e?.fileList[0]?.originFileObj);
-        return e?.fileList;
-    };
-
     return (
-        <Form.Item name={name} valuePropName="fileList" getValueFromEvent={normFile} noStyle >
-            <Dragger {...props}>
-                <p className="ant-upload-drag-icon">
-                    <InboxOutlined/>
-                </p>
-                <p className="ant-upload-text">Click or drag PDF file to this area to upload</p>
-            </Dragger>
-        </Form.Item>
-    )
+        <div style={{ display: 'flex', width: '100%', height: '100%' }}>
+            <div style={{ flex: '1' }}>
+                <Dragger {...props} style={{ width: '100%' }}>
+                    <p className="ant-upload-drag-icon">
+                        <InboxOutlined />
+                    </p>
+                    <p className="ant-upload-text">Click or drag PDF file to this area to upload</p>
+                </Dragger>
+            </div>
+            <div style={{ width: '20%' }}>
+                <Button type={"dashed"} style={{ width: '100%', height: '100%', fontSize: '20px' }} icon={<RollbackOutlined/>} onClick={onRevert}>
+                    Revert
+                </Button>
+            </div>
+        </div>
+    );
+
 }

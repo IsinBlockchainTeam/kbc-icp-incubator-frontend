@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import {Button, Col, DatePicker, Divider, Form, Input, Row, Upload, type UploadProps} from "antd";
 import {Spinner, Viewer} from "@react-pdf-viewer/core";
 import {InboxOutlined, UploadOutlined} from "@ant-design/icons";
@@ -67,6 +67,7 @@ export type Document = Omit<LabeledElement, 'type'> & {
     name: string,
     uploadable: boolean,
     required: boolean,
+    loading: boolean,
     content?: Blob,
     height?: `${number}px` | `${number}%` | `${number}vh` | 'auto',
 }
@@ -78,7 +79,23 @@ type Props = {
 }
 export const GenericForm = (props: Props) => {
     const [form] = Form.useForm();
+    const documents: Map<string, Blob | undefined> = new Map<string, Blob>();
     const dateFormat = 'DD/MM/YYYY';
+
+    useEffect(() => {
+        props.elements.forEach((element) => {
+            if (element.type === FormElementType.DOCUMENT) {
+                const doc = element as Document;
+                if (doc.content) {
+                    documents.set(doc.name, doc.content);
+                }
+            }
+        });
+    }, [props.elements]);
+
+    const addDocument = (name: string, file?: Blob) => {
+        documents.set(name, file);
+    }
 
     const elementComponent = {
         [FormElementType.SPACE]: (element: FormElement, index: number) => {
@@ -181,7 +198,7 @@ export const GenericForm = (props: Props) => {
                             label={element.label}
                             name={element.name}
                         >
-                            <PDFViewer {...element} />
+                            <PDFViewer element={element} onDocumentChange={addDocument}/>
                         </Form.Item>
                     </Col>
                 </>
@@ -196,10 +213,15 @@ export const GenericForm = (props: Props) => {
             layout='horizontal'
             form={form}
             name='generic-form'
-            onFinish={(values) => {
-                console.log(values);
-                if(props.onSubmit)
-                    props.onSubmit({...values, "first-document": values["first-document"][0].originFileObj})}
+            onFinish={
+                (values) => {
+                    if (props.onSubmit) {
+                        documents.forEach((value, key) => {
+                            values[key] = value;
+                        });
+                        props.onSubmit(values);
+                    }
+                }
             }
         >
             <Row gutter={10}>

@@ -1,14 +1,22 @@
 import React, {useEffect} from "react";
 import {FormElement, FormElementType, GenericForm} from "../../components/GenericForm/GenericForm";
+import {Table} from "antd";
 
 export const Home = () => {
+    const [loadingFirst, setLoadingFirst] = React.useState<boolean>(true);
+    const [loadingSecond, setLoadingSecond] = React.useState<boolean>(true);
     const [firstDocument, setFirstDocument] = React.useState<Blob | undefined>(undefined);
     const [secondDocument, setSecondDocument] = React.useState<Blob | undefined>(undefined);
 
     useEffect(() => {
         (async () => {
             setFirstDocument(await fetchPDFAsBlob('https://pdfobject.com/pdf/sample.pdf'));
+            setLoadingFirst(false);
+        })();
+
+        (async () => {
             setSecondDocument(await fetchPDFAsBlob('https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'));
+            setLoadingSecond(false);
         })();
     }, []);
 
@@ -18,8 +26,8 @@ export const Home = () => {
     }
 
     const elements: FormElement[] = [
-        { type: FormElementType.DOCUMENT, span: 12, label: 'Document Preview', name: 'first-document', uploadable: true, content: firstDocument, required: false, height: '50vh' },
-        { type: FormElementType.DOCUMENT, span: 12, label: 'Document Preview2', name: 'second-document', uploadable: true, content: secondDocument, required: false, height: '50vh' },
+        { type: FormElementType.DOCUMENT, span: 12, label: 'Document Preview', name: 'first-document', uploadable: true, loading: loadingFirst, content: undefined, required: false, height: '50vh' },
+        { type: FormElementType.DOCUMENT, span: 12, label: 'Document Preview2', name: 'second-document', uploadable: true, loading: loadingSecond, content: secondDocument, required: false, height: '50vh' },
         { type: FormElementType.INPUT, span: 12, label: 'First Name', name: 'first-name', required: true, disabled: false, defaultValue: '', block: false, regex: '^[a-zA-Z ]+$' },
     ];
 
