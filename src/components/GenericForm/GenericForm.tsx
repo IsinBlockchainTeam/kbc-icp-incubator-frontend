@@ -176,7 +176,11 @@ export const GenericForm = (props: Props) => {
             return (
                 <>
                     <Col span={element.span} key={index}>
-                        <Form.Item label={element.label}>
+                        <Form.Item
+                            labelCol={{span: 24}}
+                            label={element.label}
+                            name={element.name}
+                        >
                             <PDFViewer {...element} />
                         </Form.Item>
                     </Col>

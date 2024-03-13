@@ -9,9 +9,10 @@ const {Dragger} = Upload;
 
 export interface PDFUploaderProps {
     onFileUpload: (file: Blob) => void;
+    name: string;
 }
 
-export default function PDFUploader({onFileUpload}: PDFUploaderProps) {
+export default function PDFUploader({onFileUpload, name}: PDFUploaderProps) {
     const props: UploadProps = {
         name: 'file',
         multiple: false,
@@ -20,26 +21,25 @@ export default function PDFUploader({onFileUpload}: PDFUploaderProps) {
         action: 'https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188',
         maxCount: 1,
         showUploadList: false,
-        beforeUpload: (file: RcFile) => {
-            if (file.type !== 'application/pdf') {
-                openNotification('Error', 'You can only upload PDF files', NotificationType.ERROR);
-                return Upload.LIST_IGNORE;
-            }
-            onFileUpload(file);
-            return true;
-        },
-        onChange(info) {
-            const {status, name} = info.file;
-            if (status === 'done') {
-                openNotification('File uploaded', `${name} file has been uploaded successfully`, NotificationType.SUCCESS);
-            } else if (status === 'error') {
-                openNotification('Error', `${name} file upload failed`, NotificationType.ERROR);
-            }
-        },
+        // beforeUpload: (file: RcFile) => {
+        //     if (file.type !== 'application/pdf') {
+        //         openNotification('Error', 'You can only upload PDF files', NotificationType.ERROR);
+        //         return Upload.LIST_IGNORE;
+        //     }
+        //     onFileUpload(file);
+        //     return true;
+        // },
+        // onChange(info) {
+        //     const {status, name} = info.file;
+        //     if (status === 'done') {
+        //         openNotification('File uploaded', `${name} file has been uploaded successfully`, NotificationType.SUCCESS);
+        //     } else if (status === 'error') {
+        //         openNotification('Error', `${name} file upload failed`, NotificationType.ERROR);
+        //     }
+        // },
     };
 
     const normFile = (e: any) => {
-        console.log('Upload event:', e);
         if (Array.isArray(e)) {
             return e;
         }
@@ -47,13 +47,13 @@ export default function PDFUploader({onFileUpload}: PDFUploaderProps) {
     };
 
     return (
-        <Form.Item name="prova" valuePropName="fileList" getValueFromEvent={normFile} noStyle>
-        <Dragger {...props}>
-            <p className="ant-upload-drag-icon">
-                <InboxOutlined/>
-            </p>
-            <p className="ant-upload-text">Click or drag PDF file to this area to upload</p>
-        </Dragger>
+        <Form.Item name={name} valuePropName="fileList" getValueFromEvent={normFile} noStyle >
+            <Dragger {...props}>
+                <p className="ant-upload-drag-icon">
+                    <InboxOutlined/>
+                </p>
+                <p className="ant-upload-text">Click or drag PDF file to this area to upload</p>
+            </Dragger>
         </Form.Item>
     )
 }
