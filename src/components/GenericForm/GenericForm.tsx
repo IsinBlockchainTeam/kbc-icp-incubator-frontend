@@ -196,7 +196,11 @@ export const GenericForm = (props: Props) => {
             layout='horizontal'
             form={form}
             name='generic-form'
-            onFinish={props.onSubmit}
+            onFinish={(values) => {
+                console.log(values);
+                if(props.onSubmit)
+                    props.onSubmit({...values, "first-document": values["first-document"][0].originFileObj})}
+            }
         >
             <Row gutter={10}>
                 {

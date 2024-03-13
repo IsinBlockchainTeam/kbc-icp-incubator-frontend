@@ -21,28 +21,30 @@ export default function PDFUploader({onFileUpload, name}: PDFUploaderProps) {
         action: 'https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188',
         maxCount: 1,
         showUploadList: false,
-        // beforeUpload: (file: RcFile) => {
-        //     if (file.type !== 'application/pdf') {
-        //         openNotification('Error', 'You can only upload PDF files', NotificationType.ERROR);
-        //         return Upload.LIST_IGNORE;
-        //     }
-        //     onFileUpload(file);
-        //     return true;
-        // },
-        // onChange(info) {
-        //     const {status, name} = info.file;
-        //     if (status === 'done') {
-        //         openNotification('File uploaded', `${name} file has been uploaded successfully`, NotificationType.SUCCESS);
-        //     } else if (status === 'error') {
-        //         openNotification('Error', `${name} file upload failed`, NotificationType.ERROR);
-        //     }
-        // },
+        beforeUpload: (file: RcFile) => {
+            if (file.type !== 'application/pdf') {
+                openNotification('Error', 'You can only upload PDF files', NotificationType.ERROR);
+                return Upload.LIST_IGNORE;
+            }
+            onFileUpload(file);
+            return true;
+        },
+        onChange(info) {
+            const {status, name} = info.file;
+            if (status === 'done') {
+                openNotification('File uploaded', `${name} file has been uploaded successfully`, NotificationType.SUCCESS);
+            } else if (status === 'error') {
+                openNotification('Error', `${name} file upload failed`, NotificationType.ERROR);
+            }
+        },
     };
 
     const normFile = (e: any) => {
         if (Array.isArray(e)) {
             return e;
         }
+        console.log("Not an array");
+        console.log(e?.fileList[0]?.originFileObj);
         return e?.fileList;
     };
 

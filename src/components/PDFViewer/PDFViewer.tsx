@@ -5,14 +5,14 @@ import {Viewer} from "@react-pdf-viewer/core";
 import PDFUploader from "../PDFUploader/PDFUploader";
 
 export default function PDFViewer(element: Document) {
-    const {height = '100%', content, uploadable} = element;
+    const {height = '100%', uploadable} = element;
     const [file, setFile] = useState<Blob>();
 
     useEffect(() => {
-        if (content) {
-            setFile(content);
+        if (element.content) {
+            setFile(element.content);
         }
-    }, []);
+    }, [element.content]);
 
     const updateFileUrl = (file: Blob) => {
         setFile(file);
@@ -35,7 +35,7 @@ export default function PDFViewer(element: Document) {
                 justifyContent: 'center',
             }}
             >
-                {content && file ? (
+                {element.content && file ? (
                     <Viewer
                         fileUrl={URL.createObjectURL(file)}
                     />
