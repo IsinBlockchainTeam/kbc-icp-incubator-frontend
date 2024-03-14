@@ -1,9 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
-import {CompanyPodInfo} from "../../api/types/solid";
+import {SolidSpec} from "../../api/types/storage";
 
 type State = {
   subjectDid: string;
-  subjectClaims: CompanyPodInfo | undefined;
+  subjectClaims: SolidSpec | undefined;
 }
 
 const authSlice = createSlice({

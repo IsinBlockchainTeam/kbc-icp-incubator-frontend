@@ -26,8 +26,8 @@ describe('Trade View', () => {
                     subjectDid: 'did:test:123',
                     subjectClaims: {
                         serverUrl: 'http://test.com',
-                        clientId: 'test',
-                        clientSecret: 'test',
+                        // clientId: 'test',
+                        // clientSecret: 'test',
                     }
                 }
             },

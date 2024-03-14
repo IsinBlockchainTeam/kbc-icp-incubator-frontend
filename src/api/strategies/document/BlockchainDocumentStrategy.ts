@@ -1,41 +1,37 @@
 import {Strategy} from "../Strategy";
 import {DocumentStrategy} from "./DocumentStrategy";
 import {DocumentPresentable} from "../../types/DocumentPresentable";
-import {DocumentService} from "@kbc-lib/coffee-trading-management-lib";
 import {BlockchainLibraryUtils} from "../../BlockchainLibraryUtils";
 import {ErrorHandler} from "../../../utils/error/ErrorHandler";
 import {HttpStatusCode} from "../../../utils/error/HttpStatusCode";
-import {CompanyPodInfo} from "../../types/solid";
-import {SolidServerService} from "../../services/SolidServerService";
+import {SolidSpec} from "../../types/storage";
 
 export class BlockchainDocumentStrategy extends Strategy implements DocumentStrategy<DocumentPresentable> {
-    private readonly _documentService: DocumentService;
-    private readonly _solidService?: SolidServerService;
+    private readonly _documentService;
 
-    constructor(solidPodInfo?: CompanyPodInfo) {
+    constructor(storageSpec?: SolidSpec) {
         super(true);
-        this._documentService = BlockchainLibraryUtils.getDocumentService();
-        if (solidPodInfo)
-            this._solidService = new SolidServerService(solidPodInfo.serverUrl, solidPodInfo.clientId, solidPodInfo.clientSecret);
+        this._documentService = BlockchainLibraryUtils.getDocumentService(storageSpec);
     }
 
     async getDocumentsByTransactionIdAndType(id: number, type: string): Promise<DocumentPresentable[]> {
-        this.checkService(this._solidService);
         const documentsInfo = await this._documentService.getDocumentsInfoByTransactionIdAndType(id, type);
         return Promise.all(documentsInfo.map(async (d) => {
-            const { filename, date, lines } = await this._solidService!.retrieveMetadata(d.externalUrl);
-            const fileContent = await this._solidService!.retrieveFile(d.externalUrl);
-
-            ErrorHandler.manageUndefinedOrEmpty(fileContent, HttpStatusCode.NOT_FOUND, `There is no file related to the document with id: ${d.id}`);
+            const completeDocument = await this._documentService.getCompleteDocument(d,
+                { entireResourceUrl: d.externalUrl },
+                { entireResourceUrl: d.externalUrl }
+            );
+            ErrorHandler.manageUndefinedOrEmpty(completeDocument, HttpStatusCode.NOT_FOUND, `There are no external information related to the document with id: ${d.id}`);
+            ErrorHandler.manageUndefinedOrEmpty(completeDocument!.content, HttpStatusCode.NOT_FOUND, `There is no file related to the document with id: ${d.id}`);
             return new DocumentPresentable()
-                .setId(d.id)
-                .setName(d.name)
-                .setContentType(fileContent!.type)
-                .setDocumentType(d.documentType)
-                .setContent(fileContent!)
-                .setFilename(filename)
-                .setTransactionLines(lines)
-                .setDate(new Date(date))
+                .setId(completeDocument!.id)
+                .setName(completeDocument!.name)
+                .setContentType(completeDocument!.content!.type)
+                .setDocumentType(completeDocument!.documentType)
+                .setContent(completeDocument!.content)
+                .setFilename(completeDocument!.filename)
+                .setTransactionLines(completeDocument!.transactionLines)
+                .setDate(new Date(completeDocument!.date))
             })
         );
     }

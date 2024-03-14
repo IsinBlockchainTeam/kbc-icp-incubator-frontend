@@ -25,8 +25,10 @@ export const TradeNew = () => {
     const subjectClaims = useSelector((state: RootState) => state.auth.subjectClaims);
     const tradeService = new TradeService(new BlockchainTradeStrategy({
         serverUrl: subjectClaims!.podServerUrl!,
-        clientId: subjectClaims!.podClientId!,
-        clientSecret: subjectClaims!.podClientSecret!
+        sessionCredentials: {
+            clientId: subjectClaims!.podClientId!,
+            clientSecret: subjectClaims!.podClientSecret!
+        }
     }));
 
     const [type, setType] = useState<TradeType>(TradeType.BASIC);

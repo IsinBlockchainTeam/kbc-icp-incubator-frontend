@@ -1,4 +1,5 @@
 import React from "react";
+import {Blob} from "buffer";
 import {Button, Col, DatePicker, Divider, Form, Input, Row} from "antd";
 import { Viewer} from "@react-pdf-viewer/core";
 

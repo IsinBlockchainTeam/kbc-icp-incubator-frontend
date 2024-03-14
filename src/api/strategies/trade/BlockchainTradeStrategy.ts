@@ -2,10 +2,9 @@ import {TradeStrategy} from "./TradeStrategy";
 import {TradePresentable} from "../../types/TradePresentable";
 import {
     BasicTrade,
-    BasicTradeService,
     IConcreteTradeService,
-    Line, LineRequest, OrderLinePrice, OrderLineRequest, OrderTrade, OrderTradeService,
-    Trade, TradeManagerService,
+    Line, LineRequest, OrderLinePrice, OrderLineRequest,
+    Trade,
     TradeType
 } from "@kbc-lib/coffee-trading-management-lib";
 import {BlockchainLibraryUtils} from "../../BlockchainLibraryUtils";
@@ -14,18 +13,15 @@ import {MaterialPresentable} from "../../types/MaterialPresentable";
 import {CustomError} from "../../../utils/error/CustomError";
 import {HttpStatusCode} from "../../../utils/error/HttpStatusCode";
 import {TradeLinePresentable, TradeLinePrice} from "../../types/TradeLinePresentable";
-import {SolidServerService} from "../../services/SolidServerService";
-import {CompanyPodInfo} from "../../types/solid";
+import {SolidSpec} from "../../types/storage";
+import {OrderTradeInfo} from "../../../../../coffee-trading-management-lib/src";
 
 export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<TradePresentable, Trade> {
-    private readonly _tradeManagerService: TradeManagerService;
-    private readonly _solidService?: SolidServerService;
+    private readonly _tradeManagerService;
 
-    constructor(solidPodInfo?: CompanyPodInfo) {
+    constructor(storageSpec?: SolidSpec) {
         super(true);
-        this._tradeManagerService = BlockchainLibraryUtils.getTradeManagerService();
-        if (solidPodInfo)
-            this._solidService = new SolidServerService(solidPodInfo.serverUrl, solidPodInfo.clientId, solidPodInfo.clientSecret);
+        this._tradeManagerService = BlockchainLibraryUtils.getTradeManagerService(storageSpec);
     }
     // async getOrders(): Promise<TradePresentable[]> {
     //     const orders = await this._tradeService.getOrders(this._walletAddress);
@@ -90,9 +86,8 @@ export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<T
     }
 
     async getTradeByIdAndType(id: number, type: number): Promise<TradePresentable | undefined> {
-        this.checkService(this._solidService);
         const trade = new TradePresentable();
-        const tradeManagerService: TradeManagerService = BlockchainLibraryUtils.getTradeManagerService();
+        const tradeManagerService = BlockchainLibraryUtils.getTradeManagerService();
         const address: string = await tradeManagerService.getTrade(id);
 
         if(!address) return;
@@ -124,24 +119,26 @@ export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<T
                 resp = await orderTradeService.getTrade();
 
                 if (resp) {
-                    const orderMetadata = await this._solidService!.retrieveMetadata(resp.externalUrl);
+                    const orderTrade = await orderTradeService.getCompleteTrade({
+                        entireResourceUrl: resp.externalUrl,
+                    })
                     const orderLines = await orderTradeService.getLines();
 
                     trade
-                        .setId(resp.tradeId)
-                        .setCommissioner(resp.commissioner)
-                        .setCustomer(resp.customer)
-                        .setIncoterms(orderMetadata.incoterms)
-                        .setPaymentDeadline(new Date(resp.paymentDeadline))
-                        .setDocumentDeliveryPipeline(new Date(resp.documentDeliveryDeadline))
-                        .setShipper(orderMetadata.shipper)
-                        .setArbiter(resp.arbiter)
-                        .setShippingPort(orderMetadata.shippingPort)
-                        .setShippingDeadline(new Date(resp.shippingDeadline))
-                        .setDeliveryPort(orderMetadata.deliveryPort)
-                        .setDeliveryDeadline(new Date(resp.deliveryDeadline))
-                        .setEscrow(resp.escrow)
-                        .setSupplier(resp.supplier)
+                        .setId(orderTrade.tradeId)
+                        .setCommissioner(orderTrade.commissioner)
+                        .setCustomer(orderTrade.customer)
+                        .setIncoterms(orderTrade.incoterms)
+                        .setPaymentDeadline(new Date(orderTrade.paymentDeadline))
+                        .setDocumentDeliveryPipeline(new Date(orderTrade.documentDeliveryDeadline))
+                        .setShipper(orderTrade.shipper)
+                        .setArbiter(orderTrade.arbiter)
+                        .setShippingPort(orderTrade.shippingPort)
+                        .setShippingDeadline(new Date(orderTrade.shippingDeadline))
+                        .setDeliveryPort(orderTrade.deliveryPort)
+                        .setDeliveryDeadline(new Date(orderTrade.deliveryDeadline))
+                        .setEscrow(orderTrade.escrow)
+                        .setSupplier(orderTrade.supplier)
                         .setLines(orderLines.map(ol => new TradeLinePresentable()
                             .setId(ol.id)
                             .setMaterial(ol.material ? new MaterialPresentable()
@@ -159,13 +156,11 @@ export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<T
         return trade;
     }
 
-    async saveBasicTrade(trade: TradePresentable): Promise<void> {
-        this.checkService(this._solidService);
-
-        const tradeManagerService: TradeManagerService = BlockchainLibraryUtils.getTradeManagerService();
-        const newTrade: BasicTrade = await tradeManagerService.registerBasicTrade(trade.supplier, trade.customer!, trade.commissioner!, 'externalUrl', trade.name!);
+    async saveBasicTrade(trade: TradePresentable, storageSpec?: SolidSpec): Promise<void> {
+        const tradeManagerService = BlockchainLibraryUtils.getTradeManagerService(storageSpec);
+        const newTrade: BasicTrade = await tradeManagerService.registerBasicTrade(trade.supplier, trade.customer!, trade.commissioner!, trade.name!);
         if (trade.lines) {
-            const basicTradeService: BasicTradeService = BlockchainLibraryUtils.getBasicTradeService(await tradeManagerService.getTrade(newTrade.tradeId));
+            const basicTradeService = BlockchainLibraryUtils.getBasicTradeService(await tradeManagerService.getTrade(newTrade.tradeId));
             await Promise.all(trade.lines.map(async line => {
                 await basicTradeService.addLine(new LineRequest(line.material?.id!));
             }));
@@ -173,22 +168,22 @@ export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<T
     }
 
     async putBasicTrade(id: number, trade: TradePresentable): Promise<void> {
-        this.checkService(this._solidService);
-        const tradeManagerService: TradeManagerService = BlockchainLibraryUtils.getTradeManagerService();
-        const tradeService: BasicTradeService = BlockchainLibraryUtils.getBasicTradeService(await tradeManagerService.getTrade(id));
+        const tradeManagerService = BlockchainLibraryUtils.getTradeManagerService();
+        const tradeService = BlockchainLibraryUtils.getBasicTradeService(await tradeManagerService.getTrade(id));
         const oldTrade: BasicTrade = await tradeService.getTrade();
         oldTrade.name !== trade.name && await tradeService.setName(trade.name!);
     }
 
-    async saveOrderTrade(trade: TradePresentable): Promise<void> {
-        this.checkService(this._solidService);
-        const tradeManagerService: TradeManagerService = BlockchainLibraryUtils.getTradeManagerService();
+    async saveOrderTrade(trade: TradePresentable, storageSpec?: SolidSpec): Promise<void> {
+        const tradeManagerService = BlockchainLibraryUtils.getTradeManagerService(storageSpec);
 
-        console.log(trade)
-
-        const newTrade: OrderTrade = await tradeManagerService.registerOrderTrade(trade.supplier, trade.customer!, trade.commissioner!, 'externalUrl', (trade.paymentDeadline!).getTime(), (trade.documentDeliveryDeadline!).getTime(), trade.arbiter!, (trade.shippingDeadline!).getTime(), (trade.deliveryDeadline!).getTime(), trade.agreedAmount!, trade.tokenAddress!);
+        const newTrade: OrderTradeInfo = await tradeManagerService.registerOrderTrade(
+            trade.supplier, trade.customer!, trade.commissioner!, (trade.paymentDeadline!).getTime(), (trade.documentDeliveryDeadline!).getTime(),
+            trade.arbiter!, (trade.shippingDeadline!).getTime(), (trade.deliveryDeadline!).getTime(), trade.agreedAmount!, trade.tokenAddress!,
+            { value: { incoterms: trade.incoterms, shipper: trade.shipper, shippingPort: trade.shippingPort, deliveryPort: trade.deliveryPort }}
+        );
         if (trade.lines) {
-            const orderTradeService: OrderTradeService = BlockchainLibraryUtils.getOrderTradeService(await tradeManagerService.getTrade(newTrade.tradeId));
+            const orderTradeService = BlockchainLibraryUtils.getOrderTradeService(await tradeManagerService.getTrade(newTrade.tradeId));
             await Promise.all(trade.lines.map(async line => {
                 await orderTradeService.addLine(new OrderLineRequest(line.material?.id!, line.quantity!, new OrderLinePrice(line.price!.amount, line.price!.fiat)));
             }));
