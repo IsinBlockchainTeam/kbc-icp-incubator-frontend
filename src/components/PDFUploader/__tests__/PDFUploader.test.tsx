@@ -1,6 +1,5 @@
 import PDFUploader from "../PDFUploader";
-import {fireEvent, render, waitFor} from "@testing-library/react";
-import {openNotification} from "../../../utils/notification";
+import {fireEvent, render} from "@testing-library/react";
 
 jest.mock('antd', () => {
     return {
@@ -45,7 +44,7 @@ describe('PDFUploader', () => {
     //     const file = new File(['file contents'], 'file.pdf', { type: 'application/pdf' });
     //     const tree = render(<PDFUploader onFileUpload={mockOnFileUpload} onRevert={mockOnRevert}/>);
     //     fireEvent.change(tree.getByTestId('dragger'), {target: {files: [file]}});
-    //     // await waitFor(() => expect(mockOnFileUpload).toHaveBeenCalled());
+    //     await waitFor(() => expect(mockOnFileUpload).toHaveBeenCalled());
     //     expect(openNotification).toHaveBeenCalledTimes(1);
     // });
     it('should call onRevert when button is clicked', () => {

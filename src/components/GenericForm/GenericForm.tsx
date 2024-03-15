@@ -30,7 +30,7 @@ type LabeledElement = Omit<BasicElement, 'type'> & {
 //     block?: boolean,
 // }
 
-type ClickableElement = Omit<LabeledElement, 'type'> & {
+export type ClickableElement = Omit<LabeledElement, 'type'> & {
     type: FormElementType.BUTTON,
     onClick: (event: React.MouseEvent<HTMLButtonElement>) => void,
     name: string,

@@ -24,7 +24,11 @@ const mockedFile: Blob = new Blob();
 jest.mock('../../PDFViewer/PDFViewer', () => ({
     onDocumentChange }: PDFViewerProps) => (
         <div data-testid={"pdfviewer"}>
-            <button data-testid={"test-onDocumentChange"} onClick={() => onDocumentChange(mockedName, mockedFile)}>onDocumentChange</button>
+            <button data-testid={"test-onDocumentChange"} onClick={
+                (event) => {
+                    event.preventDefault();
+                    onDocumentChange(mockedName, mockedFile);
+                }}>onDocumentChange</button>
         </div>
 ));
 
@@ -144,9 +148,7 @@ describe('GenericForm', () => {
         const form = tree.getByTestId('form');
         expect(form).toBeDefined();
         fireEvent.click(tree.getAllByTestId('test-onDocumentChange')[0]);
-        // fireEvent.submit(form);
-        // expect(onSubmit).toHaveBeenCalledTimes(1);
-        // TODO: understand where the onSubmit is called
+        fireEvent.submit(form);
         expect(onSubmit).toHaveBeenCalledTimes(1);
         expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({mockedName: mockedFile}));
         expect(onSubmit).toHaveBeenCalledWith(expect.not.objectContaining({"empty-document": expect.anything()}));
