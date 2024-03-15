@@ -1,6 +1,5 @@
 import PDFUploader from "../PDFUploader";
 import {fireEvent, render, waitFor} from "@testing-library/react";
-import {Upload as MockUpload} from "antd";
 import {openNotification} from "../../../utils/notification";
 
 jest.mock('antd', () => {

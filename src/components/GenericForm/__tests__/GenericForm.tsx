@@ -1,5 +1,5 @@
 import {FormElement, FormElementType, GenericForm} from "../GenericForm";
-import {fireEvent, render, screen} from "@testing-library/react";
+import {fireEvent, render} from "@testing-library/react";
 import {PDFViewerProps} from "../../PDFViewer/PDFViewer";
 
 jest.mock('antd', () => {
@@ -22,7 +22,7 @@ jest.mock('antd', () => {
 const mockedName: string = "mockedName";
 const mockedFile: Blob = new Blob();
 jest.mock('../../PDFViewer/PDFViewer', () => ({
-    element, onDocumentChange }: PDFViewerProps) => (
+    onDocumentChange }: PDFViewerProps) => (
         <div data-testid={"pdfviewer"}>
             <button data-testid={"test-onDocumentChange"} onClick={() => onDocumentChange(mockedName, mockedFile)}>onDocumentChange</button>
         </div>

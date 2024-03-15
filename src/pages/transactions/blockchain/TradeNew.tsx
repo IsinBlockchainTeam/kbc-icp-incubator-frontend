@@ -29,6 +29,8 @@ export const TradeNew = () => {
         clientSecret: subjectClaims!.podClientSecret!
     }));
 
+    const documentHeight = '45vh';
+
     const [type, setType] = useState<TradeType>(TradeType.BASIC);
 
     const [lines, setLines] = useState<FormElement[]>([]);
@@ -252,7 +254,16 @@ export const TradeNew = () => {
                     defaultValue: '',
                     disabled: false,
                 },
-                {type: FormElementType.SPACE, span: 12},
+                {
+                    type: FormElementType.DOCUMENT,
+                    span: 12,
+                    name: 'payment-invoice',
+                    label: 'Payment Invoice',
+                    required: false,
+                    loading: false,
+                    uploadable: true,
+                    height: documentHeight
+                },
                 {
                     type: FormElementType.DATE,
                     span: 12,
@@ -267,9 +278,89 @@ export const TradeNew = () => {
                     span: 12,
                     name: 'document-delivery-deadline',
                     label: 'Document Delivery Deadline',
-                    required: true,
+                    required: false,
                     defaultValue: '',
                     disabled: false,
+                },
+                {
+                    type: FormElementType.DOCUMENT,
+                    span: 12,
+                    name: 'swiss-decode',
+                    label: 'Coffee Origin (Swiss Decode)',
+                    required: false,
+                    loading: false,
+                    uploadable: true,
+                    height: documentHeight
+                },
+                {
+                    type: FormElementType.DOCUMENT,
+                    span: 12,
+                    name: 'certificate-of-shipping',
+                    label: 'Certificate of Shipping',
+                    required: false,
+                    loading: false,
+                    uploadable: true,
+                    height: documentHeight
+                },
+                {
+                    type: FormElementType.DOCUMENT,
+                    span: 12,
+                    name: 'bill-of-lading',
+                    label: 'Bill of Lading',
+                    required: false,
+                    loading: false,
+                    uploadable: true,
+                    height: documentHeight
+                },
+                {
+                    type: FormElementType.DOCUMENT,
+                    span: 12,
+                    name: 'cerificate-of-weight',
+                    label: 'Certificate of Weight',
+                    required: false,
+                    loading: false,
+                    uploadable: true,
+                    height: documentHeight
+                },
+                {
+                    type: FormElementType.DOCUMENT,
+                    span: 12,
+                    name: 'certificate-of-preferential-entry',
+                    label: 'Certificate of Preferential Entry',
+                    required: false,
+                    loading: false,
+                    uploadable: true,
+                    height: documentHeight
+                },
+                {
+                    type: FormElementType.DOCUMENT,
+                    span: 12,
+                    name: 'certificate-of-fumigation',
+                    label: 'Certificate of Fumigation',
+                    required: false,
+                    loading: false,
+                    uploadable: true,
+                    height: documentHeight
+                },
+                {
+                    type: FormElementType.DOCUMENT,
+                    span: 12,
+                    name: 'certificate-of-phytosanitary',
+                    label: 'Certificate of Phytosanitary',
+                    required: false,
+                    loading: false,
+                    uploadable: true,
+                    height: documentHeight
+                },
+                {
+                    type: FormElementType.DOCUMENT,
+                    span: 12,
+                    name: 'certificate-of-insurance',
+                    label: 'Certificate of Insurance',
+                    required: false,
+                    loading: false,
+                    uploadable: true,
+                    height: documentHeight
                 },
                 {
                     type: FormElementType.INPUT,
@@ -356,7 +447,7 @@ export const TradeNew = () => {
                     disabled: false,
                     onClick: addLine,
                     buttonType: 'default'
-                }
+                },
             ])
         }
     }, [type, lines]);

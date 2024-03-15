@@ -194,6 +194,7 @@ export const GenericForm = (props: Props) => {
                             labelCol={{span: 24}}
                             label={element.label}
                             name={element.name}
+                            rules={[{required: element.required, message: `Please insert ${element.label}!`}]}
                         >
                             <PDFViewer element={element} onDocumentChange={addDocument}/>
                         </Form.Item>

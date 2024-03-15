@@ -38,7 +38,7 @@ export default function PDFUploader({onFileUpload, onRevert}: PDFUploaderProps) 
     };
 
     return (
-        <div style={{ display: 'flex', width: '100%', height: '100%' }}>
+        <div style={{ display: 'flex', width: '100%' }}>
             <div style={{ flex: '1' }}>
                 <Dragger {...props} style={{ width: '100%' }}>
                     <p className="ant-upload-drag-icon">
