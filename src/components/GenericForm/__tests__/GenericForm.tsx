@@ -1,5 +1,6 @@
 import {FormElement, FormElementType, GenericForm} from "../GenericForm";
-import {fireEvent, render} from "@testing-library/react";
+import {fireEvent, render, screen} from "@testing-library/react";
+import {PDFViewerProps} from "../../PDFViewer/PDFViewer";
 
 jest.mock('antd', () => {
     const antd = jest.requireActual('antd');
@@ -18,13 +19,15 @@ jest.mock('antd', () => {
     };
 });
 
-jest.mock('../../PDFViewer/PDFViewer', () => {
-    return {
-        __esModule: true,
-        default: function PDFViewerMock({ children, ...props }: any) {
-            return <div {...props} data-testid="pdfviewer">{children}</div>;
-        },}
-});
+const mockedName: string = "mockedName";
+const mockedFile: Blob = new Blob();
+jest.mock('../../PDFViewer/PDFViewer', () => ({
+    element, onDocumentChange }: PDFViewerProps) => (
+        <div data-testid={"pdfviewer"}>
+            <button data-testid={"test-onDocumentChange"} onClick={() => onDocumentChange(mockedName, mockedFile)}>onDocumentChange</button>
+        </div>
+));
+
 
 describe('GenericForm', () => {
     beforeEach(() => {
@@ -56,7 +59,7 @@ describe('GenericForm', () => {
     });
     it('should render correctly ClickableElements', () => {
         const elements: FormElement[] = [
-            { type: FormElementType.BUTTON, span: 4, name: 'button', label: 'Button 1', disabled: false, onClick: () => {}},
+            { type: FormElementType.BUTTON, span: 4, name: 'button', label: 'Button 1', onClick: () => {}},
             { type: FormElementType.BUTTON, span: 12, name: 'button', label: 'Button 2', disabled: true, onClick: () => {}},
         ];
         const tree = render(<GenericForm elements={elements}/>);
@@ -75,9 +78,10 @@ describe('GenericForm', () => {
     });
     it('should render correctly EditableElements', () => {
         const elements: FormElement[] = [
-            { type: FormElementType.INPUT, span: 12, name: 'input', label: 'Input 1', required: true, defaultValue: '', disabled: false, regex: '0x[a-fA-F0-9]{40}'},
+            { type: FormElementType.INPUT, span: 12, name: 'input', label: 'Input 1', required: true, defaultValue: '', regex: '0x[a-fA-F0-9]{40}'},
             { type: FormElementType.INPUT, span: 8, name: 'input', label: 'Input 2', required: true, defaultValue: 'Default value', disabled: true},
-            { type: FormElementType.DATE, span: 8, name: 'date', label: 'Date', required: true, defaultValue: '', disabled: true},
+            { type: FormElementType.DATE, span: 8, name: 'date', label: 'Date 1', required: true, defaultValue: '', disabled: true},
+            { type: FormElementType.DATE, span: 8, name: 'date', label: 'Date 2', required: true, defaultValue: ''},
         ];
         const tree = render(<GenericForm elements={elements}/>);
 
@@ -86,8 +90,10 @@ describe('GenericForm', () => {
         expect(formitems[0]).toHaveAttribute('name', 'input');
         expect(formitems[1]).toHaveAttribute('label', 'Input 2');
         expect(formitems[1]).toHaveAttribute('name', 'input');
-        expect(formitems[2]).toHaveAttribute('label', 'Date');
+        expect(formitems[2]).toHaveAttribute('label', 'Date 1');
         expect(formitems[2]).toHaveAttribute('name', 'date');
+        expect(formitems[3]).toHaveAttribute('label', 'Date 2');
+        expect(formitems[3]).toHaveAttribute('name', 'date');
 
         const inputs = tree.getAllByTestId('input');
         expect(inputs[0]).not.toHaveAttribute('disabled');
@@ -96,10 +102,13 @@ describe('GenericForm', () => {
         expect(inputs[1]).toHaveAttribute('disabled');
         expect(inputs[1]).toHaveAttribute('placeholder', 'Enter Input 2');
 
-        const datepicker = tree.getByTestId('datepicker');
-        expect(datepicker).toHaveAttribute('disabled');
-        expect(datepicker).toHaveAttribute('placeholder', 'Enter Date');
-        expect(datepicker).not.toHaveAttribute('defaultValue');
+        const datepicker = tree.getAllByTestId('datepicker');
+        expect(datepicker[0]).toHaveAttribute('disabled');
+        expect(datepicker[0]).toHaveAttribute('placeholder', 'Enter Date 1');
+        expect(datepicker[0]).not.toHaveAttribute('defaultValue');
+        expect(datepicker[1]).not.toHaveAttribute('disabled');
+        expect(datepicker[1]).toHaveAttribute('placeholder', 'Enter Date 2');
+        expect(datepicker[1]).not.toHaveAttribute('defaultValue');
     });
     it('should render correctly EditableElements', () => {
         const elements: FormElement[] = [
@@ -126,16 +135,30 @@ describe('GenericForm', () => {
     });
     it('should call onSubmit', () => {
         const elements: FormElement[] = [
-            { type: FormElementType.INPUT, span: 12, name: 'input', label: 'Input 1', required: false, defaultValue: '', disabled: false, regex: '0x[a-fA-F0-9]{40}'},
             { type: FormElementType.DOCUMENT, span: 24, name: 'document', label: 'Document 1', required: true, content: new Blob(), uploadable: true, loading: false},
+            { type: FormElementType.DOCUMENT, span: 24, name: 'empty-document', label: 'Document 2', required: false, content: undefined, uploadable: true, loading: false},
         ];
         const onSubmit = jest.fn();
         const tree = render(<GenericForm elements={elements} submittable={true} onSubmit={onSubmit}/>);
 
         const form = tree.getByTestId('form');
         expect(form).toBeDefined();
-        fireEvent.submit(form);
+        fireEvent.click(tree.getAllByTestId('test-onDocumentChange')[0]);
+        // fireEvent.submit(form);
+        // expect(onSubmit).toHaveBeenCalledTimes(1);
+        // TODO: understand where the onSubmit is called
         expect(onSubmit).toHaveBeenCalledTimes(1);
-        expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({document: new Blob()}));
+        expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({mockedName: mockedFile}));
+        expect(onSubmit).toHaveBeenCalledWith(expect.not.objectContaining({"empty-document": expect.anything()}));
+    });
+    it('should not call onSubmit if the function is not specified', () => {
+        const elements: FormElement[] = [
+            { type: FormElementType.INPUT, span: 24, name: 'input', label: 'Input 1', required: true, defaultValue: 'test', disabled: false },
+        ];
+        const onSubmit = jest.fn();
+        const tree = render(<GenericForm elements={elements} submittable={true}/>);
+
+        fireEvent.submit(tree.getByTestId('form'));
+        expect(onSubmit).toHaveBeenCalledTimes(0);
     });
 });

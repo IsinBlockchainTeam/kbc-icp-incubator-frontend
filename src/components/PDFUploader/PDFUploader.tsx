@@ -1,9 +1,7 @@
 import React from 'react';
-import {InboxOutlined} from '@ant-design/icons';
-import {Button, UploadProps} from 'antd';
-import {Upload} from 'antd';
+import {InboxOutlined, RollbackOutlined} from '@ant-design/icons';
+import {Button, Upload, UploadProps} from 'antd';
 import {NotificationType, openNotification} from "../../utils/notification";
-import {RollbackOutlined} from "@ant-design/icons";
 
 const {Dragger} = Upload;
 

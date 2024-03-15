@@ -1,11 +1,6 @@
 import React, {useEffect} from "react";
-import {Button, Col, DatePicker, Divider, Form, Input, Row, Upload, type UploadProps} from "antd";
-import {Spinner, Viewer} from "@react-pdf-viewer/core";
-import {InboxOutlined, UploadOutlined} from "@ant-design/icons";
-import PDFUploader from "../PDFUploader/PDFUploader";
-import {RcFile} from "antd/lib/upload";
+import {Button, Col, DatePicker, Divider, Form, Input, Row} from "antd";
 import PDFViewer from "../PDFViewer/PDFViewer";
-import {NotificationType, openNotification} from "../../utils/notification";
 
 export enum FormElementType {
     TITLE = 'title',
@@ -39,7 +34,7 @@ type ClickableElement = Omit<LabeledElement, 'type'> & {
     type: FormElementType.BUTTON,
     onClick: (event: React.MouseEvent<HTMLButtonElement>) => void,
     name: string,
-    disabled: boolean,
+    disabled?: boolean,
     block?: boolean,
     buttonType?: 'primary' | 'default' | 'dashed' | 'text' | 'link',
     icon?: React.ReactNode,
@@ -55,9 +50,9 @@ const mapAdditionalPropertiesToButtonProps: Record<AdditionalButtonProperties, R
 type EditableElement = Omit<LabeledElement, 'type'> & {
     type: FormElementType.INPUT | FormElementType.DATE,
     name: string,
-    disabled: boolean,
     defaultValue: any,
     required: boolean,
+    disabled?: boolean,
     block?: boolean,
     regex?: string
 }
@@ -143,6 +138,7 @@ export const GenericForm = (props: Props) => {
         },
         [FormElementType.INPUT]: (element: FormElement, index: number) => {
             element = element as EditableElement;
+            const { disabled = false } = element;
             return (
                 <Col span={element.span} key={index}>
                     <Form.Item
@@ -158,7 +154,7 @@ export const GenericForm = (props: Props) => {
                         ]}>
                         <Input
                             type={element.type}
-                            disabled={element.disabled}
+                            disabled={disabled}
                             placeholder={`Enter ${element.label}`}
                             defaultValue={element.defaultValue}
                             className='ant-input'
@@ -169,6 +165,7 @@ export const GenericForm = (props: Props) => {
         },
         [FormElementType.DATE]: (element: FormElement, index: number) => {
             element = element as EditableElement;
+            const { disabled = false } = element;
             return (
                 <Col span={element.span} key={index}>
                     <Form.Item
@@ -177,7 +174,7 @@ export const GenericForm = (props: Props) => {
                         name={element.name}
                         rules={[{required: element.required, message: `Please insert ${element.label}!`}]}>
                         <DatePicker
-                            disabled={element.disabled}
+                            disabled={disabled}
                             placeholder={`Enter ${element.label}`}
                             defaultValue={element.defaultValue}
                             format={dateFormat}

@@ -1,6 +1,5 @@
 import React, {useEffect} from "react";
 import {FormElement, FormElementType, GenericForm} from "../../components/GenericForm/GenericForm";
-import {Table} from "antd";
 
 export const Home = () => {
     const [loadingFirst, setLoadingFirst] = React.useState<boolean>(true);
