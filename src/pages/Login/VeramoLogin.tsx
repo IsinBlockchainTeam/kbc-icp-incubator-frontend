@@ -15,43 +15,20 @@ export default function VeramoLogin() {
   const dispatch = useDispatch();
 
   const requestAuthPresentation = async () => {
-    // const id = uuid();
-    // const verifier = await veramoService.importIdentifier(
-    //   "did:ethr:goerli:0x5a49c60f856d9B411224C58e69A4d1B248Bdd46c",
-    //   "69407cab440be08432f333c43e48fd5c3b1837618ee1b51181af5f09e0eef2ac",
-    //   "verifier"
-    // );
-    // await veramoService.addX25519DidKey(verifier.did);
-    // await veramoService.addDidCommServiceaddService(verifier.did);
-    // const jwt = await veramoService.createSelectiveDisclosureRequest(
-    //   verifier.did,
-    //   id,
-    //   "",
-    //   "Please, authenticate yourself"
-    // );
-    // const data = await veramoService.generateQRcodeForPresentationRequest(
-    //   "presentation-request-auth",
-    //   verifier.did,
-    //   id,
-    //   jwt
-    // );
-    // setRequestId(id);
-    // setQrCodeURL(data.qrcode);
-
+    const id = uuid();
     const response = await request(
       `${requestPath.VERIFIER_BACKEND_URL}/presentations/create/selective-disclosure`,
       {
         method: "POST",
         body: JSON.stringify({
-          tag: uuid(),
-          claimType: "",
+          tag: id,
+          claimType: "legalName",
           reason: "Please, authenticate yourself",
         }),
       }
     );
-    console.log("RESPONSE", response);
     setQrCodeURL(response.qrcode);
-    setChallengeId(response.offer.id);
+    setChallengeId(id);
   };
 
   useEffect(() => {
