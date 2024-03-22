@@ -147,7 +147,6 @@ export default function useTradeShared() {
     }
 
     const deleteLine = (id: string) => {
-        console.log('delete line', id)
         let index: number;
         setLineOrder((currentLineOrder) => {
             index = currentLineOrder.indexOf(id);

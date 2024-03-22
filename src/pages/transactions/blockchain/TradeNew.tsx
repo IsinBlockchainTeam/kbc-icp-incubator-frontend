@@ -7,7 +7,8 @@ import React from "react";
 import {
     DeleteOutlined,
     DownOutlined,
-    EditOutlined, ImportOutlined,
+    EditOutlined,
+    ImportOutlined,
     ProductOutlined,
     SendOutlined,
     TruckOutlined

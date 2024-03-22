@@ -69,6 +69,7 @@ export default function useTradeView() {
         orderState,
         elements,
         trade,
+        documents,
         loadingDocuments,
         disabled,
         toggleDisabled,

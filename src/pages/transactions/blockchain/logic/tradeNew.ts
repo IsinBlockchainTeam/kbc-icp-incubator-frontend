@@ -4,7 +4,6 @@ import {MaterialPresentable} from "../../../../api/types/MaterialPresentable";
 import {NotificationType, openNotification} from "../../../../utils/notification";
 import dayjs from "dayjs";
 import useTradeShared from "./tradeShared";
-import {useState} from "react";
 import {MenuProps} from "antd";
 
 export default function useTradeNew() {
@@ -28,7 +27,7 @@ export default function useTradeNew() {
             if (key.startsWith('product-category-id-')) {
                 id = key.split('-')[3];
                 if(type === TradeType.BASIC)
-                    (values['lines'] ||= []).push(new TradeLinePresentable(0, new MaterialPresentable(values[key])));
+                    (values['lines'] ||= []).push(new TradeLinePresentable(0, new MaterialPresentable(parseInt(values[key]))));
                 else {
                     const materialId: number = parseInt(values[`product-category-id-${id}`]);
                     const quantity: number = parseInt(values[`quantity-${id}`]);
@@ -44,9 +43,9 @@ export default function useTradeNew() {
             openNotification("Basic trade registered", `Basic trade "${values.name}" has been registered correctly!`, NotificationType.SUCCESS, 1);
         } else {
             values['paymentDeadline'] = dayjs(values['payment-deadline']).toDate();
-            values['documentDeliveryDeadline'] = values['document-delivery-deadline'].toDate();
-            values['shippingDeadline'] = (values['shipping-deadline']).toDate();
-            values['deliveryDeadline'] = values['delivery-deadline'].toDate();
+            values['documentDeliveryDeadline'] = dayjs(values['document-delivery-deadline']).toDate();
+            values['shippingDeadline'] = dayjs(values['shipping-deadline']).toDate();
+            values['deliveryDeadline'] = dayjs(values['delivery-deadline']).toDate();
             await tradeService.saveOrderTrade(values);
             openNotification("Order trade registered", `Order trade has been registered correctly!`, NotificationType.SUCCESS, 1);
         }

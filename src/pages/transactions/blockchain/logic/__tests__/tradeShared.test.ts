@@ -3,7 +3,7 @@ import {TradeType} from "@kbc-lib/coffee-trading-management-lib";
 import {useSelector} from "react-redux";
 import {renderHook, waitFor} from "@testing-library/react";
 import {ClickableElement} from "../../../../../components/GenericForm/GenericForm";
-import {v4 as uuid} from "uuid";
+import * as uuid from 'uuid';
 
 jest.mock("../../../../../api/services/TradeService", () => ({
     TradeService: jest.fn()
@@ -17,6 +17,7 @@ jest.mock("react-redux", () => ({
 }));
 
 jest.mock("uuid");
+const uuidSpy = jest.spyOn(uuid, 'v4');
 
 const mockInitialState = {
     auth: {
@@ -29,15 +30,16 @@ const mockInitialState = {
 };
 
 describe('tradeShared', () => {
-    const mockV4 = jest.fn();
+    let mockId: number = 1;
 
     beforeAll(() => {
         jest.spyOn(console, 'error').mockImplementation(jest.fn());
-    });
 
+    });
     beforeEach(() => {
-        (useSelector as jest.Mock).mockReturnValue((callback: any) => callback(mockInitialState));
-        (uuid as jest.Mock).mockImplementation(mockV4);
+        (useSelector as jest.Mock).mockImplementation((callback: any) => callback(mockInitialState));
+        mockId = 1;
+        uuidSpy.mockReturnValue(`mocked-${mockId++}`);
     });
 
     it('should update trade type', async () => {
@@ -55,7 +57,7 @@ describe('tradeShared', () => {
         expect(addLine).toBeDefined();
         // @ts-ignore
         (addLine as ClickableElement)?.onClick();
-        expect(mockV4).toHaveBeenCalledTimes(1);
+        expect(uuidSpy).toHaveBeenCalledTimes(1);
         await waitFor(() => expect(result.current.elements.length).toEqual(elementLength + 3));
     });
 });
