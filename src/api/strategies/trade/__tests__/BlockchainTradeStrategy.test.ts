@@ -3,8 +3,7 @@ import {getWalletAddress} from "../../../../utils/storage";
 import {BlockchainLibraryUtils} from "../../../BlockchainLibraryUtils";
 import {
     Line, LineRequest,
-    Material,
-    OrderLine, OrderLinePrice, OrderLineRequest,
+    Material, OrderLinePrice, OrderLineRequest,
     ProductCategory,
     TradeStatus,
     TradeType
