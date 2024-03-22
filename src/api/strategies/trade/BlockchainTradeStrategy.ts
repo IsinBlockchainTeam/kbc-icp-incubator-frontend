@@ -129,6 +129,7 @@ export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<T
 
                     trade
                         .setId(resp.tradeId)
+                        .setSupplier(resp.supplier)
                         .setCommissioner(resp.commissioner)
                         .setCustomer(resp.customer)
                         .setIncoterms(orderMetadata.incoterms)
@@ -141,7 +142,6 @@ export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<T
                         .setDeliveryPort(orderMetadata.deliveryPort)
                         .setDeliveryDeadline(new Date(resp.deliveryDeadline))
                         .setEscrow(resp.escrow)
-                        .setSupplier(resp.supplier)
                         .setLines(orderLines.map(ol => new TradeLinePresentable()
                             .setId(ol.id)
                             .setMaterial(ol.material ? new MaterialPresentable()
@@ -183,8 +183,6 @@ export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<T
     async saveOrderTrade(trade: TradePresentable): Promise<void> {
         this.checkService(this._solidService);
         const tradeManagerService: TradeManagerService = BlockchainLibraryUtils.getTradeManagerService();
-
-        console.log(trade)
 
         const newTrade: OrderTrade = await tradeManagerService.registerOrderTrade(trade.supplier, trade.customer!, trade.commissioner!, 'externalUrl', (trade.paymentDeadline!).getTime(), (trade.documentDeliveryDeadline!).getTime(), trade.arbiter!, (trade.shippingDeadline!).getTime(), (trade.deliveryDeadline!).getTime(), trade.agreedAmount!, trade.tokenAddress!);
         if (trade.lines) {
