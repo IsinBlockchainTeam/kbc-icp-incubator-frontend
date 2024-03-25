@@ -16,7 +16,9 @@ export class BlockchainDocumentStrategy extends Strategy implements DocumentStra
 
     async getDocumentsByTransactionIdAndType(id: number, type: string): Promise<DocumentPresentable[]> {
         const documentsInfo = await this._documentService.getDocumentsInfoByTransactionIdAndType(id, type);
+        console.log("documentsInfo: ", documentsInfo)
         return Promise.all(documentsInfo.map(async (d) => {
+            console.log("externalUrl: ", d.externalUrl)
             const completeDocument = await this._documentService.getCompleteDocument(d,
                 { entireResourceUrl: d.externalUrl },
                 { entireResourceUrl: d.externalUrl }

@@ -16,7 +16,6 @@ import {RootState} from "../../../redux/types";
 import {NotificationType, openNotification} from "../../../utils/notification";
 import {FormElement, FormElementType, GenericForm} from "../../../components/GenericForm/GenericForm";
 import {EditOutlined} from "@ant-design/icons";
-import {paths} from "../../../constants";
 import {regex} from "../../../utils/regex";
 
 export const TradeView = () => {
@@ -34,6 +33,7 @@ export const TradeView = () => {
     const tradeService = new TradeService(new BlockchainTradeStrategy({
         serverUrl: subjectClaims!.podServerUrl!,
         sessionCredentials: {
+            podName: subjectClaims!.podName!,
             clientId: subjectClaims!.podClientId!,
             clientSecret: subjectClaims!.podClientSecret!
         }
@@ -48,11 +48,13 @@ export const TradeView = () => {
         const documentService = new DocumentService(new BlockchainDocumentStrategy({
             serverUrl: subjectClaims!.podServerUrl!,
             sessionCredentials: {
+                podName: subjectClaims!.podName!,
                 clientId: subjectClaims!.podClientId!,
                 clientSecret: subjectClaims!.podClientSecret!
             }
         }));
         const resp = await documentService.getDocumentsByTransactionIdAndType(id, 'trade');
+        console.log("documents: ", resp)
         resp && setDocuments(resp);
     }
 

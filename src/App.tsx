@@ -23,7 +23,7 @@ export const App = () => {
   };
 
   useEffect(() => {
-    authenticationAPI();
+    // authenticationAPI();
   }, []);
 
   return (
