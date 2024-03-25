@@ -124,21 +124,21 @@ export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<T
                 resp = await orderTradeService.getTrade();
 
                 if (resp) {
-                    const orderMetadata = await this._solidService!.retrieveMetadata(resp.externalUrl);
+                    //const orderMetadata = await this._solidService!.retrieveMetadata(resp.externalUrl);
                     const orderLines = await orderTradeService.getLines();
 
                     trade
                         .setId(resp.tradeId)
                         .setCommissioner(resp.commissioner)
                         .setCustomer(resp.customer)
-                        .setIncoterms(orderMetadata.incoterms)
+                        //.setIncoterms(orderMetadata.incoterms)
                         .setPaymentDeadline(new Date(resp.paymentDeadline))
                         .setDocumentDeliveryPipeline(new Date(resp.documentDeliveryDeadline))
-                        .setShipper(orderMetadata.shipper)
+                        //.setShipper(orderMetadata.shipper)
                         .setArbiter(resp.arbiter)
-                        .setShippingPort(orderMetadata.shippingPort)
+                        //.setShippingPort(orderMetadata.shippingPort)
                         .setShippingDeadline(new Date(resp.shippingDeadline))
-                        .setDeliveryPort(orderMetadata.deliveryPort)
+                       // .setDeliveryPort(orderMetadata.deliveryPort)
                         .setDeliveryDeadline(new Date(resp.deliveryDeadline))
                         .setEscrow(resp.escrow)
                         .setSupplier(resp.supplier)

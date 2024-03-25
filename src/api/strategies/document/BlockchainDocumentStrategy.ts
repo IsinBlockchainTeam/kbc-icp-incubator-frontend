@@ -23,19 +23,19 @@ export class BlockchainDocumentStrategy extends Strategy implements DocumentStra
         this.checkService(this._solidService);
         const documentsInfo = await this._documentService.getDocumentsInfoByTransactionIdAndType(id, type);
         return Promise.all(documentsInfo.map(async (d) => {
-            const { filename, date, lines } = await this._solidService!.retrieveMetadata(d.externalUrl);
-            const fileContent = await this._solidService!.retrieveFile(d.externalUrl);
+           // const { filename, date, lines } = await this._solidService!.retrieveMetadata(d.externalUrl);
+           // const fileContent = await this._solidService!.retrieveFile(d.externalUrl);
 
-            ErrorHandler.manageUndefinedOrEmpty(fileContent, HttpStatusCode.NOT_FOUND, `There is no file related to the document with id: ${d.id}`);
+            //ErrorHandler.manageUndefinedOrEmpty(fileContent, HttpStatusCode.NOT_FOUND, `There is no file related to the document with id: ${d.id}`);
             return new DocumentPresentable()
                 .setId(d.id)
                 .setName(d.name)
-                .setContentType(fileContent!.type)
+              //  .setContentType(fileContent!.type)
                 .setDocumentType(d.documentType)
-                .setContent(fileContent!)
-                .setFilename(filename)
-                .setTransactionLines(lines)
-                .setDate(new Date(date))
+                //.setContent(fileContent!)
+                //.setFilename(filename)
+                //.setTransactionLines(lines)
+                //.setDate(new Date(date))
             })
         );
     }
