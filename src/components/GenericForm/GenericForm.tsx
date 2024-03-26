@@ -1,6 +1,6 @@
-import React from "react";
+import React, {useEffect} from "react";
 import {Button, Col, DatePicker, Divider, Form, Input, Row} from "antd";
-import { Viewer} from "@react-pdf-viewer/core";
+import PDFViewer from "../PDFViewer/PDFViewer";
 
 export enum FormElementType {
     TITLE = 'title',
@@ -8,8 +8,9 @@ export enum FormElementType {
     DATE = 'date',
     SPACE = 'space',
     BUTTON = 'button',
-    DOCUMENT_PREVIEW = 'document',
+    DOCUMENT = 'document',
 }
+
 export type FormElement = BasicElement | LabeledElement | ClickableElement | EditableElement | DocumentElement;
 
 type BasicElement = {
@@ -29,11 +30,11 @@ type LabeledElement = Omit<BasicElement, 'type'> & {
 //     block?: boolean,
 // }
 
-type ClickableElement = Omit<LabeledElement, 'type'> & {
+export type ClickableElement = Omit<LabeledElement, 'type'> & {
     type: FormElementType.BUTTON,
     onClick: (event: React.MouseEvent<HTMLButtonElement>) => void,
     name: string,
-    disabled: boolean,
+    disabled?: boolean,
     block?: boolean,
     buttonType?: 'primary' | 'default' | 'dashed' | 'text' | 'link',
     icon?: React.ReactNode,
@@ -41,27 +42,29 @@ type ClickableElement = Omit<LabeledElement, 'type'> & {
 }
 type AdditionalButtonProperties = 'danger' | 'ghost' | 'loading';
 const mapAdditionalPropertiesToButtonProps: Record<AdditionalButtonProperties, Record<string, any>> = {
-    'danger': { danger: true },
-    'ghost': { ghost: true },
-    'loading': { loading: true },
+    'danger': {danger: true},
+    'ghost': {ghost: true},
+    'loading': {loading: true},
 };
 
 type EditableElement = Omit<LabeledElement, 'type'> & {
     type: FormElementType.INPUT | FormElementType.DATE,
     name: string,
-    disabled: boolean,
-    block?: boolean,
     defaultValue: any,
     required: boolean,
+    disabled?: boolean,
+    block?: boolean,
     regex?: string
 }
 
-type DocumentElement = Omit<LabeledElement, 'type'> & {
-    type: FormElementType.DOCUMENT_PREVIEW,
+export type DocumentElement = Omit<LabeledElement, 'type'> & {
+    type: FormElementType.DOCUMENT,
     name: string,
-    disabled: boolean,
-    content: Blob,
+    uploadable: boolean,
     required: boolean,
+    loading: boolean,
+    content?: Blob,
+    height?: `${number}px` | `${number}%` | `${number}vh` | 'auto',
 }
 
 type Props = {
@@ -71,12 +74,28 @@ type Props = {
 }
 export const GenericForm = (props: Props) => {
     const [form] = Form.useForm();
+    const documents: Map<string, Blob | undefined> = new Map<string, Blob>();
     const dateFormat = 'DD/MM/YYYY';
+
+    useEffect(() => {
+        props.elements.forEach((element) => {
+            if (element.type === FormElementType.DOCUMENT) {
+                const doc = element as DocumentElement;
+                if (doc.content) {
+                    documents.set(doc.name, doc.content);
+                }
+            }
+        });
+    }, [props.elements]);
+
+    const addDocument = (name: string, file?: Blob) => {
+        documents.set(name, file);
+    }
 
     const elementComponent = {
         [FormElementType.SPACE]: (element: FormElement, index: number) => {
             element = element as BasicElement;
-            const { span} = element;
+            const {span} = element;
             return (
                 <Col span={span} key={index}>
                 </Col>
@@ -84,43 +103,58 @@ export const GenericForm = (props: Props) => {
         },
         [FormElementType.TITLE]: (element: FormElement, index: number) => {
             element = element as LabeledElement;
-            const { span, label } = element;
+            const {span, label} = element;
             return (
                 <Col span={span} key={index}><Divider>{label}</Divider></Col>
             )
         },
         [FormElementType.BUTTON]: (element: FormElement, index: number) => {
             element = element as ClickableElement;
-            const { span, label, name, disabled = false, onClick, buttonType = 'default', icon = undefined, block = true, additionalProperties = undefined } = element;
+            const {
+                span,
+                label,
+                name,
+                disabled = false,
+                onClick,
+                buttonType = 'default',
+                icon = undefined,
+                block = true,
+                additionalProperties = undefined
+            } = element;
             const additionalProps = additionalProperties ? mapAdditionalPropertiesToButtonProps[additionalProperties] : {};
 
             return (
                 <Col span={span} key={index}>
                     <Form.Item
-                        labelCol={{ span: 24 }}
+                        labelCol={{span: 24}}
                         label={' '}
                         name={name}
                     >
-                        <Button type={buttonType} block={block} disabled={disabled} onClick={onClick} icon={icon} {...additionalProps}>{label}</Button>
+                        <Button type={buttonType} block={block} disabled={disabled} onClick={onClick}
+                                icon={icon} {...additionalProps}>{label}</Button>
                     </Form.Item>
                 </Col>
             );
         },
         [FormElementType.INPUT]: (element: FormElement, index: number) => {
             element = element as EditableElement;
+            const { disabled = false } = element;
             return (
                 <Col span={element.span} key={index}>
                     <Form.Item
-                        labelCol={{ span: 24 }}
+                        labelCol={{span: 24}}
                         label={element.label}
                         name={element.name}
                         rules={[
-                            { required: element.required, message: `Please insert ${element.label}!` },
-                            { pattern: new RegExp(element.regex || '.*'), message: `Please enter a valid ${element.label}!` }
+                            {required: element.required, message: `Please insert ${element.label}!`},
+                            {
+                                pattern: new RegExp(element.regex || '.*'),
+                                message: `Please enter a valid ${element.label}!`
+                            }
                         ]}>
                         <Input
                             type={element.type}
-                            disabled={element.disabled}
+                            disabled={disabled}
                             placeholder={`Enter ${element.label}`}
                             defaultValue={element.defaultValue}
                             className='ant-input'
@@ -131,15 +165,16 @@ export const GenericForm = (props: Props) => {
         },
         [FormElementType.DATE]: (element: FormElement, index: number) => {
             element = element as EditableElement;
+            const { disabled = false } = element;
             return (
                 <Col span={element.span} key={index}>
                     <Form.Item
-                        labelCol={{ span: 24 }}
+                        labelCol={{span: 24}}
                         label={element.label}
                         name={element.name}
-                        rules={[{ required: element.required, message: `Please insert ${element.label}!` }]}>
+                        rules={[{required: element.required, message: `Please insert ${element.label}!`}]}>
                         <DatePicker
-                            disabled={element.disabled}
+                            disabled={disabled}
                             placeholder={`Enter ${element.label}`}
                             defaultValue={element.defaultValue}
                             format={dateFormat}
@@ -149,29 +184,23 @@ export const GenericForm = (props: Props) => {
                 </Col>
             )
         },
-        [FormElementType.DOCUMENT_PREVIEW]: (element: FormElement, index: number) => {
+        [FormElementType.DOCUMENT]: (element: FormElement, index: number) => {
             element = element as DocumentElement;
+
             return (
-                <Col span={element.span} key={index}>
-                    <Form.Item
-                        labelCol={{ span: 24 }}
-                        label={element.label}
-                        name={element.name}
-                    >
-                        <div style={{
-                            border: '1px solid #d9d9d9',
-                            borderRadius: '6px',
-                            height: '200px',
-                            width: '100%',
-                            overflowY: 'scroll'
-                        }}>
-                            <Viewer
-                                fileUrl='https://pdfobject.com/pdf/sample.pdf'
-                                // fileUrl={URL.createObjectURL(element.content!)}
-                            />
-                        </div>
-                    </Form.Item>
-                </Col>
+                <>
+                    <Col span={element.span} key={index}>
+                        <Form.Item
+                            labelCol={{span: 24}}
+                            label={element.label}
+                            name={element.name}
+                            rules={[{required: element.required, message: `Please insert ${element.label}!`}]}
+                        >
+                            <PDFViewer element={element} onDocumentChange={addDocument}/>
+                        </Form.Item>
+                    </Col>
+                </>
+
             )
         },
     }
@@ -182,7 +211,16 @@ export const GenericForm = (props: Props) => {
             layout='horizontal'
             form={form}
             name='generic-form'
-            onFinish={props.onSubmit}
+            onFinish={
+                (values) => {
+                    if (props.onSubmit) {
+                        documents.forEach((value, key) => {
+                            values[key] = value;
+                        });
+                        props.onSubmit(values);
+                    }
+                }
+            }
         >
             <Row gutter={10}>
                 {

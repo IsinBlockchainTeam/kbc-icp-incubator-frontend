@@ -216,7 +216,7 @@ export const MenuLayout = () => {
           <Outlet />
         </Content>
         <Footer style={{ textAlign: "center" }}>
-          Coffe Trading platform ©2023 Created by ISIN
+          Coffe Trading platform ©2024 Created by ISIN
         </Footer>
       </Layout>
     </Layout>

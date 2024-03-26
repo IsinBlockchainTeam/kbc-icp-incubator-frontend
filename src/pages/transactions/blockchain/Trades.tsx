@@ -1,16 +1,16 @@
 import React, {useEffect} from "react";
 import {CardPage} from "../../../components/structure/CardPage/CardPage";
+import {Button, Table, TableProps} from "antd";
+import {PlusOutlined} from "@ant-design/icons";
+import {ColumnsType} from "antd/es/table";
 import {NotificationType, openNotification} from "../../../utils/notification";
+import {getEnumKeyByValue, setParametersPath} from "../../../utils/utils";
 import {TradeService} from "../../../api/services/TradeService";
 import {BlockchainTradeStrategy} from "../../../api/strategies/trade/BlockchainTradeStrategy";
 import {TradePresentable} from "../../../api/types/TradePresentable";
-import {ColumnsType} from "antd/es/table";
-import {Button, Table, TableProps} from "antd";
 import {Link, useNavigate} from "react-router-dom";
-import {getEnumKeyByValue, setParametersPath} from "../../../utils/utils";
 import {paths} from "../../../constants";
 import {TradeType} from "@kbc-lib/coffee-trading-management-lib";
-import {PlusOutlined} from "@ant-design/icons";
 
 export const Trades = () => {
     const [trades, setTrades] = React.useState<TradePresentable[]>();
