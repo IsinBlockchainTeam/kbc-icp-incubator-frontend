@@ -11,12 +11,16 @@ export interface PDFUploaderProps {
 }
 
 export default function PDFUploader({onFileUpload, onRevert}: PDFUploaderProps) {
+    const dummyRequest = ({ onSuccess }: {onSuccess?: (body: any, xhr?: XMLHttpRequest) => void }) => {
+        setTimeout(() => {
+            onSuccess!("ok");
+        }, 0);
+    };
+
     const props: UploadProps = {
         name: 'file',
         multiple: false,
-        // The following operation is needed as the Uploader component expects an endpoint to upload the file
-        // In this case we are using a mock server to simulate the file upload
-        action: 'https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188',
+        customRequest: dummyRequest,
         maxCount: 1,
         showUploadList: false,
         beforeUpload: (file) => {
@@ -29,6 +33,7 @@ export default function PDFUploader({onFileUpload, onRevert}: PDFUploaderProps) 
         },
         onChange(info) {
             const {status, name} = info.file;
+            console.log(status)
             if (status === 'done') {
                 openNotification('File uploaded', `${name} file has been uploaded successfully`, NotificationType.SUCCESS);
             } else if (status === 'error') {
