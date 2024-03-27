@@ -9,7 +9,7 @@ export type BlockchainGraphData = {
 }
 
 export class BlockchainGraphStrategy extends Strategy implements GraphStrategy<GraphData> {
-    private readonly _graphService: GraphService<SolidMetadataSpec>;
+    private readonly _graphService: GraphService<SolidMetadataSpec, SolidMetadataSpec>;
     constructor() {
         super(true);
         this._graphService = BlockchainLibraryUtils.getGraphService()

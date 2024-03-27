@@ -2,7 +2,6 @@ import {useNavigate} from "react-router-dom";
 import {OfferService} from "../../../api/services/OfferService";
 import OffersSupplierNew from "../OffersSupplierNew";
 import {render, screen, waitFor} from "@testing-library/react";
-import OffersNew from "../OffersNew";
 import userEvent from "@testing-library/user-event";
 import {paths} from "../../../constants";
 

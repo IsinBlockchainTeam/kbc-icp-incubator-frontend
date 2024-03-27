@@ -16,13 +16,12 @@ export class BlockchainDocumentStrategy extends Strategy implements DocumentStra
 
     async getDocumentsByTransactionIdAndType(id: number, type: string): Promise<DocumentPresentable[]> {
         const documentsInfo = await this._documentService.getDocumentsInfoByTransactionIdAndType(id, type);
-        console.log("documentsInfo: ", documentsInfo)
         return Promise.all(documentsInfo.map(async (d) => {
-            console.log("externalUrl: ", d.externalUrl)
             const completeDocument = await this._documentService.getCompleteDocument(d,
                 { entireResourceUrl: d.externalUrl },
                 { entireResourceUrl: d.externalUrl }
             );
+            console.log('completeDocument: ', completeDocument);
             ErrorHandler.manageUndefinedOrEmpty(completeDocument, HttpStatusCode.NOT_FOUND, `There are no external information related to the document with id: ${d.id}`);
             ErrorHandler.manageUndefinedOrEmpty(completeDocument!.content, HttpStatusCode.NOT_FOUND, `There is no file related to the document with id: ${d.id}`);
             return new DocumentPresentable()

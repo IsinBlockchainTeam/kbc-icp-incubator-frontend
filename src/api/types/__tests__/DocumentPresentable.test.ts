@@ -41,8 +41,8 @@ describe('DocumentPresentable', () => {
     });
 
     it('should set content', () => {
-        documentPresentable.setContent(new Blob());
-        expect(documentPresentable.content).toEqual(new Blob());
+        documentPresentable.setContent(new Blob([]))
+        expect(documentPresentable.content).toEqual(new Blob([]));
     });
 
     it('should set date', () => {

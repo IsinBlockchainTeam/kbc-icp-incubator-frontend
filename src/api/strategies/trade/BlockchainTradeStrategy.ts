@@ -15,6 +15,7 @@ import {HttpStatusCode} from "../../../utils/error/HttpStatusCode";
 import {TradeLinePresentable, TradeLinePrice} from "../../types/TradeLinePresentable";
 import {SolidSpec, StorageSpec} from "../../types/storage";
 import {OrderTradeInfo} from "../../../../../coffee-trading-management-lib/src";
+import { AccessMode } from "@blockchain-lib/common";
 
 export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<TradePresentable, Trade> {
     private readonly _tradeManagerService;
@@ -158,7 +159,19 @@ export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<T
     }
 
     async saveBasicTrade(trade: TradePresentable): Promise<void> {
-        const newTrade: BasicTrade = await this._tradeManagerService.registerBasicTrade(trade.supplier, trade.customer!, trade.commissioner!, trade.name!);
+        const newTrade: BasicTrade = await this._tradeManagerService.registerBasicTrade(trade.supplier, trade.customer!, trade.commissioner!, trade.name!, {
+            value: { issueDate: new Date() },
+            // aclRules: [
+            //     {
+            //         agents: [basicTrade.supplierWebId],
+            //         modes: [AccessMode.READ, AccessMode.WRITE, AccessMode.CONTROL],
+            //     },
+            //     {
+            //         agents: [basicTrade.commissionerWebId],
+            //         modes: [AccessMode.READ],
+            //     },
+            // ],
+        });
         if (trade.lines) {
             const basicTradeService = BlockchainLibraryUtils.getBasicTradeService(await this._tradeManagerService.getTrade(newTrade.tradeId));
             await Promise.all(trade.lines.map(async line => {
