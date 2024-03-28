@@ -1,3 +1,4 @@
+import {Blob} from "buffer";
 import {DocumentPresentable} from "../DocumentPresentable";
 import {DocumentType, TransactionLine} from "@kbc-lib/coffee-trading-management-lib";
 
