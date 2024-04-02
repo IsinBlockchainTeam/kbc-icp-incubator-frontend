@@ -35,8 +35,10 @@ export default function useTradeView() {
     const getTradeDocuments = async (id: number) => {
         const documentService = new DocumentService(new BlockchainDocumentStrategy({
             serverUrl: subjectClaims!.podServerUrl!,
-            clientId: subjectClaims!.podClientId!,
-            clientSecret: subjectClaims!.podClientSecret!
+            sessionCredentials: {
+                clientId: subjectClaims!.podClientId!,
+                clientSecret: subjectClaims!.podClientSecret!
+            }
         }));
         const resp = await documentService.getDocumentsByTransactionIdAndType(id, 'trade');
         resp && setDocuments(resp);

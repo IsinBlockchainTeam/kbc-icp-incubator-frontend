@@ -192,6 +192,7 @@ export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<T
             trade.arbiter!, (trade.shippingDeadline!).getTime(), (trade.deliveryDeadline!).getTime(), trade.agreedAmount!, trade.tokenAddress!,
             { value: { incoterms: trade.incoterms, shipper: trade.shipper, shippingPort: trade.shippingPort, deliveryPort: trade.deliveryPort }}
         );
+        // TODO: aggiungere il salvataggio dei documenti sul trade con solid
         if (trade.lines) {
             const orderTradeService = BlockchainLibraryUtils.getOrderTradeService(await this._tradeManagerService.getTrade(newTrade.tradeId), this._storageSpec);
             await Promise.all(trade.lines.map(async line => {

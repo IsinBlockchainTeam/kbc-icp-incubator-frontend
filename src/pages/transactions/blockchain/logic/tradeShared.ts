@@ -12,8 +12,11 @@ export default function useTradeShared() {
     const subjectClaims = useSelector((state: RootState) => state.auth.subjectClaims);
     const tradeService = new TradeService(new BlockchainTradeStrategy({
         serverUrl: subjectClaims!.podServerUrl!,
-        clientId: subjectClaims!.podClientId!,
-        clientSecret: subjectClaims!.podClientSecret!
+        sessionCredentials: {
+            podName: subjectClaims!.podName!,
+            clientId: subjectClaims!.podClientId!,
+            clientSecret: subjectClaims!.podClientSecret!
+        }
     }));
 
     const [type, setType] = useState<TradeType>(TradeType.BASIC);
