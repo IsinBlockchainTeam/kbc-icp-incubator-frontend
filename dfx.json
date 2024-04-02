@@ -1,0 +1,10 @@
+{
+  "canisters": {
+    "icp_react_frontend": {
+      "source": [
+        "./build"
+      ],
+      "type": "assets"
+    }
+  }
+}
