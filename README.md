@@ -17,20 +17,28 @@ This package is written in TypeScript.
 
 ## Getting Started
 
-- First, ensure you have configured and run the [Coffee Trading Management Lib](https://gitlab-core.supsi.ch/dti-isin/giuliano.gremlich/blockchain/one-lib-to-rule-them-all/coffee-trading-management-lib) and the [VC Manager](https://gitlab-core.supsi.ch/dti-isin/giuliano.gremlich/blockchain/coffe-trading/vc-manager) projects
-- Clone this repository using command `git clone https://gitlab-core.supsi.ch/dti-isin/giuliano.gremlich/blockchain/coffe-trading/kbc-platform.git`
-- Enter the newly created folder using `cd kbc-platform`
-- Change branch to `dev` using command `git checkout dev`
-- Rename the `.npmrc.template` file to `.npmrc` and fill in the missing information
-- Run `npm i` to install the required dependencies
-- Rename the `.env.local.template` file to `.env.local` and fill in the missing information
-- Run `npm run start` to start the application
-- Open your browser and navigate to `http://localhost:3000` to see the _React_ webapp
-- Click on the Metamask extension in the top right corner of your browser
-- Import an account by clicking on the 'Account' dropdown and selecting 'Add account or hardware wallet' and then 'Import account'. Paste in the private key of the account you want to use. If you are using the local Hardhat network, you can find accounts and their private keys in the terminal where you have run command `npx hardhat node`.
-- Configure the blockchain network by pressing on the button in the top right corner of the Metamask extension and select the desired network. If you are using the local Hardhat network, you can follow [this guide](https://support.chainstack.com/hc/en-us/articles/4408642503449-Using-MetaMask-with-a-Hardhat-node)
-- Switch the `View mode` in the top left corner to `Blockchain ON`, then press on `Settings` and `Login`. You can now connect your wallet
-- You should now be able to see Trades, Materials, Transformations, Partners and Offers. If you can't see any data, try populating the blockchain with default data using `Integration tests` of either [Coffee Trading Management Lib](https://gitlab-core.supsi.ch/dti-isin/giuliano.gremlich/blockchain/one-lib-to-rule-them-all/coffee-trading-management-lib) or https://gitlab-core.supsi.ch/dti-isin/giuliano.gremlich/blockchain/coffe-trading/blockchain-sync-layer) projects
+1. First, ensure you have configured and run the [Coffee Trading Management Lib](https://gitlab-core.supsi.ch/dti-isin/giuliano.gremlich/blockchain/one-lib-to-rule-them-all/coffee-trading-management-lib) and the [VC Manager](https://gitlab-core.supsi.ch/dti-isin/giuliano.gremlich/blockchain/coffe-trading/vc-manager) projects
+2. Clone this repository using command `git clone https://gitlab-core.supsi.ch/dti-isin/giuliano.gremlich/blockchain/coffe-trading/kbc-platform.git`
+3. Enter the newly created folder using `cd kbc-platform`
+4. Change branch to `dev` using command `git checkout dev`
+5. Rename the `.npmrc.template` file to `.npmrc` and fill in the missing information
+6. Run `npm i` to install the required dependencies
+7. Rename the `.env.local.template` file to `.env.local` and fill in the missing information
+8. Run `npm run start` to start the application
+9. Open your browser and navigate to `http://localhost:3000` to see the _React_ webapp
+10. Click on the Metamask extension in the top right corner of your browser
+11. Import an account by clicking on the 'Account' dropdown and selecting 'Add account or hardware wallet' and then 'Import account'. Paste in the private key of the account you want to use. If you are using the local Hardhat network, you can find accounts and their private keys in the terminal where you have run command `npx hardhat node`.
+12. Configure the blockchain network by pressing on the button in the top right corner of the Metamask extension and select the desired network. If you are using the local Hardhat network, you can follow [this guide](https://support.chainstack.com/hc/en-us/articles/4408642503449-Using-MetaMask-with-a-Hardhat-node)
+13. Switch the `View mode` in the top left corner to `Blockchain ON`, then press on `Settings` and `Login`. You can now connect your wallet
+14. You should now be able to see Trades, Materials, Transformations, Partners and Offers. If you can't see any data, try populating the blockchain with default data using `Integration tests` of either [Coffee Trading Management Lib](https://gitlab-core.supsi.ch/dti-isin/giuliano.gremlich/blockchain/one-lib-to-rule-them-all/coffee-trading-management-lib) or https://gitlab-core.supsi.ch/dti-isin/giuliano.gremlich/blockchain/coffe-trading/blockchain-sync-layer) projects
+
+## Deploy React App on ICP
+This project is configured to be optionally deployed on an ICP network. To deploy the project on your local ICP network, follow these steps:
+1. Make sure you have the IC SDK `dfx` tool installed. You can find the installation instructions [here](https://internetcomputer.org/docs/current/developer-docs/getting-started/install/)
+2. Make sure you have followed the project configuration as explained in section [Getting Started](#getting-started)
+3. If you don't have a local ICP replica running locally, create one by running `dfx start --clean`
+4. Build the project using `npm run build`
+5. Run `dfx deploy` to deploy the project on the local ICP network. You should receive the URL where the project has been deployed
 
 ### `npmrc` Configuration
 | Registry name              | Description                                                                                                                                                                                                                                                          |
