@@ -36,11 +36,12 @@ export default function useTradeView() {
         const documentService = new DocumentService(new BlockchainDocumentStrategy({
             serverUrl: subjectClaims!.podServerUrl!,
             sessionCredentials: {
+                podName: subjectClaims!.podName!,
                 clientId: subjectClaims!.podClientId!,
                 clientSecret: subjectClaims!.podClientSecret!
             }
         }));
-        const resp = await documentService.getDocumentsByTypeAndTransactionId(id);
+        const resp = await documentService.getDocumentsByTransactionId(id);
         resp && setDocuments(resp);
     }
 

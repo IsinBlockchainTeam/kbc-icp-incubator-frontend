@@ -15,7 +15,7 @@ export const requestPath = {
 };
 
 export const contractAddresses = {
-  PRODUCT_CATEGORY: () => checkAndGetEnvironmentVariable(process.env.REACT_APP_CONTRACT_PRODUCT_CATEGORY, "Product category contract address must be defined"),
+    PRODUCT_CATEGORY: () => checkAndGetEnvironmentVariable(process.env.REACT_APP_CONTRACT_PRODUCT_CATEGORY, "Product category contract address must be defined"),
     RELATIONSHIP: () => checkAndGetEnvironmentVariable(process.env.REACT_APP_CONTRACT_RELATIONSHIP, "Relationship contract address must be defined"),
     MATERIAL: () => checkAndGetEnvironmentVariable(process.env.REACT_APP_CONTRACT_MATERIAL, "Material contract address must be defined"),
     TRADE: () => checkAndGetEnvironmentVariable(process.env.REACT_APP_CONTRACT_TRADE, "Trade contract address must be defined"),

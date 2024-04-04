@@ -77,7 +77,7 @@ describe('TradePresentable', () => {
     });
 
     it('should set the documentDeliveryDeadline', () => {
-        tradePresentable.setDocumentDeliveryPipeline(date);
+        tradePresentable.setDocumentDeliveryDeadline(date);
         expect(tradePresentable.documentDeliveryDeadline).toBe(date);
     });
 

@@ -10,7 +10,7 @@ export class DocumentService<T> extends Service {
         this._strategy = documentStrategy;
     }
 
-    async getDocumentsByTypeAndTransactionId(id: number, type: DocumentType): Promise<T[]> {
-        return this._strategy.getDocumentsByTypeAndTransactionId(id, type);
+    async getDocumentsByTransactionId(id: number): Promise<T[]> {
+        return this._strategy.getDocumentsByTransactionId(id);
     }
 }

@@ -50,8 +50,9 @@ export class BlockchainLibraryUtils {
 
     static getTradeService = (tradeContractAddress: string, storage?: SolidSpec): TradeService<SolidMetadataSpec, SolidDocumentSpec, SolidStorageACR> => {
         const tradeDriver = new TradeDriver(this._getSigner(), tradeContractAddress);
+        const documentDriver: DocumentDriver = new DocumentDriver(this._getSigner(), contractAddresses.DOCUMENT());
         const {storageMetadataDriver, storageDocumentDriver} = this.defineStorageDrivers(storage);
-        return new TradeService({tradeDriver, storageMetadataDriver, storageDocumentDriver});
+        return new TradeService({tradeDriver, documentDriver, storageMetadataDriver, storageDocumentDriver});
     }
 
     static getBasicTradeService = (address: string, storage?: SolidSpec): BasicTradeService<SolidMetadataSpec, SolidDocumentSpec, SolidStorageACR> => {

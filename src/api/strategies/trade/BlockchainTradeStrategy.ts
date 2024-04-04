@@ -3,7 +3,7 @@ import {TradePresentable} from "../../types/TradePresentable";
 import {
     BasicTrade,
     IConcreteTradeService,
-    Line, LineRequest, OrderLinePrice, OrderLineRequest,
+    Line, LineRequest, OrderLinePrice, OrderLineRequest, SolidDocumentSpec, SolidMetadataDriver,
     Trade,
     TradeType
 } from "@kbc-lib/coffee-trading-management-lib";
@@ -132,7 +132,7 @@ export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<T
                         .setCustomer(orderTrade.customer)
                         .setIncoterms(orderTrade.incoterms)
                         .setPaymentDeadline(new Date(orderTrade.paymentDeadline))
-                        .setDocumentDeliveryPipeline(new Date(orderTrade.documentDeliveryDeadline))
+                        .setDocumentDeliveryDeadline(new Date(orderTrade.documentDeliveryDeadline))
                         .setShipper(orderTrade.shipper)
                         .setArbiter(orderTrade.arbiter)
                         .setShippingPort(orderTrade.shippingPort)
@@ -192,9 +192,31 @@ export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<T
             trade.arbiter!, (trade.shippingDeadline!).getTime(), (trade.deliveryDeadline!).getTime(), trade.agreedAmount!, trade.tokenAddress!,
             { value: { incoterms: trade.incoterms, shipper: trade.shipper, shippingPort: trade.shippingPort, deliveryPort: trade.deliveryPort }}
         );
-        // TODO: aggiungere il salvataggio dei documenti sul trade con solid
+        const orderTradeService = BlockchainLibraryUtils.getOrderTradeService(await this._tradeManagerService.getTrade(newTrade.tradeId), this._storageSpec);
+
+        const externalUrlSegments = newTrade.externalUrl.split('/');
+        const externalStorageTradeId = externalUrlSegments[externalUrlSegments.length - 1] === '' ? externalUrlSegments[externalUrlSegments.length - 2] : externalUrlSegments[externalUrlSegments.length - 1];
+
+        if (trade.paymentInvoice)
+            await orderTradeService.addDocument(trade.paymentInvoice.documentType, {spec: {filename: trade.paymentInvoice.filename, bcResourceId: externalStorageTradeId}, fileBuffer: trade.paymentInvoice.content}, {spec: {resourceName: trade.paymentInvoice.filename, bcResourceId: externalStorageTradeId}, value: {filename: trade.paymentInvoice.filename}});
+        if (trade.swissDecode)
+            await orderTradeService.addDocument(trade.swissDecode.documentType, {spec: {filename: trade.swissDecode.filename, bcResourceId: externalStorageTradeId}, fileBuffer: trade.swissDecode.content}, {spec: {resourceName: trade.swissDecode.filename, bcResourceId: externalStorageTradeId}, value: {filename: trade.swissDecode.filename}});
+        if (trade.deliveryNote)
+            await orderTradeService.addDocument(trade.deliveryNote.documentType, {spec: {filename: trade.deliveryNote.filename, bcResourceId: externalStorageTradeId}, fileBuffer: trade.deliveryNote.content}, {spec: {resourceName: trade.deliveryNote.filename, bcResourceId: externalStorageTradeId}, value: {filename: trade.deliveryNote.filename}});
+        if (trade.billOfLading)
+            await orderTradeService.addDocument(trade.billOfLading.documentType, {spec: {filename: trade.billOfLading.filename, bcResourceId: externalStorageTradeId}, fileBuffer: trade.billOfLading.content}, {spec: {resourceName: trade.billOfLading.filename, bcResourceId: externalStorageTradeId}, value: {filename: trade.billOfLading.filename}});
+        if (trade.weightCertificate)
+            await orderTradeService.addDocument(trade.weightCertificate.documentType, {spec: {filename: trade.weightCertificate.filename, bcResourceId: externalStorageTradeId}, fileBuffer: trade.weightCertificate.content}, {spec: {resourceName: trade.weightCertificate.filename, bcResourceId: externalStorageTradeId}, value: {filename: trade.weightCertificate.filename}});
+        if (trade.preferentialEntryCertificate)
+            await orderTradeService.addDocument(trade.preferentialEntryCertificate.documentType, {spec: {filename: trade.preferentialEntryCertificate.filename, bcResourceId: externalStorageTradeId}, fileBuffer: trade.preferentialEntryCertificate.content}, {spec: {resourceName: trade.preferentialEntryCertificate.filename, bcResourceId: externalStorageTradeId}, value: {filename: trade.preferentialEntryCertificate.filename}});
+        if (trade.fumigationCertificate)
+            await orderTradeService.addDocument(trade.fumigationCertificate.documentType, {spec: {filename: trade.fumigationCertificate.filename, bcResourceId: externalStorageTradeId}, fileBuffer: trade.fumigationCertificate.content}, {spec: {resourceName: trade.fumigationCertificate.filename, bcResourceId: externalStorageTradeId}, value: {filename: trade.fumigationCertificate.filename}});
+        if (trade.phytosanitaryCertificate)
+            await orderTradeService.addDocument(trade.phytosanitaryCertificate.documentType, {spec: {filename: trade.phytosanitaryCertificate.filename, bcResourceId: externalStorageTradeId}, fileBuffer: trade.phytosanitaryCertificate.content}, {spec: {resourceName: trade.phytosanitaryCertificate.filename, bcResourceId: externalStorageTradeId}, value: {filename: trade.phytosanitaryCertificate.filename}});
+        if (trade.insuranceCertificate)
+            await orderTradeService.addDocument(trade.insuranceCertificate.documentType, {spec: {filename: trade.insuranceCertificate.filename, bcResourceId: externalStorageTradeId}, fileBuffer: trade.insuranceCertificate.content}, {spec: {resourceName: trade.insuranceCertificate.filename, bcResourceId: externalStorageTradeId}, value: {filename: trade.insuranceCertificate.filename}});
+
         if (trade.lines) {
-            const orderTradeService = BlockchainLibraryUtils.getOrderTradeService(await this._tradeManagerService.getTrade(newTrade.tradeId), this._storageSpec);
             await Promise.all(trade.lines.map(async line => {
                 await orderTradeService.addLine(new OrderLineRequest(line.material?.id!, line.quantity!, new OrderLinePrice(line.price!.amount, line.price!.fiat)));
             }));

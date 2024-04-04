@@ -381,7 +381,7 @@ export default function useTradeShared() {
                 {
                     type: FormElementType.INPUT,
                     span: 12,
-                    name: 'shippingPort',
+                    name: 'shipping-port',
                     label: 'Shipping Port',
                     required: true,
                     defaultValue: '',
@@ -399,7 +399,7 @@ export default function useTradeShared() {
                 {
                     type: FormElementType.INPUT,
                     span: 12,
-                    name: 'deliveryPort',
+                    name: 'delivery-port',
                     label: 'Delivery Port',
                     required: true,
                     defaultValue: '',
@@ -417,7 +417,7 @@ export default function useTradeShared() {
                 {
                     type: FormElementType.INPUT,
                     span: 12,
-                    name: 'agreedAmount',
+                    name: 'agreed-amount',
                     label: 'Agreed Amount',
                     required: true,
                     regex: regex.ONLY_DIGITS,
@@ -427,7 +427,7 @@ export default function useTradeShared() {
                 {
                     type: FormElementType.INPUT,
                     span: 12,
-                    name: 'tokenAddress',
+                    name: 'token-address',
                     label: 'Token Address',
                     required: true,
                     regex: regex.ETHEREUM_ADDRESS,

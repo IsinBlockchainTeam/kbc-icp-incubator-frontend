@@ -58,7 +58,7 @@ describe('BlockchainTradeStrategy', () => {
         .setCustomer('customer1')
         .setCommissioner('commissioner1')
         .setPaymentDeadline(new Date(100))
-        .setDocumentDeliveryPipeline(new Date(200))
+        .setDocumentDeliveryDeadline(new Date(200))
         .setArbiter('arbiter1')
         .setShippingDeadline(new Date(300))
         .setDeliveryDeadline(new Date(400))

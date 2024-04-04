@@ -5,7 +5,6 @@ import {BlockchainLibraryUtils} from "../../BlockchainLibraryUtils";
 import {ErrorHandler} from "../../../utils/error/ErrorHandler";
 import {HttpStatusCode} from "../../../utils/error/HttpStatusCode";
 import {SolidSpec} from "../../types/storage";
-import {DocumentType} from "@kbc-lib/coffee-trading-management-lib";
 
 export class BlockchainDocumentStrategy extends Strategy implements DocumentStrategy<DocumentPresentable> {
     private readonly _documentService;
@@ -17,9 +16,9 @@ export class BlockchainDocumentStrategy extends Strategy implements DocumentStra
         this._tradeManagerService = BlockchainLibraryUtils.getTradeManagerService(storageSpec);
     }
 
-    async getDocumentsByTypeAndTransactionId(type: DocumentType, id: number): Promise<DocumentPresentable[]> {
+    async getDocumentsByTransactionId(id: number): Promise<DocumentPresentable[]> {
         const tradeService = BlockchainLibraryUtils.getTradeService(await this._tradeManagerService.getTrade(id));
-        const documentsInfo = await tradeService.getDocumentsByType(type);
+        const documentsInfo = await tradeService.getAllDocuments();
         return Promise.all(documentsInfo.map(async (d) => {
             const completeDocument = await this._documentService.getCompleteDocument(d,
                 { entireResourceUrl: d.externalUrl },
@@ -29,8 +28,8 @@ export class BlockchainDocumentStrategy extends Strategy implements DocumentStra
             ErrorHandler.manageUndefinedOrEmpty(completeDocument!.content, HttpStatusCode.NOT_FOUND, `There is no file related to the document with id: ${d.id}`);
             return new DocumentPresentable()
                 .setId(completeDocument!.id)
-                .setContentType(completeDocument!.content!.type)
-                .setDocumentType(type)
+                // .setContentType(completeDocument!.content!.type)
+                // .setDocumentType(type)
                 .setContent(completeDocument!.content)
                 .setFilename(completeDocument!.filename)
                 .setTransactionLines(completeDocument!.transactionLines)
