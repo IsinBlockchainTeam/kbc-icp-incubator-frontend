@@ -3,7 +3,6 @@ import {TransactionLine, DocumentType} from "@kbc-lib/coffee-trading-management-
 
 export class DocumentPresentable {
     private _id: number;
-    private _name: string;
     private _contentType: string;
     private _documentType: DocumentType;
     private _filename: string;
@@ -11,10 +10,9 @@ export class DocumentPresentable {
     private _date: Date;
     private _transactionLines?: TransactionLine[];
 
-    constructor(id?: number, name?: string, contentType?: string, documentType?: DocumentType, filename?: string, content?: Blob, date?: Date);
-    constructor(id: number, name: string, contentType: string, documentType: DocumentType, filename: string, content: Blob, date: Date) {
+    constructor(id?: number, contentType?: string, documentType?: DocumentType, filename?: string, content?: Blob, date?: Date);
+    constructor(id: number, contentType: string, documentType: DocumentType, filename: string, content: Blob, date: Date) {
         this._id = id;
-        this._name = name;
         this._contentType = contentType;
         this._documentType = documentType;
         this._filename = filename;
@@ -24,10 +22,6 @@ export class DocumentPresentable {
 
     get id(): number {
         return this._id;
-    }
-
-    get name(): string {
-        return this._name;
     }
 
     get contentType(): string {
@@ -56,11 +50,6 @@ export class DocumentPresentable {
 
     setId(value: number): this {
         this._id = value;
-        return this;
-    }
-
-    setName(value: string): this {
-        this._name = value;
         return this;
     }
 

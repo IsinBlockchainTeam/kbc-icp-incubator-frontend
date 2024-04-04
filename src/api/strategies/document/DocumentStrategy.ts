@@ -1,4 +1,6 @@
+import {DocumentType} from "@kbc-lib/coffee-trading-management-lib";
+
 export interface DocumentStrategy<T> {
-    getDocumentsByTransactionIdAndType(id: number, type: string): Promise<T[]>;
+    getDocumentsByTypeAndTransactionId(id: number, type: DocumentType): Promise<T[]>;
 
 }

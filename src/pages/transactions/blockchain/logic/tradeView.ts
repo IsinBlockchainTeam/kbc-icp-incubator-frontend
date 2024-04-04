@@ -40,7 +40,7 @@ export default function useTradeView() {
                 clientSecret: subjectClaims!.podClientSecret!
             }
         }));
-        const resp = await documentService.getDocumentsByTransactionIdAndType(id, 'trade');
+        const resp = await documentService.getDocumentsByTypeAndTransactionId(id);
         resp && setDocuments(resp);
     }
 

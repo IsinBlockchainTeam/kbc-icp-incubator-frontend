@@ -7,6 +7,7 @@ import {TradeService} from "../../../../api/services/TradeService";
 import {BlockchainTradeStrategy} from "../../../../api/strategies/trade/BlockchainTradeStrategy";
 import {FormElement, FormElementType} from "../../../../components/GenericForm/GenericForm";
 import {regex} from "../../../../utils/regex";
+import trade from "../../../../models/Trade";
 
 export default function useTradeShared() {
     const subjectClaims = useSelector((state: RootState) => state.auth.subjectClaims);

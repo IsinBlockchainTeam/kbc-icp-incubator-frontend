@@ -5,30 +5,32 @@ import {BlockchainLibraryUtils} from "../../BlockchainLibraryUtils";
 import {ErrorHandler} from "../../../utils/error/ErrorHandler";
 import {HttpStatusCode} from "../../../utils/error/HttpStatusCode";
 import {SolidSpec} from "../../types/storage";
+import {DocumentType} from "@kbc-lib/coffee-trading-management-lib";
 
 export class BlockchainDocumentStrategy extends Strategy implements DocumentStrategy<DocumentPresentable> {
     private readonly _documentService;
+    private readonly _tradeManagerService;
 
     constructor(storageSpec?: SolidSpec) {
         super(true);
         this._documentService = BlockchainLibraryUtils.getDocumentService(storageSpec);
+        this._tradeManagerService = BlockchainLibraryUtils.getTradeManagerService(storageSpec);
     }
 
-    async getDocumentsByTransactionIdAndType(id: number, type: string): Promise<DocumentPresentable[]> {
-        const documentsInfo = await this._documentService.getDocumentsInfoByTransactionIdAndType(id, type);
+    async getDocumentsByTypeAndTransactionId(type: DocumentType, id: number): Promise<DocumentPresentable[]> {
+        const tradeService = BlockchainLibraryUtils.getTradeService(await this._tradeManagerService.getTrade(id));
+        const documentsInfo = await tradeService.getDocumentsByType(type);
         return Promise.all(documentsInfo.map(async (d) => {
             const completeDocument = await this._documentService.getCompleteDocument(d,
                 { entireResourceUrl: d.externalUrl },
                 { entireResourceUrl: d.externalUrl }
             );
-            console.log('completeDocument: ', completeDocument);
             ErrorHandler.manageUndefinedOrEmpty(completeDocument, HttpStatusCode.NOT_FOUND, `There are no external information related to the document with id: ${d.id}`);
             ErrorHandler.manageUndefinedOrEmpty(completeDocument!.content, HttpStatusCode.NOT_FOUND, `There is no file related to the document with id: ${d.id}`);
             return new DocumentPresentable()
                 .setId(completeDocument!.id)
-                .setName(completeDocument!.name)
                 .setContentType(completeDocument!.content!.type)
-                .setDocumentType(completeDocument!.documentType)
+                .setDocumentType(type)
                 .setContent(completeDocument!.content)
                 .setFilename(completeDocument!.filename)
                 .setTransactionLines(completeDocument!.transactionLines)
