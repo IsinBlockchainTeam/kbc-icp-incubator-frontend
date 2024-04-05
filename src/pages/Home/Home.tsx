@@ -16,6 +16,8 @@ export const Home = () => {
     }
 
     const login = async () => {
+        console.log(process.env.DFX_NETWORK)
+        console.log(process.env.REACT_APP_CANISTER_ID_INTERNET_IDENTITY!)
         storageDriver?.login(process.env.REACT_APP_CANISTER_ID_INTERNET_IDENTITY!);
     }
 
