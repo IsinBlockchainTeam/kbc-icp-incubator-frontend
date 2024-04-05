@@ -33,7 +33,6 @@ export default function PDFUploader({onFileUpload, onRevert}: PDFUploaderProps) 
         },
         onChange(info) {
             const {status, name} = info.file;
-            console.log(status)
             if (status === 'done') {
                 openNotification('File uploaded', `${name} file has been uploaded successfully`, NotificationType.SUCCESS);
             } else if (status === 'error') {
