@@ -20,7 +20,11 @@ describe('BlockchainAssetOperationStrategy', () => {
         .setOutputMaterial(new MaterialPresentable(2, 'output material'))
         .setLatitude('123')
         .setLongitude('456');
-    const assetOperations = [new AssetOperation(1, 'first asset operation', [new Material(1, new ProductCategory(1, 'input material', 1, 'description'))], new Material(2, new ProductCategory(2, 'output material', 2, 'description')), '123', '456'),];
+    const assetOperations = [new AssetOperation(1, 'first asset operation', [
+        new Material(1, new ProductCategory(1, 'input material', 1, 'description'))],
+        new Material(2, new ProductCategory(2, 'output material', 2, 'description')),
+        '123', '456', ['process type 1'])
+    ];
 
     const walletAddress = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
     let blockchainAssetOperationStrategy: BlockchainAssetOperationStrategy;

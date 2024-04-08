@@ -35,6 +35,7 @@ describe('Asset Operations New', () => {
         expect(screen.getByText('Name')).toBeInTheDocument();
         expect(screen.getByText('Input Material ID')).toBeInTheDocument();
         expect(screen.getByText('Output Material ID')).toBeInTheDocument();
+        expect(screen.getByText('Process Types')).toBeInTheDocument();
         expect(screen.getByText('Latitude')).toBeInTheDocument();
         expect(screen.getByText('Longitude')).toBeInTheDocument();
         expect(screen.getByRole('button', {name: 'Submit'})).toBeInTheDocument();

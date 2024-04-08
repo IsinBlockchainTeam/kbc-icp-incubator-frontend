@@ -19,7 +19,7 @@ export class BlockchainAssetOperationStrategy extends Strategy implements AssetO
     }
 
     async saveAssetOperation(assetOperation: AssetOperationPresentable): Promise<void> {
-        await this._assetOperationService.registerAssetOperation(assetOperation.name, assetOperation.inputMaterials.map(m => m.id), assetOperation.outputMaterial.id, assetOperation.latitude, assetOperation.longitude);
+        await this._assetOperationService.registerAssetOperation(assetOperation.name, assetOperation.inputMaterials.map(m => m.id), assetOperation.outputMaterial.id, assetOperation.latitude, assetOperation.longitude, assetOperation.processTypes);
     }
 
     async getRawAssetOperations(): Promise<AssetOperation[]> {

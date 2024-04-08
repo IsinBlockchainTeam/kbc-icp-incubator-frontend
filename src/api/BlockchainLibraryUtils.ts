@@ -24,7 +24,7 @@ import {contractAddresses} from "../constants";
 import {getWalletAddress} from "../utils/storage";
 import {SolidDocumentSpec, SolidMetadataSpec} from "@kbc-lib/coffee-trading-management-lib";
 import {SolidSpec} from "./types/storage";
-import {SolidStorageACR} from "@blockchain-lib/common";
+import {EnumerableTypeReadDriver, EnumerableTypeService, SolidStorageACR} from "@blockchain-lib/common";
 
 export class BlockchainLibraryUtils {
 
@@ -85,6 +85,11 @@ export class BlockchainLibraryUtils {
 
     static getGraphService = (): GraphService<SolidMetadataSpec, SolidStorageACR> => {
         return new GraphService(this._getSigner(), BlockchainLibraryUtils.getTradeManagerService(), BlockchainLibraryUtils.getAssetOperationService());
+    }
+
+    static getEnumerableTypeService = (): EnumerableTypeService => {
+        const enumerableTypeReadDriver = new EnumerableTypeReadDriver(this._getSigner(), contractAddresses.PROCESS_TYPE());
+        return new EnumerableTypeService(enumerableTypeReadDriver);
     }
 
     private static defineStorageDrivers = (storage?: SolidSpec) => {

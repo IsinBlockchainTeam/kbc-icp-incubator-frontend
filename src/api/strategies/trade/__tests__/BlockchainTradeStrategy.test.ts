@@ -93,8 +93,11 @@ describe('BlockchainTradeStrategy', () => {
         });
         blockchainTradeStrategy = new BlockchainTradeStrategy({
             serverUrl: 'serverUrl',
-            clientId: 'clientId',
-            clientSecret: 'clientSecret',
+            sessionCredentials: {
+                podName: 'podName',
+                clientId: 'clientId',
+                clientSecret: 'clientSecret',
+            }
         });
     });
 

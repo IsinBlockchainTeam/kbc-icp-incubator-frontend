@@ -14,11 +14,13 @@ import {AssetOperationPresentable} from "../../../api/types/AssetOperationPresen
 import {NotificationType, openNotification} from "../../../utils/notification";
 import {v4 as uuid} from "uuid";
 import {regex} from "../../../utils/regex";
+import {ProcessTypeService} from "../../../api/services/ProcessTypeService";
+import {BlockchainProcessTypeStrategy} from "../../../api/strategies/process_type/BlockchainProcessTypeStrategy";
 
 export const AssetOperationsNew = () => {
     const navigate = useNavigate();
-
     const transformationService = new TransformationService(new BlockchainAssetOperationStrategy());
+    const [processTypes, setProcessTypes] = useState<string[]>([]);
 
     const [inputMaterials, setInputMaterials] = useState<FormElement[]>([
         {
@@ -87,6 +89,14 @@ export const AssetOperationsNew = () => {
     const [elements, setElements] = useState<FormElement[]>([]);
 
     useEffect(() => {
+        const processTypeService = new ProcessTypeService(new BlockchainProcessTypeStrategy());
+        (async () => {
+            const processTypesResp: string[] = await processTypeService.getAllProcessTypes();
+            setProcessTypes(processTypesResp);
+        })()
+    }, []);
+
+    useEffect(() => {
         setElements([
             {type: FormElementType.TITLE, span: 24, label: 'Data'},
             {
@@ -118,6 +128,17 @@ export const AssetOperationsNew = () => {
                 defaultValue: '',
                 disabled: false,
             },
+            {
+                type: FormElementType.SELECT,
+                span: 8,
+                name: 'process-types',
+                label: 'Process Types',
+                required: true,
+                options: processTypes.map((processType) => ({label: processType, value: processType})),
+                mode: 'multiple',
+                defaultValue: [],
+                disabled: false,
+            },
             {type: FormElementType.TITLE, span: 24, label: 'Coordinates'},
             {
                 type: FormElementType.INPUT,
@@ -140,7 +161,7 @@ export const AssetOperationsNew = () => {
                 disabled: false,
             },
         ])
-    }, [inputMaterials]);
+    }, [inputMaterials, processTypes]);
 
     const onSubmit = async (values: any) => {
         const assetOperation: AssetOperationPresentable = new AssetOperationPresentable();
@@ -148,6 +169,7 @@ export const AssetOperationsNew = () => {
         assetOperation.setOutputMaterial(new MaterialPresentable(values['output-material-id']));
         assetOperation.setLatitude(values['latitude']);
         assetOperation.setLongitude(values['longitude']);
+        assetOperation.setProcessTypes(values['process-types']);
 
         const inputMaterialIds: MaterialPresentable[] = [];
         for (const key in values) {
