@@ -31,7 +31,7 @@ export class TradeLinePrice {
 
 export class TradeLinePresentable {
     private _id: number;
-    private _material: MaterialPresentable;
+    private _material?: MaterialPresentable;
     private _quantity?: number;
     private _price?: TradeLinePrice;
 
@@ -47,7 +47,7 @@ export class TradeLinePresentable {
         return this._id;
     }
 
-    get material(): MaterialPresentable {
+    get material(): MaterialPresentable | undefined {
         return this._material;
     }
 
@@ -64,7 +64,7 @@ export class TradeLinePresentable {
         return this;
     }
 
-    setMaterial(value: MaterialPresentable): this {
+    setMaterial(value?: MaterialPresentable): this {
         this._material = value;
         return this;
     }

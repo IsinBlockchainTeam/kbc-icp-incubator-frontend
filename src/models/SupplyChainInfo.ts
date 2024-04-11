@@ -1,4 +1,4 @@
-import Transformation from "./Transformation";
+import AssetOperation from "./AssetOperation";
 import CompanyInfo from "./CompanyInfo";
 import Material from "./Material";
 import Trade from "./Trade";
@@ -10,12 +10,12 @@ class SupplyChainInfo {
 
     trades: Trade[];
 
-    transformations: Transformation[];
+    transformations: AssetOperation[];
 
     constructor(companies: CompanyInfo[] = [],
                 materials: Material[] = [],
                 trades: Trade[] = [],
-                transformations: Transformation[] = []) {
+                transformations: AssetOperation[] = []) {
         this.companiesInfo = companies;
         this.materials = materials;
         this.trades = trades;

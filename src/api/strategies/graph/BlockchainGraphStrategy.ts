@@ -1,7 +1,11 @@
 import {Strategy} from "../Strategy";
 import {GraphData, GraphStrategy} from "./GraphStrategy";
-import {GraphService} from "@kbc-lib/coffee-trading-management-lib";
+import {GraphService, GraphData as LibGraphData} from "@kbc-lib/coffee-trading-management-lib";
 import {BlockchainLibraryUtils} from "../../BlockchainLibraryUtils";
+
+export type BlockchainGraphData = {
+    [K in keyof GraphData]: LibGraphData[K];
+}
 
 export class BlockchainGraphStrategy extends Strategy implements GraphStrategy<GraphData> {
     private readonly _graphService: GraphService;
@@ -10,7 +14,7 @@ export class BlockchainGraphStrategy extends Strategy implements GraphStrategy<G
         this._graphService = BlockchainLibraryUtils.getGraphService()
     }
 
-    async computeGraph(materialId: number, supplier?: string): Promise<GraphData> {
-        return this._graphService.computeGraph(supplier || this._walletAddress, materialId);
+    async computeGraph(materialId: number, supplier?: string): Promise<BlockchainGraphData> {
+        return this._graphService.computeGraph(materialId, true);
     }
 }

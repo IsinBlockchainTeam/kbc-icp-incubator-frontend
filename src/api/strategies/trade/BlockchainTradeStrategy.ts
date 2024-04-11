@@ -1,8 +1,10 @@
 import {TradeStrategy} from "./TradeStrategy";
 import {TradePresentable} from "../../types/TradePresentable";
 import {
+    BasicTrade,
+    BasicTradeService,
     IConcreteTradeService,
-    Line,
+    Line, LineRequest, OrderLinePrice, OrderLineRequest, OrderTrade, OrderTradeService,
     Trade, TradeManagerService,
     TradeType
 } from "@kbc-lib/coffee-trading-management-lib";
@@ -12,13 +14,18 @@ import {MaterialPresentable} from "../../types/MaterialPresentable";
 import {CustomError} from "../../../utils/error/CustomError";
 import {HttpStatusCode} from "../../../utils/error/HttpStatusCode";
 import {TradeLinePresentable, TradeLinePrice} from "../../types/TradeLinePresentable";
+import {SolidServerService} from "../../services/SolidServerService";
+import {CompanyPodInfo} from "../../types/solid";
 
 export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<TradePresentable, Trade> {
     private readonly _tradeManagerService: TradeManagerService;
+    private readonly _solidService?: SolidServerService;
 
-    constructor() {
+    constructor(solidPodInfo?: CompanyPodInfo) {
         super(true);
         this._tradeManagerService = BlockchainLibraryUtils.getTradeManagerService();
+        if (solidPodInfo)
+            this._solidService = new SolidServerService(solidPodInfo.serverUrl, solidPodInfo.clientId, solidPodInfo.clientSecret);
     }
     // async getOrders(): Promise<TradePresentable[]> {
     //     const orders = await this._tradeService.getOrders(this._walletAddress);
@@ -44,46 +51,46 @@ export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<T
     // }
 
     async getGeneralTrades(): Promise<TradePresentable[]> {
-        console.log("getGeneralTrades")
-        const trades: Map<string, TradeType> = await this._tradeManagerService.getTradesAndTypes();
+        const tradeIds: number[] = await this._tradeManagerService.getTradeIdsOfSupplier(this._walletAddress);
+        tradeIds.push(...await this._tradeManagerService.getTradeIdsOfCommissioner(this._walletAddress));
         let tradePresentables: TradePresentable[] = [];
 
-        console.log("trades: ", trades)
+        if (!tradeIds.length) return tradePresentables;
 
-        const processTrades = async () => {
-            for (const [address, type] of trades) {
-                let tradeService: IConcreteTradeService;
-                if(type === TradeType.ORDER) {
-                    tradeService = BlockchainLibraryUtils.getOrderTradeService(address);
-                } else if(type === TradeType.BASIC) {
-                    tradeService = BlockchainLibraryUtils.getBasicTradeService(address);
-                } else {
-                    throw new CustomError(HttpStatusCode.INTERNAL_SERVER, "Received an invalid trade type");
-                }
-
-                const lines: Line[] = await tradeService.getLines();
-                const {tradeId, supplier, customer, commissioner} = await tradeService.getTrade();
-
-                tradePresentables.push(new TradePresentable()
-                    .setId(tradeId)
-                    .setSupplier(supplier)
-                    .setCustomer(customer)
-                    .setCommissioner(commissioner)
-                    .setLines(lines.map(tl => new TradeLinePresentable()
-                        .setId(tl.id)
-                        .setMaterial(new MaterialPresentable()
-                            .setId(tl.materialsId[0])
-                            .setName(tl.productCategory))))
-                    .setType(type));
+        const tradeContractAddresses = await Promise.all(tradeIds.map(async id => this._tradeManagerService.getTrade(id)));
+        for (const tradeAddress of tradeContractAddresses) {
+            const tradeService = BlockchainLibraryUtils.getTradeService(tradeAddress);
+            let tradeInstanceService: IConcreteTradeService;
+            const tradeType = await tradeService.getTradeType();
+            if(tradeType === TradeType.ORDER) {
+                tradeInstanceService = BlockchainLibraryUtils.getOrderTradeService(tradeAddress);
+            } else if(tradeType === TradeType.BASIC) {
+                tradeInstanceService = BlockchainLibraryUtils.getBasicTradeService(tradeAddress);
+            } else {
+                throw new CustomError(HttpStatusCode.INTERNAL_SERVER, "Received an invalid trade type");
             }
-        }
 
-        await processTrades();
+            const lines: Line[] = await tradeInstanceService.getLines();
+            const {tradeId, supplier, customer, commissioner} = await tradeInstanceService.getTrade();
+
+            tradePresentables.push(new TradePresentable()
+                .setId(tradeId)
+                .setSupplier(supplier)
+                .setCustomer(customer)
+                .setCommissioner(commissioner)
+                .setLines(lines.map(tl => new TradeLinePresentable()
+                    .setId(tl.id)
+                    .setMaterial(tl.material ? new MaterialPresentable()
+                        .setId(tl.material.id)
+                        .setName(tl.productCategory.name): undefined)))
+                .setType(tradeType));
+        }
 
         return tradePresentables;
     }
 
     async getTradeByIdAndType(id: number, type: number): Promise<TradePresentable | undefined> {
+        this.checkService(this._solidService);
         const trade = new TradePresentable();
         const tradeManagerService: TradeManagerService = BlockchainLibraryUtils.getTradeManagerService();
         const address: string = await tradeManagerService.getTrade(id);
@@ -105,7 +112,9 @@ export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<T
                         .setCustomer(resp.customer)
                         .setLines(lines ? lines.map(tl => new TradeLinePresentable()
                             .setId(tl.id)
-                            .setMaterial(new MaterialPresentable().setId(tl.materialsId[0]).setName(tl.productCategory))) : [])
+                            .setMaterial(tl.material ? new MaterialPresentable()
+                                .setId(tl.material.id)
+                                .setName(tl.productCategory.name): undefined)): [])
                         .setType(TradeType.BASIC)
                         .setStatus(await basicTradeService.getTradeStatus())
                 }
@@ -115,25 +124,29 @@ export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<T
                 resp = await orderTradeService.getTrade();
 
                 if (resp) {
+                    //const orderMetadata = await this._solidService!.retrieveMetadata(resp.externalUrl);
                     const orderLines = await orderTradeService.getLines();
 
                     trade
                         .setId(resp.tradeId)
+                        .setSupplier(resp.supplier)
+                        .setCommissioner(resp.commissioner)
                         .setCustomer(resp.customer)
-                        //.setIncoterms(resp.incoterms)
+                        //.setIncoterms(orderMetadata.incoterms)
                         .setPaymentDeadline(new Date(resp.paymentDeadline))
                         .setDocumentDeliveryPipeline(new Date(resp.documentDeliveryDeadline))
-                        //.setShipper(resp.shipper)
+                        //.setShipper(orderMetadata.shipper)
                         .setArbiter(resp.arbiter)
-                        //.setShippingPort(resp.shippingPort)
+                        //.setShippingPort(orderMetadata.shippingPort)
                         .setShippingDeadline(new Date(resp.shippingDeadline))
-                        //.setDeliveryPort(resp.deliveryPort)
+                       // .setDeliveryPort(orderMetadata.deliveryPort)
                         .setDeliveryDeadline(new Date(resp.deliveryDeadline))
                         .setEscrow(resp.escrow)
-                        .setSupplier(resp.supplier)
                         .setLines(orderLines.map(ol => new TradeLinePresentable()
                             .setId(ol.id)
-                            .setMaterial(new MaterialPresentable().setId(ol.materialsId[0]).setName(ol.productCategory))
+                            .setMaterial(ol.material ? new MaterialPresentable()
+                                .setId(ol.material.id)
+                                .setName(ol.productCategory.name): undefined)
                             .setQuantity(ol.quantity)
                             .setPrice(new TradeLinePrice().setAmount(ol.price.amount).setFiat(ol.price.fiat))))
                         .setType(TradeType.ORDER)
@@ -143,7 +156,40 @@ export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<T
             default:
                 throw new CustomError(HttpStatusCode.BAD_REQUEST, "Wrong trade type");
         }
-        console.log("trade: ", trade)
         return trade;
+    }
+
+    async saveBasicTrade(trade: TradePresentable): Promise<void> {
+        this.checkService(this._solidService);
+
+        const tradeManagerService: TradeManagerService = BlockchainLibraryUtils.getTradeManagerService();
+        const newTrade: BasicTrade = await tradeManagerService.registerBasicTrade(trade.supplier, trade.customer!, trade.commissioner!, 'externalUrl', trade.name!);
+        if (trade.lines) {
+            const basicTradeService: BasicTradeService = BlockchainLibraryUtils.getBasicTradeService(await tradeManagerService.getTrade(newTrade.tradeId));
+            await Promise.all(trade.lines.map(async line => {
+                await basicTradeService.addLine(new LineRequest(line.material?.id!));
+            }));
+        }
+    }
+
+    async putBasicTrade(id: number, trade: TradePresentable): Promise<void> {
+        this.checkService(this._solidService);
+        const tradeManagerService: TradeManagerService = BlockchainLibraryUtils.getTradeManagerService();
+        const tradeService: BasicTradeService = BlockchainLibraryUtils.getBasicTradeService(await tradeManagerService.getTrade(id));
+        const oldTrade: BasicTrade = await tradeService.getTrade();
+        oldTrade.name !== trade.name && await tradeService.setName(trade.name!);
+    }
+
+    async saveOrderTrade(trade: TradePresentable): Promise<void> {
+        this.checkService(this._solidService);
+        const tradeManagerService: TradeManagerService = BlockchainLibraryUtils.getTradeManagerService();
+
+        const newTrade: OrderTrade = await tradeManagerService.registerOrderTrade(trade.supplier, trade.customer!, trade.commissioner!, 'externalUrl', (trade.paymentDeadline!).getTime(), (trade.documentDeliveryDeadline!).getTime(), trade.arbiter!, (trade.shippingDeadline!).getTime(), (trade.deliveryDeadline!).getTime(), trade.agreedAmount!, trade.tokenAddress!);
+        if (trade.lines) {
+            const orderTradeService: OrderTradeService = BlockchainLibraryUtils.getOrderTradeService(await tradeManagerService.getTrade(newTrade.tradeId));
+            await Promise.all(trade.lines.map(async line => {
+                await orderTradeService.addLine(new OrderLineRequest(line.material?.id!, line.quantity!, new OrderLinePrice(line.price!.amount, line.price!.fiat)));
+            }));
+        }
     }
 }

@@ -1,14 +1,18 @@
 import React, {useEffect, useState} from "react";
 import {NotificationType, openNotification} from "../../utils/notification";
 import {ColumnsType} from "antd/es/table";
-import {Table, TableProps} from "antd";
+import {Button, Table, TableProps} from "antd";
 import {CardPage} from "../../components/structure/CardPage/CardPage";
 import {OfferPresentable} from "../../api/types/OfferPresentable";
 import {OfferService} from "../../api/services/OfferService";
 import {BlockchainOfferStrategy} from "../../api/strategies/offer/BlockchainOfferStrategy";
 import Search from "../../components/Search/Search";
+import {PlusOutlined} from "@ant-design/icons";
+import {paths} from "../../constants";
+import {useNavigate} from "react-router-dom";
 
 export const Offers = () => {
+    const navigate = useNavigate();
     const [offers, setOffers] = useState<OfferPresentable[]>();
     const [filteredOffers, setFilteredOffers] = useState<OfferPresentable[]>();
     const loadData = async () => {
@@ -41,7 +45,7 @@ export const Offers = () => {
             sortDirections: ['descend']
         },
         {
-            title: 'Material category',
+            title: 'Product category',
             dataIndex: 'productCategory',
             sorter: (a, b) => (a.productCategory || '').localeCompare((b.productCategory || '')),
         }
@@ -52,6 +56,7 @@ export const Offers = () => {
     };
 
     const filterOffers = (productCategory: string) => {
+        console.log('Called')
         const filtered = offers?.filter(o => o.productCategory.toLowerCase().includes(productCategory.toLowerCase()));
         setFilteredOffers(filtered);
     }
@@ -61,8 +66,20 @@ export const Offers = () => {
     }, []);
 
     return (
-        <CardPage title="Offers">
-            <Search placeholder="Search by material category" onSearchFn={filterOffers} />
+        <CardPage title={<div
+            style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+            Offers
+            <div>
+                <Button type="primary" icon={<PlusOutlined/>} onClick={() => navigate(paths.OFFERS_SUPPLIER_NEW)}
+                        style={{marginRight: '16px'}}>
+                    New Offer Supplier
+                </Button>
+                <Button type="primary" icon={<PlusOutlined/>} onClick={() => navigate(paths.OFFERS_NEW)}>
+                    New Offer
+                </Button>
+            </div>
+        </div>}>
+            <Search placeholder="Search by product category" onSearchFn={filterOffers}/>
             <Table columns={columns} dataSource={filteredOffers} onChange={onChange}/>
         </CardPage>
     )

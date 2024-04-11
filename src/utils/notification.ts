@@ -6,9 +6,10 @@ export enum NotificationType {
     WARNING = 'warning',
     ERROR = 'error'
 }
-export const openNotification = (title: string, message: string, type: NotificationType) => {
+export const openNotification = (title: string, message: string, type: NotificationType, duration?: number) => {
     notification[type]({
         message: title,
-        description: message
+        description: message,
+        duration
     })
 }

@@ -1,9 +1,9 @@
 import {Configuration} from "@unece/cotton-fetch";
-import {getAPIToken} from "../../../utils/storage";
+import {getUneceAPIToken} from "../../../utils/storage";
 import {requestPath} from "../../../constants";
 
 function my_pre(context: any): Promise<void> {
-    const accessToken = getAPIToken();
+    const accessToken = getUneceAPIToken();
     if(accessToken){
         context.init.headers['Authorization'] = 'Bearer ' + accessToken;
     }

@@ -49,14 +49,14 @@ const legacyItems: MenuItem[] = [
     getItem("Order", paths.ORDERS, <FormOutlined />),
     getItem("Shipments", paths.SHIPMENTS, <FormOutlined />),
   ]),
-  getItem("Transformations", paths.TRANSFORMATIONS, <ExperimentOutlined />),
+  getItem("Transformations", paths.ASSET_OPERATIONS, <ExperimentOutlined />),
   getItem("Certifications", paths.CERTIFICATIONS, <ContainerOutlined />),
 ];
 
 const blockchainItems: MenuItem[] = [
   getItem("Trades", paths.TRADES, <SwapOutlined />),
   getItem("Materials", paths.MATERIALS, <GoldOutlined />),
-  getItem("Transformations", paths.TRANSFORMATIONS, <ExperimentOutlined />),
+  getItem("Transformations", paths.ASSET_OPERATIONS, <ExperimentOutlined />),
   getItem("Partners", paths.PARTNERS, <TeamOutlined />),
   getItem("Offers", paths.OFFERS, <AuditOutlined />)
 ];
@@ -64,7 +64,6 @@ const blockchainItems: MenuItem[] = [
 const settingItems: MenuItem[] = [
   getItem("Settings", "settings", <SettingOutlined />, [
     getItem("Login", paths.LOGIN, <UserOutlined />),
-    getItem("Sign up", paths.SIGNUP, <UserAddOutlined />),
   ]),
 ];
 
@@ -216,7 +215,7 @@ export const MenuLayout = () => {
           <Outlet />
         </Content>
         <Footer style={{ textAlign: "center" }}>
-          Coffe Trading platform ©2023 Created by ISIN
+          Coffe Trading platform ©2024 Created by ISIN
         </Footer>
       </Layout>
     </Layout>

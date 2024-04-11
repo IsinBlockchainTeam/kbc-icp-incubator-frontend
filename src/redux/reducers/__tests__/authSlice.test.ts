@@ -8,20 +8,20 @@ describe("UNIT TEST: authSlice", () => {
   test("updates subjectDid", () => {
     const initialState = {
       subjectDid: "",
-      subjectClaims: null,
+      subjectClaims: undefined,
     };
 
     const action = updateSubjectDid("newSubjectDid");
     const nextState = authReducer(initialState, action);
 
     expect(nextState.subjectDid).toBe("newSubjectDid");
-    expect(nextState.subjectClaims).toBeNull();
+    expect(nextState.subjectClaims).toBeUndefined();
   });
 
   test("updates subjectClaims", () => {
     const initialState = {
       subjectDid: "",
-      subjectClaims: null,
+      subjectClaims: undefined,
     };
 
     const newSubjectClaims: OrganizationCredential = {

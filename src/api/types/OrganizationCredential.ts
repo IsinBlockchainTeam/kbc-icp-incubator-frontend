@@ -4,4 +4,7 @@ export type OrganizationCredential = {
   email?: string;
   telephone?: string;
   image?: string;
+  podServerUrl?: string;
+  podClientId?: string;
+  podClientSecret?: string;
 };

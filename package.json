@@ -1,11 +1,12 @@
 {
-  "name": "frontend",
+  "name": "kbc-platform",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
     "@auth0/auth0-react": "^2.1.1",
+    "@blockchain-lib/common": "../../Blockchain_Library/one_lib_to_rule_them_all/packages/common/",
     "@dagrejs/dagre": "^1.0.2",
-    "@kbc-lib/coffee-trading-management-lib": "1.0.7",
+    "@kbc-lib/coffee-trading-management-lib": "1.0.9",
     "@react-pdf-viewer/core": "^3.12.0",
     "@reduxjs/toolkit": "^1.9.5",
     "@testing-library/jest-dom": "^5.16.5",
@@ -18,7 +19,7 @@
     "@unece/cotton-fetch": "1.0.0",
     "antd": "^5.5.2",
     "dayjs": "^1.11.8",
-    "node-sass": "^7.0.3",
+    "node-sass": "9.0.0",
     "pdfjs-dist": "3.10.111",
     "react": "^18.2.0",
     "react-app-rewired": "^2.2.1",
@@ -38,7 +39,7 @@
     "build": "react-app-rewired build",
     "test": "react-app-rewired test",
     "coverage": "npm run test -- --coverage .",
-    "test:ci": "npm run test -- --testResultsProcessor=\"jest-junit\" --watchAll=false --ci --coverage"
+    "eject": "react-app-rewired eject"
   },
   "eslintConfig": {
     "extends": [
@@ -62,7 +63,6 @@
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@types/qrcode": "^1.5.0",
     "@types/uuid": "^9.0.1",
-    "jest-junit": "^16.0.0",
     "prettier": "^3.0.3"
   },
   "jest": {

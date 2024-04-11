@@ -3,7 +3,7 @@ import styles from "./SelectedNodeCard.module.scss";
 import {DoubleLeftOutlined, DoubleRightOutlined, InfoCircleOutlined,
     CloseCircleFilled, CheckCircleFilled, ClockCircleFilled} from "@ant-design/icons";
 import {SustainabilityCriterionPresentable} from "@unece/cotton-fetch";
-import Transformation from "../../../../models/Transformation";
+import AssetOperation from "../../../../models/AssetOperation";
 import {downloadFile} from "../../../../utils/utils";
 import Certificate from "../../../../models/Certificate";
 import {Tooltip} from "antd";
@@ -43,7 +43,7 @@ type Props = {
     selectedEdge: SelectedEdge | null,
     selectedSustainabilityCriterion: SustainabilityCriterionPresentable | undefined;
     onClose: () => void,
-    transformations: Transformation[]
+    transformations: AssetOperation[]
 };
 
 export const SelectedNodeCard = (props: Props) => {
