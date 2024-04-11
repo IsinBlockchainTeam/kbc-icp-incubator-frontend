@@ -46,29 +46,6 @@ export const contractAddresses = {
     ),
 };
 
-export const pinataConfiguration = {
-  API_KEY: () =>
-    checkAndGetEnvironmentVariable(
-      process.env.REACT_APP_PINATA_API_KEY,
-      "Pinata API key must be defined"
-    ),
-  SECRET_API_KEY: () =>
-    checkAndGetEnvironmentVariable(
-      process.env.REACT_APP_PINATA_SECRET_API_KEY,
-      "Pinata secret API key must be defined"
-    ),
-  API_GATEWAY_URL: () =>
-    checkAndGetEnvironmentVariable(
-      process.env.REACT_APP_PINATA_GATEWAY_URL,
-      "Pinata API gateway url must be defined"
-    ),
-  API_GATEWAY_TOKEN: () =>
-    checkAndGetEnvironmentVariable(
-      process.env.REACT_APP_PINATA_GATEWAY_TOKEN,
-      "Pinata API gateway token must be defined"
-    ),
-};
-
 export const paths = {
   HOME: "/",
   LOGIN: "/login",

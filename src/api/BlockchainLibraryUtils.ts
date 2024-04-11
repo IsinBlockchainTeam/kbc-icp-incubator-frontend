@@ -19,7 +19,7 @@ import {
     TransformationDriver,
     TransformationService,
 } from "@kbc-lib/coffee-trading-management-lib";
-import {contractAddresses, pinataConfiguration} from "../constants";
+import {contractAddresses} from "../constants";
 import {getWalletAddress} from "../utils/storage";
 
 
