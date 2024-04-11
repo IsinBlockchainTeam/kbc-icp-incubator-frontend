@@ -6,9 +6,12 @@ import {NotificationType, openNotification} from "../../utils/notification";
 import {PartnerService} from "../../api/services/PartnerService";
 import {BlockchainPartnerStrategy} from "../../api/strategies/partner/BlockchainPartnerStrategy";
 import {PartnershipPresentable} from "../../api/types/PartnershipPresentable";
+import {InviteCompany} from "./InviteCompany";
 
 export const Partners = () => {
     const [partnership, setPartnership] = useState<PartnershipPresentable[]>();
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
     const loadData = async () => {
         try {
             const partnerService = new PartnerService(new BlockchainPartnerStrategy());
@@ -57,9 +60,12 @@ export const Partners = () => {
     }, []);
 
     return (
-        <CardPage title="Partners">
-            <Table columns={columns} dataSource={partnership} onChange={onChange} />
-        </CardPage>
+        <>
+            <InviteCompany open={isModalOpen} onClose={() => setIsModalOpen(false)} />
+            <CardPage title="Partners" extra={<a onClick={() => setIsModalOpen(true)}>Invite a new company</a>}>
+                <Table columns={columns} dataSource={partnership} onChange={onChange} />
+            </CardPage>
+        </>
     )
 }
 

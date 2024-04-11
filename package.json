@@ -4,9 +4,9 @@
   "private": true,
   "dependencies": {
     "@auth0/auth0-react": "^2.1.1",
-    "@blockchain-lib/common": "../../Blockchain_Library/one_lib_to_rule_them_all/packages/common/",
+    "@blockchain-lib/common": "file:../../one_lib_to_rule_them_all/packages/common/",
     "@dagrejs/dagre": "^1.0.2",
-    "@kbc-lib/coffee-trading-management-lib": "1.0.11",
+    "@kbc-lib/coffee-trading-management-lib": "1.0.9",
     "@react-pdf-viewer/core": "^3.12.0",
     "@reduxjs/toolkit": "^1.9.5",
     "@testing-library/jest-dom": "^5.16.5",
