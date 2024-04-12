@@ -24,10 +24,10 @@ export default function PDFUploader({onFileUpload, onRevert}: PDFUploaderProps) 
         maxCount: 1,
         showUploadList: false,
         beforeUpload: (file) => {
-            if (file.type !== 'application/pdf') {
-                openNotification('Unsupported format', 'You can only upload PDF files', NotificationType.ERROR);
-                return Upload.LIST_IGNORE;
-            }
+            // if (file.type !== 'application/pdf') {
+            //     openNotification('Unsupported format', 'You can only upload PDF files', NotificationType.ERROR);
+            //     return Upload.LIST_IGNORE;
+            // }
             onFileUpload(file);
             return true;
         },

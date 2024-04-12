@@ -41,7 +41,8 @@
     "build": "./scripts/dfx_config.sh && react-app-rewired build",
     "test": "react-app-rewired test",
     "coverage": "npm run test -- --coverage .",
-    "eject": "react-app-rewired eject"
+    "eject": "react-app-rewired eject",
+    "dfx:deploy": "npm run build && dfx deploy"
   },
   "eslintConfig": {
     "extends": [
@@ -63,8 +64,10 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@types/debug": "^4.1.12",
     "@types/qrcode": "^1.5.0",
     "@types/uuid": "^9.0.1",
+    "debug": "^4.3.4",
     "dotenv-webpack": "^8.1.0",
     "prettier": "^3.0.3"
   },
