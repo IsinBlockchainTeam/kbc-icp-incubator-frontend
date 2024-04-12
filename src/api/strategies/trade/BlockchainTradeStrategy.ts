@@ -14,7 +14,7 @@ import {CustomError} from "../../../utils/error/CustomError";
 import {HttpStatusCode} from "../../../utils/error/HttpStatusCode";
 import {TradeLinePresentable, TradeLinePrice} from "../../types/TradeLinePresentable";
 import {SolidSpec, StorageSpec} from "../../types/storage";
-import {OrderTradeInfo} from "../../../../../coffee-trading-management-lib/src";
+import {OrderTradeInfo} from "@kbc-lib/coffee-trading-management-lib";
 import { AccessMode } from "@blockchain-lib/common";
 
 export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<TradePresentable, Trade> {
