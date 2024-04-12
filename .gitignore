@@ -1,8 +1,8 @@
 /clients
 /build
 /node_modules
-package-lock.json
 /coverage
+junit.xml
 .env
 .env.tmp
 

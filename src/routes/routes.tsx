@@ -5,7 +5,6 @@ import Login from "../pages/Login/Login";
 import {paths} from "../constants";
 import Home from "../pages/Home/Home";
 import {MenuLayout} from "../components/structure/MenuLayout/MenuLayout";
-import Signup from "../pages/Signup/Signup";
 import LegacyShipments from "../pages/transactions/legacy/trades/Shipment/LegacyShipments";
 import LegacyShipmentCreate from "../pages/transactions/legacy/trades/Shipment/LegacyShipmentCreate";
 import LegacyContracts from "../pages/transactions/legacy/trades/Contract/LegacyContracts";
@@ -43,7 +42,6 @@ export default () => {
                 <Route path={paths.HOME} element={<MenuLayout />}>
                     <Route index element={<Home />} />
                     <Route path={paths.LOGIN} element={<RouteViewMode component={Auth0Login} blockchainComponent={Login} />}/>
-                    <Route path={paths.SIGNUP} element={<Signup />}/>
                     <Route path={paths.CONTRACTS} element={<LegacyContracts />}/>
                     <Route path={paths.CONTRACT_VIEW} element={<LegacyContractView />}/>
                     <Route path={paths.ORDERS} element={<LegacyOrders />}/>

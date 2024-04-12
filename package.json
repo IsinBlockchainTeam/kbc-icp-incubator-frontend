@@ -18,8 +18,6 @@
     "@types/react-dom": "^18.2.4",
     "@unece/cotton-fetch": "1.0.0",
     "antd": "^5.5.2",
-    "base64url": "^3.0.1",
-    "buffer": "^6.0.3",
     "dayjs": "^1.11.8",
     "node-sass": "9.0.0",
     "pdfjs-dist": "3.10.111",

@@ -64,7 +64,6 @@ const blockchainItems: MenuItem[] = [
 const settingItems: MenuItem[] = [
   getItem("Settings", "settings", <SettingOutlined />, [
     getItem("Login", paths.LOGIN, <UserOutlined />),
-    getItem("Sign up", paths.SIGNUP, <UserAddOutlined />),
   ]),
 ];
 

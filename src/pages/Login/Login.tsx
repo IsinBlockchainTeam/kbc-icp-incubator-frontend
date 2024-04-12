@@ -2,20 +2,19 @@ import React, {useState} from "react";
 import styles from './Login.module.scss';
 import {Card} from "antd";
 import {WalletLogin} from "./WalletLogin";
-import {MattrLogin} from "./MattrLogin";
+import VeramoLogin from "./VeramoLogin";
 
 export const Login = () => {
     const [activeLoginTab, setActiveLoginTab] = useState<string>("wallet_login");
 
     const tabList = [
-        // { key: 'oauth_login', tab: "OAUTH Login"},
-        { key: 'mattr_login', tab: "MATTR Login"},
+        { key: 'vc_login', tab: "VC Login"},
         { key: 'wallet_login', tab: "Wallet Login"}
     ];
 
     const contentList: Record<string, React.ReactNode> = {
         // oauth_login: <Auth0Login />,
-        mattr_login: <MattrLogin />,
+        vc_login: <VeramoLogin />,
         wallet_login: <WalletLogin />
     }
 

@@ -3,15 +3,13 @@ import { checkAndGetEnvironmentVariable } from "../utils/utils";
 export const storage = {
   UNECE_API_TOKEN: "UNECE_API_TOKEN",
   SOLID_API_TOKEN: "SOLID_API_TOKEN",
-  MATTR_API_TOKEN: "MATTR_API_TOKEN",
   WALLET_ADDRESS: "WALLET_ADDRESS",
   BLOCKCHAIN_VIEW_MODE: "BLOCKCHAIN_VIEW_MODE",
 };
 
 export const requestPath = {
-  MATTR_PROXY_BASE_URL: `${process.env.REACT_APP_LOCAL_DEV ? checkAndGetEnvironmentVariable(process.env.REACT_APP_MATTR_PROXY_URL, "Mattr proxy URL must be defined") : '/mattr'}/api`,
-  BC_SYNC_BASE_URL: `${process.env.REACT_APP_BC_SYNC_URL ? checkAndGetEnvironmentVariable(process.env.REACT_APP_BC_SYNC_URL, "Blockchain sync URL must be defined") : '/bcsync'}/api`,
-  BACKEND_BASE_URL: `${process.env.REACT_APP_LOCAL_DEV ? checkAndGetEnvironmentVariable(process.env.REACT_APP_BACKEND_URL, "UNECE backend URL must be defined") : '/unece'}/api`,
+  VERIFIER_BACKEND_URL: `${checkAndGetEnvironmentVariable(process.env.REACT_APP_VERIFIER_BACKEND_URL, "Veramo proxy URL must be defined")}/api/verifier`,
+  BACKEND_BASE_URL: `${checkAndGetEnvironmentVariable(process.env.REACT_APP_BACKEND_URL, "UNECE backend URL must be defined")}/api`,
 };
 
 export const contractAddresses = {
@@ -29,7 +27,6 @@ export const contractAddresses = {
 export const paths = {
   HOME: "/",
   LOGIN: "/login",
-  SIGNUP: "/signup",
   CONTRACTS: "/contracts",
   CONTRACT_VIEW: "/contracts/:id",
   ORDERS: "/orders",
