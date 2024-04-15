@@ -1,30 +1,46 @@
-image: node:latest
+image: docker:latest
+services:
+  - docker:dind
 
 stages:
-  - test
+  - build
 
-unit-test:
-  stage: test
-  before_script: 
-    - npm config set @blockchain-lib:registry https://$BLOCKCHAIN_LIB_REGISTRY_DOMAIN
-    - npm config set -- "//$BLOCKCHAIN_LIB_REGISTRY_DOMAIN:_authToken" "$BLOCKCHAIN_LIB_REGISTRY_READ_TOKEN"
-    - npm config set @kbc-lib:registry https://$COFFEE_TRADING_LIB_REGISTRY_DOMAIN
-    - npm config set -- "//$COFFEE_TRADING_LIB_REGISTRY_DOMAIN:_authToken" "$COFFEE_TRADING_LIB_REGISTRY_READ_TOKEN"
-    - npm config set @unece:registry https://$UNECE_COTTON_FETCH_REGISTRY_DOMAIN
-    - npm config set -- "//$UNECE_COTTON_FETCH_REGISTRY_DOMAIN:_authToken" "$UNECE_COTTON_FETCH_REGISTRY_READ_TOKEN"
-
-    - npm install
+frontend-build:
+  stage: build
   only:
     - dev
     - main
-    - /^sprint[0-9]+$/
+    - demo
   script:
-    - npm run test:ci
-  coverage: /All files[^|]*\|[^|]*\s+([\d\.]+)/
-  artifacts:
-    paths:
-      - coverage/
-    when: always
-    reports:
-      junit:
-        - junit.xml
+    - cp $WEBAPP_UI_BUILD_FILE .conf.webapp-ui
+    # Build the frontend
+    - docker build -f Dockerfile $(for i in `cat .conf.webapp-ui`; do out="--build-arg $i $out" ; done; echo $out;out="") --build-arg BLOCKCHAIN_LIB_REGISTRY_DOMAIN=$BLOCKCHAIN_LIB_REGISTRY_DOMAIN --build-arg BLOCKCHAIN_LIB_REGISTRY_READ_TOKEN=$BLOCKCHAIN_LIB_REGISTRY_READ_TOKEN --build-arg COFFEE_TRADING_LIB_REGISTRY_DOMAIN=$COFFEE_TRADING_LIB_REGISTRY_DOMAIN --build-arg COFFEE_TRADING_LIB_REGISTRY_READ_TOKEN=$COFFEE_TRADING_LIB_REGISTRY_READ_TOKEN --build-arg UNECE_COTTON_FETCH_REGISTRY_READ_TOKEN=$UNECE_COTTON_FETCH_REGISTRY_READ_TOKEN --build-arg UNECE_COTTON_FETCH_REGISTRY_DOMAIN=$UNECE_COTTON_FETCH_REGISTRY_DOMAIN -t gitlab-core.supsi.ch:5050/dti-isin/giuliano.gremlich/blockchain/coffe-trading/kbc-platform .
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker push gitlab-core.supsi.ch:5050/dti-isin/giuliano.gremlich/blockchain/coffe-trading/kbc-platform
+
+
+#unit-test:
+#  stage: test
+#  before_script:
+#    - npm config set @blockchain-lib:registry https://$BLOCKCHAIN_LIB_REGISTRY_DOMAIN
+#    - npm config set -- "//$BLOCKCHAIN_LIB_REGISTRY_DOMAIN:_authToken" "$BLOCKCHAIN_LIB_REGISTRY_READ_TOKEN"
+#    - npm config set @kbc-lib:registry https://$COFFEE_TRADING_LIB_REGISTRY_DOMAIN
+#    - npm config set -- "//$COFFEE_TRADING_LIB_REGISTRY_DOMAIN:_authToken" "$COFFEE_TRADING_LIB_REGISTRY_READ_TOKEN"
+#    - npm config set @unece:registry https://$UNECE_COTTON_FETCH_REGISTRY_DOMAIN
+#    - npm config set -- "//$UNECE_COTTON_FETCH_REGISTRY_DOMAIN:_authToken" "$UNECE_COTTON_FETCH_REGISTRY_READ_TOKEN"
+#
+#    - npm install
+#  only:
+#    - dev
+#    - main
+#    - /^sprint[0-9]+$/
+#  script:
+#    - npm run test:ci
+#  coverage: /All files[^|]*\|[^|]*\s+([\d\.]+)/
+#  artifacts:
+#    paths:
+#      - coverage/
+#    when: always
+#    reports:
+#      junit:
+#        - junit.xml

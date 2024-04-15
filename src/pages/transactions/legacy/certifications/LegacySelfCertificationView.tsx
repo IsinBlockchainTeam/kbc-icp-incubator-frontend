@@ -97,7 +97,7 @@ export const LegacySelfCertificationView = (props: CertificationViewerChildProps
                                                 }
 
                                             </div>
-                                            <DownloadOutlined  className={styles.Download} onClick={() => downloadFile(`${requestPath.BACKEND_BASE_URL}/documents/${props.certification?.document?.id}`, props.certification?.document?.fileName || 'no-name', () => console.log("Error while reading document"))} />
+                                            <DownloadOutlined  className={styles.Download} onClick={() => downloadFile(`${requestPath.UNECE_BACKEND_URL}/documents/${props.certification?.document?.id}`, props.certification?.document?.fileName || 'no-name', () => console.log("Error while reading document"))} />
 
                                         </div>
                                         :
