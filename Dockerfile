@@ -26,7 +26,6 @@ ARG REACT_APP_CONTRACT_OFFER=contract_offer
 
 WORKDIR /app
 COPY config-overrides.js /app/
-COPY dfx.json /app/dfx.json
 COPY package.json /app/
 COPY tsconfig.json /app/
 COPY public /app/public
