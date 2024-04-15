@@ -1,11 +1,10 @@
 import React, {useEffect} from "react";
-import {FileHelpers, ICPStorageDriver} from "@kbc-lib/coffee-trading-management-lib";
 import PDFUploader from "../../components/PDFUploader/PDFUploader";
-import {Button, Flex, MenuProps, Table, TableColumnsType} from "antd";
-import {debug} from "debug";
+import {Button, Flex, MenuProps, Table, TableColumnsType, UploadFile} from "antd";
 import {FileInfo} from "../../../../coffee-trading-management-lib/src/declarations/storage/storage.did";
 import {Viewer} from "@react-pdf-viewer/core";
 import {DownloadOutlined} from "@ant-design/icons";
+import {FileHelpers, ICPIdentityDriver, ICPOrganizationDriver, ICPStorageDriver} from "@blockchain-lib/common";
 
 const ROLES = {
     OWNER: "Owner",
@@ -25,11 +24,10 @@ export const Home = () => {
     const [uploadFile, setUploadFile] = React.useState<Blob>();
     const [files, setFiles] = React.useState<FileRole[]>();
     const [viewFile, setViewFile] = React.useState<Blob>();
+    const [identityDriver, setIdentityDriver] = React.useState<ICPIdentityDriver>();
     const [storageDriver, setStorageDriver] = React.useState<ICPStorageDriver>();
 
     useEffect(() => {
-        debug.enable("icp");
-        setStorageDriver(new ICPStorageDriver());
     }, []);
 
     const onFileUpload = (file: Blob) => {
@@ -37,12 +35,20 @@ export const Home = () => {
     }
 
     const login = async () => {
-        await storageDriver?.login(process.env.REACT_APP_CANISTER_ID_INTERNET_IDENTITY!);
+        // await storageDriver?.login(process.env.REACT_APP_CANISTER_ID_INTERNET_IDENTITY!);
+        const identityDriver = new ICPIdentityDriver(`http://${process.env.REACT_APP_CANISTER_ID_INTERNET_IDENTITY!}.localhost:4943`);
+        await identityDriver.login();
+        setIdentityDriver(identityDriver);
     }
 
     const createOrganization = async () => {
-        const orgId = await storageDriver?.createOrganization(process.env.REACT_APP_CANISTER_ID_ORGANIZATION!, "Dunder Mifflin", "The best paper company in the world");
+        // const orgId = await storageDriver?.createOrganization(process.env.REACT_APP_CANISTER_ID_ORGANIZATION!, "Dunder Mifflin", "The best paper company in the world");
+        // console.log("Organization created successfully:", orgId);
+        const organizationDriver = new ICPOrganizationDriver();
+        await ICPOrganizationDriver.init(identityDriver!, process.env.REACT_APP_CANISTER_ID_ORGANIZATION!);
+        const orgId = await organizationDriver.createOrganization("Dunder Mifflin", "The best paper company in the world");
         console.log("Organization created successfully:", orgId);
+        console.log("Organization:", await organizationDriver.getUserOrganizations());
     }
 
     const loadFile = async () => {
@@ -57,35 +63,31 @@ export const Home = () => {
             };
         })) as ArrayBuffer;
         const bytes = new Uint8Array(content);
-        const fileId= await storageDriver?.createFile(process.env.REACT_APP_CANISTER_ID_STORAGE!, uploadFile.size, bytes);
+
+        await ICPStorageDriver.init(identityDriver!, process.env.REACT_APP_CANISTER_ID_STORAGE!);
+        const storageDriver = await ICPStorageDriver.getInstance();
+            setStorageDriver(storageDriver);
+        const file: UploadFile = uploadFile as unknown as UploadFile;
+        const fileId= await storageDriver.create(bytes, {name: file.name, type: file.type!}, 0);
         console.log("File uploaded successfully:", fileId)
     }
 
     const getFiles = async () => {
-        const files = await storageDriver?.getFiles(process.env.REACT_APP_CANISTER_ID_STORAGE!);
+        const files = await storageDriver?.listFiles(0);
         console.log(files);
         if(!files) return;
         setFiles(
-            files.map((file) => {
+            files.map((file: any) => {
                 return {
                     file: file.file,
                     role: ROLES.OWNER
                 };
             })
         );
-
-        // const bytes: Uint8Array | undefined = await storageDriver?.downloadFile(process.env.REACT_APP_CANISTER_ID_STORAGE!, files![0] as unknown as FileInfo);
-        // if(!bytes) {
-        //     console.error("Failed to download file");
-        //     return;
-        // }
-        // console.log("BYTES:", bytes);
-        // console.log("BLOB:", new Blob([bytes]));
-        // setViewFile(new Blob([bytes]));
     }
 
     const handleDownload = async (file: FileInfo) => {
-        const bytes: Uint8Array | undefined = await storageDriver?.downloadFile(process.env.REACT_APP_CANISTER_ID_STORAGE!, file);
+        const bytes: Uint8Array | undefined = await storageDriver?.getFile(file);
         if(!bytes) {
             console.error("Failed to download file");
             return;
