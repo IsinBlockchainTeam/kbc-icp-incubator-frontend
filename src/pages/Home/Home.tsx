@@ -4,7 +4,13 @@ import {Button, Flex, MenuProps, Table, TableColumnsType, UploadFile} from "antd
 import {FileInfo} from "../../../../coffee-trading-management-lib/src/declarations/storage/storage.did";
 import {Viewer} from "@react-pdf-viewer/core";
 import {DownloadOutlined} from "@ant-design/icons";
-import {FileHelpers, ICPIdentityDriver, ICPOrganizationDriver, ICPStorageDriver} from "@blockchain-lib/common";
+import {
+    FileHelpers,
+    ICPIdentityDriver,
+    ICPOrganizationDriver,
+    ICPResourceSpec,
+    ICPStorageDriver
+} from "@blockchain-lib/common";
 
 const ROLES = {
     OWNER: "Owner",
@@ -39,6 +45,10 @@ export const Home = () => {
         const identityDriver = new ICPIdentityDriver(`http://${process.env.REACT_APP_CANISTER_ID_INTERNET_IDENTITY!}.localhost:4943`);
         await identityDriver.login();
         setIdentityDriver(identityDriver);
+
+        // wait 5 seconds
+        await new Promise(resolve => setTimeout(resolve, 5000));
+        await ICPStorageDriver.init(identityDriver!, process.env.REACT_APP_CANISTER_ID_STORAGE!);
     }
 
     const createOrganization = async () => {
@@ -68,7 +78,12 @@ export const Home = () => {
         const storageDriver = await ICPStorageDriver.getInstance();
             setStorageDriver(storageDriver);
         const file: UploadFile = uploadFile as unknown as UploadFile;
-        const fileId= await storageDriver.create(bytes, {name: file.name, type: file.type!}, 0);
+        const resourceSpec: ICPResourceSpec = {
+            name: file.name,
+            type: file.type!,
+            organizationId: 0
+        }
+        const fileId= await storageDriver.create(bytes, resourceSpec);
         console.log("File uploaded successfully:", fileId)
     }
 

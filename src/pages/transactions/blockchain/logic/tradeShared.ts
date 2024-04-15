@@ -10,14 +10,7 @@ import {regex} from "../../../../utils/regex";
 
 export default function useTradeShared() {
     const subjectClaims = useSelector((state: RootState) => state.auth.subjectClaims);
-    const tradeService = new TradeService(new BlockchainTradeStrategy({
-        serverUrl: subjectClaims!.podServerUrl!,
-        sessionCredentials: {
-            podName: subjectClaims!.podName!,
-            clientId: subjectClaims!.podClientId!,
-            clientSecret: subjectClaims!.podClientSecret!
-        }
-    }));
+    const tradeService = new TradeService(new BlockchainTradeStrategy());
 
     const [type, setType] = useState<TradeType>(TradeType.BASIC);
 

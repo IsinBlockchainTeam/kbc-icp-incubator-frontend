@@ -16,7 +16,6 @@ export default function useTradeView() {
     const {id} = useParams();
     const location = useLocation();
     const type = parseInt(new URLSearchParams(location.search).get('type')!);
-    const subjectClaims = useSelector((state: RootState) => state.auth.subjectClaims);
 
     const [trade, setTrade] = useState<TradePresentable>();
     const [documents, setDocuments] = useState<DocumentPresentable[]>();
@@ -33,22 +32,12 @@ export default function useTradeView() {
     }
 
     const getTradeDocuments = async (id: number) => {
-        const documentService = new DocumentService(new BlockchainDocumentStrategy({
-            serverUrl: subjectClaims!.podServerUrl!,
-            sessionCredentials: {
-                clientId: subjectClaims!.podClientId!,
-                clientSecret: subjectClaims!.podClientSecret!
-            }
-        }));
+        const documentService = new DocumentService(new BlockchainDocumentStrategy());
         const resp = await documentService.getDocumentsByTransactionIdAndType(id, 'trade');
-        resp && setDocuments(resp);
+        //resp && setDocuments(resp);
     }
 
     useEffect(() => {
-        if (!subjectClaims || !(subjectClaims.podClientSecret && subjectClaims.podClientId && subjectClaims.podServerUrl)) {
-            openNotification("Error", "No information about company storage", NotificationType.ERROR);
-            return;
-        }
         (async () => {
             await getTradeInfo(parseInt(id!), type);
             await getTradeDocuments(parseInt(id!));

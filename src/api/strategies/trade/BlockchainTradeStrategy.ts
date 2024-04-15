@@ -3,7 +3,7 @@ import {TradePresentable} from "../../types/TradePresentable";
 import {
     BasicTrade,
     IConcreteTradeService,
-    Line, LineRequest, OrderLinePrice, OrderLineRequest,
+    Line, LineRequest, OrderLinePrice, OrderLineRequest, OrderTrade,
     Trade,
     TradeType
 } from "@kbc-lib/coffee-trading-management-lib";
@@ -13,41 +13,18 @@ import {MaterialPresentable} from "../../types/MaterialPresentable";
 import {CustomError} from "../../../utils/error/CustomError";
 import {HttpStatusCode} from "../../../utils/error/HttpStatusCode";
 import {TradeLinePresentable, TradeLinePrice} from "../../types/TradeLinePresentable";
-import {SolidSpec, StorageSpec} from "../../types/storage";
 import {OrderTradeInfo} from "../../../../../coffee-trading-management-lib/src";
-import { AccessMode } from "@blockchain-lib/common";
+import {ICPStorageDriver, FileWithRole, ICPResourceSpec} from "@blockchain-lib/common";
 
 export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<TradePresentable, Trade> {
     private readonly _tradeManagerService;
-    private readonly _storageSpec?: SolidSpec;
+    private readonly _storageDriver: ICPStorageDriver;
 
-    constructor(storageSpec?: SolidSpec) {
+    constructor() {
         super(true);
-        this._storageSpec = storageSpec;
-        this._tradeManagerService = BlockchainLibraryUtils.getTradeManagerService(this._storageSpec);
+        this._tradeManagerService = BlockchainLibraryUtils.getTradeManagerService();
+        this._storageDriver = ICPStorageDriver.getInstance();
     }
-    // async getOrders(): Promise<TradePresentable[]> {
-    //     const orders = await this._tradeService.getOrders(this._walletAddress);
-    //     // TODO: nel momento in cui verranno effettivamente salvati dei metadati per un ordine su ipfs (che si ritengono utili da mostrare) aggiungere logica per recuperarli
-    //     return await Promise.all(orders.map(async o => {
-    //         const orderLines = await this._tradeService.getOrderLines(this._walletAddress, o.id);
-    //         return new TradePresentable()
-    //             .setId(o.id)
-    //             .setLines(orderLines.map(ol => new TradeLinePresentable()
-    //                 .setId(ol.id!)
-    //                 .setMaterial(new MaterialPresentable().setName(ol.productCategory))
-    //                 .setQuantity(ol.quantity)
-    //                 .setPrice(new TradeLinePrice().setAmount(ol.price.amount).setFiat(ol.price.fiat))))
-    //             .setSupplier(o.supplier)
-    //             .setCustomer(o.customer)
-    //             .setPaymentDeadline(o.paymentDeadline)
-    //             .setDocumentDeliveryPipeline(o.documentDeliveryDeadline)
-    //             .setArbiter(o.arbiter)
-    //             .setShippingDeadline(o.shippingDeadline)
-    //             .setDeliveryDeadline(o.deliveryDeadline)
-    //             .setType(TradeType.NEGOTIATION)
-    //     }));
-    // }
 
     async getGeneralTrades(): Promise<TradePresentable[]> {
         const tradeIds: number[] = await this._tradeManagerService.getTradeIdsOfSupplier(this._walletAddress);
@@ -58,13 +35,13 @@ export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<T
 
         const tradeContractAddresses = await Promise.all(tradeIds.map(async id => this._tradeManagerService.getTrade(id)));
         for (const tradeAddress of tradeContractAddresses) {
-            const tradeService = BlockchainLibraryUtils.getTradeService(tradeAddress, this._storageSpec);
+            const tradeService = BlockchainLibraryUtils.getTradeService(tradeAddress);
             let tradeInstanceService: IConcreteTradeService;
             const tradeType = await tradeService.getTradeType();
             if(tradeType === TradeType.ORDER) {
-                tradeInstanceService = BlockchainLibraryUtils.getOrderTradeService(tradeAddress, this._storageSpec);
+                tradeInstanceService = BlockchainLibraryUtils.getOrderTradeService(tradeAddress);
             } else if(tradeType === TradeType.BASIC) {
-                tradeInstanceService = BlockchainLibraryUtils.getBasicTradeService(tradeAddress, this._storageSpec);
+                tradeInstanceService = BlockchainLibraryUtils.getBasicTradeService(tradeAddress);
             } else {
                 throw new CustomError(HttpStatusCode.INTERNAL_SERVER, "Received an invalid trade type");
             }
@@ -97,7 +74,7 @@ export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<T
         let resp;
         switch (type) {
             case TradeType.BASIC:
-                const basicTradeService = BlockchainLibraryUtils.getBasicTradeService(address, this._storageSpec);
+                const basicTradeService = BlockchainLibraryUtils.getBasicTradeService(address);
                 resp = await basicTradeService.getTrade();
 
                 if (resp) {
@@ -117,14 +94,28 @@ export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<T
                 }
                 break;
             case TradeType.ORDER:
-                const orderTradeService = BlockchainLibraryUtils.getOrderTradeService(address, this._storageSpec);
+                const orderTradeService = BlockchainLibraryUtils.getOrderTradeService(address);
                 resp = await orderTradeService.getTrade();
 
                 if (resp) {
-                    const orderTrade = await orderTradeService.getCompleteTrade({
+                    const orderTradeInfo = await orderTradeService.getCompleteTrade({
                         entireResourceUrl: resp.externalUrl,
-                    })
+                    });
                     const orderLines = await orderTradeService.getLines();
+
+                    const files: FileWithRole[] = await this._storageDriver.listFiles(0);
+                    const file = files.find(f => f.file.name === 'metadata.json')?.file;
+                    let orderTrade;
+                    if (file) {
+                        const bytes = await this._storageDriver.getFile(file);
+                        const jsonString = new TextDecoder().decode(bytes);
+                        const metadata = JSON.parse(jsonString);
+                        orderTrade = new OrderTrade(orderTradeInfo, metadata.incoterms, metadata.shipper, metadata.shippingPort, metadata.deliveryPort);
+                    }
+
+                    if(!orderTrade) {
+                        throw new Error('Unable to reconstruct order trade');
+                    }
 
                     trade
                         .setId(orderTrade.tradeId)
@@ -149,7 +140,9 @@ export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<T
                             .setQuantity(ol.quantity)
                             .setPrice(new TradeLinePrice().setAmount(ol.price.amount).setFiat(ol.price.fiat))))
                         .setType(TradeType.ORDER)
-                        .setStatus(await orderTradeService.getTradeStatus())
+                        .setStatus(await orderTradeService.getTradeStatus());
+
+                    console.log("TRADE", trade);
                 }
                 break;
             default:
@@ -181,20 +174,44 @@ export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<T
     }
 
     async putBasicTrade(id: number, trade: TradePresentable): Promise<void> {
-        const tradeService = BlockchainLibraryUtils.getBasicTradeService(await this._tradeManagerService.getTrade(id), this._storageSpec);
+        const tradeService = BlockchainLibraryUtils.getBasicTradeService(await this._tradeManagerService.getTrade(id));
         const oldTrade: BasicTrade = await tradeService.getTrade();
         oldTrade.name !== trade.name && await tradeService.setName(trade.name!);
     }
 
-    async saveOrderTrade(trade: TradePresentable, storageSpec?: SolidSpec): Promise<void> {
+    async saveOrderTrade(trade: TradePresentable): Promise<void> {
         const newTrade: OrderTradeInfo = await this._tradeManagerService.registerOrderTrade(
             trade.supplier, trade.customer!, trade.commissioner!, (trade.paymentDeadline!).getTime(), (trade.documentDeliveryDeadline!).getTime(),
             trade.arbiter!, (trade.shippingDeadline!).getTime(), (trade.deliveryDeadline!).getTime(), trade.agreedAmount!, trade.tokenAddress!,
-            { value: { incoterms: trade.incoterms, shipper: trade.shipper, shippingPort: trade.shippingPort, deliveryPort: trade.deliveryPort }}
         );
-        // TODO: aggiungere il salvataggio dei documenti sul trade con solid
+        const metadata = {
+            incoterms: trade.incoterms,
+            shipper: trade.shipper,
+            shippingPort: trade.shippingPort,
+            deliveryPort: trade.deliveryPort
+        }
+        const resourceSpec: ICPResourceSpec = {
+            name: 'metadata.json',
+            type: 'application/json',
+            organizationId: 0
+        }
+        await this._storageDriver.create(new TextEncoder().encode(JSON.stringify(metadata)), resourceSpec);
+
+        console.log("TRADE", trade);
+        const tmp = trade as any;
+        if(tmp['payment-invoice']) {
+            console.log("PAYMENT INVOICE", tmp['payment-invoice']);
+            const paymentInvoice = tmp['payment-invoice'];
+            const resourceSpec: ICPResourceSpec = {
+                name: paymentInvoice.name,
+                type: paymentInvoice.type,
+                organizationId: 0
+            }
+            await this._storageDriver.create(paymentInvoice.file, resourceSpec);
+        }
+
         if (trade.lines) {
-            const orderTradeService = BlockchainLibraryUtils.getOrderTradeService(await this._tradeManagerService.getTrade(newTrade.tradeId), this._storageSpec);
+            const orderTradeService = BlockchainLibraryUtils.getOrderTradeService(await this._tradeManagerService.getTrade(newTrade.tradeId));
             await Promise.all(trade.lines.map(async line => {
                 await orderTradeService.addLine(new OrderLineRequest(line.material?.id!, line.quantity!, new OrderLinePrice(line.price!.amount, line.price!.fiat)));
             }));
