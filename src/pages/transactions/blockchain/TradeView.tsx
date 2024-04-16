@@ -33,20 +33,23 @@ export const TradeView = () => {
                 </div>
             </div>}
         >
-            <GenericForm elements={elements} submittable={!disabled} onSubmit={onSubmit}/>
-            { documents &&
-                <PDFViewer element={{
-                    type: FormElementType.DOCUMENT,
-                    span: 12,
-                    content: documents[0].content,
-                    name: 'certificate-of-insurance',
-                    label: 'Certificate of Insurance',
-                    required: false,
-                    loading: false,
-                    uploadable: true,
-                    height: "500px"
-                }} onDocumentChange={() => {}} />
-            }
+            <Spin spinning={!trade || !documents}>
+                <GenericForm elements={elements} submittable={!disabled} onSubmit={onSubmit}/>
+            </Spin>
+
+            {/*{ documents?.map((doc, index) => (*/}
+            {/*    <PDFViewer element={{*/}
+            {/*        type: FormElementType.DOCUMENT,*/}
+            {/*        span: 12,*/}
+            {/*        content: doc.content,*/}
+            {/*        name: doc.name,*/}
+            {/*        label: doc.name,*/}
+            {/*        required: false,*/}
+            {/*        loading: false,*/}
+            {/*        uploadable: true,*/}
+            {/*        height: "500px"*/}
+            {/*    }} onDocumentChange={() => {}} />*/}
+            {/*))}*/}
         </CardPage>
     )
 }
