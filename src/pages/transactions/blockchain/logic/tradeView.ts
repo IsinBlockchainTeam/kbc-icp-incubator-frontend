@@ -9,6 +9,9 @@ import {TradePresentable} from "../../../../api/types/TradePresentable";
 import {DocumentPresentable} from "../../../../api/types/DocumentPresentable";
 import {DocumentService} from "../../../../api/services/DocumentService";
 import {BlockchainDocumentStrategy} from "../../../../api/strategies/document/BlockchainDocumentStrategy";
+import {
+    ICPStorageDriver
+} from "@blockchain-lib/common";
 
 export default function useTradeView() {
     const { tradeService, orderState, elements } = useTradeShared();
@@ -32,9 +35,20 @@ export default function useTradeView() {
     }
 
     const getTradeDocuments = async (id: number) => {
-        const documentService = new DocumentService(new BlockchainDocumentStrategy());
-        const resp = await documentService.getDocumentsByTransactionIdAndType(id, 'trade');
+        // const documentService = new DocumentService(new BlockchainDocumentStrategy());
+        // const resp = await documentService.getDocumentsByTransactionIdAndType(id, 'trade');
         //resp && setDocuments(resp);
+
+        const storageDriver = ICPStorageDriver.getInstance();
+        const files = await storageDriver.listFiles(0);
+        console.log("FILES: ", files);
+        const documents = await Promise.all(files.map(async file => await storageDriver.getFile(file.file)));
+        console.log("DOCUMENTS: ", documents);
+        const blob = new Blob([documents[1].buffer], { type: 'application/pdf'});
+        console.log("BLOB: ", blob);
+        const dp = new DocumentPresentable().setContent(blob);
+        console.log("DOCUMENT PRESENTABLE: ", dp);
+        setDocuments([dp]);
     }
 
     useEffect(() => {

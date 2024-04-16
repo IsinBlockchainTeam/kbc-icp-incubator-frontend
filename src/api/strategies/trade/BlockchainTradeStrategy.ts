@@ -197,19 +197,6 @@ export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<T
         }
         await this._storageDriver.create(new TextEncoder().encode(JSON.stringify(metadata)), resourceSpec);
 
-        console.log("TRADE", trade);
-        const tmp = trade as any;
-        if(tmp['payment-invoice']) {
-            console.log("PAYMENT INVOICE", tmp['payment-invoice']);
-            const paymentInvoice = tmp['payment-invoice'];
-            const resourceSpec: ICPResourceSpec = {
-                name: paymentInvoice.name,
-                type: paymentInvoice.type,
-                organizationId: 0
-            }
-            await this._storageDriver.create(paymentInvoice.file, resourceSpec);
-        }
-
         if (trade.lines) {
             const orderTradeService = BlockchainLibraryUtils.getOrderTradeService(await this._tradeManagerService.getTrade(newTrade.tradeId));
             await Promise.all(trade.lines.map(async line => {

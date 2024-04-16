@@ -44,10 +44,10 @@ export const Home = () => {
         // await storageDriver?.login(process.env.REACT_APP_CANISTER_ID_INTERNET_IDENTITY!);
         const identityDriver = new ICPIdentityDriver(`http://${process.env.REACT_APP_CANISTER_ID_INTERNET_IDENTITY!}.localhost:4943`);
         await identityDriver.login();
-        setIdentityDriver(identityDriver);
-
         // wait 5 seconds
         await new Promise(resolve => setTimeout(resolve, 5000));
+        setIdentityDriver(identityDriver);
+
         await ICPStorageDriver.init(identityDriver!, process.env.REACT_APP_CANISTER_ID_STORAGE!);
     }
 
@@ -75,7 +75,7 @@ export const Home = () => {
         const bytes = new Uint8Array(content);
 
         await ICPStorageDriver.init(identityDriver!, process.env.REACT_APP_CANISTER_ID_STORAGE!);
-        const storageDriver = await ICPStorageDriver.getInstance();
+        const storageDriver = ICPStorageDriver.getInstance();
             setStorageDriver(storageDriver);
         const file: UploadFile = uploadFile as unknown as UploadFile;
         const resourceSpec: ICPResourceSpec = {
@@ -88,7 +88,8 @@ export const Home = () => {
     }
 
     const getFiles = async () => {
-        const files = await storageDriver?.listFiles(0);
+        const storageDriver = ICPStorageDriver.getInstance();
+        const files = await storageDriver.listFiles(0);
         console.log(files);
         if(!files) return;
         setFiles(

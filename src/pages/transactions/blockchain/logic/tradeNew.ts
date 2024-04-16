@@ -5,9 +5,13 @@ import {NotificationType, openNotification} from "../../../../utils/notification
 import dayjs from "dayjs";
 import useTradeShared from "./tradeShared";
 import {MenuProps} from "antd";
+import {
+    ICPResourceSpec,
+    ICPStorageDriver
+} from "@blockchain-lib/common";
 
 export default function useTradeNew() {
-    const { type, updateType, tradeService, orderState, elements } = useTradeShared();
+    const {type, updateType, tradeService, orderState, elements} = useTradeShared();
 
     const items: MenuProps['items'] = [
         {label: 'BASIC', key: '0'},
@@ -26,7 +30,7 @@ export default function useTradeNew() {
             let id: string;
             if (key.startsWith('product-category-id-')) {
                 id = key.split('-')[3];
-                if(type === TradeType.BASIC)
+                if (type === TradeType.BASIC)
                     (values['lines'] ||= []).push(new TradeLinePresentable(0, new MaterialPresentable(parseInt(values[key]))));
                 else {
                     const materialId: number = parseInt(values[`product-category-id-${id}`]);
@@ -47,6 +51,30 @@ export default function useTradeNew() {
             values['shippingDeadline'] = dayjs(values['shipping-deadline']).toDate();
             values['deliveryDeadline'] = dayjs(values['delivery-deadline']).toDate();
             await tradeService.saveOrderTrade(values);
+
+            console.log("VALUES", values)
+            console.log("PAYMENT INVOICE", values['payment-invoice']);
+            const paymentInvoice = values['payment-invoice'] as unknown as File;
+            const resourceSpec: ICPResourceSpec = {
+                name: paymentInvoice.name,
+                type: paymentInvoice.type,
+                organizationId: 0
+            }
+            const storageDriver = ICPStorageDriver.getInstance();
+            const blob = values['payment-invoice'] as unknown as Blob;
+            console.log("BLOB:", blob);
+            // Read the file
+            const reader = new FileReader();
+            reader.readAsArrayBuffer(blob);
+            const content = (await new Promise((resolve) => {
+                reader.onload = () => {
+                    resolve(reader.result as ArrayBuffer);
+                };
+            })) as ArrayBuffer;
+            const bytes = new Uint8Array(content);
+            console.log("BYTES:", bytes);
+            await storageDriver.create(bytes, resourceSpec);
+
             openNotification("Order trade registered", `Order trade has been registered correctly!`, NotificationType.SUCCESS, 1);
         }
     }

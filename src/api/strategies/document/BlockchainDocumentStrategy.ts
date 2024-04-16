@@ -29,7 +29,7 @@ export class BlockchainDocumentStrategy extends Strategy implements DocumentStra
                 .setName(completeDocument!.name)
                 .setContentType(completeDocument!.content!.type)
                 .setDocumentType(completeDocument!.documentType)
-                .setContent(completeDocument!.content)
+                //.setContent(completeDocument!.content)
                 .setFilename(completeDocument!.filename)
                 .setTransactionLines(completeDocument!.transactionLines)
                 .setDate(new Date(completeDocument!.date))
