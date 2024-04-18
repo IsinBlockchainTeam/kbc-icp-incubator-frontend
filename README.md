@@ -50,7 +50,6 @@ This project is configured to be optionally deployed on an ICP network. To deplo
 ### Environment Variables Configuration
 | Variable                         | Description                                                                                                                                                                                              |
 |----------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `REACT_APP_LOCAL_DEV`            | Leave this set to 'local'                                                                                                                                                                                |
 | `REACT_APP_UNECE_BACKEND_URL`    | The URL where the `unece_backend` project is running                                                                                                                                                     |
 | `REACT_APP_VERIFIER_BACKEND_URL` | The URL where the `verifier_backend` project is running                                                                                                                                                  |
 | `REACT_APP_CONTRACT_<name>`      | The addresses of the smart contracts of the KCB Coffee Trading project. If you are using the local Hardhat network, leave these set to their default values, otherwise insert the new contract addresses |

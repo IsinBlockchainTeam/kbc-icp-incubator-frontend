@@ -1,6 +1,7 @@
 import {Button, Form, FormProps, Input, Modal} from "antd";
 import {NotificationType, openNotification} from "../../utils/notification";
 import React from "react";
+import {requestPath} from "../../constants";
 
 type Props = {
     open: boolean,
@@ -15,7 +16,7 @@ export const InviteCompany = (props: Props) => {
     const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
         try {
             setLoading(true);
-            const response = await fetch( process.env.REACT_APP_EMAIL_SENDER_URL + '/email/invitation', {
+            const response = await fetch( requestPath.EMAIL_SENDER_URL + '/email/invitation', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

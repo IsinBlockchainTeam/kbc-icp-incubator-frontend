@@ -10,6 +10,7 @@ export const storage = {
 export const requestPath = {
   VERIFIER_BACKEND_URL: `${checkAndGetEnvironmentVariable(process.env.REACT_APP_VERIFIER_BACKEND_URL, "Veramo proxy URL must be defined")}/api/verifier`,
   UNECE_BACKEND_URL: `${checkAndGetEnvironmentVariable(process.env.REACT_APP_UNECE_BACKEND_URL, "UNECE backend URL must be defined")}/api`,
+  EMAIL_SENDER_URL: `${checkAndGetEnvironmentVariable(process.env.REACT_APP_EMAIL_SENDER_URL, "Email sender service URL must be defined")}`,
 };
 
 export const contractAddresses = {
