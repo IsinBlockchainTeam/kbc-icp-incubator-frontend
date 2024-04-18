@@ -11,6 +11,7 @@ ARG UNECE_COTTON_FETCH_REGISTRY_DOMAIN=unece_cotton_fetch_registry_domain
 # -------------------- taken from gitlab build args file---------------------
 ARG REACT_APP_UNECE_BACKEND_URL=unece_backend_url
 ARG REACT_APP_VERIFIER_BACKEND_URL=verifier_backend_url
+ARG REACT_APP_EMAIL_SENDER_URL=email_sender_url
 
 ARG REACT_APP_CONTRACT_PROCESS_TYPE=contract_process_type
 ARG REACT_APP_CONTRACT_ASSESSMENT_STANDARD=contract_assessment_standard
