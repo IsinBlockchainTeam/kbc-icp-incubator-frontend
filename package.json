@@ -21,6 +21,7 @@
     "base64url": "^3.0.1",
     "buffer": "^6.0.3",
     "dayjs": "^1.11.8",
+    "http-proxy-middleware": "^3.0.0",
     "node-sass": "9.0.0",
     "pdfjs-dist": "3.10.111",
     "react": "^18.2.0",
