@@ -1,6 +1,7 @@
-import React from "react";
-
+import {Navigate} from 'react-router-dom'
+import {paths} from "../../constants";
 export const Home = () => {
+
     // const [loadingFirst, setLoadingFirst] = React.useState<boolean>(true);
     // const [loadingSecond, setLoadingSecond] = React.useState<boolean>(true);
     // const [firstDocument, setFirstDocument] = React.useState<Blob | undefined>(undefined);
@@ -35,6 +36,7 @@ export const Home = () => {
 
     return (
         <>
+            <Navigate replace to={paths.PROFILE} />
             {/*<GenericForm elements={elements} submittable={true} onSubmit={onSubmit} />*/}
         </>
     )

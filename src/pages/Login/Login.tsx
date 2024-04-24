@@ -5,7 +5,7 @@ import {WalletLogin} from "./WalletLogin";
 import VeramoLogin from "./VeramoLogin";
 
 export const Login = () => {
-    const [activeLoginTab, setActiveLoginTab] = useState<string>("wallet_login");
+    const [activeLoginTab, setActiveLoginTab] = useState<string>("vc_login");
 
     const tabList = [
         { key: 'vc_login', tab: "VC Login"},

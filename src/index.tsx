@@ -5,7 +5,8 @@ import reportWebVitals from "./reportWebVitals";
 import { App } from "./App";
 import { Auth0Provider } from "@auth0/auth0-react";
 import { Provider } from "react-redux";
-import store from "./redux/store";
+import {persistor, store} from "./redux/store";
+import {PersistGate} from "redux-persist/integration/react";
 
 global.Buffer = require("buffer").Buffer;
 
@@ -23,7 +24,9 @@ root.render(
       }}
     >
       <Provider store={store}>
-        <App />
+        <PersistGate loading={null} persistor={persistor}>
+          <App />
+        </PersistGate>
       </Provider>
     </Auth0Provider>
   </React.Fragment>,

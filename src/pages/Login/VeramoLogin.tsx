@@ -1,18 +1,23 @@
 import { Timeline, Space, QRCode } from "antd";
 import styles from "./Login.module.scss";
 import { useEffect, useState } from "react";
-import { requestPath } from "../../constants";
+import {paths, requestPath} from "../../constants";
 import { request } from "../../utils/request";
 import { v4 as uuid } from "uuid";
 import { openNotification, NotificationType } from "../../utils/notification";
 import { formatDid } from "../../utils/utils";
-import { useDispatch } from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import { updateSubjectDid } from "../../redux/reducers/authSlice";
+import { updateUserInfo } from "../../redux/reducers/userInfoSlice";
+import {RootState} from "../../redux/store";
+import {Navigate, useNavigate} from "react-router-dom";
 
 export default function VeramoLogin() {
   const [qrCodeURL, setQrCodeURL] = useState<string>("");
   const [challengeId, setChallengeId] = useState<string>("");
   const dispatch = useDispatch();
+  const userInfo = useSelector((state: RootState) => state.userInfo);
+  const navigate = useNavigate();
 
   const requestAuthPresentation = async () => {
     const id = uuid();
@@ -57,11 +62,15 @@ export default function VeramoLogin() {
             return;
           }
           dispatch(updateSubjectDid(subjectDid));
+          const userInfo = message.body.verifiableCredential[0].credentialSubject;
+          dispatch(updateUserInfo({ isLogged: true, ...userInfo}));
+          navigate(paths.PROFILE);
           openNotification(
             "Authenticated",
             `User with DID ${formatDid(message.body.holder)} has authenticated succesfully`,
             NotificationType.SUCCESS
           );
+
         } else {
           console.log("NO MESSAGE");
         }
@@ -70,6 +79,9 @@ export default function VeramoLogin() {
     }
   }, [challengeId]);
 
+  if(userInfo.isLogged) {
+    return <Navigate to={paths.PROFILE} />;
+  }
   return (
     <div className={styles.ContentContainer}>
       <div className={styles.ChildContent}>
