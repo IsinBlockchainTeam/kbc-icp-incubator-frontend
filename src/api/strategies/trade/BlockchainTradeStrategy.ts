@@ -2,8 +2,8 @@ import {TradeStrategy} from "./TradeStrategy";
 import {TradePresentable} from "../../types/TradePresentable";
 import {
     BasicTrade,
-    IConcreteTradeService,
-    Line, LineRequest, OrderLinePrice, OrderLineRequest, OrderTrade,
+    IConcreteTradeService, ICPMetadataDriver,
+    Line, LineRequest, OrderLine, OrderLinePrice, OrderLineRequest, OrderTrade, OrderTradeMetadata,
     Trade,
     TradeType
 } from "@kbc-lib/coffee-trading-management-lib";
@@ -13,7 +13,6 @@ import {MaterialPresentable} from "../../types/MaterialPresentable";
 import {CustomError} from "../../../utils/error/CustomError";
 import {HttpStatusCode} from "../../../utils/error/HttpStatusCode";
 import {TradeLinePresentable, TradeLinePrice} from "../../types/TradeLinePresentable";
-import {OrderTradeInfo} from "../../../../../coffee-trading-management-lib/src";
 import {ICPStorageDriver, FileWithRole, ICPResourceSpec} from "@blockchain-lib/common";
 
 export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<TradePresentable, Trade> {
@@ -24,9 +23,12 @@ export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<T
         super(true);
         this._tradeManagerService = BlockchainLibraryUtils.getTradeManagerService();
         this._storageDriver = ICPStorageDriver.getInstance();
+        // TODO: remove this
+        ICPMetadataDriver.init();
     }
 
     async getGeneralTrades(): Promise<TradePresentable[]> {
+        console.log("getGeneralTrades")
         const tradeIds: number[] = await this._tradeManagerService.getTradeIdsOfSupplier(this._walletAddress);
         tradeIds.push(...await this._tradeManagerService.getTradeIdsOfCommissioner(this._walletAddress));
         let tradePresentables: TradePresentable[] = [];
@@ -98,41 +100,31 @@ export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<T
                 resp = await orderTradeService.getTrade();
 
                 if (resp) {
-                    const orderTradeInfo = await orderTradeService.getCompleteTrade({
-                        entireResourceUrl: resp.externalUrl,
-                    });
+                    const resourceSpec = {
+                        id: 0,
+                        name: 'metadata.json',
+                        type: 'application/json',
+                        organizationId: 0
+                    }
+                    const orderTrade = await orderTradeService.getTrade(resourceSpec);
                     const orderLines = await orderTradeService.getLines();
-
-                    const files: FileWithRole[] = await this._storageDriver.listFiles(0);
-                    const file = files.find(f => f.file.name === 'metadata.json')?.file;
-                    let orderTrade;
-                    if (file) {
-                        const bytes = await this._storageDriver.getFile(file);
-                        const jsonString = new TextDecoder().decode(bytes);
-                        const metadata = JSON.parse(jsonString);
-                        orderTrade = new OrderTrade(orderTradeInfo, metadata.incoterms, metadata.shipper, metadata.shippingPort, metadata.deliveryPort);
-                    }
-
-                    if(!orderTrade) {
-                        throw new Error('Unable to reconstruct order trade');
-                    }
 
                     trade
                         .setId(orderTrade.tradeId)
                         .setCommissioner(orderTrade.commissioner)
                         .setCustomer(orderTrade.customer)
-                        .setIncoterms(orderTrade.incoterms)
+                        .setIncoterms(orderTrade.metadata?.incoterms)
                         .setPaymentDeadline(new Date(orderTrade.paymentDeadline))
                         .setDocumentDeliveryPipeline(new Date(orderTrade.documentDeliveryDeadline))
-                        .setShipper(orderTrade.shipper)
+                        .setShipper(orderTrade.metadata?.shipper)
                         .setArbiter(orderTrade.arbiter)
-                        .setShippingPort(orderTrade.shippingPort)
+                        .setShippingPort(orderTrade.metadata?.shippingPort)
                         .setShippingDeadline(new Date(orderTrade.shippingDeadline))
-                        .setDeliveryPort(orderTrade.deliveryPort)
+                        .setDeliveryPort(orderTrade.metadata?.deliveryPort)
                         .setDeliveryDeadline(new Date(orderTrade.deliveryDeadline))
                         .setEscrow(orderTrade.escrow)
                         .setSupplier(orderTrade.supplier)
-                        .setLines(orderLines.map(ol => new TradeLinePresentable()
+                        .setLines(orderLines.map((ol: OrderLine) => new TradeLinePresentable()
                             .setId(ol.id)
                             .setMaterial(ol.material ? new MaterialPresentable()
                                 .setId(ol.material.id)
@@ -152,19 +144,20 @@ export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<T
     }
 
     async saveBasicTrade(trade: TradePresentable): Promise<void> {
-        const newTrade: BasicTrade = await this._tradeManagerService.registerBasicTrade(trade.supplier, trade.customer!, trade.commissioner!, trade.name!, {
-            value: { issueDate: new Date() },
-            // aclRules: [
-            //     {
-            //         agents: [basicTrade.supplierWebId],
-            //         modes: [AccessMode.READ, AccessMode.WRITE, AccessMode.CONTROL],
-            //     },
-            //     {
-            //         agents: [basicTrade.commissionerWebId],
-            //         modes: [AccessMode.READ],
-            //     },
-            // ],
-        });
+        // const newTrade: BasicTrade = await this._tradeManagerService.registerBasicTrade(trade.supplier, trade.customer!, trade.commissioner!, trade.name!, {
+        //     value: { issueDate: new Date() },
+        //     // aclRules: [
+        //     //     {
+        //     //         agents: [basicTrade.supplierWebId],
+        //     //         modes: [AccessMode.READ, AccessMode.WRITE, AccessMode.CONTROL],
+        //     //     },
+        //     //     {
+        //     //         agents: [basicTrade.commissionerWebId],
+        //     //         modes: [AccessMode.READ],
+        //     //     },
+        //     // ],
+        // });
+        const newTrade: BasicTrade = await this._tradeManagerService.registerBasicTrade(trade.supplier, trade.customer!, trade.commissioner!, trade.name!);
         if (trade.lines) {
             const basicTradeService = BlockchainLibraryUtils.getBasicTradeService(await this._tradeManagerService.getTrade(newTrade.tradeId));
             await Promise.all(trade.lines.map(async line => {
@@ -180,16 +173,17 @@ export class BlockchainTradeStrategy extends Strategy implements TradeStrategy<T
     }
 
     async saveOrderTrade(trade: TradePresentable): Promise<void> {
-        const newTrade: OrderTradeInfo = await this._tradeManagerService.registerOrderTrade(
+        const metadata: OrderTradeMetadata = {
+            incoterms: trade.incoterms!,
+            shipper: trade.shipper!,
+            shippingPort: trade.shippingPort!,
+            deliveryPort: trade.deliveryPort!
+        }
+        const newTrade: OrderTrade = await this._tradeManagerService.registerOrderTrade(
             trade.supplier, trade.customer!, trade.commissioner!, (trade.paymentDeadline!).getTime(), (trade.documentDeliveryDeadline!).getTime(),
             trade.arbiter!, (trade.shippingDeadline!).getTime(), (trade.deliveryDeadline!).getTime(), trade.agreedAmount!, trade.tokenAddress!,
+            metadata
         );
-        const metadata = {
-            incoterms: trade.incoterms,
-            shipper: trade.shipper,
-            shippingPort: trade.shippingPort,
-            deliveryPort: trade.deliveryPort
-        }
         const resourceSpec: ICPResourceSpec = {
             name: 'metadata.json',
             type: 'application/json',

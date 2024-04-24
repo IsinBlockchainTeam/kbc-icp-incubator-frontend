@@ -1,32 +1,6 @@
 import React, {useEffect} from "react";
-import PDFUploader from "../../components/PDFUploader/PDFUploader";
-import {Button, Flex, MenuProps, Table, TableColumnsType, UploadFile} from "antd";
-import {FileInfo} from "../../../../coffee-trading-management-lib/src/declarations/storage/storage.did";
-import {Viewer} from "@react-pdf-viewer/core";
-import {DownloadOutlined} from "@ant-design/icons";
-import {
-    FileHelpers,
-    ICPIdentityDriver,
-    ICPOrganizationDriver,
-    ICPResourceSpec,
-    ICPStorageDriver
-} from "@blockchain-lib/common";
 import {useNavigate} from "react-router-dom";
-import {paths, storage} from "../../constants";
-
-const ROLES = {
-    OWNER: "Owner",
-    EDITOR: "Editor",
-    VIEWER: "Viewer",
-} as const;
-
-// Get the values of the ROLES object
-export type Role = (typeof ROLES)[keyof typeof ROLES];
-
-interface FileRole {
-    file: FileInfo;
-    role: Role
-}
+import {paths} from "../../constants";
 
 export const Home = () => {
     // const [uploadFile, setUploadFile] = React.useState<Blob>();

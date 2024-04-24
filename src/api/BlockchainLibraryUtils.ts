@@ -18,7 +18,13 @@ import {
     TradeManagerDriver,
     TradeManagerService,
     AssetOperationDriver,
-    AssetOperationService, TradeService, TradeDriver, SolidMetadataDriver, GraphService, SolidDocumentDriver,
+    AssetOperationService,
+    TradeService,
+    TradeDriver,
+    SolidMetadataDriver,
+    GraphService,
+    SolidDocumentDriver,
+    ICPMetadataDriver,
 } from "@kbc-lib/coffee-trading-management-lib";
 import {contractAddresses} from "../constants";
 import {getWalletAddress} from "../utils/storage";
@@ -42,28 +48,27 @@ export class BlockchainLibraryUtils {
         return new RelationshipService(relationshipDriver);
     }
 
-    static getTradeManagerService = (storage?: SolidSpec): TradeManagerService<SolidMetadataSpec, SolidStorageACR> => {
+    static getTradeManagerService = (storage?: SolidSpec): TradeManagerService => {
         const tradeManagerDriver: TradeManagerDriver = new TradeManagerDriver(this._getSigner(), contractAddresses.TRADE(), contractAddresses.MATERIAL(), contractAddresses.PRODUCT_CATEGORY());
-        const {storageMetadataDriver} = this.defineStorageDrivers(storage);
-        return new TradeManagerService(tradeManagerDriver, storageMetadataDriver);
+        // const {storageMetadataDriver} = this.defineStorageDrivers(storage);
+        // return new TradeManagerService(tradeManagerDriver, storageMetadataDriver);
+        return new TradeManagerService(tradeManagerDriver, ICPMetadataDriver.getInstance());
     }
 
-    static getTradeService = (tradeContractAddress: string, storage?: SolidSpec): TradeService<SolidMetadataSpec, SolidDocumentSpec, SolidStorageACR> => {
+    static getTradeService = (tradeContractAddress: string, storage?: SolidSpec): TradeService => {
         const tradeDriver = new TradeDriver(this._getSigner(), tradeContractAddress);
-        const {storageMetadataDriver, storageDocumentDriver} = this.defineStorageDrivers(storage);
-        return new TradeService({tradeDriver, storageMetadataDriver, storageDocumentDriver});
+        return new TradeService(tradeDriver, ICPMetadataDriver.getInstance());
     }
 
-    static getBasicTradeService = (address: string, storage?: SolidSpec): BasicTradeService<SolidMetadataSpec, SolidDocumentSpec, SolidStorageACR> => {
+    static getBasicTradeService = (address: string, storage?: SolidSpec): BasicTradeService => {
         const basicTradeDriver: BasicTradeDriver = new BasicTradeDriver(this._getSigner(), address, contractAddresses.MATERIAL(), contractAddresses.PRODUCT_CATEGORY());
-        const {storageMetadataDriver, storageDocumentDriver} = this.defineStorageDrivers(storage);
-        return new BasicTradeService({tradeDriver: basicTradeDriver, storageMetadataDriver, storageDocumentDriver});
+        return new BasicTradeService(basicTradeDriver, ICPMetadataDriver.getInstance());
     }
 
-    static getOrderTradeService = (address: string, storage?: SolidSpec): OrderTradeService<SolidMetadataSpec, SolidDocumentSpec, SolidStorageACR> => {
+    static getOrderTradeService = (address: string, storage?: SolidSpec): OrderTradeService => {
         const orderTradeDriver: OrderTradeDriver = new OrderTradeDriver(this._getSigner(), address, contractAddresses.MATERIAL(), contractAddresses.PRODUCT_CATEGORY());
-        const {storageMetadataDriver, storageDocumentDriver} = this.defineStorageDrivers(storage);
-        return new OrderTradeService({tradeDriver: orderTradeDriver, storageMetadataDriver, storageDocumentDriver})
+        console.log('returning order trade service');
+        return new OrderTradeService(orderTradeDriver, ICPMetadataDriver.getInstance())
     }
 
     static getAssetOperationService = (): AssetOperationService => {
@@ -82,7 +87,7 @@ export class BlockchainLibraryUtils {
         return new OfferService(offerDriver);
     }
 
-    static getGraphService = (): GraphService<SolidMetadataSpec, SolidStorageACR> => {
+    static getGraphService = (): GraphService => {
         return new GraphService(this._getSigner(), BlockchainLibraryUtils.getTradeManagerService(), BlockchainLibraryUtils.getAssetOperationService());
     }
 
