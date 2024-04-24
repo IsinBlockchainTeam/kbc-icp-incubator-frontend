@@ -14,6 +14,7 @@ import {
 } from "@blockchain-lib/common";
 import {FormElement, FormElementType} from "../../../../components/GenericForm/GenericForm";
 import {regex} from "../../../../utils/regex";
+import dayjs from "dayjs";
 
 export default function useTradeView() {
     const { tradeService, orderState } = useTradeShared();
@@ -71,7 +72,6 @@ export default function useTradeView() {
     }, []);
 
     useEffect(() => {
-        console.log("USE EFFECT: ", trade, documents)
         if(!documents) return;
         if(documents.length === 0) return;
         if(!trade) return;
@@ -170,8 +170,7 @@ export default function useTradeView() {
                     name: 'payment-deadline',
                     label: 'Payment Deadline',
                     required: true,
-                    // defaultValue: trade.paymentDeadline,
-                    defaultValue: '',
+                    defaultValue: trade.paymentDeadline ? dayjs(new Date(trade.paymentDeadline).toISOString()) : '',
                     disabled,
                 },
                 {
@@ -180,8 +179,7 @@ export default function useTradeView() {
                     name: 'document-delivery-deadline',
                     label: 'Document Delivery Deadline',
                     required: false,
-                    // defaultValue: trade.documentDeliveryDeadline,
-                    defaultValue: '',
+                    defaultValue: trade.documentDeliveryDeadline ? dayjs(new Date(trade.documentDeliveryDeadline).toISOString()) : '',
                     disabled,
                 },
                 {
@@ -218,8 +216,7 @@ export default function useTradeView() {
                     name: 'shipping-deadline',
                     label: 'Shipping Deadline',
                     required: true,
-                    // defaultValue: trade.shippingDeadline,
-                    defaultValue: '',
+                    defaultValue: trade.shippingDeadline ? dayjs(new Date(trade.shippingDeadline).toISOString()) : '',
                     disabled,
                 },
                 {
@@ -237,8 +234,7 @@ export default function useTradeView() {
                     name: 'delivery-deadline',
                     label: 'Delivery Deadline',
                     required: true,
-                    //defaultValue: trade.deliveryDeadline,
-                    defaultValue: '',
+                    defaultValue: trade.deliveryDeadline ? dayjs(new Date(trade.deliveryDeadline).toISOString()) : '',
                     disabled,
                 },
                 {

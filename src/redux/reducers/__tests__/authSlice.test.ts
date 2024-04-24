@@ -9,6 +9,7 @@ describe("UNIT TEST: authSlice", () => {
     const initialState = {
       subjectDid: "",
       subjectClaims: undefined,
+      icpIdentityDriver: undefined
     };
 
     const action = updateSubjectDid("newSubjectDid");
@@ -22,6 +23,7 @@ describe("UNIT TEST: authSlice", () => {
     const initialState = {
       subjectDid: "",
       subjectClaims: undefined,
+      icpIdentityDriver: undefined
     };
 
     const newSubjectClaims: OrganizationCredential = {

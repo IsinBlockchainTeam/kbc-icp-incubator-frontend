@@ -1,9 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
 import {SolidSpec} from "../../api/types/storage";
+import {ICPIdentityDriver} from "@blockchain-lib/common";
 
 type State = {
   subjectDid: string;
   subjectClaims: SolidSpec | undefined;
+  icpIdentityDriver: ICPIdentityDriver | undefined;
 }
 
 const authSlice = createSlice({
@@ -11,6 +13,7 @@ const authSlice = createSlice({
   initialState: {
     subjectDid: "",
     subjectClaims: undefined,
+    icpIdentityDriver: undefined
   } as State,
   reducers: {
     updateSubjectDid: (state, action) => {
@@ -19,9 +22,12 @@ const authSlice = createSlice({
     updateSubjectClaims: (state, action) => {
       state.subjectClaims = action.payload;
     },
+    updateIcpIdentityDriver: (state, action) => {
+      state.icpIdentityDriver = action.payload;
+    }
   },
 });
 
-export const { updateSubjectDid, updateSubjectClaims } = authSlice.actions;
+export const { updateSubjectDid, updateSubjectClaims, updateIcpIdentityDriver } = authSlice.actions;
 
 export default authSlice.reducer;

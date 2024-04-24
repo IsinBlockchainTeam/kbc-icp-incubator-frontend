@@ -17,6 +17,9 @@ import {
   updateSubjectDid,
 } from "../../redux/reducers/authSlice";
 import { OrganizationCredential } from "../../api/types/OrganizationCredential";
+import {
+  ICPOrganizationDriver
+} from "@blockchain-lib/common";
 
 export const MattrLogin = () => {
   const [qrCodeURL, setQrCodeURL] = useState<string>("");
@@ -102,6 +105,13 @@ export const MattrLogin = () => {
     };
   }, [challengeId]);
 
+  const createOrganization = async () => {
+    const organizationDriver = ICPOrganizationDriver.getInstance();
+    const orgId = await organizationDriver.createOrganization("Dunder Mifflin", "The best paper company in the world");
+    console.log("Organization created successfully:", orgId);
+    console.log("Organization:", await organizationDriver.getUserOrganizations());
+  }
+
   return (
     <div className={styles.ContentContainer}>
       <div className={styles.ChildContent}>
@@ -122,6 +132,7 @@ export const MattrLogin = () => {
       </Space>
       {/* TODO: to remove and also hard coded data  */}
       <Button onClick={() => handleUpdateSubjectClaims({})}>Fake Login</Button>
+      <Button onClick={createOrganization}>Create Organization</Button>
     </div>
   );
 };

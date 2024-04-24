@@ -28,7 +28,8 @@ describe('Trade View', () => {
                         serverUrl: 'http://test.com',
                         // clientId: 'test',
                         // clientSecret: 'test',
-                    }
+                    },
+                    icpIdentityDriver: undefined
                 }
             },
             reducer: combineReducers({
