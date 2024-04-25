@@ -86,6 +86,7 @@ const getUserItemLoggedIn = (name: string, picture: string, dispatch: any) => [
                 nation: "",
                 telephone: "",
                 image: "",
+                privateKey: "",
               };
               dispatch(updateUserInfo(reset))
             }

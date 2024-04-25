@@ -41,7 +41,7 @@ export default () => {
     return (
         <HashRouter>
             <Routes>
-                <Route path={paths.HOME} element={<MenuLayout />}>
+                <Route element={<MenuLayout />}>
                     <Route element={<PrivateRoutes />}>
                         <Route index element={<Home />} />
                         <Route path={paths.PROFILE} element={<Profile />} />
@@ -70,8 +70,8 @@ export default () => {
                         <Route path={paths.GRAPH} element={<RouteViewMode component={LegacyGraphPage} blockchainComponent={GraphPage} />}/>
                     </Route>
                     <Route path={paths.LOGIN} element={<RouteViewMode component={Auth0Login} blockchainComponent={Login} />}/>
+                    <Route path="*" element={<Navigate to={paths.LOGIN}/>}/>
                 </Route>
-                <Route path="*" element={<Navigate to={paths.LOGIN}/>}/>
             </Routes>
         </HashRouter>
     )

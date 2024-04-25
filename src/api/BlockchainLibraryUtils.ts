@@ -14,17 +14,16 @@ import {
     RelationshipDriver,
     RelationshipService,
     Signer,
-    SignerUtils,
     TradeManagerDriver,
     TradeManagerService,
     AssetOperationDriver,
     AssetOperationService, TradeService, TradeDriver, SolidMetadataDriver, GraphService, SolidDocumentDriver,
 } from "@kbc-lib/coffee-trading-management-lib";
 import {contractAddresses} from "../constants";
-import {getWalletAddress} from "../utils/storage";
 import {SolidDocumentSpec, SolidMetadataSpec} from "@kbc-lib/coffee-trading-management-lib";
 import {SolidSpec} from "./types/storage";
 import {EnumerableTypeReadDriver, EnumerableTypeService, SolidStorageACR} from "@blockchain-lib/common";
+import SingletonSigner from "./strategies/SingletonSigner";
 
 export class BlockchainLibraryUtils {
 
@@ -102,7 +101,7 @@ export class BlockchainLibraryUtils {
     }
 
     private static _getSigner = (): Signer => {
-        if (!getWalletAddress()) throw new Error("Metamask is not connected");
-        return SignerUtils.getSignerFromBrowserProvider(window.ethereum);
+        if (!SingletonSigner.getInstance()) throw new Error("Metamask is not connected");
+        return SingletonSigner.getInstance()!;
     }
 }

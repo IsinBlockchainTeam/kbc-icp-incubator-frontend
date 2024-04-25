@@ -9,6 +9,7 @@ export type UserInfoState = {
     nation: string;
     telephone: string;
     image: string;
+    privateKey: string,
 }
 
 const initialState: UserInfoState = {
@@ -20,6 +21,7 @@ const initialState: UserInfoState = {
     nation: "",
     telephone: "",
     image: "",
+    privateKey: "",
 }
 const userInfoSlice = createSlice({
     name: "userInfo",
@@ -34,6 +36,7 @@ const userInfoSlice = createSlice({
             state.nation = action.payload.nation;
             state.telephone = action.payload.telephone;
             state.image = action.payload.image;
+            state.privateKey = action.payload.privateKey;
         },
 
     },
