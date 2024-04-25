@@ -175,14 +175,14 @@ export const MenuLayout = () => {
         </div>
       </Sider>
       <Layout>
-        <Spin spinning={loading.isLoading} size="large" tip={loading.loadingMessage}>
           <Content
             className={styles.MainContent}
             style={{ background: colorBgContainer }}
           >
-            <Outlet />
+            <Spin spinning={loading.isLoading} size="large" tip={loading.loadingMessage}>
+              <Outlet />
+            </Spin>
           </Content>
-        </Spin>
         <Footer style={{ textAlign: "center" }}>
           Coffe Trading platform ©2024 Created by ISIN
         </Footer>
