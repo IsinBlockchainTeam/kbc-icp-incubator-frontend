@@ -11,6 +11,7 @@ import { updateSubjectDid } from "../../redux/reducers/authSlice";
 import { updateUserInfo } from "../../redux/reducers/userInfoSlice";
 import {RootState} from "../../redux/store";
 import {Navigate, useNavigate} from "react-router-dom";
+import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
 
 export default function VeramoLogin() {
   const [qrCodeURL, setQrCodeURL] = useState<string>("");
@@ -20,24 +21,35 @@ export default function VeramoLogin() {
   const navigate = useNavigate();
 
   const requestAuthPresentation = async () => {
-    const id = uuid();
-    const response = await request(
-      `${requestPath.VERIFIER_BACKEND_URL}/presentations/create/selective-disclosure`,
-      {
-        method: "POST",
-        body: JSON.stringify({
-          tag: id,
-          claimType: "legalName",
-          reason: "Please, authenticate yourself",
-        }),
-      }
-    );
-    setQrCodeURL(response.qrcode);
-    setChallengeId(id);
+    try {
+      dispatch(showLoading("Loading..."))
+      const id = uuid();
+      const response = await request(
+        `${requestPath.VERIFIER_BACKEND_URL}/presentations/create/selective-disclosure`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            tag: id,
+            claimType: "legalName",
+            reason: "Please, authenticate yourself",
+          }),
+        }
+      );
+      setQrCodeURL(response.qrcode);
+      setChallengeId(id);
+    } catch (e: any) {
+      console.log("error: ", e);
+      openNotification("Error", e.message, NotificationType.ERROR);
+    } finally {
+      dispatch(hideLoading())
+    }
   };
 
   useEffect(() => {
     requestAuthPresentation();
+    return () => {
+      dispatch(hideLoading())
+    }
   }, []);
 
   useEffect(() => {

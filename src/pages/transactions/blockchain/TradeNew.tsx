@@ -3,7 +3,7 @@ import {TradeType} from "@kbc-lib/coffee-trading-management-lib";
 import {getEnumKeyByValue} from "../../../utils/utils";
 import {Button, Divider, Dropdown, Steps, Typography} from "antd";
 import {CardPage} from "../../../components/structure/CardPage/CardPage";
-import React from "react";
+import React, {useEffect} from "react";
 import {
     DeleteOutlined,
     DownOutlined,
@@ -16,12 +16,21 @@ import {
 import {paths} from "../../../constants";
 import {useNavigate} from "react-router-dom";
 import useTradeNew from "./logic/tradeNew";
+import {useDispatch} from "react-redux";
+import {hideLoading} from "../../../redux/reducers/loadingSlice";
 
 const {Text} = Typography;
 
 export const TradeNew = () => {
     const navigate = useNavigate();
     const {type, orderState, elements, menuProps, onSubmit} = useTradeNew();
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        return () => {
+            dispatch(hideLoading())
+        }
+    }, []);
 
     return (
         <CardPage title={

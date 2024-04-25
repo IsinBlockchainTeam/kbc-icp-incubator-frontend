@@ -1,4 +1,4 @@
-import { Avatar, Layout, Menu, MenuProps, Switch, theme } from "antd";
+import {Avatar, Layout, Menu, MenuProps, Spin, Switch, theme} from "antd";
 import React, { useState } from "react";
 import {
   ContainerOutlined, ExperimentOutlined, FormOutlined, GoldOutlined, SettingOutlined, SwapOutlined, TeamOutlined, LogoutOutlined, UserOutlined, AuditOutlined
@@ -108,7 +108,7 @@ export const MenuLayout = () => {
   const dispatch = useDispatch();
 
   const userInfo = useSelector((state: RootState) => state.userInfo);
-
+  const loading = useSelector((state: RootState) => state.loading);
 
 
   const toggleViewMode = () => {
@@ -175,12 +175,14 @@ export const MenuLayout = () => {
         </div>
       </Sider>
       <Layout>
-        <Content
-          className={styles.MainContent}
-          style={{ background: colorBgContainer }}
-        >
-          <Outlet />
-        </Content>
+        <Spin spinning={loading.isLoading} size="large" tip={loading.loadingMessage}>
+          <Content
+            className={styles.MainContent}
+            style={{ background: colorBgContainer }}
+          >
+            <Outlet />
+          </Content>
+        </Spin>
         <Footer style={{ textAlign: "center" }}>
           Coffe Trading platform ©2024 Created by ISIN
         </Footer>

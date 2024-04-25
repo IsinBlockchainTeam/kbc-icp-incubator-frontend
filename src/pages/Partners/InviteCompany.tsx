@@ -1,7 +1,9 @@
 import {Button, Form, FormProps, Input, Modal} from "antd";
 import {NotificationType, openNotification} from "../../utils/notification";
-import React from "react";
+import React, {useEffect} from "react";
 import {requestPath} from "../../constants";
+import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
+import {useDispatch} from "react-redux";
 
 type Props = {
     open: boolean,
@@ -12,10 +14,10 @@ type FieldType = {
     email?: string;
 };
 export const InviteCompany = (props: Props) => {
-    const [loading, setLoading] = React.useState<boolean>(false);
+    const dispatch = useDispatch();
     const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
         try {
-            setLoading(true);
+            dispatch(showLoading("Inviting company..."));
             const response = await fetch( requestPath.EMAIL_SENDER_URL + '/email/invitation', {
                 method: 'POST',
                 headers: {
@@ -32,7 +34,7 @@ export const InviteCompany = (props: Props) => {
         } catch (e: any) {
             openNotification("Error", e.message, NotificationType.ERROR);
         } finally {
-            setLoading(false);
+            dispatch(hideLoading());
         }
     };
 
@@ -41,6 +43,12 @@ export const InviteCompany = (props: Props) => {
             openNotification("Error", field.errors[0], NotificationType.ERROR);
         })
     };
+
+    useEffect(() => {
+        return () => {
+            dispatch(hideLoading());
+        }
+    }, []);
 
     return <Modal
         open={props.open}
@@ -81,7 +89,7 @@ export const InviteCompany = (props: Props) => {
                 <Input />
             </Form.Item>
             <Form.Item wrapperCol={{span: 24}}>
-                <Button type="primary" htmlType="submit" block style={{width: "100%"}} loading={loading}>
+                <Button type="primary" htmlType="submit" block style={{width: "100%"}}>
                     Invite
                 </Button>
             </Form.Item>

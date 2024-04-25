@@ -7,13 +7,18 @@ import {PartnerService} from "../../api/services/PartnerService";
 import {BlockchainPartnerStrategy} from "../../api/strategies/partner/BlockchainPartnerStrategy";
 import {PartnershipPresentable} from "../../api/types/PartnershipPresentable";
 import {InviteCompany} from "./InviteCompany";
+import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
+import {useDispatch} from "react-redux";
 
 export const Partners = () => {
     const [partnership, setPartnership] = useState<PartnershipPresentable[]>();
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const dispatch = useDispatch();
 
     const loadData = async () => {
         try {
+            dispatch(showLoading("Retrieving partners..."));
+
             const partnerService = new PartnerService(new BlockchainPartnerStrategy());
             const partners = await partnerService.getPartners();
             setPartnership(partners.map(p => {
@@ -21,10 +26,11 @@ export const Partners = () => {
                 p['key'] = p.companyName;
                 return p;
             }));
-        }
-        catch (e: any) {
+        } catch (e: any) {
             console.log("error: ", e);
             openNotification("Error", e.message, NotificationType.ERROR);
+        } finally {
+            dispatch(hideLoading())
         }
     }
 
@@ -57,6 +63,9 @@ export const Partners = () => {
 
     useEffect( () => {
         loadData();
+        return () => {
+            dispatch(hideLoading());
+        }
     }, []);
 
     return (

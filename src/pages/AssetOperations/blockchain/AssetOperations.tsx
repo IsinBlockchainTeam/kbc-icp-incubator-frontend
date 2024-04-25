@@ -9,12 +9,17 @@ import {BlockchainAssetOperationStrategy} from "../../../api/strategies/asset_op
 import {PlusOutlined} from "@ant-design/icons";
 import {paths} from "../../../constants";
 import {useNavigate} from "react-router-dom";
+import {hideLoading, showLoading} from "../../../redux/reducers/loadingSlice";
+import {useDispatch} from "react-redux";
 
 export const AssetOperations = () => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+
     const [assetOperations, setAssetOperations] = useState<AssetOperationPresentable[]>();
     const loadData = async () => {
         try {
+            dispatch(showLoading("Retrieving asset operations..."))
             const transformationService = new TransformationService(new BlockchainAssetOperationStrategy());
             const transformations = await transformationService.getTransformations();
             setAssetOperations(transformations.map(t => {
@@ -25,6 +30,8 @@ export const AssetOperations = () => {
         } catch (e: any) {
             console.log("error: ", e);
             openNotification("Error", e.message, NotificationType.ERROR);
+        } finally {
+            dispatch(hideLoading())
         }
     }
 
@@ -56,6 +63,9 @@ export const AssetOperations = () => {
 
     useEffect(() => {
         loadData();
+        return () => {
+            dispatch(hideLoading())
+        }
     }, []);
 
     return (

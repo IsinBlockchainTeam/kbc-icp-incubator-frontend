@@ -2,16 +2,18 @@ import useTradeShared from "./tradeShared";
 import {NotificationType, openNotification} from "../../../../utils/notification";
 import {TradeType} from "@kbc-lib/coffee-trading-management-lib";
 import {useLocation, useParams} from "react-router-dom";
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../../../../redux/types";
 import {useEffect, useState} from "react";
 import {TradePresentable} from "../../../../api/types/TradePresentable";
 import {DocumentPresentable} from "../../../../api/types/DocumentPresentable";
 import {DocumentService} from "../../../../api/services/DocumentService";
 import {BlockchainDocumentStrategy} from "../../../../api/strategies/document/BlockchainDocumentStrategy";
+import {hideLoading, showLoading} from "../../../../redux/reducers/loadingSlice";
 
 export default function useTradeView() {
     const { tradeService, orderState, elements } = useTradeShared();
+    const dispatch = useDispatch();
 
     const {id} = useParams();
     const location = useLocation();
@@ -28,21 +30,37 @@ export default function useTradeView() {
     }
 
     const getTradeInfo = async (id: number, type: number) => {
-        const resp = await tradeService.getTradeByIdAndType(id, type);
-        resp && setTrade(resp);
+        try {
+            dispatch(showLoading("Retrieving trade..."));
+            const resp = await tradeService.getTradeByIdAndType(id, type);
+            resp && setTrade(resp);
+        } catch (e: any) {
+            console.log("error: ", e);
+            openNotification("Error", e.message, NotificationType.ERROR);
+        } finally {
+            dispatch(hideLoading())
+        }
     }
 
     const getTradeDocuments = async (id: number) => {
-        const documentService = new DocumentService(new BlockchainDocumentStrategy({
-            serverUrl: subjectClaims!.podServerUrl!,
-            sessionCredentials: {
-                podName: subjectClaims!.podName!,
-                clientId: subjectClaims!.podClientId!,
-                clientSecret: subjectClaims!.podClientSecret!
-            }
-        }));
-        const resp = await documentService.getDocumentsByTransactionId(id);
-        resp && setDocuments(resp);
+        try {
+            dispatch(showLoading("Retrieving documents..."));
+            const documentService = new DocumentService(new BlockchainDocumentStrategy({
+                serverUrl: subjectClaims!.podServerUrl!,
+                sessionCredentials: {
+                    podName: subjectClaims!.podName!,
+                    clientId: subjectClaims!.podClientId!,
+                    clientSecret: subjectClaims!.podClientSecret!
+                }
+            }));
+            const resp = await documentService.getDocumentsByTransactionId(id);
+            resp && setDocuments(resp);
+        } catch (e: any) {
+            console.log("error: ", e);
+            openNotification("Error", e.message, NotificationType.ERROR);
+        } finally {
+            dispatch(hideLoading())
+        }
     }
 
     useEffect(() => {
@@ -58,13 +76,21 @@ export default function useTradeView() {
     }, []);
 
     const onSubmit = async (values: any) => {
-        if (values['delivery-deadline'] <= values['shipping-deadline']) {
-            openNotification("Invalid dates", '', NotificationType.ERROR);
+        try {
+            dispatch(showLoading("Loading..."));
+            if (values['delivery-deadline'] <= values['shipping-deadline']) {
+                openNotification("Invalid dates", '', NotificationType.ERROR);
+            }
+            if(trade?.type === TradeType.BASIC) {
+                await tradeService.putBasicTrade(trade.id, values);
+            }
+            setDisabled(true);
+        } catch (e: any) {
+            console.log("error: ", e);
+            openNotification("Error", e.message, NotificationType.ERROR);
+        } finally {
+            dispatch(hideLoading())
         }
-        if(trade?.type === TradeType.BASIC) {
-            await tradeService.putBasicTrade(trade.id, values);
-        }
-        setDisabled(true);
     }
 
     return {

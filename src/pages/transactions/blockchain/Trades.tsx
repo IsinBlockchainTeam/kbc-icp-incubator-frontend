@@ -11,13 +11,17 @@ import {TradePresentable} from "../../../api/types/TradePresentable";
 import {Link, useNavigate} from "react-router-dom";
 import {paths} from "../../../constants";
 import {TradeType} from "@kbc-lib/coffee-trading-management-lib";
+import {useDispatch} from "react-redux";
+import {hideLoading, showLoading} from "../../../redux/reducers/loadingSlice";
 
 export const Trades = () => {
     const [trades, setTrades] = React.useState<TradePresentable[]>();
+    const dispatch = useDispatch();
     const navigate = useNavigate();
 
     const loadData = async () => {
         try {
+            dispatch(showLoading("Retrieving trades..."));
             const tradeService = new TradeService(new BlockchainTradeStrategy());
             const trades = await tradeService.getGeneralTrades();
 
@@ -29,6 +33,8 @@ export const Trades = () => {
         } catch (e: any) {
             console.log("error: ", e);
             openNotification("Error", e.message, NotificationType.ERROR);
+        } finally {
+            dispatch(hideLoading())
         }
     }
 
@@ -111,6 +117,9 @@ export const Trades = () => {
 
     useEffect(() => {
         loadData();
+        return () => {
+            dispatch(hideLoading());
+        }
     }, []);
 
     return (
