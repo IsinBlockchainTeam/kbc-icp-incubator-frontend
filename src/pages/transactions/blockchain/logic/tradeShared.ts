@@ -10,15 +10,7 @@ import {regex} from "../../../../utils/regex";
 import trade from "../../../../models/Trade";
 
 export default function useTradeShared() {
-    const subjectClaims = useSelector((state: RootState) => state.auth.subjectClaims);
-    const tradeService = new TradeService(new BlockchainTradeStrategy({
-        serverUrl: subjectClaims!.podServerUrl!,
-        sessionCredentials: {
-            podName: subjectClaims!.podName!,
-            clientId: subjectClaims!.podClientId!,
-            clientSecret: subjectClaims!.podClientSecret!
-        }
-    }));
+    const tradeService = new TradeService(new BlockchainTradeStrategy());
 
     const [type, setType] = useState<TradeType>(TradeType.BASIC);
 
@@ -247,9 +239,9 @@ export default function useTradeShared() {
                     span: 12,
                     name: 'incoterms',
                     label: 'Incoterms',
-                    required: true,
+                    required: false,
                     defaultValue: '',
-                    disabled: false,
+                    disabled: true,
                 },
                 {
                     type: FormElementType.DOCUMENT,
@@ -258,7 +250,7 @@ export default function useTradeShared() {
                     label: 'Payment Invoice',
                     required: false,
                     loading: false,
-                    uploadable: true,
+                    uploadable: false,
                     height: documentHeight
                 },
                 {
@@ -280,93 +272,13 @@ export default function useTradeShared() {
                     disabled: false,
                 },
                 {
-                    type: FormElementType.DOCUMENT,
-                    span: 12,
-                    name: 'swiss-decode',
-                    label: 'Coffee Origin (Swiss Decode)',
-                    required: false,
-                    loading: false,
-                    uploadable: true,
-                    height: documentHeight
-                },
-                {
-                    type: FormElementType.DOCUMENT,
-                    span: 12,
-                    name: 'certificate-of-shipping',
-                    label: 'Certificate of Shipping',
-                    required: false,
-                    loading: false,
-                    uploadable: true,
-                    height: documentHeight
-                },
-                {
-                    type: FormElementType.DOCUMENT,
-                    span: 12,
-                    name: 'bill-of-lading',
-                    label: 'Bill of Lading',
-                    required: false,
-                    loading: false,
-                    uploadable: true,
-                    height: documentHeight
-                },
-                {
-                    type: FormElementType.DOCUMENT,
-                    span: 12,
-                    name: 'cerificate-of-weight',
-                    label: 'Certificate of Weight',
-                    required: false,
-                    loading: false,
-                    uploadable: true,
-                    height: documentHeight
-                },
-                {
-                    type: FormElementType.DOCUMENT,
-                    span: 12,
-                    name: 'certificate-of-preferential-entry',
-                    label: 'Certificate of Preferential Entry',
-                    required: false,
-                    loading: false,
-                    uploadable: true,
-                    height: documentHeight
-                },
-                {
-                    type: FormElementType.DOCUMENT,
-                    span: 12,
-                    name: 'certificate-of-fumigation',
-                    label: 'Certificate of Fumigation',
-                    required: false,
-                    loading: false,
-                    uploadable: true,
-                    height: documentHeight
-                },
-                {
-                    type: FormElementType.DOCUMENT,
-                    span: 12,
-                    name: 'certificate-of-phytosanitary',
-                    label: 'Certificate of Phytosanitary',
-                    required: false,
-                    loading: false,
-                    uploadable: true,
-                    height: documentHeight
-                },
-                {
-                    type: FormElementType.DOCUMENT,
-                    span: 12,
-                    name: 'certificate-of-insurance',
-                    label: 'Certificate of Insurance',
-                    required: false,
-                    loading: false,
-                    uploadable: true,
-                    height: documentHeight
-                },
-                {
                     type: FormElementType.INPUT,
                     span: 12,
                     name: 'shipper',
                     label: 'Shipper',
-                    required: true,
+                    required: false,
                     defaultValue: '',
-                    disabled: false,
+                    disabled: true,
                 },
                 {
                     type: FormElementType.INPUT,
@@ -383,9 +295,9 @@ export default function useTradeShared() {
                     span: 12,
                     name: 'shipping-port',
                     label: 'Shipping Port',
-                    required: true,
+                    required: false,
                     defaultValue: '',
-                    disabled: false,
+                    disabled: true,
                 },
                 {
                     type: FormElementType.DATE,
@@ -401,9 +313,9 @@ export default function useTradeShared() {
                     span: 12,
                     name: 'delivery-port',
                     label: 'Delivery Port',
-                    required: true,
+                    required: false,
                     defaultValue: '',
-                    disabled: false,
+                    disabled: true,
                 },
                 {
                     type: FormElementType.DATE,

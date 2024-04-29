@@ -9,8 +9,11 @@ import {DocumentPresentable} from "../../../../api/types/DocumentPresentable";
 import {TradePresentable} from "../../../../api/types/TradePresentable";
 import {useDispatch} from "react-redux";
 import {hideLoading, showLoading} from "../../../../redux/reducers/loadingSlice";
+import {useNavigate, useNavigation} from "react-router-dom";
+import {paths} from "../../../../constants";
 
 export default function useTradeNew() {
+    const navigate = useNavigate();
     const dispatch = useDispatch();
     const { type, updateType, tradeService, orderState, elements } = useTradeShared();
 
@@ -55,9 +58,6 @@ export default function useTradeNew() {
                 await tradeService.saveBasicTrade(values);
                 openNotification("Basic trade registered", `Basic trade "${values.name}" has been registered correctly!`, NotificationType.SUCCESS, 1);
             } else {
-                console.log("values['payment-invoice']: ", values['payment-invoice'])
-                console.log("values['payment-invoice'] || lala: ", values['swiss-decode'] && 'lala')
-                console.log("values['payment-invoice'].type: ", values['payment-invoice'].type)
                 trade
                     .setIncoterms(values['incoterms'])
                     .setPaymentDeadline(dayjs(values['payment-deadline']).toDate())
@@ -126,6 +126,7 @@ export default function useTradeNew() {
                     );
                 await tradeService.saveOrderTrade(trade);
                 openNotification("Order trade registered", `Order trade has been registered correctly!`, NotificationType.SUCCESS, 1);
+                navigate(paths.TRADES);
             }
         } catch (e: any) {
             console.log("error: ", e);
