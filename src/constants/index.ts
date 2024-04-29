@@ -13,6 +13,8 @@ export const requestPath = {
   EMAIL_SENDER_URL: `${checkAndGetEnvironmentVariable(process.env.REACT_APP_EMAIL_SENDER_URL, "Email sender service URL must be defined")}`,
 };
 
+export const RPC_URL = checkAndGetEnvironmentVariable(process.env.REACT_APP_RPC_URL, "RPC URL must be defined");
+
 export const contractAddresses = {
     PROCESS_TYPE: () => checkAndGetEnvironmentVariable(process.env.REACT_APP_CONTRACT_PROCESS_TYPE, "Process type contract address must be defined"),
     ASSESSMENT_STANDARD: () => checkAndGetEnvironmentVariable(process.env.REACT_APP_CONTRACT_ASSESSMENT_STANDARD, "Assessment standard contract address must be defined"),
