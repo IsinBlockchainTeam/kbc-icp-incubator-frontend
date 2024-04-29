@@ -147,16 +147,17 @@ export const MenuLayout = () => {
               selectedKeys={[location.pathname]}
               onClick={onMenuClick}
             />
-            <div className={styles.ViewMode}>
-              {" "}
-              View mode:
-              <Switch
-                checkedChildren={collapsed ? "BC ON" : "Blockchain ON"}
-                unCheckedChildren={collapsed ? "BC OFF" : "Blockchain OFF"}
-                defaultChecked={isBlockchainViewMode()}
-                onChange={toggleViewMode}
-              />
-            </div>
+            { /* TODO: remove this comment */ }
+            {/*<div className={styles.ViewMode}>*/}
+            {/*  {" "}*/}
+            {/*  View mode:*/}
+            {/*  <Switch*/}
+            {/*    checkedChildren={collapsed ? "BC ON" : "Blockchain ON"}*/}
+            {/*    unCheckedChildren={collapsed ? "BC OFF" : "Blockchain OFF"}*/}
+            {/*    defaultChecked={isBlockchainViewMode()}*/}
+            {/*    onChange={toggleViewMode}*/}
+            {/*  />*/}
+            {/*</div>*/}
             <Menu
               theme="dark"
               mode="vertical"

@@ -10,6 +10,8 @@ export const toggleBlockchainViewMode = () => {
 }
 
 export const isBlockchainViewMode = (): boolean => {
-    const isBlockchainMode = sessionStorage.getItem(storage.BLOCKCHAIN_VIEW_MODE);
-    return isBlockchainMode === 'false' ? false : Boolean(isBlockchainMode);
+    // TODO: remove comments
+    // const isBlockchainMode = sessionStorage.getItem(storage.BLOCKCHAIN_VIEW_MODE);
+    // return isBlockchainMode === 'false' ? false : Boolean(isBlockchainMode);
+    return true;
 }
