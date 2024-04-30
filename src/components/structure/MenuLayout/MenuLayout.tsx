@@ -34,16 +34,6 @@ const getItem = (
   } as MenuItem;
 };
 
-const legacyItems: MenuItem[] = [
-  getItem("Traceability", "t1", <SwapOutlined />, [
-    getItem("Contact", paths.CONTRACTS, <FormOutlined />),
-    getItem("Order", paths.ORDERS, <FormOutlined />),
-    getItem("Shipments", paths.SHIPMENTS, <FormOutlined />),
-  ]),
-  getItem("Transformations", paths.ASSET_OPERATIONS, <ExperimentOutlined />),
-  getItem("Certifications", paths.CERTIFICATIONS, <ContainerOutlined />),
-];
-
 const blockchainItems: MenuItem[] = [
   getItem("Trades", paths.TRADES, <SwapOutlined />),
   getItem("Materials", paths.MATERIALS, <GoldOutlined />),
