@@ -10,13 +10,17 @@ import Search from "../../components/Search/Search";
 import {PlusOutlined} from "@ant-design/icons";
 import {paths} from "../../constants";
 import {useNavigate} from "react-router-dom";
+import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
+import {useDispatch} from "react-redux";
 
 export const Offers = () => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const [offers, setOffers] = useState<OfferPresentable[]>();
     const [filteredOffers, setFilteredOffers] = useState<OfferPresentable[]>();
     const loadData = async () => {
         try {
+            dispatch(showLoading("Retrieving offers..."))
             const offerService = new OfferService(new BlockchainOfferStrategy());
             const offers = await offerService.getAllOffers();
             setOffers(offers);
@@ -28,6 +32,8 @@ export const Offers = () => {
         } catch (e: any) {
             console.log("error: ", e);
             openNotification("Error", e.message, NotificationType.ERROR);
+        } finally {
+            dispatch(hideLoading())
         }
     }
 
@@ -63,6 +69,9 @@ export const Offers = () => {
 
     useEffect(() => {
         loadData();
+        return () => {
+            dispatch(hideLoading())
+        }
     }, []);
 
     return (

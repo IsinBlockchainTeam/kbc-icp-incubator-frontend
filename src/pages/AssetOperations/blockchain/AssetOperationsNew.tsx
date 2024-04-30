@@ -16,9 +16,13 @@ import {v4 as uuid} from "uuid";
 import {regex} from "../../../utils/regex";
 import {ProcessTypeService} from "../../../api/services/ProcessTypeService";
 import {BlockchainProcessTypeStrategy} from "../../../api/strategies/process_type/BlockchainProcessTypeStrategy";
+import {hideLoading, showLoading} from "../../../redux/reducers/loadingSlice";
+import {useDispatch} from "react-redux";
 
 export const AssetOperationsNew = () => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+
     const transformationService = new TransformationService(new BlockchainAssetOperationStrategy());
     const [processTypes, setProcessTypes] = useState<string[]>([]);
 
@@ -91,9 +95,20 @@ export const AssetOperationsNew = () => {
     useEffect(() => {
         const processTypeService = new ProcessTypeService(new BlockchainProcessTypeStrategy());
         (async () => {
-            const processTypesResp: string[] = await processTypeService.getAllProcessTypes();
-            setProcessTypes(processTypesResp);
-        })()
+            try {
+                dispatch(showLoading("Loading process types..."));
+                const processTypesResp: string[] = await processTypeService.getAllProcessTypes();
+                setProcessTypes(processTypesResp);
+            } catch (e: any) {
+                console.log("error: ", e);
+                openNotification("Error", e.message, NotificationType.ERROR);
+            } finally {
+                dispatch(hideLoading())
+            }
+        })();
+        return () => {
+            dispatch(hideLoading())
+        }
     }, []);
 
     useEffect(() => {
@@ -160,29 +175,37 @@ export const AssetOperationsNew = () => {
                 defaultValue: '',
                 disabled: false,
             },
-        ])
+        ]);
     }, [inputMaterials, processTypes]);
 
     const onSubmit = async (values: any) => {
-        const assetOperation: AssetOperationPresentable = new AssetOperationPresentable();
-        assetOperation.setName(values['name']);
-        assetOperation.setOutputMaterial(new MaterialPresentable(values['output-material-id']));
-        assetOperation.setLatitude(values['latitude']);
-        assetOperation.setLongitude(values['longitude']);
-        assetOperation.setProcessTypes(values['process-types']);
+        try {
+            dispatch(showLoading("Creating asset operation..."));
+            const assetOperation: AssetOperationPresentable = new AssetOperationPresentable();
+            assetOperation.setName(values['name']);
+            assetOperation.setOutputMaterial(new MaterialPresentable(values['output-material-id']));
+            assetOperation.setLatitude(values['latitude']);
+            assetOperation.setLongitude(values['longitude']);
+            assetOperation.setProcessTypes(values['process-types']);
 
-        const inputMaterialIds: MaterialPresentable[] = [];
-        for (const key in values) {
-            if (key.startsWith('input-material-id-')) {
-                const id: number = parseInt(values[key]);
-                inputMaterialIds.push(new MaterialPresentable(id))
+            const inputMaterialIds: MaterialPresentable[] = [];
+            for (const key in values) {
+                if (key.startsWith('input-material-id-')) {
+                    const id: number = parseInt(values[key]);
+                    inputMaterialIds.push(new MaterialPresentable(id))
+                }
             }
-        }
-        assetOperation.setInputMaterials(inputMaterialIds);
+            assetOperation.setInputMaterials(inputMaterialIds);
 
-        await transformationService.saveTransformation(assetOperation);
-        openNotification("Asset operation registered", `Asset operation "${assetOperation.name}" has been registered correctly!`, NotificationType.SUCCESS, 1);
-        navigate(paths.ASSET_OPERATIONS);
+            await transformationService.saveTransformation(assetOperation);
+            openNotification("Asset operation registered", `Asset operation "${assetOperation.name}" has been registered correctly!`, NotificationType.SUCCESS, 1);
+            navigate(paths.ASSET_OPERATIONS);
+        } catch (e: any) {
+            console.log("error: ", e);
+            openNotification("Error", e.message, NotificationType.ERROR);
+        } finally {
+            dispatch(hideLoading())
+        }
     }
 
     return (

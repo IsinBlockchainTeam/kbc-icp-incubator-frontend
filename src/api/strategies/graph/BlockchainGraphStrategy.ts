@@ -2,7 +2,7 @@ import {Strategy} from "../Strategy";
 import {GraphData, GraphStrategy} from "./GraphStrategy";
 import {GraphService, GraphData as LibGraphData} from "@kbc-lib/coffee-trading-management-lib";
 import {BlockchainLibraryUtils} from "../../BlockchainLibraryUtils";
-import {SolidMetadataSpec} from "../../../../../coffee-trading-management-lib/src";
+import {SolidMetadataSpec} from "@kbc-lib/coffee-trading-management-lib";
 
 export type BlockchainGraphData = {
     [K in keyof GraphData]: LibGraphData[K];

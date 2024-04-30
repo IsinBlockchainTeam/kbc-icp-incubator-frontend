@@ -8,24 +8,22 @@ ARG COFFEE_TRADING_LIB_REGISTRY_DOMAIN=coffetrading_lib_registry_domain
 ARG UNECE_COTTON_FETCH_REGISTRY_READ_TOKEN=unece_cotton_fetch_registry_read_token
 ARG UNECE_COTTON_FETCH_REGISTRY_DOMAIN=unece_cotton_fetch_registry_domain
 
-# -------------------- taken from gitlab build args file----- ---------------
-ARG REACT_APP_MATTR_TENANT=mattr_tenant
-ARG REACT_APP_MATTR_CLIENT_ID=mattr_client
-ARG REACT_APP_MATTR_CLIENT_SECRET=mattr_client_secret
-ARG REACT_APP_ISSUER_DID=issuer_did
-ARG REACT_APP_VERIFIER_DID=verifier_did
+# -------------------- taken from gitlab build args file---------------------
+ARG REACT_APP_UNECE_BACKEND_URL=unece_backend_url
+ARG REACT_APP_VERIFIER_BACKEND_URL=verifier_backend_url
+ARG REACT_APP_EMAIL_SENDER_URL=email_sender_url
+ARG REACT_APP_RPC_URL=rpc_url
 
-ARG REACT_APP_CONTRACT_RELATIONSHIP=contract_relationship
+ARG REACT_APP_CONTRACT_PROCESS_TYPE=contract_process_type
+ARG REACT_APP_CONTRACT_ASSESSMENT_STANDARD=contract_assessment_standard
+ARG REACT_APP_CONTRACT_PRODUCT_CATEGORY=contract_product_category
 ARG REACT_APP_CONTRACT_MATERIAL=contract_material
-ARG REACT_APP_CONTRACT_TRADE=contract_trade
-ARG REACT_APP_CONTRACT_TRANSFORMATION=contract_transformation
 ARG REACT_APP_CONTRACT_DOCUMENT=contract_document
+ARG REACT_APP_CONTRACT_ESCROW_MANAGER=contract_escrow_manager
+ARG REACT_APP_CONTRACT_TRADE=contract_trade
+ARG REACT_APP_CONTRACT_RELATIONSHIP=contract_relationship
+ARG REACT_APP_CONTRACT_ASSET_OPERATION=contract_asset_operation
 ARG REACT_APP_CONTRACT_OFFER=contract_offer
-
-ARG REACT_APP_PINATA_API_KEY=pinata_api_key
-ARG REACT_APP_PINATA_SECRET_API_KEY=pinata_secret_api_key
-ARG REACT_APP_PINATA_GATEWAY_URL=pinata_gateway_url
-ARG REACT_APP_PINATA_GATEWAY_TOKEN=pinata_gateway_token
 # ---------------------------------------------------------------------------------------------
 
 WORKDIR /app

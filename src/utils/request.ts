@@ -1,4 +1,4 @@
-import { getUneceAPIToken, getMattrAPIToken } from "./storage";
+import { getUneceAPIToken } from "./storage";
 
 export const request = async (
     url: string,
@@ -8,17 +8,10 @@ export const request = async (
   let headers = {
     "Content-Type": contentType,
     Accept: "application/json",
+    "ngrok-skip-browser-warning": "true",
     // 'Sec-Fetch-Site': 'same-site'
   };
 
-  if (getMattrAPIToken()) {
-    // @ts-ignore
-    headers = {
-      ...headers,
-      // @ts-ignore
-      "x-api-token-info": getMattrAPIToken(),
-    };
-  }
   if (getUneceAPIToken()) {
     // @ts-ignore
     headers = {

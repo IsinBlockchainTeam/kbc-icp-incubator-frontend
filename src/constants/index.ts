@@ -3,16 +3,17 @@ import { checkAndGetEnvironmentVariable } from "../utils/utils";
 export const storage = {
   UNECE_API_TOKEN: "UNECE_API_TOKEN",
   SOLID_API_TOKEN: "SOLID_API_TOKEN",
-  MATTR_API_TOKEN: "MATTR_API_TOKEN",
   WALLET_ADDRESS: "WALLET_ADDRESS",
   BLOCKCHAIN_VIEW_MODE: "BLOCKCHAIN_VIEW_MODE",
 };
 
 export const requestPath = {
-  MATTR_PROXY_BASE_URL: `${process.env.REACT_APP_LOCAL_DEV ? checkAndGetEnvironmentVariable(process.env.REACT_APP_MATTR_PROXY_URL, "Mattr proxy URL must be defined") : '/mattr'}/api`,
-  BC_SYNC_BASE_URL: `${process.env.REACT_APP_BC_SYNC_URL ? checkAndGetEnvironmentVariable(process.env.REACT_APP_BC_SYNC_URL, "Blockchain sync URL must be defined") : '/bcsync'}/api`,
-  BACKEND_BASE_URL: `${process.env.REACT_APP_LOCAL_DEV ? checkAndGetEnvironmentVariable(process.env.REACT_APP_BACKEND_URL, "UNECE backend URL must be defined") : '/unece'}/api`,
+  VERIFIER_BACKEND_URL: `${checkAndGetEnvironmentVariable(process.env.REACT_APP_VERIFIER_BACKEND_URL, "Veramo proxy URL must be defined")}/api/verifier`,
+  UNECE_BACKEND_URL: `${checkAndGetEnvironmentVariable(process.env.REACT_APP_UNECE_BACKEND_URL, "UNECE backend URL must be defined")}/api`,
+  EMAIL_SENDER_URL: `${checkAndGetEnvironmentVariable(process.env.REACT_APP_EMAIL_SENDER_URL, "Email sender service URL must be defined")}`,
 };
+
+export const RPC_URL = checkAndGetEnvironmentVariable(process.env.REACT_APP_RPC_URL, "RPC URL must be defined");
 
 export const contractAddresses = {
     PROCESS_TYPE: () => checkAndGetEnvironmentVariable(process.env.REACT_APP_CONTRACT_PROCESS_TYPE, "Process type contract address must be defined"),
@@ -27,32 +28,32 @@ export const contractAddresses = {
 }
 
 export const paths = {
-  HOME: "/",
-  LOGIN: "/login",
-  SIGNUP: "/signup",
-  CONTRACTS: "/contracts",
-  CONTRACT_VIEW: "/contracts/:id",
-  ORDERS: "/orders",
-  ORDER_VIEW: "/orders/:id",
-  SHIPMENTS: "/shipments",
-  SHIPMENT_CREATE: "/shipments/create",
-  SHIPMENT_VIEW: "/shipments/:id",
-  PARTNERS: "/partners",
-  OFFERS: "/offers",
-  OFFERS_NEW: "/offers/new",
-  OFFERS_SUPPLIER_NEW: "/offers/supplier/new",
-  GRAPH: "/graph/:materialId",
-  MATERIALS: "/materials",
-  MATERIAL_NEW: "/materials/new",
-  PRODUCT_CATEGORY_NEW: "/product-categories/new",
-  ASSET_OPERATIONS: "/asset-operations",
-  ASSET_OPERATIONS_NEW: "/asset-operations/new",
-  TRANSFORMATION_VIEW: "/transformations/:id",
-  CERTIFICATIONS: "/certifications",
-  CERTIFICATION_VIEW: "/certifications/:type/:id",
-  TRADES: "/trades",
-  TRADE_NEW: "/trades/new",
-  TRADE_VIEW: "/trades/:id",
+    HOME: "/",
+    PROFILE: "/profile",
+    LOGIN: "/login",
+    CONTRACTS: "/contracts",
+    CONTRACT_VIEW: "/contracts/:id",
+    ORDERS: "/orders",
+    ORDER_VIEW: "/orders/:id",
+    SHIPMENTS: "/shipments",
+    SHIPMENT_CREATE: "/shipments/create",
+    SHIPMENT_VIEW: "/shipments/:id",
+    PARTNERS: "/partners",
+    OFFERS: "/offers",
+    OFFERS_NEW: "/offers/new",
+    OFFERS_SUPPLIER_NEW: "/offers/supplier/new",
+    GRAPH: "/graph/:materialId",
+    MATERIALS: "/materials",
+    MATERIAL_NEW: "/materials/new",
+    PRODUCT_CATEGORY_NEW: "/product-categories/new",
+    ASSET_OPERATIONS: "/asset-operations",
+    ASSET_OPERATIONS_NEW: "/asset-operations/new",
+    TRANSFORMATION_VIEW: "/transformations/:id",
+    CERTIFICATIONS: "/certifications",
+    CERTIFICATION_VIEW: "/certifications/:type/:id",
+    TRADES: "/trades",
+    TRADE_NEW: "/trades/new",
+    TRADE_VIEW: "/trades/:id",
 };
 
 export const credentials = {

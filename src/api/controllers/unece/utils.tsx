@@ -15,7 +15,7 @@ function my_post(context: any): Promise<void> {
 }
 
 const configuration = new Configuration({
-    basePath: requestPath.BACKEND_BASE_URL,
+    basePath: requestPath.UNECE_BACKEND_URL,
     middleware: [{
         pre: my_pre,
         post:my_post

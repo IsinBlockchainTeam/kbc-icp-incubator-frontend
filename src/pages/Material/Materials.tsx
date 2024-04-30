@@ -9,13 +9,17 @@ import {CardPage} from "../../components/structure/CardPage/CardPage";
 import {PlusOutlined} from "@ant-design/icons";
 import {paths} from "../../constants";
 import {useNavigate} from "react-router-dom";
+import {useDispatch} from "react-redux";
+import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
 
 export const Materials = () => {
     const navigate = useNavigate();
     const [materials, setMaterials] = useState<MaterialPresentable[]>();
+    const dispatch = useDispatch();
 
     const loadData = async () => {
         try {
+            dispatch(showLoading("Retrieving materials..."));
             const materialService = new MaterialService(new BlockchainMaterialStrategy());
             const materials = await materialService.getMaterials();
             setMaterials(materials.map(m => {
@@ -26,6 +30,8 @@ export const Materials = () => {
         } catch (e: any) {
             console.log("error: ", e);
             openNotification("Error", e.message, NotificationType.ERROR);
+        } finally {
+            dispatch(hideLoading())
         }
     }
 
@@ -49,6 +55,9 @@ export const Materials = () => {
 
     useEffect(() => {
         loadData();
+        return () => {
+            dispatch(hideLoading());
+        }
     }, []);
 
     return (

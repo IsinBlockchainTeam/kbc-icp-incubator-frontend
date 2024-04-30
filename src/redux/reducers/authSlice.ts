@@ -6,17 +6,19 @@ type State = {
   subjectClaims: SolidSpec | undefined;
 }
 
-const authSlice = createSlice({
-  name: "auth",
-  initialState: {
+const initialState: State = {
     subjectDid: "",
     subjectClaims: undefined,
-  } as State,
+}
+
+const authSlice = createSlice({
+  name: "auth",
+  initialState,
   reducers: {
-    updateSubjectDid: (state, action) => {
+    updateSubjectDid: (state: State, action) => {
       state.subjectDid = action.payload;
     },
-    updateSubjectClaims: (state, action) => {
+    updateSubjectClaims: (state: State, action) => {
       state.subjectClaims = action.payload;
     },
   },
