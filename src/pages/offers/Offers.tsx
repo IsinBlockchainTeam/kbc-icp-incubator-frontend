@@ -4,8 +4,7 @@ import {ColumnsType} from "antd/es/table";
 import {Button, Table, TableProps} from "antd";
 import {CardPage} from "../../components/structure/CardPage/CardPage";
 import {OfferPresentable} from "../../api/types/OfferPresentable";
-import {OfferService} from "../../api/services/OfferService";
-import {BlockchainOfferStrategy} from "../../api/strategies/offer/BlockchainOfferStrategy";
+import {EthOfferService} from "../../api/services/EthOfferService";
 import Search from "../../components/Search/Search";
 import {PlusOutlined} from "@ant-design/icons";
 import {paths} from "../../constants";
@@ -21,7 +20,7 @@ export const Offers = () => {
     const loadData = async () => {
         try {
             dispatch(showLoading("Retrieving offers..."))
-            const offerService = new OfferService(new BlockchainOfferStrategy());
+            const offerService = new EthOfferService();
             const offers = await offerService.getAllOffers();
             setOffers(offers);
             setFilteredOffers(offers.map(t => {

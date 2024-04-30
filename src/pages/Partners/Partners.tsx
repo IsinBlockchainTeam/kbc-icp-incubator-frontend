@@ -3,8 +3,7 @@ import React, {useEffect, useState} from "react";
 import {ColumnsType} from "antd/es/table";
 import {Table, TableProps} from "antd";
 import {NotificationType, openNotification} from "../../utils/notification";
-import {PartnerService} from "../../api/services/PartnerService";
-import {BlockchainPartnerStrategy} from "../../api/strategies/partner/BlockchainPartnerStrategy";
+import {EthPartnerService} from "../../api/services/EthPartnerService";
 import {PartnershipPresentable} from "../../api/types/PartnershipPresentable";
 import {InviteCompany} from "./InviteCompany";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
@@ -19,7 +18,7 @@ export const Partners = () => {
         try {
             dispatch(showLoading("Retrieving partners..."));
 
-            const partnerService = new PartnerService(new BlockchainPartnerStrategy());
+            const partnerService = new EthPartnerService();
             const partners = await partnerService.getPartners();
             setPartnership(partners.map(p => {
                 // @ts-ignore

@@ -1,5 +1,3 @@
-import { getUneceAPIToken } from "./storage";
-
 export const request = async (
     url: string,
     options: any,
@@ -12,14 +10,6 @@ export const request = async (
     // 'Sec-Fetch-Site': 'same-site'
   };
 
-  if (getUneceAPIToken()) {
-    // @ts-ignore
-    headers = {
-      ...headers,
-      // @ts-ignore
-      Authorization: "Bearer " + getUneceAPIToken(),
-    };
-  }
   // options = {
   //     method: "GET",
   //     mode: 'no-cors',

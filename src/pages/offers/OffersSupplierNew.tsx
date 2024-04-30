@@ -1,6 +1,5 @@
 import {useNavigate} from "react-router-dom";
-import {OfferService} from "../../api/services/OfferService";
-import {BlockchainOfferStrategy} from "../../api/strategies/offer/BlockchainOfferStrategy";
+import {EthOfferService} from "../../api/services/EthOfferService";
 import {FormElement, FormElementType, GenericForm} from "../../components/GenericForm/GenericForm";
 import {NotificationType, openNotification} from "../../utils/notification";
 import {paths} from "../../constants";
@@ -17,7 +16,7 @@ export const OffersSupplierNew = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
-    const offerService = new OfferService(new BlockchainOfferStrategy());
+    const offerService = new EthOfferService();
 
     const elements: FormElement[] = [
         {type: FormElementType.TITLE, span: 24, label: 'Data'},

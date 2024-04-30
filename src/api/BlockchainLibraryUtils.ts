@@ -23,7 +23,7 @@ import {contractAddresses} from "../constants";
 import {SolidDocumentSpec, SolidMetadataSpec} from "@kbc-lib/coffee-trading-management-lib";
 import {SolidSpec} from "./types/storage";
 import {EnumerableTypeReadDriver, EnumerableTypeService, SolidStorageACR} from "@blockchain-lib/common";
-import SingletonSigner from "./strategies/SingletonSigner";
+import SingletonSigner from "./SingletonSigner";
 
 export class BlockchainLibraryUtils {
 

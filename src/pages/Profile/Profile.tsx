@@ -4,7 +4,7 @@ import {useSelector} from "react-redux";
 import {RootState} from "../../redux/store";
 import {Navigate} from "react-router-dom";
 import {paths} from "../../constants";
-import SingletonSigner from "../../api/strategies/SingletonSigner";
+import SingletonSigner from "../../api/SingletonSigner";
 const { Title, Paragraph } = Typography;
 export default function Profile() {
     const userInfo = useSelector((state: RootState) => state.userInfo);

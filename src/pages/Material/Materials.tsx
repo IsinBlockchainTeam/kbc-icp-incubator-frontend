@@ -3,8 +3,7 @@ import {Button, Table, TableProps} from "antd";
 import {NotificationType, openNotification} from "../../utils/notification";
 import {ColumnsType} from "antd/es/table";
 import {MaterialPresentable} from "../../api/types/MaterialPresentable";
-import {MaterialService} from "../../api/services/MaterialService";
-import {BlockchainMaterialStrategy} from "../../api/strategies/material/BlockchainMaterialStrategy";
+import {EthMaterialService} from "../../api/services/EthMaterialService";
 import {CardPage} from "../../components/structure/CardPage/CardPage";
 import {PlusOutlined} from "@ant-design/icons";
 import {paths} from "../../constants";
@@ -20,7 +19,7 @@ export const Materials = () => {
     const loadData = async () => {
         try {
             dispatch(showLoading("Retrieving materials..."));
-            const materialService = new MaterialService(new BlockchainMaterialStrategy());
+            const materialService = new EthMaterialService();
             const materials = await materialService.getMaterials();
             setMaterials(materials.map(m => {
                 // @ts-ignore

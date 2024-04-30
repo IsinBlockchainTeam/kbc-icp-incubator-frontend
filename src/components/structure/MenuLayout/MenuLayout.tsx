@@ -1,4 +1,4 @@
-import {Avatar, Layout, Menu, MenuProps, Spin, Switch, theme} from "antd";
+import {Avatar, Layout, Menu, MenuProps, Spin, theme} from "antd";
 import React, { useState } from "react";
 import {
   ContainerOutlined, ExperimentOutlined, FormOutlined, GoldOutlined, SettingOutlined, SwapOutlined, TeamOutlined, LogoutOutlined, UserOutlined, AuditOutlined
@@ -8,10 +8,6 @@ import { defaultPictureURL, paths } from "../../../constants";
 import KBCLogo from "../../../assets/logo.png";
 import styles from "./MenuLayout.module.scss";
 import { useAuth0 } from "@auth0/auth0-react";
-import {
-  isBlockchainViewMode,
-  toggleBlockchainViewMode,
-} from "../../../utils/storage";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
 import {updateUserInfo} from "../../../redux/reducers/userInfoSlice";
@@ -21,12 +17,12 @@ const { Content, Footer, Sider } = Layout;
 type MenuItem = Required<MenuProps>["items"][number];
 
 const getItem = (
-  label: React.ReactNode,
-  key: React.Key,
-  icon?: React.ReactNode,
-  children?: MenuItem[],
-  type?: "group",
-  onClick?: () => void,
+    label: React.ReactNode,
+    key: React.Key,
+    icon?: React.ReactNode,
+    children?: MenuItem[],
+    type?: "group",
+    onClick?: () => void,
 ): MenuItem => {
   return {
     key,
@@ -110,84 +106,62 @@ export const MenuLayout = () => {
   const userInfo = useSelector((state: RootState) => state.userInfo);
   const loading = useSelector((state: RootState) => state.loading);
 
-
-  const toggleViewMode = () => {
-    // window.location.reload();
-    navigate(paths.HOME);
-    toggleBlockchainViewMode();
-  };
-
   // @ts-ignore
   const onMenuClick = ({ key }) => {
     navigate(key);
   }
 
   return (
-    <Layout className={styles.AppContainer}>
-      <Sider
-        width="max(250px, 12vw)"
-        collapsible
-        collapsed={collapsed}
-        onCollapse={(value) => setCollapsed(value)}
-      >
-        {/*<div className="demo-logo-vertical" />*/}
-        <div className={styles.Sidebar}>
-          <Link to={paths.HOME} className={styles.LogoContainer}>
-            <img
-              alt="KBC-Logo"
-              src={KBCLogo}
-              className={`${collapsed ? styles.LogoCollapsed : styles.Logo}`}
-            />
-          </Link>
-          <div className={styles.MenuContainer}>
-            <Menu
-              theme="dark"
-              mode="inline"
-              items={isBlockchainViewMode() ? blockchainItems : legacyItems}
-              selectedKeys={[location.pathname]}
-              onClick={onMenuClick}
-            />
-            { /* TODO: remove this comment */ }
-            {/*<div className={styles.ViewMode}>*/}
-            {/*  {" "}*/}
-            {/*  View mode:*/}
-            {/*  <Switch*/}
-            {/*    checkedChildren={collapsed ? "BC ON" : "Blockchain ON"}*/}
-            {/*    unCheckedChildren={collapsed ? "BC OFF" : "Blockchain OFF"}*/}
-            {/*    defaultChecked={isBlockchainViewMode()}*/}
-            {/*    onChange={toggleViewMode}*/}
-            {/*  />*/}
-            {/*</div>*/}
-            <Menu
-              theme="dark"
-              mode="vertical"
-              items={
-                !isBlockchainViewMode()
-                  ? isAuthenticated && user
-                    ? getUserItemLoggedIn(user?.name || "", user?.picture || "", dispatch)
-                    : settingItems
-                  : userInfo.isLogged
-                    ? getUserItemLoggedIn(userInfo.legalName, userInfo.image || defaultPictureURL, dispatch)
-                    : settingItems
-              }
-              onClick={onMenuClick}
-            />
+      <Layout className={styles.AppContainer}>
+        <Sider
+            width="max(250px, 12vw)"
+            collapsible
+            collapsed={collapsed}
+            onCollapse={(value) => setCollapsed(value)}
+        >
+          {/*<div className="demo-logo-vertical" />*/}
+          <div className={styles.Sidebar}>
+            <Link to={paths.HOME} className={styles.LogoContainer}>
+              <img
+                  alt="KBC-Logo"
+                  src={KBCLogo}
+                  className={`${collapsed ? styles.LogoCollapsed : styles.Logo}`}
+              />
+            </Link>
+            <div className={styles.MenuContainer}>
+              <Menu
+                  theme="dark"
+                  mode="inline"
+                  items={blockchainItems}
+                  selectedKeys={[location.pathname]}
+                  onClick={onMenuClick}
+              />
+              <Menu
+                  theme="dark"
+                  mode="vertical"
+                  items={
+                    userInfo.isLogged
+                        ? getUserItemLoggedIn(userInfo.legalName, userInfo.image || defaultPictureURL, dispatch)
+                        : settingItems
+                  }
+                  onClick={onMenuClick}
+              />
+            </div>
           </div>
-        </div>
-      </Sider>
-      <Layout>
+        </Sider>
+        <Layout>
           <Content
-            className={styles.MainContent}
-            style={{ background: colorBgContainer }}
+              className={styles.MainContent}
+              style={{ background: colorBgContainer }}
           >
             <Spin spinning={loading.isLoading} size="large" tip={loading.loadingMessage}>
               <Outlet />
             </Spin>
           </Content>
-        <Footer style={{ textAlign: "center" }}>
-          Coffe Trading platform ©2024 Created by ISIN
-        </Footer>
+          <Footer style={{ textAlign: "center" }}>
+            Coffe Trading platform ©2024 Created by ISIN
+          </Footer>
+        </Layout>
       </Layout>
-    </Layout>
   );
 };

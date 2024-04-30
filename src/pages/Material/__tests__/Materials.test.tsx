@@ -1,6 +1,6 @@
 import {render, screen, waitFor} from "@testing-library/react";
 import Materials from "../Materials";
-import {MaterialService} from "../../../api/services/MaterialService";
+import {EthMaterialService} from "../../../api/services/EthMaterialService";
 import userEvent from "@testing-library/user-event";
 import {BlockchainMaterialStrategy} from "../../../api/strategies/material/BlockchainMaterialStrategy";
 import {MaterialPresentable} from "../../../api/types/MaterialPresentable";
@@ -11,7 +11,7 @@ jest.mock('react-router-dom', () => ({
     ...jest.requireActual('react-router-dom'),
     useNavigate: jest.fn(),
 }));
-jest.mock('../../../api/services/MaterialService');
+jest.mock('../../../api/services/EthMaterialService');
 jest.mock('../../../api/strategies/material/BlockchainMaterialStrategy');
 
 describe('Materials', () => {
@@ -35,13 +35,13 @@ describe('Materials', () => {
     it('should fetch data', async () => {
         const mockedMaterials = [new MaterialPresentable(1, 'Material 1'), new MaterialPresentable(2, 'Material 2')];
         const mockedGetMaterials = jest.fn().mockResolvedValueOnce(mockedMaterials);
-        (MaterialService as jest.Mock).mockImplementation(() => ({
+        (EthMaterialService as jest.Mock).mockImplementation(() => ({
             getMaterials: mockedGetMaterials
         }));
         render(<Materials/>);
 
         await waitFor(() => {
-            expect(MaterialService).toHaveBeenCalledTimes(1);
+            expect(EthMaterialService).toHaveBeenCalledTimes(1);
             expect(BlockchainMaterialStrategy).toHaveBeenCalledTimes(1);
             expect(mockedGetMaterials).toHaveBeenCalledTimes(1);
             expect(screen.getByText('Material 1')).toBeInTheDocument();
@@ -77,7 +77,7 @@ describe('Materials', () => {
     it('should call sorter function correctly when clicking on a table header', async () => {
         const mockMaterials = [new MaterialPresentable(1, 'Material 1'), new MaterialPresentable(2, 'Material 2')];
         const mockedGetMaterials = jest.fn().mockResolvedValueOnce(mockMaterials);
-        (MaterialService as jest.Mock).mockImplementation(() => ({
+        (EthMaterialService as jest.Mock).mockImplementation(() => ({
             getMaterials: mockedGetMaterials
         }));
         render(<Materials/>);
@@ -111,7 +111,7 @@ describe('Materials', () => {
     test('should sort also when working with falsy id', async () => {
         const mockMaterials = [new MaterialPresentable(1, 'Material 1'), new MaterialPresentable(undefined, 'Material 2')];
         const mockedGetMaterials = jest.fn().mockResolvedValueOnce(mockMaterials);
-        (MaterialService as jest.Mock).mockImplementation(() => ({
+        (EthMaterialService as jest.Mock).mockImplementation(() => ({
             getMaterials: mockedGetMaterials
         }));
         render(<Materials/>);

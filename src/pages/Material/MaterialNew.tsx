@@ -5,8 +5,7 @@ import {paths} from "../../constants";
 import {FormElement, FormElementType, GenericForm} from "../../components/GenericForm/GenericForm";
 import React, {useEffect} from "react";
 import {useNavigate} from "react-router-dom";
-import {BlockchainMaterialStrategy} from "../../api/strategies/material/BlockchainMaterialStrategy";
-import {MaterialService} from "../../api/services/MaterialService";
+import {EthMaterialService} from "../../api/services/EthMaterialService";
 import {NotificationType, openNotification} from "../../utils/notification";
 import {regex} from "../../utils/regex";
 import {useDispatch} from "react-redux";
@@ -16,7 +15,7 @@ export const MaterialNew = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
-    const materialService = new MaterialService(new BlockchainMaterialStrategy());
+    const materialService = new EthMaterialService();
 
     const elements: FormElement[] = [
         {type: FormElementType.TITLE, span: 24, label: 'Data'},
