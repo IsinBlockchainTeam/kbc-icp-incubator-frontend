@@ -5,11 +5,8 @@ ARG BLOCKCHAIN_LIB_REGISTRY_READ_TOKEN=blockchain_lib_registry_read_token
 ARG BLOCKCHAIN_LIB_REGISTRY_DOMAIN=blockchain_lib_registry_domain
 ARG COFFEE_TRADING_LIB_REGISTRY_READ_TOKEN=coffetrading_lib_registry_read_token
 ARG COFFEE_TRADING_LIB_REGISTRY_DOMAIN=coffetrading_lib_registry_domain
-ARG UNECE_COTTON_FETCH_REGISTRY_READ_TOKEN=unece_cotton_fetch_registry_read_token
-ARG UNECE_COTTON_FETCH_REGISTRY_DOMAIN=unece_cotton_fetch_registry_domain
 
 # -------------------- taken from gitlab build args file---------------------
-ARG REACT_APP_UNECE_BACKEND_URL=unece_backend_url
 ARG REACT_APP_VERIFIER_BACKEND_URL=verifier_backend_url
 ARG REACT_APP_EMAIL_SENDER_URL=email_sender_url
 ARG REACT_APP_RPC_URL=rpc_url
@@ -38,9 +35,6 @@ RUN npm config set -- "//$BLOCKCHAIN_LIB_REGISTRY_DOMAIN:_authToken" "$BLOCKCHAI
 
 RUN npm config set @kbc-lib:registry https://$COFFEE_TRADING_LIB_REGISTRY_DOMAIN
 RUN npm config set -- "//$COFFEE_TRADING_LIB_REGISTRY_DOMAIN:_authToken" "$COFFEE_TRADING_LIB_REGISTRY_READ_TOKEN"
-
-RUN npm config set @unece:registry https://$UNECE_COTTON_FETCH_REGISTRY_DOMAIN
-RUN npm config set -- "//$UNECE_COTTON_FETCH_REGISTRY_DOMAIN:_authToken" "$UNECE_COTTON_FETCH_REGISTRY_READ_TOKEN"
 
 RUN npm i
 RUN npm run build

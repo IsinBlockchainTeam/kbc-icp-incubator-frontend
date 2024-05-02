@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Worker } from "@react-pdf-viewer/core";
 import Routes from "./routes/routes";
 
