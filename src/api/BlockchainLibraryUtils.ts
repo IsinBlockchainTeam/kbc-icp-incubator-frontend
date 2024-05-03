@@ -28,7 +28,8 @@ import SingletonSigner from "./SingletonSigner";
 export class BlockchainLibraryUtils {
 
     static getProductCategoryService = (): ProductCategoryService => {
-        const supplyChainDriver: ProductCategoryDriver = new ProductCategoryDriver(this._getSigner(), contractAddresses.PRODUCT_CATEGORY());
+        // const supplyChainDriver: ProductCategoryDriver = new ProductCategoryDriver(this._getSigner(), contractAddresses.PRODUCT_CATEGORY());
+        const supplyChainDriver: ProductCategoryDriver = new ProductCategoryDriver(this._getSigner(), "0x0bC5C7C43356A69EA9f75f855eD2B8163632799a");
         return new ProductCategoryService(supplyChainDriver);
     }
 
@@ -100,8 +101,9 @@ export class BlockchainLibraryUtils {
         return {storageMetadataDriver, storageDocumentDriver};
     }
 
-    private static _getSigner = (): Signer => {
-        if (!SingletonSigner.getInstance()) throw new Error("Metamask is not connected");
-        return SingletonSigner.getInstance()!;
+    private static  _getSigner = (): Signer => {
+        const signer = SingletonSigner.getSigner();
+        if (!signer) throw new Error("Metamask is not connected");
+        return signer;
     }
 }

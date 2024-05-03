@@ -14,7 +14,11 @@ export class EthMaterialService extends Service {
     }
 
     async saveProductCategory(name: string, quality: number, description: string): Promise<void> {
-        await this._productCategoryService.registerProductCategory(name, quality, description);
+        try {
+            await this._productCategoryService.registerProductCategory(name, quality, description);
+        } catch (e) {
+            console.error(e);
+        }
     }
 
     async saveMaterial(productCategoryId: number): Promise<void> {

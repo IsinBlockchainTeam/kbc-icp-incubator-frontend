@@ -1,24 +1,34 @@
 // signerSingleton.ts
-import { ethers } from 'ethers';
-import { store } from '../redux/store';
-import {RPC_URL} from "../constants";
+import {ethers} from 'ethers';
+import {store} from '../redux/store';
 
 // TODO Implementare un signer provider
 class SingletonSigner {
-    private static instance: ethers.Wallet | null = null;
+    private static signer: ethers.providers.JsonRpcSigner | null = null;
+    private static address: string | null = null;
 
-    public static getInstance(): ethers.Wallet | null {
-        if (!SingletonSigner.instance) {
+    public static getSigner(): ethers.providers.JsonRpcSigner | null {
+        if (!SingletonSigner.signer) {
             const state = store.getState();
-            console.log("Private key", state.userInfo.privateKey)
-            const privateKey = state.userInfo.privateKey;
-            const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
-            console.log('Provider', provider)
-            if (privateKey) {
-                SingletonSigner.instance = new ethers.Wallet(privateKey, provider);
-            }
+            const provider = state.walletConnect.walletProvider;
+            if(!provider)
+                throw new Error("Wallet is not connected");
+
+            SingletonSigner.signer = provider.getSigner();
         }
-        return SingletonSigner.instance;
+        return SingletonSigner.signer;
+    }
+
+    public static getSignerAddress(): string | null {
+        if(SingletonSigner.address) {
+            const state = store.getState();
+            const address = state.walletConnect.address;
+            if(!address)
+                throw new Error("Wallet address is not set");
+
+            SingletonSigner.address = address;
+        }
+        return SingletonSigner.address;
     }
 }
 

@@ -7,8 +7,8 @@ export abstract class Service {
     protected readonly _walletAddress: string = '';
 
     protected constructor() {
-        if (SingletonSigner.getInstance()) {
-            const address = SingletonSigner.getInstance()?.address;
+        if (SingletonSigner.getSigner()) {
+            const address = SingletonSigner.getSignerAddress();
             ErrorHandler.manageUndefinedOrEmpty(address, HttpStatusCode.UNAUTHORIZED, "The wallet address is not set");
             this._walletAddress = address!;
         }

@@ -24,7 +24,7 @@ export default function Profile() {
                 <Paragraph>Address: {userInfo.address}</Paragraph>
                 <Paragraph>Nation: {userInfo.nation}</Paragraph>
                 <Paragraph>Telephone: {userInfo.telephone}</Paragraph>
-                <Paragraph>Ethereum Address: {SingletonSigner.getInstance()?.address || 'undefined'}</Paragraph>
+                <Paragraph>Ethereum Address: {SingletonSigner.getSignerAddress() || 'undefined'}</Paragraph>
             </Card>
         </div>
     );
