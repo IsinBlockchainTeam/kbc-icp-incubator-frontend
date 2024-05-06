@@ -24,11 +24,6 @@ describe('Trade View', () => {
             preloadedState: {
                 auth: {
                     subjectDid: 'did:test:123',
-                    subjectClaims: {
-                        serverUrl: 'http://test.com',
-                        // clientId: 'test',
-                        // clientSecret: 'test',
-                    }
                 }
             },
             reducer: combineReducers({

@@ -221,19 +221,17 @@ export const GenericForm = (props: Props) => {
             element = element as DocumentElement;
 
             return (
-                <>
-                    <Col span={element.span} key={index}>
-                        <Form.Item
-                            labelCol={{span: 24}}
-                            label={element.label}
-                            name={element.name}
-                            rules={[{required: element.required, message: `Please insert ${element.label}!`}]}
-                        >
-                            <PDFViewer element={element} onDocumentChange={addDocument}/>
-                        </Form.Item>
-                    </Col>
-                </>
-
+                <Col span={element.span} key={index}>
+                    <Form.Item
+                        labelCol={{span: 24}}
+                        label={element.label}
+                        name={element.name}
+                        // TODO: if document is required, it shows error message also if the document is uploaded, to fix when document uploading will be re-introduced
+                        // rules={[{required: element.required, message: `Please insert ${element.label}!`}]}
+                    >
+                        <PDFViewer element={element} onDocumentChange={addDocument} />
+                    </Form.Item>
+                </Col>
             )
         },
     }

@@ -9,9 +9,8 @@ import useTradeView from "./logic/tradeView";
 
 export const TradeView = () => {
     const { type, orderState, elements, trade, documents, loadingDocuments, disabled, toggleDisabled, onSubmit } = useTradeView();
-    console.log("trade: ", trade)
-    console.log("documents: ", documents)
 
+    console.log("documents: ", documents)
     if (!trade)
         return <Spin style={{width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center'}}/>;
     if (!isValueInEnum(type, TradeType))

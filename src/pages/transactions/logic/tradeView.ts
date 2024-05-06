@@ -168,7 +168,7 @@ export default function useTradeView() {
                     label: 'Product Category Id',
                     required: true,
                     regex: regex.ONLY_DIGITS,
-                    defaultValue: trade.lines[0].material?.id.toString(),
+                    defaultValue: trade.lines[0].productCategory?.id.toString(),
                     disabled,
                 },
                 {type: FormElementType.SPACE, span: 16},
