@@ -4,6 +4,7 @@ import {BlockchainLibraryUtils} from "../BlockchainLibraryUtils";
 import {ErrorHandler} from "../../utils/error/ErrorHandler";
 import {HttpStatusCode} from "../../utils/error/HttpStatusCode";
 import {SolidSpec} from "../types/storage";
+import { DocumentInfo } from "@kbc-lib/coffee-trading-management-lib";
 
 export class EthDocumentService<T> extends Service {
     private readonly _documentService;
@@ -18,7 +19,7 @@ export class EthDocumentService<T> extends Service {
     async getDocumentsByTransactionId(id: number): Promise<DocumentPresentable[]> {
         const tradeService = BlockchainLibraryUtils.getTradeService(await this._tradeManagerService.getTrade(id));
         const documentsInfo = await tradeService.getAllDocuments();
-        return Promise.all(documentsInfo.map(async (d) => {
+        return Promise.all(documentsInfo.map(async (d: DocumentInfo) => {
                 const completeDocument = await this._documentService.getCompleteDocument(d,
                     { entireResourceUrl: d.externalUrl },
                     { entireResourceUrl: d.externalUrl }

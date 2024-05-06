@@ -12,7 +12,7 @@ export type BlockchainGraphData = {
 }
 
 export class EthGraphService extends Service {
-    private readonly _graphService: GraphService<SolidMetadataSpec, SolidMetadataSpec>;
+    private readonly _graphService: GraphService;
 
     constructor() {
         super();

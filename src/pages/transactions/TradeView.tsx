@@ -1,11 +1,12 @@
 import React from "react";
-import {CardPage} from "../../../components/structure/CardPage/CardPage";
-import {FormElementType, GenericForm} from "../../../components/GenericForm/GenericForm";
+import {CardPage} from "../../components/structure/CardPage/CardPage";
+import {FormElementType, GenericForm} from "../../components/GenericForm/GenericForm";
 import {Spin, Tag} from "antd";
 import {EditOutlined} from "@ant-design/icons";
 import {TradeType} from "@kbc-lib/coffee-trading-management-lib";
 import {getEnumKeyByValue, isValueInEnum} from "../../utils/utils";
 import useTradeView from "./logic/tradeView";
+import {useNavigate} from "react-router-dom";
 
 export const TradeView = () => {
     const navigate = useNavigate();

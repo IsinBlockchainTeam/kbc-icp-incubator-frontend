@@ -2,7 +2,16 @@ import {Service} from "./Service";
 import {SolidSpec} from "../types/storage";
 import {BlockchainLibraryUtils} from "../BlockchainLibraryUtils";
 import {TradePresentable} from "../types/TradePresentable";
-import {BasicTrade, Line, LineRequest, IConcreteTradeService, OrderLinePrice, OrderLineRequest, OrderTradeInfo, TradeType} from "@kbc-lib/coffee-trading-management-lib";
+import {
+    BasicTrade,
+    Line,
+    LineRequest,
+    IConcreteTradeService,
+    OrderLinePrice,
+    OrderLineRequest,
+    TradeType,
+    OrderTrade, OrderTradeMetadata
+} from "@kbc-lib/coffee-trading-management-lib";
 import {CustomError} from "../../utils/error/CustomError";
 import {HttpStatusCode} from "../../utils/error/HttpStatusCode";
 import {TradeLinePresentable, TradeLinePrice} from "../types/TradeLinePresentable";
@@ -95,35 +104,37 @@ export class EthTradeService extends Service {
                 resp = await orderTradeService.getTrade();
 
                 if (resp) {
-                    const orderTrade = await orderTradeService.getCompleteTrade({
-                        entireResourceUrl: resp.externalUrl,
-                    })
-                    const orderLines = await orderTradeService.getLines();
-
-                    trade
-                        .setId(orderTrade.tradeId)
-                        .setCommissioner(orderTrade.commissioner)
-                        .setCustomer(orderTrade.customer)
-                        .setIncoterms(orderTrade.incoterms)
-                        .setPaymentDeadline(new Date(orderTrade.paymentDeadline))
-                        .setDocumentDeliveryDeadline(new Date(orderTrade.documentDeliveryDeadline))
-                        .setShipper(orderTrade.shipper)
-                        .setArbiter(orderTrade.arbiter)
-                        .setShippingPort(orderTrade.shippingPort)
-                        .setShippingDeadline(new Date(orderTrade.shippingDeadline))
-                        .setDeliveryPort(orderTrade.deliveryPort)
-                        .setDeliveryDeadline(new Date(orderTrade.deliveryDeadline))
-                        .setEscrow(orderTrade.escrow)
-                        .setSupplier(orderTrade.supplier)
-                        .setLines(orderLines.map(ol => new TradeLinePresentable()
-                            .setId(ol.id)
-                            .setMaterial(ol.material ? new MaterialPresentable()
-                                .setId(ol.material.id)
-                                .setName(ol.productCategory.name): undefined)
-                            .setQuantity(ol.quantity)
-                            .setPrice(new TradeLinePrice().setAmount(ol.price.amount).setFiat(ol.price.fiat))))
-                        .setType(TradeType.ORDER)
-                        .setStatus(await orderTradeService.getTradeStatus())
+                    // TODO: Implement this
+                    throw new Error("Not implemented")
+                    // const orderTrade = await orderTradeService.getCompleteTrade({
+                    //     entireResourceUrl: resp.externalUrl,
+                    // })
+                    // const orderLines = await orderTradeService.getLines();
+                    //
+                    // trade
+                    //     .setId(orderTrade.tradeId)
+                    //     .setCommissioner(orderTrade.commissioner)
+                    //     .setCustomer(orderTrade.customer)
+                    //     .setIncoterms(orderTrade.incoterms)
+                    //     .setPaymentDeadline(new Date(orderTrade.paymentDeadline))
+                    //     .setDocumentDeliveryDeadline(new Date(orderTrade.documentDeliveryDeadline))
+                    //     .setShipper(orderTrade.shipper)
+                    //     .setArbiter(orderTrade.arbiter)
+                    //     .setShippingPort(orderTrade.shippingPort)
+                    //     .setShippingDeadline(new Date(orderTrade.shippingDeadline))
+                    //     .setDeliveryPort(orderTrade.deliveryPort)
+                    //     .setDeliveryDeadline(new Date(orderTrade.deliveryDeadline))
+                    //     .setEscrow(orderTrade.escrow)
+                    //     .setSupplier(orderTrade.supplier)
+                    //     .setLines(orderLines.map(ol => new TradeLinePresentable()
+                    //         .setId(ol.id)
+                    //         .setMaterial(ol.material ? new MaterialPresentable()
+                    //             .setId(ol.material.id)
+                    //             .setName(ol.productCategory.name): undefined)
+                    //         .setQuantity(ol.quantity)
+                    //         .setPrice(new TradeLinePrice().setAmount(ol.price.amount).setFiat(ol.price.fiat))))
+                    //     .setType(TradeType.ORDER)
+                    //     .setStatus(await orderTradeService.getTradeStatus())
                 }
                 break;
             default:
@@ -133,8 +144,9 @@ export class EthTradeService extends Service {
     }
 
     async saveBasicTrade(trade: TradePresentable): Promise<void> {
-        const newTrade: BasicTrade = await this._tradeManagerService.registerBasicTrade(trade.supplier, trade.customer!, trade.commissioner!, trade.name!, {
-            value: { issueDate: new Date() },
+        const newTrade: BasicTrade = await this._tradeManagerService.registerBasicTrade(trade.supplier, trade.customer!, trade.commissioner!, trade.name!,
+            // {
+            // value: { issueDate: new Date() },
             // aclRules: [
             //     {
             //         agents: [basicTrade.supplierWebId],
@@ -145,7 +157,8 @@ export class EthTradeService extends Service {
             //         modes: [AccessMode.READ],
             //     },
             // ],
-        });
+        // }
+        );
         if (trade.lines) {
             const basicTradeService = BlockchainLibraryUtils.getBasicTradeService(await this._tradeManagerService.getTrade(newTrade.tradeId));
             await Promise.all(trade.lines.map(async line => {
@@ -162,10 +175,16 @@ export class EthTradeService extends Service {
     }
 
     async saveOrderTrade(trade: TradePresentable, storageSpec?: SolidSpec): Promise<void> {
-        const newTrade: OrderTradeInfo = await this._tradeManagerService.registerOrderTrade(
+        const metadata: OrderTradeMetadata = {
+            incoterms: trade.incoterms!,
+            shipper: trade.shipper!,
+            shippingPort: trade.shippingPort!,
+            deliveryPort: trade.deliveryPort!,
+        }
+        const newTrade: OrderTrade = await this._tradeManagerService.registerOrderTrade(
             trade.supplier, trade.customer!, trade.commissioner!, (trade.paymentDeadline!).getTime(), (trade.documentDeliveryDeadline!).getTime(),
             trade.arbiter!, (trade.shippingDeadline!).getTime(), (trade.deliveryDeadline!).getTime(), trade.agreedAmount!, trade.tokenAddress!,
-            { value: { incoterms: trade.incoterms, shipper: trade.shipper, shippingPort: trade.shippingPort, deliveryPort: trade.deliveryPort }}
+            metadata,
         );
         // const orderTradeService = BlockchainLibraryUtils.getOrderTradeService(await this._tradeManagerService.getTrade(newTrade.tradeId), this._storageSpec);
         const orderTradeService = BlockchainLibraryUtils.getOrderTradeService(await this._tradeManagerService.getTrade(newTrade.tradeId));
@@ -173,24 +192,25 @@ export class EthTradeService extends Service {
         const externalUrlSegments = newTrade.externalUrl.split('/');
         const externalStorageTradeId = externalUrlSegments[externalUrlSegments.length - 1] === '' ? externalUrlSegments[externalUrlSegments.length - 2] : externalUrlSegments[externalUrlSegments.length - 1];
 
-        if (trade.paymentInvoice)
-            await orderTradeService.addDocument(trade.paymentInvoice.documentType, {spec: {filename: trade.paymentInvoice.filename, bcResourceId: externalStorageTradeId}, fileBuffer: trade.paymentInvoice.content}, {spec: {resourceName: trade.paymentInvoice.filename, bcResourceId: externalStorageTradeId}, value: {filename: trade.paymentInvoice.filename}});
-        if (trade.swissDecode)
-            await orderTradeService.addDocument(trade.swissDecode.documentType, {spec: {filename: trade.swissDecode.filename, bcResourceId: externalStorageTradeId}, fileBuffer: trade.swissDecode.content}, {spec: {resourceName: trade.swissDecode.filename, bcResourceId: externalStorageTradeId}, value: {filename: trade.swissDecode.filename}});
-        if (trade.deliveryNote)
-            await orderTradeService.addDocument(trade.deliveryNote.documentType, {spec: {filename: trade.deliveryNote.filename, bcResourceId: externalStorageTradeId}, fileBuffer: trade.deliveryNote.content}, {spec: {resourceName: trade.deliveryNote.filename, bcResourceId: externalStorageTradeId}, value: {filename: trade.deliveryNote.filename}});
-        if (trade.billOfLading)
-            await orderTradeService.addDocument(trade.billOfLading.documentType, {spec: {filename: trade.billOfLading.filename, bcResourceId: externalStorageTradeId}, fileBuffer: trade.billOfLading.content}, {spec: {resourceName: trade.billOfLading.filename, bcResourceId: externalStorageTradeId}, value: {filename: trade.billOfLading.filename}});
-        if (trade.weightCertificate)
-            await orderTradeService.addDocument(trade.weightCertificate.documentType, {spec: {filename: trade.weightCertificate.filename, bcResourceId: externalStorageTradeId}, fileBuffer: trade.weightCertificate.content}, {spec: {resourceName: trade.weightCertificate.filename, bcResourceId: externalStorageTradeId}, value: {filename: trade.weightCertificate.filename}});
-        if (trade.preferentialEntryCertificate)
-            await orderTradeService.addDocument(trade.preferentialEntryCertificate.documentType, {spec: {filename: trade.preferentialEntryCertificate.filename, bcResourceId: externalStorageTradeId}, fileBuffer: trade.preferentialEntryCertificate.content}, {spec: {resourceName: trade.preferentialEntryCertificate.filename, bcResourceId: externalStorageTradeId}, value: {filename: trade.preferentialEntryCertificate.filename}});
-        if (trade.fumigationCertificate)
-            await orderTradeService.addDocument(trade.fumigationCertificate.documentType, {spec: {filename: trade.fumigationCertificate.filename, bcResourceId: externalStorageTradeId}, fileBuffer: trade.fumigationCertificate.content}, {spec: {resourceName: trade.fumigationCertificate.filename, bcResourceId: externalStorageTradeId}, value: {filename: trade.fumigationCertificate.filename}});
-        if (trade.phytosanitaryCertificate)
-            await orderTradeService.addDocument(trade.phytosanitaryCertificate.documentType, {spec: {filename: trade.phytosanitaryCertificate.filename, bcResourceId: externalStorageTradeId}, fileBuffer: trade.phytosanitaryCertificate.content}, {spec: {resourceName: trade.phytosanitaryCertificate.filename, bcResourceId: externalStorageTradeId}, value: {filename: trade.phytosanitaryCertificate.filename}});
-        if (trade.insuranceCertificate)
-            await orderTradeService.addDocument(trade.insuranceCertificate.documentType, {spec: {filename: trade.insuranceCertificate.filename, bcResourceId: externalStorageTradeId}, fileBuffer: trade.insuranceCertificate.content}, {spec: {resourceName: trade.insuranceCertificate.filename, bcResourceId: externalStorageTradeId}, value: {filename: trade.insuranceCertificate.filename}});
+        // TODO: implement this
+        // if (trade.paymentInvoice)
+        //     await orderTradeService.addDocument(trade.paymentInvoice.documentType, {spec: {filename: trade.paymentInvoice.filename, bcResourceId: externalStorageTradeId}, fileBuffer: trade.paymentInvoice.content}, {spec: {resourceName: trade.paymentInvoice.filename, bcResourceId: externalStorageTradeId}, value: {filename: trade.paymentInvoice.filename}});
+        // if (trade.swissDecode)
+        //     await orderTradeService.addDocument(trade.swissDecode.documentType, {spec: {filename: trade.swissDecode.filename, bcResourceId: externalStorageTradeId}, fileBuffer: trade.swissDecode.content}, {spec: {resourceName: trade.swissDecode.filename, bcResourceId: externalStorageTradeId}, value: {filename: trade.swissDecode.filename}});
+        // if (trade.deliveryNote)
+        //     await orderTradeService.addDocument(trade.deliveryNote.documentType, {spec: {filename: trade.deliveryNote.filename, bcResourceId: externalStorageTradeId}, fileBuffer: trade.deliveryNote.content}, {spec: {resourceName: trade.deliveryNote.filename, bcResourceId: externalStorageTradeId}, value: {filename: trade.deliveryNote.filename}});
+        // if (trade.billOfLading)
+        //     await orderTradeService.addDocument(trade.billOfLading.documentType, {spec: {filename: trade.billOfLading.filename, bcResourceId: externalStorageTradeId}, fileBuffer: trade.billOfLading.content}, {spec: {resourceName: trade.billOfLading.filename, bcResourceId: externalStorageTradeId}, value: {filename: trade.billOfLading.filename}});
+        // if (trade.weightCertificate)
+        //     await orderTradeService.addDocument(trade.weightCertificate.documentType, {spec: {filename: trade.weightCertificate.filename, bcResourceId: externalStorageTradeId}, fileBuffer: trade.weightCertificate.content}, {spec: {resourceName: trade.weightCertificate.filename, bcResourceId: externalStorageTradeId}, value: {filename: trade.weightCertificate.filename}});
+        // if (trade.preferentialEntryCertificate)
+        //     await orderTradeService.addDocument(trade.preferentialEntryCertificate.documentType, {spec: {filename: trade.preferentialEntryCertificate.filename, bcResourceId: externalStorageTradeId}, fileBuffer: trade.preferentialEntryCertificate.content}, {spec: {resourceName: trade.preferentialEntryCertificate.filename, bcResourceId: externalStorageTradeId}, value: {filename: trade.preferentialEntryCertificate.filename}});
+        // if (trade.fumigationCertificate)
+        //     await orderTradeService.addDocument(trade.fumigationCertificate.documentType, {spec: {filename: trade.fumigationCertificate.filename, bcResourceId: externalStorageTradeId}, fileBuffer: trade.fumigationCertificate.content}, {spec: {resourceName: trade.fumigationCertificate.filename, bcResourceId: externalStorageTradeId}, value: {filename: trade.fumigationCertificate.filename}});
+        // if (trade.phytosanitaryCertificate)
+        //     await orderTradeService.addDocument(trade.phytosanitaryCertificate.documentType, {spec: {filename: trade.phytosanitaryCertificate.filename, bcResourceId: externalStorageTradeId}, fileBuffer: trade.phytosanitaryCertificate.content}, {spec: {resourceName: trade.phytosanitaryCertificate.filename, bcResourceId: externalStorageTradeId}, value: {filename: trade.phytosanitaryCertificate.filename}});
+        // if (trade.insuranceCertificate)
+        //     await orderTradeService.addDocument(trade.insuranceCertificate.documentType, {spec: {filename: trade.insuranceCertificate.filename, bcResourceId: externalStorageTradeId}, fileBuffer: trade.insuranceCertificate.content}, {spec: {resourceName: trade.insuranceCertificate.filename, bcResourceId: externalStorageTradeId}, value: {filename: trade.insuranceCertificate.filename}});
 
         if (trade.lines) {
             await Promise.all(trade.lines.map(async line => {

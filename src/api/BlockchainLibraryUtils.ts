@@ -56,18 +56,18 @@ export class BlockchainLibraryUtils {
 
     static getTradeService = (tradeContractAddress: string, storage?: SolidSpec): TradeService => {
         const tradeDriver = new TradeDriver(this._getSigner(), tradeContractAddress);
-        return new TradeService(tradeDriver, ICPMetadataDriver.getInstance());
+        return new TradeService(tradeDriver, undefined, ICPMetadataDriver.getInstance());
     }
 
     static getBasicTradeService = (address: string, storage?: SolidSpec): BasicTradeService => {
         const basicTradeDriver: BasicTradeDriver = new BasicTradeDriver(this._getSigner(), address, contractAddresses.MATERIAL(), contractAddresses.PRODUCT_CATEGORY());
-        return new BasicTradeService(basicTradeDriver, ICPMetadataDriver.getInstance());
+        return new BasicTradeService(basicTradeDriver, undefined, ICPMetadataDriver.getInstance());
     }
 
     static getOrderTradeService = (address: string, storage?: SolidSpec): OrderTradeService => {
         const orderTradeDriver: OrderTradeDriver = new OrderTradeDriver(this._getSigner(), address, contractAddresses.MATERIAL(), contractAddresses.PRODUCT_CATEGORY());
         console.log('returning order trade service');
-        return new OrderTradeService(orderTradeDriver, ICPMetadataDriver.getInstance())
+        return new OrderTradeService(orderTradeDriver, undefined, ICPMetadataDriver.getInstance())
     }
 
     static getAssetOperationService = (): AssetOperationService => {

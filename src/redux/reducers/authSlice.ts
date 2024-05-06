@@ -1,30 +1,31 @@
 import { createSlice } from "@reduxjs/toolkit";
 import {SolidSpec} from "../../api/types/storage";
 import {ICPIdentityDriver} from "@blockchain-lib/common";
+import {OrganizationCredential} from "../../api/types/OrganizationCredential";
 
-type State = {
+export type AuthState = {
   subjectDid: string;
-  subjectClaims: SolidSpec | undefined;
-  icpIdentityDriver: ICPIdentityDriver | undefined;
+  subjectClaims: OrganizationCredential | null;
+  icpIdentityDriver: ICPIdentityDriver | null;
 }
 
-const initialState: State = {
+const initialState: AuthState = {
     subjectDid: "",
-    subjectClaims: undefined,
-    icpIdentityDriver: undefined
+    subjectClaims: null,
+    icpIdentityDriver: null
 }
 
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    updateSubjectDid: (state: State, action) => {
+    updateSubjectDid: (state, action) => {
       state.subjectDid = action.payload;
     },
-    updateSubjectClaims: (state: State, action) => {
+    updateSubjectClaims: (state, action) => {
       state.subjectClaims = action.payload;
     },
-    updateIcpIdentityDriver: (state: State, action) => {
+    updateIcpIdentityDriver: (state, action) => {
       state.icpIdentityDriver = action.payload;
     }
   },
