@@ -36,7 +36,7 @@ describe('BlockchainLibraryUtils', () => {
         expect(ProductCategoryService).toHaveBeenCalledTimes(1);
     });
 
-    it('should return a MaterialService', () => {
+    it('should return a EthMaterialService', () => {
         BlockchainLibraryUtils.getMaterialService();
 
         expect(MaterialDriver).toHaveBeenCalledTimes(1);
@@ -57,7 +57,7 @@ describe('BlockchainLibraryUtils', () => {
         expect(TradeManagerService).toHaveBeenCalledTimes(1);
     });
 
-    it('should return a TradeService', () => {
+    it('should return a EthTradeService', () => {
         BlockchainLibraryUtils.getTradeService(contractAddress);
 
         expect(TradeDriver).toHaveBeenCalledTimes(1);
@@ -85,21 +85,21 @@ describe('BlockchainLibraryUtils', () => {
         expect(AssetOperationService).toHaveBeenCalledTimes(1);
     });
 
-    it('should return a DocumentService', () => {
+    it('should return a EthDocumentService', () => {
         BlockchainLibraryUtils.getDocumentService();
 
         expect(DocumentDriver).toHaveBeenCalledTimes(1);
         expect(DocumentService).toHaveBeenCalledTimes(1);
     });
 
-    it('should return an OfferService', () => {
+    it('should return an EthOfferService', () => {
         BlockchainLibraryUtils.getOfferService();
 
         expect(OfferDriver).toHaveBeenCalledTimes(1);
         expect(OfferService).toHaveBeenCalledTimes(1);
     });
 
-    it('should return a GraphService', () => {
+    it('should return a EthGraphService', () => {
         BlockchainLibraryUtils.getGraphService();
 
         expect(GraphService).toHaveBeenCalledTimes(1);

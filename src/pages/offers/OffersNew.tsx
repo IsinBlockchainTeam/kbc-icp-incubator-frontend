@@ -1,19 +1,21 @@
 import {useNavigate} from "react-router-dom";
-import {BlockchainOfferStrategy} from "../../api/strategies/offer/BlockchainOfferStrategy";
-import {OfferService} from "../../api/services/OfferService";
+import {EthOfferService} from "../../api/services/EthOfferService";
 import {FormElement, FormElementType, GenericForm} from "../../components/GenericForm/GenericForm";
 import {NotificationType, openNotification} from "../../utils/notification";
 import {paths} from "../../constants";
 import {CardPage} from "../../components/structure/CardPage/CardPage";
 import {Button} from "antd";
 import {DeleteOutlined} from "@ant-design/icons";
-import React from "react";
+import React, {useEffect} from "react";
 import {regex} from "../../utils/regex";
+import {useDispatch} from "react-redux";
+import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
 
 export const OffersNew = () => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
 
-    const offerService = new OfferService(new BlockchainOfferStrategy());
+    const offerService = new EthOfferService();
 
     const elements: FormElement[] = [
         {type: FormElementType.TITLE, span: 24, label: 'Data'},
@@ -40,10 +42,24 @@ export const OffersNew = () => {
     ];
 
     const onSubmit = async (values: any) => {
-        await offerService.saveOffer(values.offeror, values['product-category-id']);
-        openNotification("Offer registered", `Offer for product category with ID "${values['product-category-id']}" has been registered correctly!`, NotificationType.SUCCESS, 1);
-        navigate(paths.OFFERS);
+        try {
+            dispatch(showLoading("Creating offer..."));
+            await offerService.saveOffer(values.offeror, values['product-category-id']);
+            openNotification("Offer registered", `Offer for product category with ID "${values['product-category-id']}" has been registered correctly!`, NotificationType.SUCCESS, 1);
+            navigate(paths.OFFERS);
+        } catch (e: any) {
+            console.log("error: ", e);
+            openNotification("Error", e.message, NotificationType.ERROR);
+        } finally {
+            dispatch(hideLoading())
+        }
     }
+
+    useEffect(() => {
+        return () => {
+            dispatch(hideLoading());
+        }
+    }, []);
 
     return (
         <CardPage title={

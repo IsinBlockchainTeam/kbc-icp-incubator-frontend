@@ -2,18 +2,16 @@ import {TransactionLine, DocumentType} from "@kbc-lib/coffee-trading-management-
 
 export class DocumentPresentable {
     private _id: number;
-    private _name: string;
     private _contentType: string;
     private _documentType: DocumentType;
     private _filename: string;
-    private _content: Blob;
+    private _content: Uint8Array;
     private _date: Date;
     private _transactionLines?: TransactionLine[];
 
-    constructor(id?: number, name?: string, contentType?: string, documentType?: DocumentType, filename?: string, content?: Blob, date?: Date);
-    constructor(id: number, name: string, contentType: string, documentType: DocumentType, filename: string, content: Blob, date: Date) {
+    constructor(id?: number, contentType?: string, documentType?: DocumentType, filename?: string, content?: Uint8Array, date?: Date);
+    constructor(id: number, contentType: string, documentType: DocumentType, filename: string, content: Uint8Array, date: Date) {
         this._id = id;
-        this._name = name;
         this._contentType = contentType;
         this._documentType = documentType;
         this._filename = filename;
@@ -25,10 +23,6 @@ export class DocumentPresentable {
         return this._id;
     }
 
-    get name(): string {
-        return this._name;
-    }
-
     get contentType(): string {
         return this._contentType;
     }
@@ -37,7 +31,7 @@ export class DocumentPresentable {
         return this._documentType;
     }
 
-    get content(): Blob {
+    get content(): Uint8Array {
         return this._content;
     }
 
@@ -58,11 +52,6 @@ export class DocumentPresentable {
         return this;
     }
 
-    setName(value: string): this {
-        this._name = value;
-        return this;
-    }
-
     setContentType(value: string): this {
         this._contentType = value;
         return this;
@@ -73,7 +62,7 @@ export class DocumentPresentable {
         return this;
     }
 
-    setContent(value: Blob): this {
+    setContent(value: Uint8Array): this {
         this._content = value;
         return this;
     }

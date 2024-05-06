@@ -3,20 +3,23 @@ import {Button, Table, TableProps} from "antd";
 import {NotificationType, openNotification} from "../../utils/notification";
 import {ColumnsType} from "antd/es/table";
 import {MaterialPresentable} from "../../api/types/MaterialPresentable";
-import {MaterialService} from "../../api/services/MaterialService";
-import {BlockchainMaterialStrategy} from "../../api/strategies/material/BlockchainMaterialStrategy";
+import {EthMaterialService} from "../../api/services/EthMaterialService";
 import {CardPage} from "../../components/structure/CardPage/CardPage";
 import {PlusOutlined} from "@ant-design/icons";
 import {paths} from "../../constants";
 import {useNavigate} from "react-router-dom";
+import {useDispatch} from "react-redux";
+import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
 
 export const Materials = () => {
     const navigate = useNavigate();
     const [materials, setMaterials] = useState<MaterialPresentable[]>();
+    const dispatch = useDispatch();
 
     const loadData = async () => {
         try {
-            const materialService = new MaterialService(new BlockchainMaterialStrategy());
+            dispatch(showLoading("Retrieving materials..."));
+            const materialService = new EthMaterialService();
             const materials = await materialService.getMaterials();
             setMaterials(materials.map(m => {
                 // @ts-ignore
@@ -26,6 +29,8 @@ export const Materials = () => {
         } catch (e: any) {
             console.log("error: ", e);
             openNotification("Error", e.message, NotificationType.ERROR);
+        } finally {
+            dispatch(hideLoading())
         }
     }
 
@@ -49,6 +54,9 @@ export const Materials = () => {
 
     useEffect(() => {
         loadData();
+        return () => {
+            dispatch(hideLoading());
+        }
     }, []);
 
     return (

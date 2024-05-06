@@ -1,17 +1,18 @@
 import React, {useEffect} from "react";
-import {Button, Col, DatePicker, Divider, Form, Input, Row} from "antd";
+import {Button, Col, DatePicker, Divider, Form, Input, Row, Select} from "antd";
 import PDFViewer from "../PDFViewer/PDFViewer";
 
 export enum FormElementType {
     TITLE = 'title',
     INPUT = 'input',
+    SELECT = 'select',
     DATE = 'date',
     SPACE = 'space',
     BUTTON = 'button',
     DOCUMENT = 'document',
 }
 
-export type FormElement = BasicElement | LabeledElement | ClickableElement | EditableElement | DocumentElement;
+export type FormElement = BasicElement | LabeledElement | ClickableElement | SelectableElement | EditableElement | DocumentElement;
 
 type BasicElement = {
     type: FormElementType.SPACE,
@@ -46,6 +47,17 @@ const mapAdditionalPropertiesToButtonProps: Record<AdditionalButtonProperties, R
     'ghost': {ghost: true},
     'loading': {loading: true},
 };
+
+type SelectableElement = Omit<LabeledElement, 'type'> & {
+    type: FormElementType.SELECT,
+    name: string,
+    options: {label: string, value: string}[],
+    defaultValue: string[],
+    required: boolean,
+    mode?: 'multiple',
+    disabled?: boolean,
+    block?: boolean,
+}
 
 type EditableElement = Omit<LabeledElement, 'type'> & {
     type: FormElementType.INPUT | FormElementType.DATE,
@@ -135,6 +147,27 @@ export const GenericForm = (props: Props) => {
                     </Form.Item>
                 </Col>
             );
+        },
+        [FormElementType.SELECT]: (element: FormElement, index: number) => {
+            element = element as SelectableElement;
+            const { disabled = false } = element;
+            return (
+                <Col span={element.span} key={index}>
+                    <Form.Item
+                        labelCol={{span: 24}}
+                        label={element.label}
+                        name={element.name}
+                        rules={[{required: element.required, message: `Please select ${element.label}!`}]}>
+                        <Select
+                            mode={element.mode}
+                            disabled={disabled}
+                            placeholder={`Select ${element.label}`}
+                            defaultValue={element.defaultValue}
+                            options={element.options}
+                        />
+                    </Form.Item>
+                </Col>
+            )
         },
         [FormElementType.INPUT]: (element: FormElement, index: number) => {
             element = element as EditableElement;

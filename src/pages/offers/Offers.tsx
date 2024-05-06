@@ -4,20 +4,23 @@ import {ColumnsType} from "antd/es/table";
 import {Button, Table, TableProps} from "antd";
 import {CardPage} from "../../components/structure/CardPage/CardPage";
 import {OfferPresentable} from "../../api/types/OfferPresentable";
-import {OfferService} from "../../api/services/OfferService";
-import {BlockchainOfferStrategy} from "../../api/strategies/offer/BlockchainOfferStrategy";
+import {EthOfferService} from "../../api/services/EthOfferService";
 import Search from "../../components/Search/Search";
 import {PlusOutlined} from "@ant-design/icons";
 import {paths} from "../../constants";
 import {useNavigate} from "react-router-dom";
+import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
+import {useDispatch} from "react-redux";
 
 export const Offers = () => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const [offers, setOffers] = useState<OfferPresentable[]>();
     const [filteredOffers, setFilteredOffers] = useState<OfferPresentable[]>();
     const loadData = async () => {
         try {
-            const offerService = new OfferService(new BlockchainOfferStrategy());
+            dispatch(showLoading("Retrieving offers..."))
+            const offerService = new EthOfferService();
             const offers = await offerService.getAllOffers();
             setOffers(offers);
             setFilteredOffers(offers.map(t => {
@@ -28,6 +31,8 @@ export const Offers = () => {
         } catch (e: any) {
             console.log("error: ", e);
             openNotification("Error", e.message, NotificationType.ERROR);
+        } finally {
+            dispatch(hideLoading())
         }
     }
 
@@ -63,6 +68,9 @@ export const Offers = () => {
 
     useEffect(() => {
         loadData();
+        return () => {
+            dispatch(hideLoading())
+        }
     }, []);
 
     return (

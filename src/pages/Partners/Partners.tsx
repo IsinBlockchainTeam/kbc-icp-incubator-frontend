@@ -3,25 +3,33 @@ import React, {useEffect, useState} from "react";
 import {ColumnsType} from "antd/es/table";
 import {Table, TableProps} from "antd";
 import {NotificationType, openNotification} from "../../utils/notification";
-import {PartnerService} from "../../api/services/PartnerService";
-import {BlockchainPartnerStrategy} from "../../api/strategies/partner/BlockchainPartnerStrategy";
+import {EthPartnerService} from "../../api/services/EthPartnerService";
 import {PartnershipPresentable} from "../../api/types/PartnershipPresentable";
+import {InviteCompany} from "./InviteCompany";
+import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
+import {useDispatch} from "react-redux";
 
 export const Partners = () => {
     const [partnership, setPartnership] = useState<PartnershipPresentable[]>();
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const dispatch = useDispatch();
+
     const loadData = async () => {
         try {
-            const partnerService = new PartnerService(new BlockchainPartnerStrategy());
+            dispatch(showLoading("Retrieving partners..."));
+
+            const partnerService = new EthPartnerService();
             const partners = await partnerService.getPartners();
             setPartnership(partners.map(p => {
                 // @ts-ignore
                 p['key'] = p.companyName;
                 return p;
             }));
-        }
-        catch (e: any) {
+        } catch (e: any) {
             console.log("error: ", e);
             openNotification("Error", e.message, NotificationType.ERROR);
+        } finally {
+            dispatch(hideLoading())
         }
     }
 
@@ -54,12 +62,18 @@ export const Partners = () => {
 
     useEffect( () => {
         loadData();
+        return () => {
+            dispatch(hideLoading());
+        }
     }, []);
 
     return (
-        <CardPage title="Partners">
-            <Table columns={columns} dataSource={partnership} onChange={onChange} />
-        </CardPage>
+        <>
+            <InviteCompany open={isModalOpen} onClose={() => setIsModalOpen(false)} />
+            <CardPage title="Partners" extra={<a onClick={() => setIsModalOpen(true)}>Invite a new company</a>}>
+                <Table columns={columns} dataSource={partnership} onChange={onChange} />
+            </CardPage>
+        </>
     )
 }
 

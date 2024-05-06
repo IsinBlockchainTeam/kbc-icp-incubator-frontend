@@ -1,6 +1,7 @@
 import { TradeType, TradeStatus } from "@kbc-lib/coffee-trading-management-lib";
 import {TradeLinePresentable} from "./TradeLinePresentable";
 import {getEnumKeyByValue} from "../../utils/utils";
+import {DocumentPresentable} from "./DocumentPresentable";
 
 export class TradePresentable {
     private _id: number;
@@ -23,6 +24,16 @@ export class TradePresentable {
     private _escrow?: string;
     private _status?: string;
     private _type: TradeType;
+    // documents
+    private _paymentInvoice?: DocumentPresentable;
+    private _deliveryNote?: DocumentPresentable;
+    private _billOfLading?: DocumentPresentable;
+    private _swissDecode?: DocumentPresentable;
+    private _weightCertificate?: DocumentPresentable;
+    private _fumigationCertificate?: DocumentPresentable;
+    private _preferentialEntryCertificate?: DocumentPresentable;
+    private _phytosanitaryCertificate?: DocumentPresentable;
+    private _insuranceCertificate?: DocumentPresentable;
 
     constructor(id?: number, lines?: TradeLinePresentable[], supplier?: string, type?: TradeType);
     constructor(id: number, lines: TradeLinePresentable[], supplier: string, type: TradeType) {
@@ -112,6 +123,42 @@ export class TradePresentable {
         return this._status;
     }
 
+    get paymentInvoice(): DocumentPresentable | undefined {
+        return this._paymentInvoice;
+    }
+
+    get deliveryNote(): DocumentPresentable | undefined {
+        return this._deliveryNote;
+    }
+
+    get billOfLading(): DocumentPresentable | undefined {
+        return this._billOfLading;
+    }
+
+    get swissDecode(): DocumentPresentable | undefined {
+        return this._swissDecode;
+    }
+
+    get weightCertificate(): DocumentPresentable | undefined {
+        return this._weightCertificate;
+    }
+
+    get fumigationCertificate(): DocumentPresentable | undefined {
+        return this._fumigationCertificate;
+    }
+
+    get preferentialEntryCertificate(): DocumentPresentable | undefined {
+        return this._preferentialEntryCertificate;
+    }
+
+    get phytosanitaryCertificate(): DocumentPresentable | undefined {
+        return this._phytosanitaryCertificate;
+    }
+
+    get insuranceCertificate(): DocumentPresentable | undefined {
+        return this._insuranceCertificate;
+    }
+
     setId(value: number): this {
         this._id = value;
         return this;
@@ -152,7 +199,7 @@ export class TradePresentable {
         return this;
     }
 
-    setDocumentDeliveryPipeline(value: Date | undefined): this {
+    setDocumentDeliveryDeadline(value: Date | undefined): this {
         this._documentDeliveryDeadline = value;
         return this;
     }
@@ -209,6 +256,51 @@ export class TradePresentable {
 
     setType(value: TradeType): this {
         this._type = value;
+        return this;
+    }
+
+    setPaymentInvoice(value: DocumentPresentable | undefined): this {
+        this._paymentInvoice = value;
+        return this;
+    }
+
+    setDeliveryNote(value: DocumentPresentable | undefined): this {
+        this._deliveryNote = value;
+        return this;
+    }
+
+    setBillOfLading(value: DocumentPresentable | undefined): this {
+        this._billOfLading = value;
+        return this;
+    }
+
+    setSwissDecode(value: DocumentPresentable | undefined): this {
+        this._swissDecode = value;
+        return this;
+    }
+
+    setWeightCertificate(value: DocumentPresentable | undefined): this {
+        this._weightCertificate = value;
+        return this;
+    }
+
+    setFumigationCertificate(value: DocumentPresentable | undefined): this {
+        this._fumigationCertificate = value;
+        return this;
+    }
+
+    setPreferentialEntryCertificate(value: DocumentPresentable | undefined): this {
+        this._preferentialEntryCertificate = value;
+        return this;
+    }
+
+    setPhytosanitaryCertificate(value: DocumentPresentable | undefined): this {
+        this._phytosanitaryCertificate = value;
+        return this;
+    }
+
+    setInsuranceCertificate(value: DocumentPresentable | undefined): this {
+        this._insuranceCertificate = value;
         return this;
     }
 

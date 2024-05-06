@@ -1,7 +1,7 @@
 import {useNavigate} from "react-router-dom";
 import MaterialNew from "../MaterialNew";
 import {render, screen, waitFor} from "@testing-library/react";
-import {MaterialService} from "../../../api/services/MaterialService";
+import {EthMaterialService} from "../../../api/services/EthMaterialService";
 import userEvent from "@testing-library/user-event";
 import {paths} from "../../../constants";
 
@@ -9,7 +9,7 @@ jest.mock('react-router-dom', () => ({
     ...jest.requireActual('react-router-dom'),
     useNavigate: jest.fn(),
 }));
-jest.mock('../../../api/services/MaterialService');
+jest.mock('../../../api/services/EthMaterialService');
 jest.mock('../../../api/strategies/material/BlockchainMaterialStrategy');
 
 
@@ -19,7 +19,7 @@ describe('Materials New', () => {
 
     beforeEach(() => {
         (useNavigate as jest.Mock).mockReturnValue(navigate);
-        (MaterialService as jest.Mock).mockImplementation(() => ({
+        (EthMaterialService as jest.Mock).mockImplementation(() => ({
             saveMaterial: mockedSaveMaterial
         }));
         jest.spyOn(console, 'log').mockImplementation(jest.fn());

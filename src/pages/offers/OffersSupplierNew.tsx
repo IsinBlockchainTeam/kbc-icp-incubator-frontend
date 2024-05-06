@@ -1,20 +1,22 @@
 import {useNavigate} from "react-router-dom";
-import {OfferService} from "../../api/services/OfferService";
-import {BlockchainOfferStrategy} from "../../api/strategies/offer/BlockchainOfferStrategy";
+import {EthOfferService} from "../../api/services/EthOfferService";
 import {FormElement, FormElementType, GenericForm} from "../../components/GenericForm/GenericForm";
 import {NotificationType, openNotification} from "../../utils/notification";
 import {paths} from "../../constants";
 import {CardPage} from "../../components/structure/CardPage/CardPage";
 import {Button} from "antd";
 import {DeleteOutlined} from "@ant-design/icons";
-import React from "react";
+import React, {useEffect} from "react";
 import {formatAddress} from "../../utils/utils";
 import {regex} from "../../utils/regex";
+import {useDispatch} from "react-redux";
+import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
 
 export const OffersSupplierNew = () => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
 
-    const offerService = new OfferService(new BlockchainOfferStrategy());
+    const offerService = new EthOfferService();
 
     const elements: FormElement[] = [
         {type: FormElementType.TITLE, span: 24, label: 'Data'},
@@ -40,10 +42,24 @@ export const OffersSupplierNew = () => {
     ];
 
     const onSubmit = async (values: any) => {
-        await offerService.saveSupplier(values['supplier-address'], values['supplier-name']);
-        openNotification("Offer supplier registered", `Offer supplier with address ${formatAddress(values['supplier-address'])} has been registered correctly!`, NotificationType.SUCCESS, 1);
-        navigate(paths.OFFERS);
+        try {
+            dispatch(showLoading("Inserting offer supplier..."));
+            await offerService.saveSupplier(values['supplier-address'], values['supplier-name']);
+            openNotification("Offer supplier registered", `Offer supplier with address ${formatAddress(values['supplier-address'])} has been registered correctly!`, NotificationType.SUCCESS, 1);
+            navigate(paths.OFFERS);
+        } catch (e: any) {
+            console.log("error: ", e);
+            openNotification("Error", e.message, NotificationType.ERROR);
+        } finally {
+            dispatch(hideLoading())
+        }
     }
+
+    useEffect(() => {
+        return () => {
+            dispatch(hideLoading());
+        }
+    }, []);
 
     return (
         <CardPage title={

@@ -1,5 +1,5 @@
 import {useNavigate} from "react-router-dom";
-import {OfferService} from "../../../api/services/OfferService";
+import {EthOfferService} from "../../../api/services/EthOfferService";
 import OffersSupplierNew from "../OffersSupplierNew";
 import {render, screen, waitFor} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -9,7 +9,7 @@ jest.mock('react-router-dom', () => ({
     ...jest.requireActual('react-router-dom'),
     useNavigate: jest.fn(),
 }));
-jest.mock('../../../api/services/OfferService');
+jest.mock('../../../api/services/EthOfferService');
 jest.mock('../../../api/strategies/offer/BlockchainOfferStrategy');
 
 describe('Offers Supplier New', () => {
@@ -18,7 +18,7 @@ describe('Offers Supplier New', () => {
 
     beforeEach(() => {
         (useNavigate as jest.Mock).mockReturnValue(navigate);
-        (OfferService as jest.Mock).mockImplementation(() => ({
+        (EthOfferService as jest.Mock).mockImplementation(() => ({
             saveSupplier: mockedSaveSupplier
         }));
         jest.spyOn(console, 'log').mockImplementation(jest.fn());

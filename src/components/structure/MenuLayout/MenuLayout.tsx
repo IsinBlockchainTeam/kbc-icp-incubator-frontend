@@ -1,37 +1,28 @@
-import { Avatar, Layout, Menu, MenuProps, Switch, theme } from "antd";
+import {Avatar, Layout, Menu, MenuProps, Spin, theme} from "antd";
 import React, { useState } from "react";
 import {
-  ContainerOutlined, ExperimentOutlined, FormOutlined, GoldOutlined, SettingOutlined, SwapOutlined, TeamOutlined, UserAddOutlined, UserOutlined, AuditOutlined
+  ContainerOutlined, ExperimentOutlined, FormOutlined, GoldOutlined, SettingOutlined, SwapOutlined, TeamOutlined, LogoutOutlined, UserOutlined, AuditOutlined
 } from "@ant-design/icons";
-import { Link, Outlet, useNavigate } from "react-router-dom";
+import {Link, Outlet, useLocation, useNavigate} from "react-router-dom";
 import { defaultPictureURL, paths } from "../../../constants";
 import KBCLogo from "../../../assets/logo.png";
 import styles from "./MenuLayout.module.scss";
-import { useAuth0, User } from "@auth0/auth0-react";
-import {
-  isBlockchainViewMode,
-  toggleBlockchainViewMode,
-} from "../../../utils/storage";
-import { formatDid } from "../../../utils/utils";
+import { useAuth0 } from "@auth0/auth0-react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  updateSubjectClaims,
-  updateSubjectDid,
-} from "../../../redux/reducers/authSlice";
-import { OrganizationCredential } from "../../../api/types/OrganizationCredential";
-import { RootState } from "../../../redux/types";
+import { RootState } from "../../../redux/store";
+import {updateUserInfo} from "../../../redux/reducers/userInfoSlice";
 
 const { Content, Footer, Sider } = Layout;
 
 type MenuItem = Required<MenuProps>["items"][number];
 
 const getItem = (
-  label: React.ReactNode,
-  key: React.Key,
-  icon?: React.ReactNode,
-  children?: MenuItem[],
-  type?: "group",
-  onClick?: () => void,
+    label: React.ReactNode,
+    key: React.Key,
+    icon?: React.ReactNode,
+    children?: MenuItem[],
+    type?: "group",
+    onClick?: () => void,
 ): MenuItem => {
   return {
     key,
@@ -42,16 +33,6 @@ const getItem = (
     onClick,
   } as MenuItem;
 };
-
-const legacyItems: MenuItem[] = [
-  getItem("Traceability", "t1", <SwapOutlined />, [
-    getItem("Contact", paths.CONTRACTS, <FormOutlined />),
-    getItem("Order", paths.ORDERS, <FormOutlined />),
-    getItem("Shipments", paths.SHIPMENTS, <FormOutlined />),
-  ]),
-  getItem("Transformations", paths.ASSET_OPERATIONS, <ExperimentOutlined />),
-  getItem("Certifications", paths.CERTIFICATIONS, <ContainerOutlined />),
-];
 
 const blockchainItems: MenuItem[] = [
   getItem("Trades", paths.TRADES, <SwapOutlined />),
@@ -64,24 +45,46 @@ const blockchainItems: MenuItem[] = [
 const settingItems: MenuItem[] = [
   getItem("Settings", "settings", <SettingOutlined />, [
     getItem("Login", paths.LOGIN, <UserOutlined />),
-    getItem("Sign up", paths.SIGNUP, <UserAddOutlined />),
   ]),
 ];
 
-const userItemLoggedIn: (u: User) => MenuItem[] = (user) => [
+const getUserItemLoggedIn = (name: string, picture: string, dispatch: any) => [
   getItem(
-    `${user.name}`,
-    "profile",
-    <Avatar
-      size={30}
-      style={{ verticalAlign: "middle", margin: "-6px" }}
-      src={user.picture}
-    />,
-    [getItem("Logout", paths.LOGIN, <UserOutlined />)],
+      `${name}`,
+      "profile",
+      <Avatar
+          size={30}
+          style={{ verticalAlign: "middle", margin: "-6px" }}
+          src={picture}
+      />,
+      [
+        getItem("Profile", paths.PROFILE, <UserOutlined />),
+        getItem("Logout", paths.LOGIN, <LogoutOutlined />,
+            undefined,
+            undefined,
+            () => {
+              const reset = {
+                isLogged: false,
+                id: "",
+                legalName: "",
+                email: "",
+                address: "",
+                nation: "",
+                telephone: "",
+                image: "",
+                privateKey: "",
+              };
+              dispatch(updateUserInfo(reset))
+            }
+        ),
+      ],
   ),
 ];
 
+
+
 export const MenuLayout = () => {
+  const location = useLocation();
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState<boolean>(false);
   const {
@@ -90,135 +93,65 @@ export const MenuLayout = () => {
   const { user, isAuthenticated } = useAuth0();
   const dispatch = useDispatch();
 
-  const subjectDid = useSelector((state: RootState) => state.auth.subjectDid);
-  const subjectClaims = useSelector(
-    (state: RootState) => state.auth.subjectClaims,
-  );
-
-  const handleUpdateSubjectDid = (subjectDid: string) => {
-    dispatch(updateSubjectDid(subjectDid));
-  };
-
-  const handleUpdateSubjectClaims = (subjectClaims: OrganizationCredential) => {
-    dispatch(updateSubjectClaims(subjectClaims));
-  };
-
-  const toggleViewMode = () => {
-    // window.location.reload();
-    navigate("/");
-    toggleBlockchainViewMode();
-  };
+  const userInfo = useSelector((state: RootState) => state.userInfo);
+  const loading = useSelector((state: RootState) => state.loading);
 
   // @ts-ignore
-  const onMenuClick = ({ key }) => navigate(key);
-
-  const didItemLoggedIn: (
-    subjectDid: string,
-    subjectPictureURL: string,
-  ) => MenuItem[] = (subjectDid, subjectPictureURL) => [
-    getItem(
-      `${formatDid(subjectDid)}`,
-      "profile",
-      <Avatar
-        size={30}
-        style={{ verticalAlign: "middle", margin: "-6px" }}
-        src={subjectPictureURL}
-      />,
-      [
-        getItem(
-          "Logout",
-          paths.LOGIN,
-          <UserOutlined />,
-          undefined,
-          undefined,
-          useLogoutDid,
-        ),
-      ],
-    ),
-  ];
-
-  const useLogoutDid = () => {
-    handleUpdateSubjectDid("");
-    handleUpdateSubjectClaims({});
-  };
+  const onMenuClick = ({ key }) => {
+    navigate(key);
+  }
 
   return (
-    <Layout className={styles.AppContainer}>
-      <Sider
-        width="max(250px, 12vw)"
-        collapsible
-        collapsed={collapsed}
-        onCollapse={(value) => setCollapsed(value)}
-      >
-        {/*<div className="demo-logo-vertical" />*/}
-        <div className={styles.Sidebar}>
-          <Link to={paths.HOME} className={styles.LogoContainer}>
-            <img
-              alt="KBC-Logo"
-              src={KBCLogo}
-              className={`${collapsed ? styles.LogoCollapsed : styles.Logo}`}
-            />
-          </Link>
-          <div className={styles.MenuContainer}>
-            <Menu
-              theme="dark"
-              mode="inline"
-              items={isBlockchainViewMode() ? blockchainItems : legacyItems}
-              defaultOpenKeys={["t1"]}
-              onClick={onMenuClick}
-            />
-            <div className={styles.ViewMode}>
-              {" "}
-              View mode:
-              <Switch
-                checkedChildren={collapsed ? "BC ON" : "Blockchain ON"}
-                unCheckedChildren={collapsed ? "BC OFF" : "Blockchain OFF"}
-                defaultChecked={isBlockchainViewMode()}
-                onChange={toggleViewMode}
+      <Layout className={styles.AppContainer}>
+        <Sider
+            width="max(250px, 12vw)"
+            collapsible
+            collapsed={collapsed}
+            onCollapse={(value) => setCollapsed(value)}
+        >
+          {/*<div className="demo-logo-vertical" />*/}
+          <div className={styles.Sidebar}>
+            <Link to={paths.HOME} className={styles.LogoContainer}>
+              <img
+                  alt="KBC-Logo"
+                  src={KBCLogo}
+                  className={`${collapsed ? styles.LogoCollapsed : styles.Logo}`}
+              />
+            </Link>
+            <div className={styles.MenuContainer}>
+              <Menu
+                  theme="dark"
+                  mode="inline"
+                  items={blockchainItems}
+                  selectedKeys={[location.pathname]}
+                  onClick={onMenuClick}
+              />
+              <Menu
+                  theme="dark"
+                  mode="vertical"
+                  items={
+                    userInfo.isLogged
+                        ? getUserItemLoggedIn(userInfo.legalName, userInfo.image || defaultPictureURL, dispatch)
+                        : settingItems
+                  }
+                  onClick={onMenuClick}
               />
             </div>
-            <Menu
-              theme="dark"
-              mode="vertical"
-              items={
-                !isBlockchainViewMode()
-                  ? isAuthenticated && user
-                    ? userItemLoggedIn(user)
-                    : settingItems
-                  : subjectDid
-                  ? didItemLoggedIn(
-                      subjectDid,
-                      subjectClaims && subjectClaims.image
-                        ? subjectClaims.image
-                        : defaultPictureURL,
-                    )
-                  : settingItems
-              }
-              onClick={onMenuClick}
-            />
           </div>
-        </div>
-      </Sider>
-      <Layout>
-        {/*<Header style={{ padding: 0, background: colorBgContainer }} />*/}
-        <Content
-          className={styles.MainContent}
-          style={{ background: colorBgContainer }}
-        >
-          {/*<Breadcrumb style={{ margin: '16px 0' }}>*/}
-          {/*    <Breadcrumb.Item>User</Breadcrumb.Item>*/}
-          {/*    <Breadcrumb.Item>Bill</Breadcrumb.Item>*/}
-          {/*</Breadcrumb>*/}
-          {/*<div style={{ padding: 24, minHeight: 360, background: colorBgContainer }}>*/}
-          {/*    Bill is a cat.*/}
-          {/*</div>*/}
-
-          <Outlet />
-        </Content>
-        <Footer style={{ textAlign: "center" }}>
-          Coffe Trading platform ©2024 Created by ISIN
-        </Footer>
+        </Sider>
+        <Layout>
+          <Content
+              className={styles.MainContent}
+              style={{ background: colorBgContainer }}
+          >
+            <Spin spinning={loading.isLoading} size="large" tip={loading.loadingMessage}>
+              <Outlet />
+            </Spin>
+          </Content>
+          <Footer style={{ textAlign: "center" }}>
+            Coffe Trading platform ©2024 Created by ISIN
+          </Footer>
+        </Layout>
       </Layout>
-    </Layout>
   );
 };

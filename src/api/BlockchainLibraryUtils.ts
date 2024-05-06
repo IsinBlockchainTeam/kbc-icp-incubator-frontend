@@ -14,7 +14,6 @@ import {
     RelationshipDriver,
     RelationshipService,
     Signer,
-    SignerUtils,
     TradeManagerDriver,
     TradeManagerService,
     AssetOperationDriver,
@@ -27,10 +26,10 @@ import {
     ICPMetadataDriver,
 } from "@kbc-lib/coffee-trading-management-lib";
 import {contractAddresses} from "../constants";
-import {getWalletAddress} from "../utils/storage";
 import {SolidDocumentSpec, SolidMetadataSpec} from "@kbc-lib/coffee-trading-management-lib";
 import {SolidSpec} from "./types/storage";
-import {SolidStorageACR} from "@blockchain-lib/common";
+import {EnumerableTypeReadDriver, EnumerableTypeService, SolidStorageACR} from "@blockchain-lib/common";
+import SingletonSigner from "./SingletonSigner";
 
 export class BlockchainLibraryUtils {
 
@@ -91,6 +90,11 @@ export class BlockchainLibraryUtils {
         return new GraphService(this._getSigner(), BlockchainLibraryUtils.getTradeManagerService(), BlockchainLibraryUtils.getAssetOperationService());
     }
 
+    static getEnumerableTypeService = (): EnumerableTypeService => {
+        const enumerableTypeReadDriver = new EnumerableTypeReadDriver(this._getSigner(), contractAddresses.PROCESS_TYPE());
+        return new EnumerableTypeService(enumerableTypeReadDriver);
+    }
+
     private static defineStorageDrivers = (storage?: SolidSpec) => {
         let storageMetadataDriver, storageDocumentDriver;
         if (storage) {
@@ -101,7 +105,7 @@ export class BlockchainLibraryUtils {
     }
 
     private static _getSigner = (): Signer => {
-        if (!getWalletAddress()) throw new Error("Metamask is not connected");
-        return SignerUtils.getSignerFromBrowserProvider(window.ethereum);
+        if (!SingletonSigner.getInstance()) throw new Error("Metamask is not connected");
+        return SingletonSigner.getInstance()!;
     }
 }

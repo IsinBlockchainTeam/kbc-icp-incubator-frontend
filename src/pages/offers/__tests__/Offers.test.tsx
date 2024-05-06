@@ -2,7 +2,7 @@ import {useNavigate} from "react-router-dom";
 import {render, screen, waitFor} from "@testing-library/react";
 import Offers from "../Offers";
 import {OfferPresentable} from "../../../api/types/OfferPresentable";
-import {OfferService} from "../../../api/services/OfferService";
+import {EthOfferService} from "../../../api/services/EthOfferService";
 import {BlockchainOfferStrategy} from "../../../api/strategies/offer/BlockchainOfferStrategy";
 import userEvent from "@testing-library/user-event";
 import {paths} from "../../../constants";
@@ -11,7 +11,7 @@ jest.mock('react-router-dom', () => ({
     ...jest.requireActual('react-router-dom'),
     useNavigate: jest.fn(),
 }));
-jest.mock('../../../api/services/OfferService');
+jest.mock('../../../api/services/EthOfferService');
 jest.mock('../../../api/strategies/offer/BlockchainOfferStrategy');
 
 describe('Offers', () => {
@@ -35,13 +35,13 @@ describe('Offers', () => {
     it('should fetch data', async () => {
         const mockedOffers: OfferPresentable[] = [new OfferPresentable(1, 'Owner 1', 'Product Category 1'), new OfferPresentable(2, 'Owner 2', 'Product Category 2')];
         const mockedGetAllOffers = jest.fn().mockResolvedValueOnce(mockedOffers);
-        (OfferService as jest.Mock).mockImplementation(() => ({
+        (EthOfferService as jest.Mock).mockImplementation(() => ({
             getAllOffers: mockedGetAllOffers
         }));
         render(<Offers/>);
 
         await waitFor(() => {
-            expect(OfferService).toHaveBeenCalledTimes(1);
+            expect(EthOfferService).toHaveBeenCalledTimes(1);
             expect(BlockchainOfferStrategy).toHaveBeenCalledTimes(1);
             expect(mockedGetAllOffers).toHaveBeenCalledTimes(1);
             expect(screen.getByText('Owner 1')).toBeInTheDocument();
@@ -79,7 +79,7 @@ describe('Offers', () => {
     it('should call sorter function correctly when clicking on a table header', async () => {
         const mockedOffers: OfferPresentable[] = [new OfferPresentable(1, 'Owner 2', 'Product Category 1'), new OfferPresentable(2, 'Owner 1', 'Product Category 2')];
         const mockedGetAllOffers = jest.fn().mockResolvedValueOnce(mockedOffers);
-        (OfferService as jest.Mock).mockImplementation(() => ({
+        (EthOfferService as jest.Mock).mockImplementation(() => ({
             getAllOffers: mockedGetAllOffers
         }));
         render(<Offers/>);
@@ -104,7 +104,7 @@ describe('Offers', () => {
     it('should sort also when working with falsy names', async () => {
         const mockedOffers: OfferPresentable[] = [new OfferPresentable(0, undefined, undefined), new OfferPresentable(1, 'Owner 1', 'Product Category 1'), new OfferPresentable(2, undefined, 'Product Category 2')];
         const mockedGetAllOffers = jest.fn().mockResolvedValueOnce(mockedOffers);
-        (OfferService as jest.Mock).mockImplementation(() => ({
+        (EthOfferService as jest.Mock).mockImplementation(() => ({
             getAllOffers: mockedGetAllOffers
         }));
         render(<Offers/>);
@@ -123,7 +123,7 @@ describe('Offers', () => {
     it('should sort also when working with falsy product categories', async () => {
         const mockedOffers: OfferPresentable[] = [new OfferPresentable(0, undefined, undefined), new OfferPresentable(1, 'Owner 1', 'Product Category 1'), new OfferPresentable(2, 'Owner 2', undefined)];
         const mockedGetAllOffers = jest.fn().mockResolvedValueOnce(mockedOffers);
-        (OfferService as jest.Mock).mockImplementation(() => ({
+        (EthOfferService as jest.Mock).mockImplementation(() => ({
             getAllOffers: mockedGetAllOffers
         }));
         render(<Offers/>);
@@ -142,7 +142,7 @@ describe('Offers', () => {
     it('should filter offers', async () => {
         const mockedOffers: OfferPresentable[] = [new OfferPresentable(1, 'Owner 1', 'Product Category 1'), new OfferPresentable(2, 'Owner 2', 'Product Category 2')];
         const mockedGetAllOffers = jest.fn().mockResolvedValueOnce(mockedOffers);
-        (OfferService as jest.Mock).mockImplementation(() => ({
+        (EthOfferService as jest.Mock).mockImplementation(() => ({
             getAllOffers: mockedGetAllOffers
         }));
         render(<Offers/>);

@@ -11,7 +11,6 @@ This package is written in TypeScript.
 - [Metamask](https://metamask.io/) browser extension
 - An access token for the ['Coffee Trading Management Lib'](https://gitlab-core.supsi.ch/dti-isin/giuliano.gremlich/blockchain/one-lib-to-rule-them-all/coffee-trading-management-lib) private npm registry
 - An access token for the ['common'](https://gitlab-core.supsi.ch/dti-isin/giuliano.gremlich/blockchain/one_lib_to_rule_them_all) private npm registry
-- An access token for the ['Unece Backend'](https://gitlab-core.supsi.ch/dti-isin/giuliano.gremlich/blockchain/coffe-trading/unece-backend) private npm registry
 - [Coffee Trading Management Lib](https://gitlab-core.supsi.ch/dti-isin/giuliano.gremlich/blockchain/one-lib-to-rule-them-all/coffee-trading-management-lib) project up and running
 - [VC Manager](https://gitlab-core.supsi.ch/dti-isin/giuliano.gremlich/blockchain/coffe-trading/vc-manager) project up and running
 
@@ -29,7 +28,7 @@ This package is written in TypeScript.
 10. Click on the Metamask extension in the top right corner of your browser
 11. Import an account by clicking on the 'Account' dropdown and selecting 'Add account or hardware wallet' and then 'Import account'. Paste in the private key of the account you want to use. If you are using the local Hardhat network, you can find accounts and their private keys in the terminal where you have run command `npx hardhat node`.
 12. Configure the blockchain network by pressing on the button in the top right corner of the Metamask extension and select the desired network. If you are using the local Hardhat network, you can follow [this guide](https://support.chainstack.com/hc/en-us/articles/4408642503449-Using-MetaMask-with-a-Hardhat-node)
-13. Switch the `View mode` in the top left corner to `Blockchain ON`, then press on `Settings` and `Login`. You can now connect your wallet
+13. Press on `Settings` and `Login`. You can now connect your wallet
 14. You should now be able to see Trades, Materials, Transformations, Partners and Offers. If you can't see any data, try populating the blockchain with default data using `Integration tests` of either [Coffee Trading Management Lib](https://gitlab-core.supsi.ch/dti-isin/giuliano.gremlich/blockchain/one-lib-to-rule-them-all/coffee-trading-management-lib) or https://gitlab-core.supsi.ch/dti-isin/giuliano.gremlich/blockchain/coffe-trading/blockchain-sync-layer) projects
 
 ## Deploy React App on ICP
@@ -45,13 +44,14 @@ This project is configured to be optionally deployed on an ICP network. To deplo
 |----------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `@kbc-lib:registry`        | Needed for **installing** dependencies. It's an access token with read access to the [Coffee Trading Management Lib](https://gitlab-core.supsi.ch/dti-isin/giuliano.gremlich/blockchain/one-lib-to-rule-them-all/coffee-trading-management-lib) private npm registry |
 | `@blockchain-lib:registry` | Needed for **installing** dependencies. It's an access token with read access to the [common](https://gitlab-core.supsi.ch/dti-isin/giuliano.gremlich/blockchain/one_lib_to_rule_them_all) private npm registry                                                      |
-| `@unece:registry`          | Needed for **installing** dependencies. It's an access token with read access to the [Unece Backend](https://gitlab-core.supsi.ch/dti-isin/giuliano.gremlich/blockchain/coffe-trading/unece-backend) private npm registry                                            |
 
 ### Environment Variables Configuration
-| Variable                    | Description                                                                                                                                                                                              |
-|-----------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `REACT_APP_LOCAL_DEV`       | Leave this set to 'local'                                                                                                                                                                                |
-| `REACT_APP_CONTRACT_<name>` | The addresses of the smart contracts of the KCB Coffee Trading project. If you are using the local Hardhat network, leave these set to their default values, otherwise insert the new contract addresses |
+| Variable                         | Description                                                                                                                                                                                              |
+|----------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `REACT_APP_VERIFIER_BACKEND_URL` | The URL where the `verifier_backend` project is running                                                                                                                                                  |
+| `REACT_APP_EMAIL_SENDER_URL`     | The URL where the `email_sender` project is running                                                                                                                                                      |
+| `REACT_APP_RPC_URL`              | The URL where the ethereum network is running                                                                                                                                                            |
+| `REACT_APP_CONTRACT_<name>`      | The addresses of the smart contracts of the KCB Coffee Trading project. If you are using the local Hardhat network, leave these set to their default values, otherwise insert the new contract addresses |
 
 ## Local development
 If you want to develop locally, follow these steps:
