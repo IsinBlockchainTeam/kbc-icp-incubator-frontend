@@ -50,13 +50,6 @@ export const TradeNew = () => {
             </div>
             {type === TradeType.ORDER &&
                 <>
-                    <Alert
-                        message="Work in progress"
-                        description="Due to the migration to ICP storage, some of the trade constraints are not uploadable."
-                        type="warning"
-                        showIcon
-                        style={{marginTop: '16px'}}
-                    />
                     <Divider>Order status</Divider>
                     <Steps
                         type="navigation"

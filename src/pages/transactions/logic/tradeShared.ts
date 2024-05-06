@@ -235,9 +235,9 @@ export default function useTradeShared() {
                     span: 12,
                     name: 'incoterms',
                     label: 'Incoterms',
-                    required: false,
+                    required: true,
                     defaultValue: '',
-                    disabled: true,
+                    disabled: false,
                 },
                 {
                     type: FormElementType.DOCUMENT,
@@ -246,7 +246,7 @@ export default function useTradeShared() {
                     label: 'Payment Invoice',
                     required: false,
                     loading: false,
-                    uploadable: false,
+                    uploadable: true,
                     height: documentHeight
                 },
                 {
@@ -272,9 +272,9 @@ export default function useTradeShared() {
                     span: 12,
                     name: 'shipper',
                     label: 'Shipper',
-                    required: false,
+                    required: true,
                     defaultValue: '',
-                    disabled: true,
+                    disabled: false,
                 },
                 {
                     type: FormElementType.INPUT,
@@ -291,9 +291,9 @@ export default function useTradeShared() {
                     span: 12,
                     name: 'shipping-port',
                     label: 'Shipping Port',
-                    required: false,
+                    required: true,
                     defaultValue: '',
-                    disabled: true,
+                    disabled: false,
                 },
                 {
                     type: FormElementType.DATE,
@@ -309,9 +309,9 @@ export default function useTradeShared() {
                     span: 12,
                     name: 'delivery-port',
                     label: 'Delivery Port',
-                    required: false,
+                    required: true,
                     defaultValue: '',
-                    disabled: true,
+                    disabled: false,
                 },
                 {
                     type: FormElementType.DATE,

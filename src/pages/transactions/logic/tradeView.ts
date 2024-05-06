@@ -19,7 +19,6 @@ export default function useTradeView() {
     const {id} = useParams();
     const location = useLocation();
     const type = parseInt(new URLSearchParams(location.search).get('type')!);
-    // const subjectClaims = useSelector((state: RootState) => state.auth.subjectClaims);
 
     const [trade, setTrade] = useState<TradePresentable>();
     const [documents, setDocuments] = useState<DocumentPresentable[]>();
@@ -54,9 +53,9 @@ export default function useTradeView() {
             //         clientSecret: subjectClaims!.podClientSecret!
             //     }
             // }));
-            const documentService = new EthDocumentService();
-            const resp = await documentService.getDocumentsByTransactionId(id);
-            resp && setDocuments(resp);
+            // const documentService = new EthDocumentService();
+            // const resp = await documentService.getDocumentsByTransactionId(id);
+            // resp && setDocuments(resp);
         } catch (e: any) {
             console.log("error: ", e);
             openNotification("Error", e.message, NotificationType.ERROR);

@@ -247,7 +247,7 @@ export const GenericForm = (props: Props) => {
             onFinish={
                 (values) => {
                     if (props.onSubmit) {
-                        documents.forEach(async (value, key) => {
+                        documents.forEach((value, key) => {
                             values[key] = value;
                         });
                         props.onSubmit(values);

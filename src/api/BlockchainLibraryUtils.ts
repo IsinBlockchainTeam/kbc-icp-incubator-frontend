@@ -66,7 +66,6 @@ export class BlockchainLibraryUtils {
 
     static getOrderTradeService = (address: string, storage?: SolidSpec): OrderTradeService => {
         const orderTradeDriver: OrderTradeDriver = new OrderTradeDriver(this._getSigner(), address, contractAddresses.MATERIAL(), contractAddresses.PRODUCT_CATEGORY());
-        console.log('returning order trade service');
         return new OrderTradeService(orderTradeDriver, undefined, ICPMetadataDriver.getInstance())
     }
 
