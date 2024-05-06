@@ -10,13 +10,13 @@ import {
     OrderLinePrice,
     OrderLineRequest,
     TradeType,
-    OrderTrade, OrderTradeMetadata, URLStructure, ICPMetadataDriver
+    OrderTrade, OrderTradeMetadata, URLStructure
 } from "@kbc-lib/coffee-trading-management-lib";
 import {CustomError} from "../../utils/error/CustomError";
 import {HttpStatusCode} from "../../utils/error/HttpStatusCode";
 import {TradeLinePresentable, TradeLinePrice} from "../types/TradeLinePresentable";
 import {MaterialPresentable} from "../types/MaterialPresentable";
-import { ICPResourceSpec, ICPStorageDriver } from "@blockchain-lib/common";
+import {ICPResourceSpec} from "@blockchain-lib/common";
 
 export class EthTradeService extends Service {
     private readonly _tradeManagerService;
@@ -25,7 +25,7 @@ export class EthTradeService extends Service {
     constructor(storageSpec?: SolidSpec) {
         super();
         this._storageSpec = storageSpec;
-        this._tradeManagerService = BlockchainLibraryUtils.getTradeManagerService(this._storageSpec);
+        this._tradeManagerService = BlockchainLibraryUtils.getTradeManagerService();
     }
 
     async getGeneralTrades(): Promise<TradePresentable[]> {
@@ -189,13 +189,19 @@ export class EthTradeService extends Service {
         );
         const orderTradeService = BlockchainLibraryUtils.getOrderTradeService(await this._tradeManagerService.getTrade(newTrade.tradeId));
 
-        // TODO: implement this
-        // const externalUrlSegments = newTrade.externalUrl.split('/');
-        // const externalStorageTradeId = externalUrlSegments[externalUrlSegments.length - 1] === '' ? externalUrlSegments[externalUrlSegments.length - 2] : externalUrlSegments[externalUrlSegments.length - 1];
+        if (trade.paymentInvoice) {
+            const externalUrl = (await orderTradeService.getTrade()).externalUrl;
 
+            const resourceSpec: ICPResourceSpec = {
+                name: trade.paymentInvoice.filename!,
+                type: "application/pdf",
+            }
+            const blob = trade.paymentInvoice.content;
+            const bytes = new Uint8Array(await new Response(blob).arrayBuffer());
 
-        // if (trade.paymentInvoice)
-        //     await orderTradeService.addDocument(trade.paymentInvoice.documentType, {spec: {filename: trade.paymentInvoice.filename, bcResourceId: externalStorageTradeId}, fileBuffer: trade.paymentInvoice.content}, {spec: {resourceName: trade.paymentInvoice.filename, bcResourceId: externalStorageTradeId}, value: {filename: trade.paymentInvoice.filename}});
+            await orderTradeService.addDocument(trade.paymentInvoice.documentType, bytes, externalUrl, resourceSpec);
+        }
+
         if (trade.lines) {
             await Promise.all(trade.lines.map(async line => {
                 await orderTradeService.addLine(new OrderLineRequest(line.material?.id!, line.quantity!, new OrderLinePrice(line.price!.amount, line.price!.fiat)));

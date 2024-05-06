@@ -1,6 +1,5 @@
 import { ICPIdentityDriver } from "@blockchain-lib/common";
-import { ICPMetadataDriver } from "@kbc-lib/coffee-trading-management-lib";
-import {createContext, ReactNode, useEffect, useState} from "react";
+import {createContext, ReactNode, useState} from "react";
 
 interface ICPContextType {
     identityDriver: ICPIdentityDriver | null;
@@ -9,7 +8,7 @@ interface ICPContextType {
 
 export const ICPContext = createContext<ICPContextType>({
     identityDriver: null,
-    updateIdentityDriver: (identityDriver: ICPIdentityDriver | null) => {}
+    updateIdentityDriver: (_: ICPIdentityDriver | null) => {}
 });
 export const ICPContextProvider = ({ children }: {children: ReactNode}) => {
     const [identityDriver, setIdentityDriver] = useState<ICPIdentityDriver | null>(null);

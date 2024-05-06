@@ -1,6 +1,6 @@
 import useTradeShared from "./tradeShared";
 import {NotificationType, openNotification} from "../../../utils/notification";
-import {TradeType} from "@kbc-lib/coffee-trading-management-lib";
+import {DocumentType, TradeType} from "@kbc-lib/coffee-trading-management-lib";
 import {useLocation, useParams} from "react-router-dom";
 import {useDispatch} from "react-redux";
 import {useEffect, useState} from "react";
@@ -45,17 +45,9 @@ export default function useTradeView() {
     const getTradeDocuments = async (id: number) => {
         try {
             dispatch(showLoading("Retrieving documents..."));
-            // const documentService = new EthDocumentService(new BlockchainDocumentStrategy({
-            //     serverUrl: subjectClaims!.podServerUrl!,
-            //     sessionCredentials: {
-            //         podName: subjectClaims!.podName!,
-            //         clientId: subjectClaims!.podClientId!,
-            //         clientSecret: subjectClaims!.podClientSecret!
-            //     }
-            // }));
-            // const documentService = new EthDocumentService();
-            // const resp = await documentService.getDocumentsByTransactionId(id);
-            // resp && setDocuments(resp);
+            const documentService = new EthDocumentService();
+            const resp = await documentService.getDocumentsByTransactionId(id);
+            resp && setDocuments(resp);
         } catch (e: any) {
             console.log("error: ", e);
             openNotification("Error", e.message, NotificationType.ERROR);
@@ -119,32 +111,21 @@ export default function useTradeView() {
             },
         ]
 
-        let documentElement: FormElement;
-        if(documents && documents.length > 0) {
-            documentElement = {
-                type: FormElementType.DOCUMENT,
-                span: 12,
-                name: 'payment-invoice',
-                label: 'Payment Invoice',
-                required: false,
-                loading: false,
-                uploadable: false,
-                content: new Blob([documents[0].content]),
-                height: '45vh',
-            }
-        } else {
-            documentElement = {
-                type: FormElementType.DOCUMENT,
-                span: 12,
-                name: 'payment-invoice',
-                label: 'Payment Invoice',
-                required: false,
-                loading: false,
-                uploadable: false,
-                height: '45vh',
-            }
+        console.log("DOCUMENTS: ", documents)
+        console.log("DOCUMENT: ", documents?.find(doc => doc.documentType === DocumentType.PAYMENT_INVOICE))
+        const content = documents?.find(doc => doc.documentType === DocumentType.PAYMENT_INVOICE)?.content;
+        console.log("CONTENT: ", content)
+        const documentElement: FormElement = {
+            type: FormElementType.DOCUMENT,
+            span: 12,
+            name: 'payment-invoice',
+            label: 'Payment Invoice',
+            required: false,
+            loading: false,
+            uploadable: false,
+            content: content,
+            height: '45vh',
         }
-        const documentHeight = '45vh';
 
         if (type === TradeType.BASIC) {
             setElements([

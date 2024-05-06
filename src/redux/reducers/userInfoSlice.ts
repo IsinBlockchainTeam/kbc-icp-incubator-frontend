@@ -10,6 +10,7 @@ export type UserInfoState = {
     telephone: string;
     image: string;
     privateKey: string,
+
 }
 
 const initialState: UserInfoState = {

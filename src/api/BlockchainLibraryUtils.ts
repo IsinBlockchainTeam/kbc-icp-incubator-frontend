@@ -23,12 +23,11 @@ import {
     SolidMetadataDriver,
     GraphService,
     SolidDocumentDriver,
-    ICPMetadataDriver,
+    ICPFileDriver,
 } from "@kbc-lib/coffee-trading-management-lib";
 import {contractAddresses} from "../constants";
-import {SolidDocumentSpec, SolidMetadataSpec} from "@kbc-lib/coffee-trading-management-lib";
 import {SolidSpec} from "./types/storage";
-import {EnumerableTypeReadDriver, EnumerableTypeService, SolidStorageACR} from "@blockchain-lib/common";
+import {EnumerableTypeReadDriver, EnumerableTypeService} from "@blockchain-lib/common";
 import SingletonSigner from "./SingletonSigner";
 
 export class BlockchainLibraryUtils {
@@ -47,26 +46,30 @@ export class BlockchainLibraryUtils {
         return new RelationshipService(relationshipDriver);
     }
 
-    static getTradeManagerService = (storage?: SolidSpec): TradeManagerService => {
+    static getTradeManagerService = (): TradeManagerService => {
         const tradeManagerDriver: TradeManagerDriver = new TradeManagerDriver(this._getSigner(), contractAddresses.TRADE(), contractAddresses.MATERIAL(), contractAddresses.PRODUCT_CATEGORY());
-        // const {storageMetadataDriver} = this.defineStorageDrivers(storage);
-        // return new TradeManagerService(tradeManagerDriver, storageMetadataDriver);
-        return new TradeManagerService(tradeManagerDriver, ICPMetadataDriver.getInstance());
+        return new TradeManagerService({
+            tradeManagerDriver: tradeManagerDriver,
+            icpFileDriver: ICPFileDriver.getInstance()
+        });
     }
 
-    static getTradeService = (tradeContractAddress: string, storage?: SolidSpec): TradeService => {
+    static getTradeService = (tradeContractAddress: string): TradeService => {
         const tradeDriver = new TradeDriver(this._getSigner(), tradeContractAddress);
-        return new TradeService(tradeDriver, undefined, ICPMetadataDriver.getInstance());
+        const documentDriver = new DocumentDriver(this._getSigner(), contractAddresses.DOCUMENT());
+        return new TradeService(tradeDriver, documentDriver, ICPFileDriver.getInstance());
     }
 
-    static getBasicTradeService = (address: string, storage?: SolidSpec): BasicTradeService => {
+    static getBasicTradeService = (address: string): BasicTradeService => {
         const basicTradeDriver: BasicTradeDriver = new BasicTradeDriver(this._getSigner(), address, contractAddresses.MATERIAL(), contractAddresses.PRODUCT_CATEGORY());
-        return new BasicTradeService(basicTradeDriver, undefined, ICPMetadataDriver.getInstance());
+        const documentDriver = new DocumentDriver(this._getSigner(), contractAddresses.DOCUMENT());
+        return new BasicTradeService(basicTradeDriver, documentDriver, ICPFileDriver.getInstance());
     }
 
-    static getOrderTradeService = (address: string, storage?: SolidSpec): OrderTradeService => {
+    static getOrderTradeService = (address: string): OrderTradeService => {
         const orderTradeDriver: OrderTradeDriver = new OrderTradeDriver(this._getSigner(), address, contractAddresses.MATERIAL(), contractAddresses.PRODUCT_CATEGORY());
-        return new OrderTradeService(orderTradeDriver, undefined, ICPMetadataDriver.getInstance())
+        const documentDriver = new DocumentDriver(this._getSigner(), contractAddresses.DOCUMENT());
+        return new OrderTradeService(orderTradeDriver, documentDriver, ICPFileDriver.getInstance())
     }
 
     static getAssetOperationService = (): AssetOperationService => {
@@ -74,10 +77,13 @@ export class BlockchainLibraryUtils {
         return new AssetOperationService(assetOperationDriver);
     }
 
-    static getDocumentService = (storage?: SolidSpec): DocumentService<SolidMetadataSpec, SolidDocumentSpec, SolidStorageACR> => {
+    static getDocumentDriver = (): DocumentDriver => {
+        return new DocumentDriver(this._getSigner(), contractAddresses.DOCUMENT());
+    }
+
+    static getDocumentService = (): DocumentService => {
         const documentDriver: DocumentDriver = new DocumentDriver(this._getSigner(), contractAddresses.DOCUMENT());
-        const {storageMetadataDriver, storageDocumentDriver} = this.defineStorageDrivers(storage);
-        return new DocumentService({documentDriver, storageMetadataDriver, storageDocumentDriver});
+        return new DocumentService(documentDriver, ICPFileDriver.getInstance());
     }
 
     static getOfferService = (): OfferService => {

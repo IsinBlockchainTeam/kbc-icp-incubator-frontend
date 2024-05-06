@@ -1,12 +1,12 @@
 import {Button, Col, Flex, Image, Row, Typography} from "antd";
-import React, {useContext, useEffect} from "react";
+import React, {useContext} from "react";
 import {
     ICPIdentityDriver, ICPOrganizationDriver, ICPStorageDriver
 } from "@blockchain-lib/common";
 import {ICPContext} from "../../contexts/ICPProvider";
 import {AuthClient} from "@dfinity/auth-client";
 import {Identity} from "@dfinity/agent";
-import {ICPMetadataDriver} from "@kbc-lib/coffee-trading-management-lib";
+import {ICPFileDriver} from "@kbc-lib/coffee-trading-management-lib";
 
 const Text = Typography.Text;
 
@@ -27,7 +27,7 @@ export const ICPLogin = () => {
                 const identity: Identity = authClient.getIdentity();
                 await ICPOrganizationDriver.init(identity, driverCanisterIds.organization);
                 await ICPStorageDriver.init(identity, driverCanisterIds.storage);
-                ICPMetadataDriver.init();
+                ICPFileDriver.init();
             }
         });
         const identityDriver = new ICPIdentityDriver(authClient);
