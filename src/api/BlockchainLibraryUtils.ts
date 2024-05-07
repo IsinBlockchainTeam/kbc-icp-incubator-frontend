@@ -20,13 +20,10 @@ import {
     AssetOperationService,
     TradeService,
     TradeDriver,
-    SolidMetadataDriver,
     GraphService,
-    SolidDocumentDriver,
     ICPFileDriver,
 } from "@kbc-lib/coffee-trading-management-lib";
 import {contractAddresses} from "../constants";
-import {SolidSpec} from "./types/storage";
 import {EnumerableTypeReadDriver, EnumerableTypeService} from "@blockchain-lib/common";
 import SingletonSigner from "./SingletonSigner";
 
@@ -98,15 +95,6 @@ export class BlockchainLibraryUtils {
     static getEnumerableTypeService = (): EnumerableTypeService => {
         const enumerableTypeReadDriver = new EnumerableTypeReadDriver(this._getSigner(), contractAddresses.PROCESS_TYPE());
         return new EnumerableTypeService(enumerableTypeReadDriver);
-    }
-
-    private static defineStorageDrivers = (storage?: SolidSpec) => {
-        let storageMetadataDriver, storageDocumentDriver;
-        if (storage) {
-            storageMetadataDriver = new SolidMetadataDriver(storage.serverUrl, storage.sessionCredentials);
-            storageDocumentDriver = new SolidDocumentDriver(storage.serverUrl, storage.sessionCredentials);
-        }
-        return {storageMetadataDriver, storageDocumentDriver};
     }
 
     private static _getSigner = (): Signer => {

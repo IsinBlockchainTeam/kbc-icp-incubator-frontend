@@ -1,7 +1,6 @@
 import { checkAndGetEnvironmentVariable } from "../utils/utils";
 
 export const storage = {
-  SOLID_API_TOKEN: "SOLID_API_TOKEN",
   WALLET_ADDRESS: "WALLET_ADDRESS",
 };
 

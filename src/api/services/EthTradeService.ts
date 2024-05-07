@@ -1,5 +1,4 @@
 import {Service} from "./Service";
-import {SolidSpec} from "../types/storage";
 import {BlockchainLibraryUtils} from "../BlockchainLibraryUtils";
 import {TradePresentable} from "../types/TradePresentable";
 import {
@@ -20,11 +19,9 @@ import {ICPResourceSpec} from "@blockchain-lib/common";
 
 export class EthTradeService extends Service {
     private readonly _tradeManagerService;
-    private readonly _storageSpec?: SolidSpec;
 
-    constructor(storageSpec?: SolidSpec) {
+    constructor() {
         super();
-        this._storageSpec = storageSpec;
         this._tradeManagerService = BlockchainLibraryUtils.getTradeManagerService();
     }
 
@@ -41,10 +38,10 @@ export class EthTradeService extends Service {
             const tradeService = BlockchainLibraryUtils.getTradeService(tradeAddress);
             let tradeInstanceService: IConcreteTradeService;
             const tradeType = await tradeService.getTradeType();
-            if(tradeType === TradeType.ORDER) {
+            if (tradeType === TradeType.ORDER) {
                 // tradeInstanceService = BlockchainLibraryUtils.getOrderTradeService(tradeAddress, this._storageSpec);
                 tradeInstanceService = BlockchainLibraryUtils.getOrderTradeService(tradeAddress);
-            } else if(tradeType === TradeType.BASIC) {
+            } else if (tradeType === TradeType.BASIC) {
                 // tradeInstanceService = BlockchainLibraryUtils.getBasicTradeService(tradeAddress, this._storageSpec);
                 tradeInstanceService = BlockchainLibraryUtils.getBasicTradeService(tradeAddress);
             } else {
@@ -63,7 +60,7 @@ export class EthTradeService extends Service {
                     .setId(tl.id)
                     .setMaterial(tl.material ? new MaterialPresentable()
                         .setId(tl.material.id)
-                        .setName(tl.productCategory.name): undefined)))
+                        .setName(tl.productCategory.name) : undefined)))
                 .setType(tradeType));
         }
 
@@ -74,7 +71,7 @@ export class EthTradeService extends Service {
         const trade = new TradePresentable();
         const address: string = await this._tradeManagerService.getTrade(id);
 
-        if(!address) return;
+        if (!address) return;
 
         let resp;
         switch (type) {
@@ -94,48 +91,49 @@ export class EthTradeService extends Service {
                             .setId(tl.id)
                             .setMaterial(tl.material ? new MaterialPresentable()
                                 .setId(tl.material.id)
-                                .setName(tl.productCategory.name): undefined)): [])
+                                .setName(tl.productCategory.name) : undefined)) : [])
                         .setType(TradeType.BASIC)
                         .setStatus(await basicTradeService.getTradeStatus())
                 }
                 break;
             case TradeType.ORDER:
                 const orderTradeService = BlockchainLibraryUtils.getOrderTradeService(address);
-                resp = await orderTradeService.getTrade();
 
-                if (resp) {
-                    const orderTrade = await orderTradeService.getCompleteTrade()
-                    const orderLines = await orderTradeService.getLines();
+                const orderTrade = await orderTradeService.getCompleteTrade();
+                if (!orderTrade)
+                    throw new Error("Unable to retrieve order trade");
+                const orderLines = await orderTradeService.getLines();
 
-                    trade
-                        .setId(orderTrade.tradeId)
-                        .setCommissioner(orderTrade.commissioner)
-                        .setCustomer(orderTrade.customer)
-                        .setIncoterms(orderTrade.metadata?.incoterms)
-                        .setPaymentDeadline(new Date(orderTrade.paymentDeadline))
-                        .setDocumentDeliveryDeadline(new Date(orderTrade.documentDeliveryDeadline))
-                        .setShipper(orderTrade.metadata?.shipper)
-                        .setArbiter(orderTrade.arbiter)
-                        .setShippingPort(orderTrade.metadata?.shippingPort)
-                        .setShippingDeadline(new Date(orderTrade.shippingDeadline))
-                        .setDeliveryPort(orderTrade.metadata?.deliveryPort)
-                        .setDeliveryDeadline(new Date(orderTrade.deliveryDeadline))
-                        .setEscrow(orderTrade.escrow)
-                        .setSupplier(orderTrade.supplier)
-                        .setLines(orderLines.map(ol => new TradeLinePresentable()
-                            .setId(ol.id)
-                            .setMaterial(ol.material ? new MaterialPresentable()
-                                .setId(ol.material.id)
-                                .setName(ol.productCategory.name): undefined)
-                            .setQuantity(ol.quantity)
-                            .setPrice(new TradeLinePrice().setAmount(ol.price.amount).setFiat(ol.price.fiat))))
-                        .setType(TradeType.ORDER)
-                        .setStatus(await orderTradeService.getTradeStatus())
-                }
+                trade
+                    .setId(orderTrade.tradeId)
+                    .setCommissioner(orderTrade.commissioner)
+                    .setCustomer(orderTrade.customer)
+                    .setIncoterms(orderTrade.metadata?.incoterms)
+                    .setPaymentDeadline(new Date(orderTrade.paymentDeadline))
+                    .setDocumentDeliveryDeadline(new Date(orderTrade.documentDeliveryDeadline))
+                    .setShipper(orderTrade.metadata?.shipper)
+                    .setArbiter(orderTrade.arbiter)
+                    .setShippingPort(orderTrade.metadata?.shippingPort)
+                    .setShippingDeadline(new Date(orderTrade.shippingDeadline))
+                    .setDeliveryPort(orderTrade.metadata?.deliveryPort)
+                    .setDeliveryDeadline(new Date(orderTrade.deliveryDeadline))
+                    .setEscrow(orderTrade.escrow)
+                    .setSupplier(orderTrade.supplier)
+                    .setLines(orderLines.map(ol => new TradeLinePresentable()
+                        .setId(ol.id)
+                        .setMaterial(ol.material ? new MaterialPresentable()
+                            .setId(ol.material.id)
+                            .setName(ol.productCategory.name) : undefined)
+                        .setQuantity(ol.quantity)
+                        .setPrice(new TradeLinePrice().setAmount(ol.price.amount).setFiat(ol.price.fiat))))
+                    .setType(TradeType.ORDER)
+                    .setStatus(await orderTradeService.getTradeStatus())
+
                 break;
             default:
                 throw new CustomError(HttpStatusCode.BAD_REQUEST, "Wrong trade type");
         }
+
         return trade;
     }
 
@@ -153,7 +151,7 @@ export class EthTradeService extends Service {
             //         modes: [AccessMode.READ],
             //     },
             // ],
-        // }
+            // }
         );
         if (trade.lines) {
             const basicTradeService = BlockchainLibraryUtils.getBasicTradeService(await this._tradeManagerService.getTrade(newTrade.tradeId));
@@ -166,11 +164,13 @@ export class EthTradeService extends Service {
     async putBasicTrade(id: number, trade: TradePresentable): Promise<void> {
         // const tradeService = BlockchainLibraryUtils.getBasicTradeService(await this._tradeManagerService.getTrade(id), this._storageSpec);
         const tradeService = BlockchainLibraryUtils.getBasicTradeService(await this._tradeManagerService.getTrade(id));
-        const oldTrade: BasicTrade = await tradeService.getTrade();
+        const oldTrade
+            :
+            BasicTrade = await tradeService.getTrade();
         oldTrade.name !== trade.name && await tradeService.setName(trade.name!);
     }
 
-    async saveOrderTrade(trade: TradePresentable, storageSpec?: SolidSpec): Promise<void> {
+    async saveOrderTrade(trade: TradePresentable): Promise<void> {
         const metadata: OrderTradeMetadata = {
             incoterms: trade.incoterms!,
             shipper: trade.shipper!,

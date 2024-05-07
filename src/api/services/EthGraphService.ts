@@ -1,5 +1,5 @@
 import {Service} from "./Service";
-import {GraphData as LibGraphData, GraphService, SolidMetadataSpec} from "@kbc-lib/coffee-trading-management-lib";
+import {GraphData as LibGraphData, GraphService} from "@kbc-lib/coffee-trading-management-lib";
 import {BlockchainLibraryUtils} from "../BlockchainLibraryUtils";
 
 export type GraphData = {
