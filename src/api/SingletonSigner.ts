@@ -11,7 +11,6 @@ class SingletonSigner {
         if (!SingletonSigner.instance) {
             const state = store.getState();
             console.log("Resetting signer instance with private key", state.userInfo.privateKey)
-            console.log("Private key", state.userInfo.privateKey)
             const privateKey = state.userInfo.privateKey;
             const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
             console.log('Provider', provider)

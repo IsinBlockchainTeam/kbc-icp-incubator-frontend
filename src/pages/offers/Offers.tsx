@@ -7,14 +7,16 @@ import {OfferPresentable} from "../../api/types/OfferPresentable";
 import {EthOfferService} from "../../api/services/EthOfferService";
 import Search from "../../components/Search/Search";
 import {PlusOutlined} from "@ant-design/icons";
-import {paths} from "../../constants";
+import {credentials, paths} from "../../constants";
 import {useNavigate} from "react-router-dom";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
+import {RootState} from "../../redux/store";
 
 export const Offers = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const userInfo = useSelector((state: RootState) => state.userInfo);
     const [offers, setOffers] = useState<OfferPresentable[]>();
     const [filteredOffers, setFilteredOffers] = useState<OfferPresentable[]>();
     const loadData = async () => {
@@ -77,15 +79,18 @@ export const Offers = () => {
         <CardPage title={<div
             style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
             Offers
-            <div>
-                <Button type="primary" icon={<PlusOutlined/>} onClick={() => navigate(paths.OFFERS_SUPPLIER_NEW)}
-                        style={{marginRight: '16px'}}>
-                    New Offer Supplier
-                </Button>
-                <Button type="primary" icon={<PlusOutlined/>} onClick={() => navigate(paths.OFFERS_NEW)}>
-                    New Offer
-                </Button>
-            </div>
+            {
+                userInfo.role === credentials.ROLE_EXPORTER
+                && <div>
+                    <Button type="primary" icon={<PlusOutlined/>} onClick={() => navigate(paths.OFFERS_SUPPLIER_NEW)}
+                            style={{marginRight: '16px'}}>
+                        New Offer Supplier
+                    </Button>
+                    <Button type="primary" icon={<PlusOutlined/>} onClick={() => navigate(paths.OFFERS_NEW)}>
+                        New Offer
+                    </Button>
+                </div>
+            }
         </div>}>
             <Search placeholder="Search by product category" onSearchFn={filterOffers}/>
             <Table columns={columns} dataSource={filteredOffers} onChange={onChange}/>

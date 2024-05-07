@@ -53,8 +53,10 @@ export const paths = {
 };
 
 export const credentials = {
-  PRESENTATION_TEMPLATE_NAME: "credential_request",
-  TYPE: "Organization",
+    PRESENTATION_TEMPLATE_NAME: "credential_request",
+    TYPE: "Organization",
+    ROLE_EXPORTER: "EXPORTER",
+    ROLE_IMPORTER: "IMPORTER",
 };
 
 export const defaultPictureURL: string =
