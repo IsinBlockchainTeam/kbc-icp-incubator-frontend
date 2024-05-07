@@ -111,10 +111,7 @@ export default function useTradeView() {
             },
         ]
 
-        console.log("DOCUMENTS: ", documents)
-        console.log("DOCUMENT: ", documents?.find(doc => doc.documentType === DocumentType.PAYMENT_INVOICE))
         const content = documents?.find(doc => doc.documentType === DocumentType.PAYMENT_INVOICE)?.content;
-        console.log("CONTENT: ", content)
         const documentElement: FormElement = {
             type: FormElementType.DOCUMENT,
             span: 12,

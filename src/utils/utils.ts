@@ -125,3 +125,18 @@ export const formatClaims = (credential: any): OrganizationCredential => {
 export const formatAddress = (address: string): string => {
     return address.length > 8 ? address.substring(0, 6) + "..." + address.substring(address.length - 4) : address;
 }
+
+export const getMimeType = (filename: string): string => {
+    const ext = getFileExtension(filename);
+    switch (ext) {
+        case "pdf":
+        return "application/pdf";
+        case "png":
+        return "image/png";
+        case "jpg":
+        case "jpeg":
+        return "image/jpeg";
+        default:
+        return "";
+    }
+}
