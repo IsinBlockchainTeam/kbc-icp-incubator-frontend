@@ -4,6 +4,8 @@ import {v4 as uuid} from "uuid";
 import {EthTradeService} from "../../../api/services/EthTradeService";
 import {FormElement, FormElementType} from "../../../components/GenericForm/GenericForm";
 import {regex} from "../../../utils/regex";
+import {BlockchainLibraryUtils} from "../../../api/BlockchainLibraryUtils";
+import {EnumerableDefinition, EthEnumerableTypeService} from "../../../api/services/EthEnumerableTypeService";
 
 export default function useTradeShared() {
     const tradeService = new EthTradeService();
@@ -16,7 +18,9 @@ export default function useTradeShared() {
 
     const [orderState, setOrderState] = useState<number>(0);
 
-    const [lines, setLines] = useState<FormElement[]>([]);
+    const [dataLoaded, setDataLoaded] = useState<boolean>(false);
+    const [units, setUnits] = useState<string[]>([]);
+    const [fiats, setFiats] = useState<string[]>([]);
 
     const [, setLineOrder] = useState<string[]>([]);
 
@@ -25,19 +29,6 @@ export default function useTradeShared() {
             type: FormElementType.INPUT,
             span: 8,
             name: 'product-category-id-1',
-            label: 'Product Category Id',
-            required: true,
-            regex: regex.ONLY_DIGITS,
-            defaultValue: '',
-            disabled: false,
-        },
-        {type: FormElementType.SPACE, span: 16},];
-
-    const orderLine: FormElement[] = [
-        {
-            type: FormElementType.INPUT,
-            span: 6,
-            name: `product-category-id-1`,
             label: 'Product Category Id',
             required: true,
             regex: regex.ONLY_DIGITS,
@@ -55,15 +46,67 @@ export default function useTradeShared() {
             disabled: false,
         },
         {
+            type: FormElementType.SELECT,
+            span: 4,
+            name: `unit-1`,
+            label: 'Unit',
+            required: true,
+            options: units.map((unit) => ({label: unit, value: unit})),
+            defaultValue: [],
+            disabled: false,
+        },
+        {type: FormElementType.SPACE, span: 6},];
+
+    const orderLine: FormElement[] = [
+        {
             type: FormElementType.INPUT,
             span: 6,
+            name: `product-category-id-1`,
+            label: 'Product Category Id',
+            required: true,
+            regex: regex.ONLY_DIGITS,
+            defaultValue: '',
+            disabled: false,
+        },
+        {
+            type: FormElementType.INPUT,
+            span: 5,
+            name: `quantity-1`,
+            label: 'Quantity',
+            required: true,
+            regex: regex.ONLY_DIGITS,
+            defaultValue: '',
+            disabled: false,
+        },
+        {
+            type: FormElementType.SELECT,
+            span: 4,
+            name: `unit-1`,
+            label: 'Unit',
+            required: true,
+            options: units.map((unit) => ({label: unit, value: unit})),
+            defaultValue: [],
+            disabled: false,
+        },
+        {
+            type: FormElementType.INPUT,
+            span: 5,
             name: `price-1`,
             label: 'Price',
             required: true,
             defaultValue: '',
             disabled: false,
         },
-        {type: FormElementType.SPACE, span: 6},];
+        {
+            type: FormElementType.SELECT,
+            span: 4,
+            name: `fiat-1`,
+            label: 'Fiat',
+            required: true,
+            options: fiats.map((fiat) => ({label: fiat, value: fiat})),
+            defaultValue: [],
+            disabled: false,
+        }];
 
     const getLineId = (): string => {
         const id: string = uuid();
@@ -71,99 +114,17 @@ export default function useTradeShared() {
         return id;
     }
 
-    const addLine = () => {
-        const id: string = getLineId();
-        if (type === TradeType.BASIC) {
-            setLines((prev) => [...prev,
-                {
-                    type: FormElementType.INPUT,
-                    span: 8,
-                    name: `product-category-id-${id}`,
-                    label: 'Product Category Id',
-                    required: true,
-                    defaultValue: '',
-                    disabled: false,
-                }, {
-                    type: FormElementType.BUTTON,
-                    span: 4,
-                    name: `delete-line-${id}`,
-                    label: 'Delete line',
-                    disabled: false,
-                    onClick: () => deleteLine(id),
-                    buttonType: 'default',
-                    additionalProperties: 'danger'
-                },
-                {type: FormElementType.SPACE, span: 12},]);
-        } else {
-            setLines((prev) => [...prev,
-                {
-                    type: FormElementType.INPUT,
-                    span: 6,
-                    name: `product-category-id-${id}`,
-                    label: 'Product Category Id',
-                    required: true,
-                    defaultValue: '',
-                    disabled: false,
-                },
-                {
-                    type: FormElementType.INPUT,
-                    span: 6,
-                    name: `quantity-${id}`,
-                    label: 'Quantity',
-                    required: true,
-                    regex: regex.ONLY_DIGITS,
-                    defaultValue: '',
-                    disabled: false,
-                },
-                {
-                    type: FormElementType.INPUT,
-                    span: 6,
-                    name: `price-${id}`,
-                    label: 'Price',
-                    required: true,
-                    defaultValue: '',
-                    disabled: false,
-                },
-                {
-                    type: FormElementType.BUTTON,
-                    span: 6,
-                    name: `delete-line-${id}`,
-                    label: 'Delete line',
-                    disabled: false,
-                    onClick: () => deleteLine(id),
-                    buttonType: 'default',
-                    additionalProperties: 'danger'
-                }
-            ]);
-        }
-    }
-
-    const deleteLine = (id: string) => {
-        let index: number;
-        setLineOrder((currentLineOrder) => {
-            index = currentLineOrder.indexOf(id);
-            return currentLineOrder.filter((lineId) => lineId !== id);
-        });
-
-        setLines((currentLines) => {
-            const start: number = type === TradeType.BASIC ? 2 + index * 3 : index * 4;
-            const end: number = type === TradeType.BASIC ? 2 + index * 3 + 3 : index * 4 + 4;
-
-            return currentLines.filter((_, i) => i < start || i >= end);
-        });
-    }
-
     useEffect(() => {
-        if (type === TradeType.BASIC) {
-            setLines([
-                ...basicLine,
-            ]);
-        } else {
-            setLines([
-                ...orderLine,
-            ]);
-        }
-    }, [type]);
+        const unitService = new EthEnumerableTypeService(EnumerableDefinition.UNIT);
+        const fiatService = new EthEnumerableTypeService(EnumerableDefinition.FIAT);
+        (async () => {
+            const units = await unitService.getAll();
+            setUnits(units);
+            const fiats = await fiatService.getAll();
+            setFiats(fiats);
+            setDataLoaded(true);
+        })();
+    }, []);
 
     const [elements, setElements] = useState<FormElement[]>([]);
 
@@ -211,7 +172,7 @@ export default function useTradeShared() {
                     type: FormElementType.INPUT,
                     span: 12,
                     name: 'name',
-                    label: 'Name',
+                    label: 'Reference ID',
                     required: true,
                     defaultValue: '',
                     disabled: false,
@@ -226,16 +187,9 @@ export default function useTradeShared() {
                     uploadable: true,
                     height: documentHeight
                 },
-                {type: FormElementType.TITLE, span: 24, label: 'Line Items'},
-                ...lines,
-                {
-                    type: FormElementType.BUTTON,
-                    span: 24,
-                    name: 'new-line',
-                    label: 'New line',
-                    disabled: false,
-                    onClick: addLine
-                }]);
+                {type: FormElementType.TITLE, span: 24, label: 'Line Item'},
+                ...basicLine,
+                ]);
         } else {
             setElements([
                 ...commonElements,
@@ -352,20 +306,11 @@ export default function useTradeShared() {
                     defaultValue: '',
                     disabled: false,
                 },
-                {type: FormElementType.TITLE, span: 24, label: 'Line Items'},
-                ...lines,
-                {
-                    type: FormElementType.BUTTON,
-                    span: 24,
-                    name: 'new-line',
-                    label: 'New line',
-                    disabled: false,
-                    onClick: addLine,
-                    buttonType: 'default'
-                },
+                {type: FormElementType.TITLE, span: 24, label: 'Line Item'},
+                ...orderLine,
             ])
         }
-    }, [type, lines]);
+    }, [type, dataLoaded]);
 
     return {
         type,

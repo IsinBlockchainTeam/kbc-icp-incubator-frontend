@@ -82,6 +82,8 @@ export class EthTradeService extends Service {
                                 .setId(tl.productCategory.id)
                                 .setQuality(tl.productCategory.quality)
                                 .setName(tl.productCategory.name) : undefined)
+                            .setQuantity(tl.quantity)
+                            .setUnit(tl.unit)
                             .setMaterial(tl.material ? new MaterialPresentable()
                                 .setId(tl.material.id)
                                 .setName(tl.productCategory.name) : undefined)
@@ -121,6 +123,7 @@ export class EthTradeService extends Service {
                                 .setId(ol.material.id)
                                 .setName(ol.productCategory.name): undefined)
                             .setQuantity(ol.quantity)
+                            .setUnit(ol.unit)
                             .setPrice(new TradeLinePrice().setAmount(ol.price.amount).setFiat(ol.price.fiat))))
                         .setType(TradeType.ORDER)
                         .setStatus(await orderTradeService.getTradeStatus())
@@ -139,7 +142,7 @@ export class EthTradeService extends Service {
 
         if (trade.lines) {
             await Promise.all(trade.lines.map(async line => {
-                await basicTradeService.addLine(new LineRequest(line.material?.id!));
+                await basicTradeService.addLine(new LineRequest(line.productCategory!.id, line.quantity!, line.unit!));
             }));
         }
     }
@@ -169,7 +172,7 @@ export class EthTradeService extends Service {
 
         if (trade.lines) {
             await Promise.all(trade.lines.map(async line => {
-                await orderTradeService.addLine(new OrderLineRequest(line.material?.id!, line.quantity!, new OrderLinePrice(line.price!.amount, line.price!.fiat)));
+                await orderTradeService.addLine(new OrderLineRequest(line.productCategory!.id!, line.quantity!, line.unit!, new OrderLinePrice(line.price!.amount, line.price!.fiat)));
             }));
         }
     }

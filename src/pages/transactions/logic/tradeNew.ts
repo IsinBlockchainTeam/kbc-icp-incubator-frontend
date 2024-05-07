@@ -11,6 +11,7 @@ import {useDispatch} from "react-redux";
 import {hideLoading, showLoading} from "../../../redux/reducers/loadingSlice";
 import {useNavigate} from "react-router-dom";
 import {paths} from "../../../constants";
+import {ProductCategoryPresentable} from "../../../api/types/ProductCategoryPresentable";
 
 export default function useTradeNew() {
     const navigate = useNavigate();
@@ -41,14 +42,24 @@ export default function useTradeNew() {
                 let id: string;
                 if (key.startsWith('product-category-id-')) {
                     id = key.split('-')[3];
-                    if(type === TradeType.BASIC)
-                        tradeLines.push(new TradeLinePresentable(0, new MaterialPresentable(parseInt(values[key]))));
+                    const quantity: number = parseInt(values[`quantity-${id}`]);
+                    const unit: string = values[`unit-${id}`];
+                    const productCategoryId: number = parseInt(values[key]);
+                    if (type === TradeType.BASIC)
+                        tradeLines.push(new TradeLinePresentable()
+                            .setQuantity(quantity)
+                            .setUnit(unit)
+                            .setProductCategory(new ProductCategoryPresentable(productCategoryId))
+                        );
                     else {
-                        const materialId: number = parseInt(values[`product-category-id-${id}`]);
-                        const quantity: number = parseInt(values[`quantity-${id}`]);
                         const price: number = parseInt(values[`price-${id}`].split(' ')[0]);
-                        const fiat: string = values[`price-${id}`].split(' ')[1];
-                        tradeLines.push(new TradeLinePresentable(0, new MaterialPresentable(materialId), quantity, new TradeLinePrice(price, fiat)))
+                        const fiat: string = values[`fiat-${id}`];
+                        tradeLines.push(new TradeLinePresentable()
+                            .setQuantity(quantity)
+                            .setUnit(unit)
+                            .setProductCategory(new ProductCategoryPresentable(productCategoryId))
+                            .setPrice(new TradeLinePrice(price, fiat))
+                        );
                     }
                 }
             }
@@ -62,7 +73,6 @@ export default function useTradeNew() {
                         .setFilename(values['certificate-of-shipping'].name)
                         .setContent(values['certificate-of-shipping'])
                     )
-                console.log("trade - saveBasicTrade: ", trade)
                 await tradeService.saveBasicTrade(trade);
                 openNotification("Basic trade registered", `Basic trade "${values.name}" has been registered correctly!`, NotificationType.SUCCESS, 1);
             } else {

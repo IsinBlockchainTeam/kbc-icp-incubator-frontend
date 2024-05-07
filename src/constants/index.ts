@@ -13,6 +13,8 @@ export const RPC_URL = checkAndGetEnvironmentVariable(process.env.REACT_APP_RPC_
 
 export const contractAddresses = {
     PROCESS_TYPE: () => checkAndGetEnvironmentVariable(process.env.REACT_APP_CONTRACT_PROCESS_TYPE, "Process type contract address must be defined"),
+    UNIT: () => checkAndGetEnvironmentVariable(process.env.REACT_APP_CONTRACT_UNIT, "Unit contract address must be defined"),
+    FIAT: () => checkAndGetEnvironmentVariable(process.env.REACT_APP_CONTRACT_FIAT, "Fiat contract address must be defined"),
     ASSESSMENT_STANDARD: () => checkAndGetEnvironmentVariable(process.env.REACT_APP_CONTRACT_ASSESSMENT_STANDARD, "Assessment standard contract address must be defined"),
     PRODUCT_CATEGORY: () => checkAndGetEnvironmentVariable(process.env.REACT_APP_CONTRACT_PRODUCT_CATEGORY, "Product category contract address must be defined"),
     RELATIONSHIP: () => checkAndGetEnvironmentVariable(process.env.REACT_APP_CONTRACT_RELATIONSHIP, "Relationship contract address must be defined"),

@@ -90,7 +90,6 @@ export const MenuLayout = () => {
   const {
     token: { colorBgContainer },
   } = theme.useToken();
-  const { user, isAuthenticated } = useAuth0();
   const dispatch = useDispatch();
 
   const userInfo = useSelector((state: RootState) => state.userInfo);

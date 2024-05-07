@@ -11,9 +11,9 @@ import {AssetOperationPresentable} from "../../api/types/AssetOperationPresentab
 import {NotificationType, openNotification} from "../../utils/notification";
 import {v4 as uuid} from "uuid";
 import {regex} from "../../utils/regex";
-import {EthProcessTypeService} from "../../api/services/EthProcessTypeService";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
 import {useDispatch} from "react-redux";
+import {EnumerableDefinition, EthEnumerableTypeService} from "../../api/services/EthEnumerableTypeService";
 
 export const AssetOperationsNew = () => {
     const navigate = useNavigate();
@@ -89,11 +89,11 @@ export const AssetOperationsNew = () => {
     const [elements, setElements] = useState<FormElement[]>([]);
 
     useEffect(() => {
-        const processTypeService = new EthProcessTypeService();
+        const processTypeService = new EthEnumerableTypeService(EnumerableDefinition.PROCESS_TYPE);
         (async () => {
             try {
                 dispatch(showLoading("Loading process types..."));
-                const processTypesResp: string[] = await processTypeService.getAllProcessTypes();
+                const processTypesResp: string[] = await processTypeService.getAll();
                 setProcessTypes(processTypesResp);
             } catch (e: any) {
                 console.log("error: ", e);

@@ -24,6 +24,7 @@ import {SolidDocumentSpec, SolidMetadataSpec} from "@kbc-lib/coffee-trading-mana
 import {SolidSpec} from "./types/storage";
 import {EnumerableTypeReadDriver, EnumerableTypeService, SolidStorageACR} from "@blockchain-lib/common";
 import SingletonSigner from "./SingletonSigner";
+import {EnumerableDefinition} from "./services/EthEnumerableTypeService";
 
 export class BlockchainLibraryUtils {
 
@@ -81,8 +82,22 @@ export class BlockchainLibraryUtils {
         return new GraphService(this._getSigner(), BlockchainLibraryUtils.getTradeManagerService(), BlockchainLibraryUtils.getAssetOperationService());
     }
 
-    static getEnumerableTypeService = (): EnumerableTypeService => {
-        const enumerableTypeReadDriver = new EnumerableTypeReadDriver(this._getSigner(), contractAddresses.PROCESS_TYPE());
+    static getEnumerableTypeService = (enumDefinition: EnumerableDefinition): EnumerableTypeService => {
+        let contractAddress = '';
+        switch (enumDefinition) {
+            case EnumerableDefinition.PROCESS_TYPE:
+                contractAddress = contractAddresses.PROCESS_TYPE();
+                break;
+            case EnumerableDefinition.UNIT:
+                contractAddress = contractAddresses.UNIT();
+                break;
+            case EnumerableDefinition.FIAT:
+                contractAddress = contractAddresses.FIAT();
+                break;
+            default:
+                throw new Error("Enum definition not found");
+        }
+        const enumerableTypeReadDriver = new EnumerableTypeReadDriver(this._getSigner(), contractAddress);
         return new EnumerableTypeService(enumerableTypeReadDriver);
     }
 

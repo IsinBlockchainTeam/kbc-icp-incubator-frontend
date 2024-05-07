@@ -19,7 +19,6 @@ export default function useTradeView() {
     const {id} = useParams();
     const location = useLocation();
     const type = parseInt(new URLSearchParams(location.search).get('type')!);
-    // const subjectClaims = useSelector((state: RootState) => state.auth.subjectClaims);
 
     const [trade, setTrade] = useState<TradePresentable>();
     const [documents, setDocuments] = useState<DocumentPresentable[]>();
@@ -160,18 +159,35 @@ export default function useTradeView() {
                     defaultValue: trade.name,
                     disabled,
                 },
-                {type: FormElementType.TITLE, span: 24, label: 'Line Items'},
+                {type: FormElementType.TITLE, span: 24, label: 'Line Item'},
                 {
                     type: FormElementType.INPUT,
                     span: 8,
                     name: 'product-category-id-1',
                     label: 'Product Category Id',
                     required: true,
-                    regex: regex.ONLY_DIGITS,
                     defaultValue: trade.lines[0].productCategory?.id.toString(),
                     disabled,
                 },
-                {type: FormElementType.SPACE, span: 16},
+                {
+                    type: FormElementType.INPUT,
+                    span: 6,
+                    name: `quantity-1`,
+                    label: 'Quantity',
+                    required: true,
+                    defaultValue: trade.lines[0].quantity?.toString(),
+                    disabled,
+                },
+                {
+                    type: FormElementType.INPUT,
+                    span: 4,
+                    name: `unit-1`,
+                    label: 'Unit',
+                    required: true,
+                    defaultValue: trade.lines[0].unit,
+                    disabled,
+                },
+                {type: FormElementType.SPACE, span: 6},
             ]);
         }
         else {

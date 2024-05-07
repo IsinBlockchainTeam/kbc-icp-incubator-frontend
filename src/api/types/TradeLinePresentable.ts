@@ -36,13 +36,15 @@ export class TradeLinePresentable {
     private _material?: MaterialPresentable;
     private _productCategory?: ProductCategoryPresentable;
     private _quantity?: number;
+    private _unit?: string;
     private _price?: TradeLinePrice;
 
-    constructor(id?: number, material?: MaterialPresentable, quantity?: number, price?: TradeLinePrice, productCategory?: ProductCategoryPresentable);
-    constructor(id: number, material: MaterialPresentable, quantity: number, price: TradeLinePrice, productCategory: ProductCategoryPresentable) {
+    constructor(id?: number, material?: MaterialPresentable, quantity?: number, unit?: string, price?: TradeLinePrice, productCategory?: ProductCategoryPresentable);
+    constructor(id: number, material: MaterialPresentable, quantity: number, unit: string, price: TradeLinePrice, productCategory: ProductCategoryPresentable) {
         this._id = id;
         this._material = material;
         this._quantity = quantity;
+        this._unit = unit;
         this._price = price;
         this._productCategory = productCategory;
     }
@@ -67,6 +69,10 @@ export class TradeLinePresentable {
         return this._price;
     }
 
+    get unit(): string | undefined {
+        return this._unit;
+    }
+
     setId(value: number): this {
         this._id = value;
         return this;
@@ -84,6 +90,11 @@ export class TradeLinePresentable {
 
     setQuantity(value: number | undefined): this {
         this._quantity = value;
+        return this;
+    }
+
+    setUnit(value: string | undefined): this {
+        this._unit = value;
         return this;
     }
 
