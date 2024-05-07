@@ -10,7 +10,7 @@ class SingletonSigner {
     public static getInstance(): ethers.Wallet | null {
         if (!SingletonSigner.instance) {
             const state = store.getState();
-            console.log("Private key", state.userInfo.privateKey)
+            console.log("Resetting signer instance with private key", state.userInfo.privateKey)
             const privateKey = state.userInfo.privateKey;
             const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
             console.log('Provider', provider)
@@ -19,6 +19,10 @@ class SingletonSigner {
             }
         }
         return SingletonSigner.instance;
+    }
+
+    public static resetInstance() {
+        SingletonSigner.instance = null;
     }
 }
 

@@ -5,7 +5,6 @@ import {paths, requestPath} from "../../constants";
 import { request } from "../../utils/request";
 import { v4 as uuid } from "uuid";
 import { openNotification, NotificationType } from "../../utils/notification";
-import { formatDid } from "../../utils/utils";
 import {useDispatch, useSelector} from "react-redux";
 import { updateSubjectDid } from "../../redux/reducers/authSlice";
 import { updateUserInfo } from "../../redux/reducers/userInfoSlice";
@@ -75,11 +74,22 @@ export default function VeramoLogin() {
           }
           dispatch(updateSubjectDid(subjectDid));
           const userInfo = message.body.verifiableCredential[0].credentialSubject;
-          dispatch(updateUserInfo({ isLogged: true, ...userInfo}));
+          dispatch(updateUserInfo({
+            isLogged: true,
+            id: userInfo.id || "",
+            legalName: userInfo.legalName || "",
+            email: userInfo.email || "",
+            address: userInfo.address || "",
+            nation: userInfo.nation || "",
+            telephone: userInfo.telephone || "",
+            image: userInfo.image || "",
+            role: userInfo.role || "",
+            privateKey: userInfo.privateKey || ""
+          }));
           navigate(paths.PROFILE);
           openNotification(
             "Authenticated",
-            `User with DID ${formatDid(message.body.holder)} has authenticated succesfully`,
+              `Login succeed. Welcome ${userInfo.legalName}!`,
             NotificationType.SUCCESS
           );
 

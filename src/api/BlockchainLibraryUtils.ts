@@ -27,6 +27,11 @@ import SingletonSigner from "./SingletonSigner";
 import {EnumerableDefinition} from "./services/EthEnumerableTypeService";
 
 export class BlockchainLibraryUtils {
+    static waitForTransactions = async (transactionHash: string, confirmations: number): Promise<void> => {
+        if(this._getSigner()) {
+            await this._getSigner().provider?.waitForTransaction(transactionHash, confirmations);
+        }
+    }
 
     static getProductCategoryService = (): ProductCategoryService => {
         const supplyChainDriver: ProductCategoryDriver = new ProductCategoryDriver(this._getSigner(), contractAddresses.PRODUCT_CATEGORY());

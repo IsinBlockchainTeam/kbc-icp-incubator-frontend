@@ -1,7 +1,7 @@
 import {Service} from "./Service";
 import {BlockchainLibraryUtils} from "../BlockchainLibraryUtils";
 import {TradePresentable} from "../types/TradePresentable";
-import {BasicTrade, Line, LineRequest, IConcreteTradeService, OrderLinePrice, OrderLineRequest, OrderTradeInfo, TradeType} from "@kbc-lib/coffee-trading-management-lib";
+import {BasicTrade, Line, LineRequest, IConcreteTradeService, OrderLinePrice, OrderLineRequest, TradeType} from "@kbc-lib/coffee-trading-management-lib";
 import {CustomError} from "../../utils/error/CustomError";
 import {HttpStatusCode} from "../../utils/error/HttpStatusCode";
 import {TradeLinePresentable, TradeLinePrice} from "../types/TradeLinePresentable";
@@ -136,8 +136,13 @@ export class EthTradeService extends Service {
     }
 
     async saveBasicTrade(trade: TradePresentable): Promise<void> {
-        const newTrade: BasicTrade = await this._tradeManagerService.registerBasicTrade(trade.supplier, trade.customer!, trade.commissioner!, trade.name!);
-        const basicTradeService = BlockchainLibraryUtils.getBasicTradeService(await this._tradeManagerService.getTrade(newTrade.tradeId));
+        let newTradeAddress: string;
+        let transactionHash: string;
+        [, newTradeAddress, transactionHash] = await this._tradeManagerService.registerBasicTrade(trade.supplier, trade.customer!, trade.commissioner!, trade.name!);
+
+        await BlockchainLibraryUtils.waitForTransactions(transactionHash, Number(process.env.REACT_APP_BC_CONFIRMATION_NUMBER || 0));
+
+        const basicTradeService = BlockchainLibraryUtils.getBasicTradeService(newTradeAddress);
         if (trade.deliveryNote) await basicTradeService.addDocument(trade.deliveryNote.documentType);
 
         if (trade.lines) {
@@ -154,12 +159,16 @@ export class EthTradeService extends Service {
     }
 
     async saveOrderTrade(trade: TradePresentable): Promise<void> {
-        const newTrade: OrderTradeInfo = await this._tradeManagerService.registerOrderTrade(
+        let newTradeAddress: string;
+        let transactionHash: string;
+        [, newTradeAddress, transactionHash] = await this._tradeManagerService.registerOrderTrade(
             trade.supplier, trade.customer!, trade.commissioner!, (trade.paymentDeadline!).getTime(), (trade.documentDeliveryDeadline!).getTime(),
             trade.arbiter!, (trade.shippingDeadline!).getTime(), (trade.deliveryDeadline!).getTime(), trade.agreedAmount!, trade.tokenAddress!,
         );
-        const orderTradeService = BlockchainLibraryUtils.getOrderTradeService(await this._tradeManagerService.getTrade(newTrade.tradeId));
 
+        await BlockchainLibraryUtils.waitForTransactions(transactionHash, Number(process.env.REACT_APP_BC_CONFIRMATION_NUMBER || 0));
+
+        const orderTradeService = BlockchainLibraryUtils.getOrderTradeService(newTradeAddress);
         if (trade.paymentInvoice) await orderTradeService.addDocument(trade.paymentInvoice.documentType);
         if (trade.swissDecode) await orderTradeService.addDocument(trade.swissDecode.documentType);
         if (trade.deliveryNote) await orderTradeService.addDocument(trade.deliveryNote.documentType);

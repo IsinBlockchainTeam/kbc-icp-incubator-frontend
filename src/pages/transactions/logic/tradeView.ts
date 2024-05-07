@@ -147,8 +147,8 @@ export default function useTradeView() {
         const documentHeight = '45vh';
 
         if (type === TradeType.BASIC) {
-            setElements([
-                ...commonElements,
+            const newElements = [...commonElements];
+            newElements.push(
                 {type: FormElementType.TITLE, span: 24, label: 'Data'},
                 {
                     type: FormElementType.INPUT,
@@ -188,11 +188,12 @@ export default function useTradeView() {
                     disabled,
                 },
                 {type: FormElementType.SPACE, span: 6},
-            ]);
+            );
+            setElements(newElements);
         }
         else {
-            setElements([
-                ...commonElements,
+            const newElements = [...commonElements];
+            newElements.push(
                 {type: FormElementType.TITLE, span: 24, label: 'Constraints'},
                 {
                     type: FormElementType.INPUT,
@@ -298,35 +299,40 @@ export default function useTradeView() {
                     disabled,
                 },
                 {type: FormElementType.TITLE, span: 24, label: 'Line Items'},
-                {
-                    type: FormElementType.INPUT,
-                    span: 6,
-                    name: `product-category-id-1`,
-                    label: 'Product Category Id',
-                    required: true,
-                    defaultValue: trade.lines[0].material?.id.toString(),
-                    disabled,
-                },
-                {
-                    type: FormElementType.INPUT,
-                    span: 6,
-                    name: `quantity-${id}`,
-                    label: 'Quantity',
-                    required: true,
-                    regex: regex.ONLY_DIGITS,
-                    defaultValue: trade.lines[0].quantity?.toString(),
-                    disabled,
-                },
-                {
-                    type: FormElementType.INPUT,
-                    span: 6,
-                    name: `price-${id}`,
-                    label: 'Price',
-                    required: true,
-                    defaultValue: trade.lines[0].price?.amount.toString() + ' ' + trade.lines[0].price?.fiat,
-                    disabled,
-                },
-            ])
+            );
+            trade.lines.forEach((line, index) => {
+                newElements.push(
+                    {
+                        type: FormElementType.INPUT,
+                        span: 6,
+                        name: `product-category-id-1`,
+                        label: 'Product Category Id',
+                        required: true,
+                        defaultValue: line.material?.id.toString(),
+                        disabled,
+                    },
+                    {
+                        type: FormElementType.INPUT,
+                        span: 6,
+                        name: `quantity-${id}`,
+                        label: 'Quantity',
+                        required: true,
+                        regex: regex.ONLY_DIGITS,
+                        defaultValue: line.quantity?.toString(),
+                        disabled,
+                    },
+                    {
+                        type: FormElementType.INPUT,
+                        span: 6,
+                        name: `price-${id}`,
+                        label: 'Price',
+                        required: true,
+                        defaultValue: line.price?.amount.toString() + ' ' + line.price?.fiat,
+                        disabled,
+                    },
+                );
+            });
+            setElements(newElements);
         }
     }, [trade, documents]);
 
