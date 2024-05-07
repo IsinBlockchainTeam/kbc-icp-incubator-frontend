@@ -26,6 +26,11 @@ import {EnumerableTypeReadDriver, EnumerableTypeService, SolidStorageACR} from "
 import SingletonSigner from "./SingletonSigner";
 
 export class BlockchainLibraryUtils {
+    static waitForTransactions = async (transactionHash: string, confirmations: number): Promise<void> => {
+        if(this._getSigner()) {
+            await this._getSigner().provider?.waitForTransaction(transactionHash, confirmations);
+        }
+    }
 
     static getProductCategoryService = (): ProductCategoryService => {
         const supplyChainDriver: ProductCategoryDriver = new ProductCategoryDriver(this._getSigner(), contractAddresses.PRODUCT_CATEGORY());

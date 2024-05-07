@@ -1,7 +1,7 @@
 import React from "react";
 import {CardPage} from "../../components/structure/CardPage/CardPage";
 import {GenericForm} from "../../components/GenericForm/GenericForm";
-import {Spin, Tag} from "antd";
+import {Tag} from "antd";
 import {EditOutlined} from "@ant-design/icons";
 import {TradeType} from "@kbc-lib/coffee-trading-management-lib";
 import {getEnumKeyByValue, isValueInEnum} from "../../utils/utils";
@@ -11,8 +11,6 @@ export const TradeView = () => {
     const { type, orderState, elements, trade, documents, loadingDocuments, disabled, toggleDisabled, onSubmit } = useTradeView();
 
     console.log("documents: ", documents)
-    if (!trade)
-        return <Spin style={{width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center'}}/>;
     if (!isValueInEnum(type, TradeType))
         return <div>Wrong type</div>;
 
