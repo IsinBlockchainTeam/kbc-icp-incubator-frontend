@@ -8,14 +8,16 @@ import {
     IConcreteTradeService,
     OrderLinePrice,
     OrderLineRequest,
-    TradeType,
-    OrderTrade, OrderTradeMetadata, URLStructure
+    TradeType, OrderTradeMetadata, URLStructure
 } from "@kbc-lib/coffee-trading-management-lib";
 import {CustomError} from "../../utils/error/CustomError";
 import {HttpStatusCode} from "../../utils/error/HttpStatusCode";
 import {TradeLinePresentable, TradeLinePrice} from "../types/TradeLinePresentable";
 import {MaterialPresentable} from "../types/MaterialPresentable";
 import {ICPResourceSpec} from "@blockchain-lib/common";
+import {ProductCategoryPresentable} from "../types/ProductCategoryPresentable";
+import {getICPCanisterURL} from "../../utils/utils";
+import {ICP} from "../../constants";
 
 export class EthTradeService extends Service {
     private readonly _tradeManagerService;
@@ -34,15 +36,12 @@ export class EthTradeService extends Service {
 
         const tradeContractAddresses = await Promise.all(tradeIds.map(async id => this._tradeManagerService.getTrade(id)));
         for (const tradeAddress of tradeContractAddresses) {
-            // const tradeService = BlockchainLibraryUtils.getTradeService(tradeAddress, this._storageSpec);
             const tradeService = BlockchainLibraryUtils.getTradeService(tradeAddress);
             let tradeInstanceService: IConcreteTradeService;
             const tradeType = await tradeService.getTradeType();
             if (tradeType === TradeType.ORDER) {
-                // tradeInstanceService = BlockchainLibraryUtils.getOrderTradeService(tradeAddress, this._storageSpec);
                 tradeInstanceService = BlockchainLibraryUtils.getOrderTradeService(tradeAddress);
             } else if (tradeType === TradeType.BASIC) {
-                // tradeInstanceService = BlockchainLibraryUtils.getBasicTradeService(tradeAddress, this._storageSpec);
                 tradeInstanceService = BlockchainLibraryUtils.getBasicTradeService(tradeAddress);
             } else {
                 throw new CustomError(HttpStatusCode.INTERNAL_SERVER, "Received an invalid trade type");
@@ -87,11 +86,17 @@ export class EthTradeService extends Service {
                         .setName(resp.name)
                         .setSupplier(resp.supplier)
                         .setCustomer(resp.customer)
+                        .setCommissioner(resp.commissioner)
                         .setLines(lines ? lines.map(tl => new TradeLinePresentable()
                             .setId(tl.id)
+                            .setProductCategory(tl.productCategory ? new ProductCategoryPresentable()
+                                .setId(tl.productCategory.id)
+                                .setQuality(tl.productCategory.quality)
+                                .setName(tl.productCategory.name) : undefined)
                             .setMaterial(tl.material ? new MaterialPresentable()
                                 .setId(tl.material.id)
-                                .setName(tl.productCategory.name) : undefined)) : [])
+                                .setName(tl.productCategory.name) : undefined)
+                            ) : [])
                         .setType(TradeType.BASIC)
                         .setStatus(await basicTradeService.getTradeStatus())
                 }
@@ -138,23 +143,34 @@ export class EthTradeService extends Service {
     }
 
     async saveBasicTrade(trade: TradePresentable): Promise<void> {
-        const newTrade: BasicTrade = await this._tradeManagerService.registerBasicTrade(trade.supplier, trade.customer!, trade.commissioner!, trade.name!,
-            // {
-            // value: { issueDate: new Date() },
-            // aclRules: [
-            //     {
-            //         agents: [basicTrade.supplierWebId],
-            //         modes: [AccessMode.READ, AccessMode.WRITE, AccessMode.CONTROL],
-            //     },
-            //     {
-            //         agents: [basicTrade.commissionerWebId],
-            //         modes: [AccessMode.READ],
-            //     },
-            // ],
-            // }
-        );
+        const metadata = {
+            date: new Date(),
+        }
+        const urlStructure: URLStructure = {
+            prefix: getICPCanisterURL(ICP.CANISTER_ID_ORGANIZATION),
+            // prefix: `http://${checkAndGetEnvironmentVariable(ICP.CANISTER_ID_ORGANIZATION)}.localhost:4943/`,
+            // TODO: remove this
+            organizationId: 0,
+        }
+        const [, newTradeAddress, transactionHash] =
+            await this._tradeManagerService.registerBasicTrade(trade.supplier, trade.customer!, trade.commissioner!, trade.name!,
+                metadata, urlStructure);
+
+        await BlockchainLibraryUtils.waitForTransactions(transactionHash, Number(process.env.REACT_APP_BC_CONFIRMATION_NUMBER || 0));
+
+        const basicTradeService = BlockchainLibraryUtils.getBasicTradeService(newTradeAddress);
+        if (trade.deliveryNote) {
+            const externalUrl = (await basicTradeService.getTrade()).externalUrl;
+            const resourceSpec: ICPResourceSpec = {
+                name: trade.deliveryNote.filename,
+                type: trade.deliveryNote.contentType,
+            }
+            const bytes = new Uint8Array(await new Response(trade.deliveryNote.content).arrayBuffer());
+
+            await basicTradeService.addDocument(trade.deliveryNote.documentType, bytes, externalUrl, resourceSpec);
+        }
+
         if (trade.lines) {
-            const basicTradeService = BlockchainLibraryUtils.getBasicTradeService(await this._tradeManagerService.getTrade(newTrade.tradeId));
             await Promise.all(trade.lines.map(async line => {
                 await basicTradeService.addLine(new LineRequest(line.material?.id!));
             }));
@@ -162,11 +178,8 @@ export class EthTradeService extends Service {
     }
 
     async putBasicTrade(id: number, trade: TradePresentable): Promise<void> {
-        // const tradeService = BlockchainLibraryUtils.getBasicTradeService(await this._tradeManagerService.getTrade(id), this._storageSpec);
         const tradeService = BlockchainLibraryUtils.getBasicTradeService(await this._tradeManagerService.getTrade(id));
-        const oldTrade
-            :
-            BasicTrade = await tradeService.getTrade();
+        const oldTrade: BasicTrade = await tradeService.getTrade();
         oldTrade.name !== trade.name && await tradeService.setName(trade.name!);
     }
 
@@ -178,26 +191,28 @@ export class EthTradeService extends Service {
             deliveryPort: trade.deliveryPort!,
         }
         const urlStructure: URLStructure = {
+            prefix: getICPCanisterURL(ICP.CANISTER_ID_ORGANIZATION),
+            // prefix: `http://${process.env.REACT_APP_CANISTER_ID_ORGANIZATION!}.localhost:4943/`,
             // TODO: remove this
-            prefix: `http://${process.env.REACT_APP_CANISTER_ID_ORGANIZATION!}.localhost:4943/`,
             organizationId: 0,
         }
-        const newTrade: OrderTrade = await this._tradeManagerService.registerOrderTrade(
+
+        const [, newTradeAddress, transactionHash] = await this._tradeManagerService.registerOrderTrade(
             trade.supplier, trade.customer!, trade.commissioner!, (trade.paymentDeadline!).getTime(), (trade.documentDeliveryDeadline!).getTime(),
             trade.arbiter!, (trade.shippingDeadline!).getTime(), (trade.deliveryDeadline!).getTime(), trade.agreedAmount!, trade.tokenAddress!,
             metadata, urlStructure
         );
-        const orderTradeService = BlockchainLibraryUtils.getOrderTradeService(await this._tradeManagerService.getTrade(newTrade.tradeId));
 
+        await BlockchainLibraryUtils.waitForTransactions(transactionHash, Number(process.env.REACT_APP_BC_CONFIRMATION_NUMBER || 0));
+
+        const orderTradeService = BlockchainLibraryUtils.getOrderTradeService(newTradeAddress);
         if (trade.paymentInvoice) {
             const externalUrl = (await orderTradeService.getTrade()).externalUrl;
-
             const resourceSpec: ICPResourceSpec = {
-                name: trade.paymentInvoice.filename!,
-                type: "application/pdf",
+                name: trade.paymentInvoice.filename,
+                type: trade.paymentInvoice.contentType,
             }
-            const blob = trade.paymentInvoice.content;
-            const bytes = new Uint8Array(await new Response(blob).arrayBuffer());
+            const bytes = new Uint8Array(await new Response(trade.paymentInvoice.content).arrayBuffer());
 
             await orderTradeService.addDocument(trade.paymentInvoice.documentType, bytes, externalUrl, resourceSpec);
         }

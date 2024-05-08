@@ -216,6 +216,16 @@ export default function useTradeShared() {
                     defaultValue: '',
                     disabled: false,
                 },
+                {
+                    type: FormElementType.DOCUMENT,
+                    span: 12,
+                    name: 'certificate-of-shipping',
+                    label: 'Shipping Invoice',
+                    required: true,
+                    loading: false,
+                    uploadable: true,
+                    height: documentHeight
+                },
                 {type: FormElementType.TITLE, span: 24, label: 'Line Items'},
                 ...lines,
                 {
@@ -244,7 +254,7 @@ export default function useTradeShared() {
                     span: 12,
                     name: 'payment-invoice',
                     label: 'Payment Invoice',
-                    required: false,
+                    required: true,
                     loading: false,
                     uploadable: true,
                     height: documentHeight

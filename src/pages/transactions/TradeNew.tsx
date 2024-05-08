@@ -1,7 +1,7 @@
 import {GenericForm} from "../../components/GenericForm/GenericForm";
 import {TradeType} from "@kbc-lib/coffee-trading-management-lib";
 import {getEnumKeyByValue} from "../../utils/utils";
-import {Alert, Button, Divider, Dropdown, Steps, Typography} from "antd";
+import {Button, Divider, Dropdown, Steps, Typography} from "antd";
 import {CardPage} from "../../components/structure/CardPage/CardPage";
 import React, {useEffect} from "react";
 import {
@@ -44,7 +44,7 @@ export const TradeNew = () => {
         }>
             <div style={{display: "flex", alignItems: "center"}}>
                 <Text style={{marginRight: '16px'}} strong>Trade Type:</Text>
-                <Dropdown menu={menuProps} trigger={['click']}>
+                <Dropdown menu={menuProps}>
                     <Button>{getEnumKeyByValue(TradeType, type)} <DownOutlined/></Button>
                 </Dropdown>
             </div>

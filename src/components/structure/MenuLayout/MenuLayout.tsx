@@ -1,16 +1,16 @@
 import {Avatar, Layout, Menu, MenuProps, Spin, theme} from "antd";
 import React, { useState } from "react";
 import {
-  ContainerOutlined, ExperimentOutlined, FormOutlined, GoldOutlined, SettingOutlined, SwapOutlined, TeamOutlined, LogoutOutlined, UserOutlined, AuditOutlined
+  ExperimentOutlined, GoldOutlined, SettingOutlined, SwapOutlined, TeamOutlined, LogoutOutlined, UserOutlined, AuditOutlined
 } from "@ant-design/icons";
 import {Link, Outlet, useLocation, useNavigate} from "react-router-dom";
 import { defaultPictureURL, paths } from "../../../constants";
 import KBCLogo from "../../../assets/logo.png";
 import styles from "./MenuLayout.module.scss";
-import { useAuth0 } from "@auth0/auth0-react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
 import {updateUserInfo} from "../../../redux/reducers/userInfoSlice";
+import SingletonSigner from "../../../api/SingletonSigner";
 
 const { Content, Footer, Sider } = Layout;
 
@@ -72,9 +72,11 @@ const getUserItemLoggedIn = (name: string, picture: string, dispatch: any) => [
                 nation: "",
                 telephone: "",
                 image: "",
+                role: "",
                 privateKey: "",
               };
-              dispatch(updateUserInfo(reset))
+              dispatch(updateUserInfo(reset));
+              SingletonSigner.resetInstance();
             }
         ),
       ],
@@ -90,7 +92,6 @@ export const MenuLayout = () => {
   const {
     token: { colorBgContainer },
   } = theme.useToken();
-  const { user, isAuthenticated } = useAuth0();
   const dispatch = useDispatch();
 
   const userInfo = useSelector((state: RootState) => state.userInfo);

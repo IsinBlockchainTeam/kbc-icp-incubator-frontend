@@ -7,6 +7,8 @@ import {ICPContext} from "../../contexts/ICPProvider";
 import {AuthClient} from "@dfinity/auth-client";
 import {Identity} from "@dfinity/agent";
 import {ICPFileDriver} from "@kbc-lib/coffee-trading-management-lib";
+import {checkAndGetEnvironmentVariable} from "../../utils/utils";
+import {ICP} from "../../constants";
 
 const Text = Typography.Text;
 
@@ -15,15 +17,17 @@ export const ICPLogin = () => {
 
     const icpLogin = async () => {
         const driverCanisterIds = {
-            organization: process.env.REACT_APP_CANISTER_ID_ORGANIZATION!,
-            storage: process.env.REACT_APP_CANISTER_ID_STORAGE!,
+            organization: checkAndGetEnvironmentVariable(ICP.CANISTER_ID_ORGANIZATION),
+            storage: checkAndGetEnvironmentVariable(ICP.CANISTER_ID_STORAGE),
         }
-        const identityProvider = `http://${process.env.REACT_APP_CANISTER_ID_INTERNET_IDENTITY!}.localhost:4943`
+        const identityProvider =
+            process.env.DFX_NETWORK === "ic"
+                ? "https://identity.ic0.app"
+                : `http://${checkAndGetEnvironmentVariable(ICP.CANISTER_ID_INTERNET_IDENTITY)}.localhost:4943`;
         const authClient: AuthClient = await AuthClient.create();
         await authClient.login({
             identityProvider,
             onSuccess: async () => {
-                console.log("logged in")
                 const identity: Identity = authClient.getIdentity();
                 await ICPOrganizationDriver.init(identity, driverCanisterIds.organization);
                 await ICPStorageDriver.init(identity, driverCanisterIds.storage);

@@ -1,5 +1,6 @@
 import { request } from "./request";
 import { OrganizationCredential } from "../api/types/OrganizationCredential";
+import {ICP} from "../constants";
 
 export const setParametersPath = (
   path = "",
@@ -139,4 +140,11 @@ export const getMimeType = (filename: string): string => {
         default:
         return "";
     }
+}
+
+export const getICPCanisterURL = (canisterId: string): string => {
+    const network = checkAndGetEnvironmentVariable(ICP.DFX_NETWORK);
+    return network === "local" ? "http" : "https" + "://"
+     + checkAndGetEnvironmentVariable(canisterId) + "."
+     + network === "local" ? "localhost:4943" : "ic0.app";
 }

@@ -1,19 +1,15 @@
 import React from "react";
 import {CardPage} from "../../components/structure/CardPage/CardPage";
-import {FormElementType, GenericForm} from "../../components/GenericForm/GenericForm";
-import {Spin, Tag} from "antd";
+import {GenericForm} from "../../components/GenericForm/GenericForm";
+import {Tag} from "antd";
 import {EditOutlined} from "@ant-design/icons";
 import {TradeType} from "@kbc-lib/coffee-trading-management-lib";
 import {getEnumKeyByValue, isValueInEnum} from "../../utils/utils";
 import useTradeView from "./logic/tradeView";
-import {useNavigate} from "react-router-dom";
 
 export const TradeView = () => {
-    const navigate = useNavigate();
-    const { type, orderState, elements, trade, loadingDocuments, documents, disabled, toggleDisabled, onSubmit } = useTradeView();
+    const { type, orderState, elements, trade, documents, loadingDocuments, disabled, toggleDisabled, onSubmit } = useTradeView();
 
-    if (!trade)
-        return <Spin style={{width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center'}}/>;
     if (!isValueInEnum(type, TradeType))
         return <div>Wrong type</div>;
 
@@ -31,9 +27,7 @@ export const TradeView = () => {
                 </div>
             </div>}
         >
-            <Spin spinning={!trade || !documents}>
-                <GenericForm elements={elements} submittable={!disabled} onSubmit={onSubmit}/>
-            </Spin>
+            <GenericForm elements={elements} submittable={!disabled} onSubmit={onSubmit}/>
         </CardPage>
     )
 }

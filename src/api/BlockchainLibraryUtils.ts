@@ -28,6 +28,11 @@ import {EnumerableTypeReadDriver, EnumerableTypeService} from "@blockchain-lib/c
 import SingletonSigner from "./SingletonSigner";
 
 export class BlockchainLibraryUtils {
+    static waitForTransactions = async (transactionHash: string, confirmations: number): Promise<void> => {
+        if(this._getSigner()) {
+            await this._getSigner().provider?.waitForTransaction(transactionHash, confirmations);
+        }
+    }
 
     static getProductCategoryService = (): ProductCategoryService => {
         const supplyChainDriver: ProductCategoryDriver = new ProductCategoryDriver(this._getSigner(), contractAddresses.PRODUCT_CATEGORY());
@@ -72,10 +77,6 @@ export class BlockchainLibraryUtils {
     static getAssetOperationService = (): AssetOperationService => {
         const assetOperationDriver: AssetOperationDriver = new AssetOperationDriver(this._getSigner(), contractAddresses.ASSET_OPERATION(), contractAddresses.MATERIAL(), contractAddresses.PRODUCT_CATEGORY());
         return new AssetOperationService(assetOperationDriver);
-    }
-
-    static getDocumentDriver = (): DocumentDriver => {
-        return new DocumentDriver(this._getSigner(), contractAddresses.DOCUMENT());
     }
 
     static getDocumentService = (): DocumentService => {

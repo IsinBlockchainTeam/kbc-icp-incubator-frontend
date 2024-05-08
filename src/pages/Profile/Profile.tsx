@@ -20,6 +20,7 @@ export default function Profile() {
             >
                 <Title>Welcome {userInfo.legalName}!</Title>
                 <Title level={5}>Your information:</Title>
+                <Paragraph>Role: {userInfo.role.length !== 0 ? userInfo.role : 'Unknown'}</Paragraph>
                 <Paragraph>Email: {userInfo.email}</Paragraph>
                 <Paragraph>Address: {userInfo.address}</Paragraph>
                 <Paragraph>Nation: {userInfo.nation}</Paragraph>

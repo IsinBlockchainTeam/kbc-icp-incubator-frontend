@@ -1,7 +1,6 @@
 import {Service} from "./Service";
 import {DocumentPresentable} from "../types/DocumentPresentable";
 import {BlockchainLibraryUtils} from "../BlockchainLibraryUtils";
-import {DocumentInfo} from "@kbc-lib/coffee-trading-management-lib";
 import {getMimeType} from "../../utils/utils";
 
 export class EthDocumentService extends Service {
@@ -18,19 +17,25 @@ export class EthDocumentService extends Service {
         const tradeService = BlockchainLibraryUtils.getTradeService(await this._tradeManagerService.getTrade(id));
         const documentsInfo = await tradeService.getAllDocuments();
 
-        return Promise.all(documentsInfo.map(async (d: DocumentInfo) => {
-                const completeDocument = await this._documentService.getCompleteDocument(d);
-                const blob = new Blob([completeDocument!.content], { type: getMimeType(completeDocument.filename)});
+        const documents: DocumentPresentable[] = [];
 
-                return new DocumentPresentable()
-                    .setId(completeDocument.id)
-                    .setContentType(blob.type)
-                    .setDocumentType(completeDocument.documentType)
-                    .setContent(blob)
-                    .setFilename(completeDocument.filename)
-                    .setTransactionLines(completeDocument.transactionLines)
-                    .setDate(new Date(completeDocument.date))
-            })
-        );
+        for(const d of documentsInfo) {
+            if(d.externalUrl.endsWith('.json')) continue;
+
+            const completeDocument = await this._documentService.getCompleteDocument(d);
+            const blob = new Blob([completeDocument!.content], { type: getMimeType(completeDocument.filename)});
+
+            documents.push(new DocumentPresentable()
+                .setId(completeDocument.id)
+                .setContentType(blob.type)
+                .setDocumentType(completeDocument.documentType)
+                .setContent(blob)
+                .setFilename(completeDocument.filename)
+                .setTransactionLines(completeDocument.transactionLines)
+                .setDate(new Date(completeDocument.date))
+            );
+        }
+
+        return documents;
     }
 }

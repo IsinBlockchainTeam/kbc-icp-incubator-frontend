@@ -1,87 +1,98 @@
-import {Timeline, Space, QRCode, Button} from "antd";
+import { Timeline, Space, QRCode } from "antd";
 import styles from "./Login.module.scss";
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 import {paths, requestPath} from "../../constants";
-import {request} from "../../utils/request";
-import {v4 as uuid} from "uuid";
-import {openNotification, NotificationType} from "../../utils/notification";
-import {formatDid} from "../../utils/utils";
+import { request } from "../../utils/request";
+import { v4 as uuid } from "uuid";
+import { openNotification, NotificationType } from "../../utils/notification";
 import {useDispatch, useSelector} from "react-redux";
-import {updateSubjectDid} from "../../redux/reducers/authSlice";
-import {updateUserInfo} from "../../redux/reducers/userInfoSlice";
+import { updateSubjectDid } from "../../redux/reducers/authSlice";
+import { updateUserInfo } from "../../redux/reducers/userInfoSlice";
 import {RootState} from "../../redux/store";
 import {Navigate, useNavigate} from "react-router-dom";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
+import {Button} from "antd";
 
 export default function VeramoLogin() {
-    const [qrCodeURL, setQrCodeURL] = useState<string>("");
-    const [challengeId, setChallengeId] = useState<string>("");
-    const dispatch = useDispatch();
-    const userInfo = useSelector((state: RootState) => state.userInfo);
-    const navigate = useNavigate();
+  const [qrCodeURL, setQrCodeURL] = useState<string>("");
+  const [challengeId, setChallengeId] = useState<string>("");
+  const dispatch = useDispatch();
+  const userInfo = useSelector((state: RootState) => state.userInfo);
+  const navigate = useNavigate();
 
-    const requestAuthPresentation = async () => {
-        try {
-            dispatch(showLoading("Loading..."))
-            const id = uuid();
-            const response = await request(
-                `${requestPath.VERIFIER_BACKEND_URL}/presentations/create/selective-disclosure`,
-                {
-                    method: "POST",
-                    body: JSON.stringify({
-                        tag: id,
-                        claimType: "legalName",
-                        reason: "Please, authenticate yourself",
-                    }),
-                }
+  const requestAuthPresentation = async () => {
+    try {
+      dispatch(showLoading("Loading..."))
+      const id = uuid();
+      const response = await request(
+        `${requestPath.VERIFIER_BACKEND_URL}/presentations/create/selective-disclosure`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            tag: id,
+            claimType: "legalName",
+            reason: "Please, authenticate yourself",
+          }),
+        }
+      );
+      setQrCodeURL(response.qrcode);
+      setChallengeId(id);
+    } catch (e: any) {
+      console.log("error: ", e);
+      openNotification("Error", e.message, NotificationType.ERROR);
+    } finally {
+      dispatch(hideLoading())
+    }
+  };
+
+  useEffect(() => {
+    requestAuthPresentation();
+    return () => {
+      dispatch(hideLoading())
+    }
+  }, []);
+
+  useEffect(() => {
+    if (challengeId) {
+      const interval = setInterval(async () => {
+        const message = await request(
+          `${requestPath.VERIFIER_BACKEND_URL}/presentations/callback/validated?challengeId=${challengeId}`,
+          { method: "GET" }
+        );
+        if (message) {
+          console.log("MESSAGE", message);
+
+          clearInterval(interval);
+          setChallengeId("");
+          const subjectDid = message.body.holder;
+          if (!subjectDid) {
+            openNotification(
+              "Error",
+              "No subject DID found",
+              NotificationType.ERROR
             );
-            setQrCodeURL(response.qrcode);
-            setChallengeId(id);
-        } catch (e: any) {
-            console.log("error: ", e);
-            openNotification("Error", e.message, NotificationType.ERROR);
-        } finally {
-            dispatch(hideLoading())
-        }
-    };
-
-    useEffect(() => {
-        requestAuthPresentation();
-        return () => {
-            dispatch(hideLoading())
-        }
-    }, []);
-
-    useEffect(() => {
-        if (challengeId) {
-            const interval = setInterval(async () => {
-                const message = await request(
-                    `${requestPath.VERIFIER_BACKEND_URL}/presentations/callback/validated?challengeId=${challengeId}`,
-                    {method: "GET"}
-                );
-                if (message) {
-                    console.log("MESSAGE", message);
-
-                    clearInterval(interval);
-                    setChallengeId("");
-                    const subjectDid = message.body.holder;
-                    if (!subjectDid) {
-                        openNotification(
-                            "Error",
-                            "No subject DID found",
-                            NotificationType.ERROR
-                        );
-                        return;
-                    }
-                    dispatch(updateSubjectDid(subjectDid));
-                    const userInfo = message.body.verifiableCredential[0].credentialSubject;
-                    dispatch(updateUserInfo({isLogged: true, ...userInfo}));
-                    navigate(paths.PROFILE);
-                    openNotification(
-                        "Authenticated",
-                        `User with DID ${formatDid(message.body.holder)} has authenticated succesfully`,
-                        NotificationType.SUCCESS
-                    );
+            return;
+          }
+          dispatch(updateSubjectDid(subjectDid));
+          const userInfo = message.body.verifiableCredential[0].credentialSubject;
+          dispatch(updateUserInfo({
+            isLogged: true,
+            id: userInfo.id || "",
+            legalName: userInfo.legalName || "",
+            email: userInfo.email || "",
+            address: userInfo.address || "",
+            nation: userInfo.nation || "",
+            telephone: userInfo.telephone || "",
+            image: userInfo.image || "",
+            role: userInfo.role || "",
+            privateKey: userInfo.privateKey || ""
+          }));
+          navigate(paths.PROFILE);
+          openNotification(
+            "Authenticated",
+              `Login succeed. Welcome ${userInfo.legalName}!`,
+            NotificationType.SUCCESS
+          );
 
                 } else {
                     console.log("NO MESSAGE");
@@ -105,7 +116,8 @@ export default function VeramoLogin() {
             nation: "Switzerland",
             privateKey: "7c852118294e51e653712a81e05800f419141751be58f605c371e15141b007a6",
             subjectDid: "did:ethr:dev:0x90F79bf6EB2c4f870365E785982E1f101E93b906",
-            telephone: "+41 79 345 3456"
+            telephone: "+41 79 345 3456",
+            role: "EXPORTER"
         }
         dispatch(updateUserInfo({isLogged: true, ...userInfo}));
     }

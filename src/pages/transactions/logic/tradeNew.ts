@@ -54,7 +54,16 @@ export default function useTradeNew() {
             }
             trade.setLines(tradeLines);
             if (type === TradeType.BASIC) {
-                await tradeService.saveBasicTrade(values);
+                trade
+                    .setName(values['name'])
+                    .setDeliveryNote(values['certificate-of-shipping'] && new DocumentPresentable()
+                        .setContentType(values['certificate-of-shipping'].type)
+                        .setDocumentType(DocumentType.DELIVERY_NOTE)
+                        .setFilename(values['certificate-of-shipping'].name)
+                        .setContent(values['certificate-of-shipping'])
+                    )
+                console.log("trade - saveBasicTrade: ", trade)
+                await tradeService.saveBasicTrade(trade);
                 openNotification("Basic trade registered", `Basic trade "${values.name}" has been registered correctly!`, NotificationType.SUCCESS, 1);
             } else {
                 trade
@@ -77,8 +86,8 @@ export default function useTradeNew() {
                     );
                 await tradeService.saveOrderTrade(trade);
                 openNotification("Order trade registered", `Order trade has been registered correctly!`, NotificationType.SUCCESS, 1);
-                navigate(paths.TRADES);
             }
+            navigate(paths.TRADES);
         } catch (e: any) {
             console.log("error: ", e);
             openNotification("Error", e.message, NotificationType.ERROR);

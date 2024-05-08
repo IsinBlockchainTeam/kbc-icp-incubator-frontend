@@ -1,4 +1,5 @@
 import {MaterialPresentable} from "./MaterialPresentable";
+import {ProductCategoryPresentable} from "./ProductCategoryPresentable";
 
 export class TradeLinePrice {
     private _amount: number;
@@ -32,15 +33,17 @@ export class TradeLinePrice {
 export class TradeLinePresentable {
     private _id: number;
     private _material?: MaterialPresentable;
+    private _productCategory?: ProductCategoryPresentable;
     private _quantity?: number;
     private _price?: TradeLinePrice;
 
-    constructor(id?: number, material?: MaterialPresentable, quantity?: number, price?: TradeLinePrice);
-    constructor(id: number, material: MaterialPresentable, quantity: number, price: TradeLinePrice) {
+    constructor(id?: number, material?: MaterialPresentable, quantity?: number, price?: TradeLinePrice, productCategory?: ProductCategoryPresentable);
+    constructor(id: number, material: MaterialPresentable, quantity: number, price: TradeLinePrice, productCategory: ProductCategoryPresentable) {
         this._id = id;
         this._material = material;
         this._quantity = quantity;
         this._price = price;
+        this._productCategory = productCategory;
     }
 
     get id(): number {
@@ -49,6 +52,10 @@ export class TradeLinePresentable {
 
     get material(): MaterialPresentable | undefined {
         return this._material;
+    }
+
+    get productCategory(): ProductCategoryPresentable | undefined {
+        return this._productCategory;
     }
 
     get quantity(): number | undefined {
@@ -66,6 +73,11 @@ export class TradeLinePresentable {
 
     setMaterial(value?: MaterialPresentable): this {
         this._material = value;
+        return this;
+    }
+
+    setProductCategory(value?: ProductCategoryPresentable): this {
+        this._productCategory = value;
         return this;
     }
 
