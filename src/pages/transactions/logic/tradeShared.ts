@@ -6,11 +6,14 @@ import {FormElement, FormElementType} from "../../../components/GenericForm/Gene
 import {regex} from "../../../utils/regex";
 import {BlockchainLibraryUtils} from "../../../api/BlockchainLibraryUtils";
 import {EnumerableDefinition, EthEnumerableTypeService} from "../../../api/services/EthEnumerableTypeService";
+import {useLocation} from "react-router-dom";
+import SingletonSigner from "../../../api/SingletonSigner";
 
 export default function useTradeShared() {
     const tradeService = new EthTradeService();
+    const location = useLocation();
 
-    const [type, setType] = useState<TradeType>(TradeType.BASIC);
+    const [type, setType] = useState<TradeType>(TradeType.ORDER);
 
     const updateType = (newType: TradeType) => {
         setType(newType);
@@ -30,10 +33,10 @@ export default function useTradeShared() {
             span: 8,
             name: 'product-category-id-1',
             label: 'Product Category Id',
-            required: true,
+            required: false,
             regex: regex.ONLY_DIGITS,
-            defaultValue: '',
-            disabled: false,
+            defaultValue: location?.state?.productCategoryId || '0',
+            disabled: true,
         },
         {
             type: FormElementType.INPUT,
@@ -63,10 +66,10 @@ export default function useTradeShared() {
             span: 6,
             name: `product-category-id-1`,
             label: 'Product Category Id',
-            required: true,
+            required: false,
             regex: regex.ONLY_DIGITS,
-            defaultValue: '',
-            disabled: false,
+            defaultValue: location?.state?.productCategoryId || '0',
+            disabled: true,
         },
         {
             type: FormElementType.INPUT,
@@ -134,30 +137,30 @@ export default function useTradeShared() {
             span: 8,
             name: 'supplier',
             label: 'Supplier',
-            required: true,
+            required: false,
             regex: regex.ETHEREUM_ADDRESS,
-            defaultValue: '',
-            disabled: false,
+            defaultValue: location?.state?.supplierAddress || 'Unknown',
+            disabled: true,
         },
         {
             type: FormElementType.INPUT,
             span: 8,
             name: 'customer',
             label: 'Customer',
-            required: true,
+            required: false,
             regex: regex.ETHEREUM_ADDRESS,
-            defaultValue: '',
-            disabled: false,
+            defaultValue: SingletonSigner.getInstance()?.address || 'Unknown',
+            disabled: true,
         },
         {
             type: FormElementType.INPUT,
             span: 8,
             name: 'commissioner',
             label: 'Commissioner',
-            required: true,
+            required: false,
             regex: regex.ETHEREUM_ADDRESS,
-            defaultValue: '',
-            disabled: false,
+            defaultValue: SingletonSigner.getInstance()?.address || 'Unknown',
+            disabled: true,
         },
     ]
 

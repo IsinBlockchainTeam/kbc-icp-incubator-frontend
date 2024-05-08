@@ -312,7 +312,7 @@ export default function useTradeView() {
                         name: `product-category-id-1`,
                         label: 'Product Category Id',
                         required: true,
-                        defaultValue: line.material?.id.toString(),
+                        defaultValue: line.productCategory?.id.toString(),
                         disabled,
                     },
                     {

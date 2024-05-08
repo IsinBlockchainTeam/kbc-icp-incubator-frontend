@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {NotificationType, openNotification} from "../../utils/notification";
 import {ColumnsType} from "antd/es/table";
-import {Button, Table, TableProps} from "antd";
+import {Button, Space, Table, TableProps} from "antd";
 import {CardPage} from "../../components/structure/CardPage/CardPage";
 import {OfferPresentable} from "../../api/types/OfferPresentable";
 import {EthOfferService} from "../../api/services/EthOfferService";
@@ -25,11 +25,7 @@ export const Offers = () => {
             const offerService = new EthOfferService();
             const offers = await offerService.getAllOffers();
             setOffers(offers);
-            setFilteredOffers(offers.map(t => {
-                // @ts-ignore
-                t['key'] = t.id;
-                return t;
-            }));
+            setFilteredOffers(offers);
         } catch (e: any) {
             console.log("error: ", e);
             openNotification("Error", e.message, NotificationType.ERROR);
@@ -53,8 +49,24 @@ export const Offers = () => {
         },
         {
             title: 'Product category',
-            dataIndex: 'productCategory',
-            sorter: (a, b) => (a.productCategory || '').localeCompare((b.productCategory || '')),
+            dataIndex: ['productCategory', 'name'],
+            sorter: (a, b) => (a.productCategory.name || '').localeCompare((b.productCategory.name || '')),
+        },
+        {
+            title: 'Actions',
+            key: 'action',
+            render: (_, record) => {
+                if(userInfo.role === credentials.ROLE_IMPORTER){
+                    return <Space size="middle">
+                        <a onClick={() => navigate(
+                            paths.TRADE_NEW,
+                            {state: {supplierAddress: record.owner, productCategoryId: record.productCategory.id}}
+                        )}>Start a negotiation →</a>
+                    </Space>
+                } else {
+                    return <></>
+                }
+            },
         }
     ];
 
@@ -64,7 +76,7 @@ export const Offers = () => {
 
     const filterOffers = (productCategory: string) => {
         console.log('Called')
-        const filtered = offers?.filter(o => o.productCategory.toLowerCase().includes(productCategory.toLowerCase()));
+        const filtered = offers?.filter(o => o.productCategory.name.toLowerCase().includes(productCategory.toLowerCase()));
         setFilteredOffers(filtered);
     }
 
@@ -93,7 +105,7 @@ export const Offers = () => {
             }
         </div>}>
             <Search placeholder="Search by product category" onSearchFn={filterOffers}/>
-            <Table columns={columns} dataSource={filteredOffers} onChange={onChange}/>
+            <Table columns={columns} dataSource={filteredOffers} onChange={onChange} rowKey="id"/>
         </CardPage>
     )
 }

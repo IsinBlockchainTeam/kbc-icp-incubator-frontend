@@ -9,13 +9,15 @@ import {DocumentPresentable} from "../../../api/types/DocumentPresentable";
 import {TradePresentable} from "../../../api/types/TradePresentable";
 import {useDispatch} from "react-redux";
 import {hideLoading, showLoading} from "../../../redux/reducers/loadingSlice";
-import {useNavigate} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import {paths} from "../../../constants";
 import {ProductCategoryPresentable} from "../../../api/types/ProductCategoryPresentable";
+import SingletonSigner from "../../../api/SingletonSigner";
 
 export default function useTradeNew() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const location = useLocation();
     const { type, updateType, tradeService, orderState, elements } = useTradeShared();
 
     const items: MenuProps['items'] = [
@@ -27,11 +29,16 @@ export default function useTradeNew() {
         items,
         onClick: ({key}: any) => {
             updateType(parseInt(key) as TradeType);
-        }
+        },
     }
 
     const onSubmit = async (values: any) => {
         try {
+            //FIXME: This is a workaround to get data instead of the form
+            values['supplier'] = location?.state?.supplierAddress || 'Unknown';
+            values['customer'] = SingletonSigner.getInstance()?.address || 'Unknown';
+            values['commissioner'] = SingletonSigner.getInstance()?.address || 'Unknown';
+            values['product-category-id-1'] = location?.state?.productCategoryId || '0';
             dispatch(showLoading("Creating trade..."));
             const trade: TradePresentable = new TradePresentable()
                 .setSupplier(values['supplier'])
