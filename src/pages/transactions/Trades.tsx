@@ -1,13 +1,12 @@
 import React, {useEffect} from "react";
 import {CardPage} from "../../components/structure/CardPage/CardPage";
-import {Button, Table, TableProps, Tag} from "antd";
-import {PlusOutlined} from "@ant-design/icons";
+import {Table, TableProps, Tag} from "antd";
 import {ColumnsType} from "antd/es/table";
 import {NotificationType, openNotification} from "../../utils/notification";
 import {getEnumKeyByValue, setParametersPath} from "../../utils/utils";
 import {EthTradeService} from "../../api/services/EthTradeService";
 import {TradePresentable} from "../../api/types/TradePresentable";
-import {Link, useNavigate} from "react-router-dom";
+import {Link} from "react-router-dom";
 import {paths} from "../../constants";
 import {TradeType} from "@kbc-lib/coffee-trading-management-lib";
 import {useDispatch} from "react-redux";
@@ -16,7 +15,6 @@ import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
 export const Trades = () => {
     const [trades, setTrades] = React.useState<TradePresentable[]>();
     const dispatch = useDispatch();
-    const navigate = useNavigate();
 
     const loadData = async () => {
         try {
@@ -136,9 +134,9 @@ export const Trades = () => {
             <div
                 style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                 Trades
-                <Button type="primary" icon={<PlusOutlined/>} onClick={() => navigate(paths.TRADE_NEW)}>
-                    New Trade
-                </Button>
+                {/*<Button type="primary" icon={<PlusOutlined/>} onClick={() => navigate(paths.TRADE_NEW)}>*/}
+                {/*    New Trade*/}
+                {/*</Button>*/}
             </div>
         }>
             <Table columns={columns} dataSource={trades} onChange={onChange}/>

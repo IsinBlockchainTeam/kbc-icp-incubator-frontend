@@ -2,6 +2,7 @@ import {Service} from "./Service";
 import {BlockchainLibraryUtils} from "../BlockchainLibraryUtils";
 import {Offer, OfferService} from "@kbc-lib/coffee-trading-management-lib";
 import {OfferPresentable} from "../types/OfferPresentable";
+import {ProductCategoryPresentable} from "../types/ProductCategoryPresentable";
 
 export class EthOfferService extends Service {
     private readonly _offerService: OfferService;
@@ -24,6 +25,6 @@ export class EthOfferService extends Service {
         return offers.map((o: Offer) => new OfferPresentable()
             .setId(o.id)
             .setOwner(o.owner)
-            .setProductCategory(o.productCategory.name));
+            .setProductCategory(new ProductCategoryPresentable(o.productCategory.id, o.productCategory.name, o.productCategory.quality)));
     }
 }

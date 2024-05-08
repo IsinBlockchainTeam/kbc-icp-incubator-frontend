@@ -10,7 +10,6 @@ import useTradeView from "./logic/tradeView";
 export const TradeView = () => {
     const { type, orderState, elements, trade, documents, loadingDocuments, disabled, toggleDisabled, onSubmit, confirmNegotiation } = useTradeView();
 
-    console.log("documents: ", documents)
     if (!isValueInEnum(type, TradeType))
         return <div>Wrong type</div>;
 

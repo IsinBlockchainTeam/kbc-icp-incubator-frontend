@@ -11,6 +11,7 @@ import {regex} from "../../utils/regex";
 import {useDispatch, useSelector} from "react-redux";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
 import {RootState} from "../../redux/store";
+import SingletonSigner from "../../api/SingletonSigner";
 
 export const OffersNew = () => {
     const navigate = useNavigate();
@@ -26,10 +27,9 @@ export const OffersNew = () => {
             span: 8,
             name: 'offeror',
             label: 'Offeror Company Address',
-            required: true,
-            regex: regex.ETHEREUM_ADDRESS,
-            defaultValue: '',
-            disabled: false
+            required: false,
+            defaultValue: SingletonSigner.getInstance()?.address || 'Unknown',
+            disabled: true
         },
         {
             type: FormElementType.INPUT,
@@ -45,13 +45,14 @@ export const OffersNew = () => {
 
     const onSubmit = async (values: any) => {
         try {
+            values['offeror'] = SingletonSigner.getInstance()?.address || 'Unknown';
             dispatch(showLoading("Creating offer..."));
             await offerService.saveOffer(values.offeror, values['product-category-id']);
             openNotification("Offer registered", `Offer for product category with ID "${values['product-category-id']}" has been registered correctly!`, NotificationType.SUCCESS, 1);
             navigate(paths.OFFERS);
         } catch (e: any) {
             console.log("error: ", e);
-            openNotification("Error", e.message, NotificationType.ERROR);
+            openNotification("Error",   "Supplier not register", NotificationType.ERROR);
         } finally {
             dispatch(hideLoading())
         }

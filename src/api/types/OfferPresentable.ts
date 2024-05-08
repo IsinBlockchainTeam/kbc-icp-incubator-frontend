@@ -1,10 +1,12 @@
+import {ProductCategoryPresentable} from "./ProductCategoryPresentable";
+
 export class OfferPresentable {
     private _id: number;
     private _owner: string;
-    private _productCategory: string;
+    private _productCategory: ProductCategoryPresentable;
 
-    constructor(id?: number, owner?: string, productCategory?: string);
-    constructor(id: number, owner: string, productCategory: string) {
+    constructor(id?: number, owner?: string, productCategory?: ProductCategoryPresentable);
+    constructor(id: number, owner: string, productCategory: ProductCategoryPresentable) {
         this._id = id;
         this._owner = owner;
         this._productCategory = productCategory;
@@ -19,7 +21,7 @@ export class OfferPresentable {
         return this._owner;
     }
 
-    get productCategory(): string {
+    get productCategory(): ProductCategoryPresentable {
         return this._productCategory;
     }
 
@@ -33,7 +35,7 @@ export class OfferPresentable {
         return this;
     }
 
-    setProductCategory(value: string): this {
+    setProductCategory(value: ProductCategoryPresentable): this {
         this._productCategory = value;
         return this;
     }
