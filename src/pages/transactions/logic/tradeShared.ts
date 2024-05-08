@@ -52,7 +52,7 @@ export default function useTradeShared() {
             label: 'Unit',
             required: true,
             options: units.map((unit) => ({label: unit, value: unit})),
-            defaultValue: [],
+            defaultValue: '',
             disabled: false,
         },
         {type: FormElementType.SPACE, span: 6},];
@@ -85,7 +85,7 @@ export default function useTradeShared() {
             label: 'Unit',
             required: true,
             options: units.map((unit) => ({label: unit, value: unit})),
-            defaultValue: [],
+            defaultValue: '',
             disabled: false,
         },
         {
@@ -104,7 +104,7 @@ export default function useTradeShared() {
             label: 'Fiat',
             required: true,
             options: fiats.map((fiat) => ({label: fiat, value: fiat})),
-            defaultValue: [],
+            defaultValue: '',
             disabled: false,
         }];
 
@@ -318,5 +318,7 @@ export default function useTradeShared() {
         orderState,
         elements,
         updateType,
+        units,
+        fiats,
     }
 }

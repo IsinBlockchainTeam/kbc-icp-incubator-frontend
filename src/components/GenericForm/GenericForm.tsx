@@ -52,7 +52,7 @@ type SelectableElement = Omit<LabeledElement, 'type'> & {
     type: FormElementType.SELECT,
     name: string,
     options: {label: string, value: string}[],
-    defaultValue: string[],
+    defaultValue: string,
     required: boolean,
     mode?: 'multiple',
     disabled?: boolean,

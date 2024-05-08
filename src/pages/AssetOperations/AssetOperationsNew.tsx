@@ -147,7 +147,7 @@ export const AssetOperationsNew = () => {
                 required: true,
                 options: processTypes.map((processType) => ({label: processType, value: processType})),
                 mode: 'multiple',
-                defaultValue: [],
+                defaultValue: '',
                 disabled: false,
             },
             {type: FormElementType.TITLE, span: 24, label: 'Coordinates'},

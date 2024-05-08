@@ -1,4 +1,4 @@
-import { TradeType, TradeStatus } from "@kbc-lib/coffee-trading-management-lib";
+import { NegotiationStatus, TradeType, TradeStatus } from "@kbc-lib/coffee-trading-management-lib";
 import {TradeLinePresentable} from "./TradeLinePresentable";
 import {getEnumKeyByValue} from "../../utils/utils";
 import {DocumentPresentable} from "./DocumentPresentable";
@@ -23,6 +23,7 @@ export class TradePresentable {
     private _tokenAddress?: string;
     private _escrow?: string;
     private _status?: string;
+    private _negotiationStatus?: string;
     private _type: TradeType;
     // documents
     private _paymentInvoice?: DocumentPresentable;
@@ -121,6 +122,10 @@ export class TradePresentable {
 
     get status(): string | undefined {
         return this._status;
+    }
+
+    get negotiationStatus(): string | undefined {
+        return this._negotiationStatus;
     }
 
     get paymentInvoice(): DocumentPresentable | undefined {
@@ -251,6 +256,11 @@ export class TradePresentable {
 
     setStatus(value: TradeStatus | undefined): this {
         this._status = value != null ? getEnumKeyByValue(TradeStatus, value) : undefined;
+        return this;
+    }
+
+    setNegotiationStatus(value: NegotiationStatus | undefined): this {
+        this._negotiationStatus = value != null ? getEnumKeyByValue(NegotiationStatus, value) : undefined;
         return this;
     }
 

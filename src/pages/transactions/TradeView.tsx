@@ -3,12 +3,12 @@ import {CardPage} from "../../components/structure/CardPage/CardPage";
 import {GenericForm} from "../../components/GenericForm/GenericForm";
 import {Tag, Tooltip} from "antd";
 import {EditOutlined, CheckCircleOutlined} from "@ant-design/icons";
-import {TradeType} from "@kbc-lib/coffee-trading-management-lib";
+import {NegotiationStatus, TradeType} from "@kbc-lib/coffee-trading-management-lib";
 import {getEnumKeyByValue, isValueInEnum} from "../../utils/utils";
 import useTradeView from "./logic/tradeView";
 
 export const TradeView = () => {
-    const { type, orderState, elements, trade, documents, loadingDocuments, disabled, toggleDisabled, onSubmit } = useTradeView();
+    const { type, orderState, elements, trade, documents, loadingDocuments, disabled, toggleDisabled, onSubmit, confirmNegotiation } = useTradeView();
 
     console.log("documents: ", documents)
     if (!isValueInEnum(type, TradeType))
@@ -21,12 +21,12 @@ export const TradeView = () => {
                 <div style={{display: 'flex', alignItems: 'center'}}>
                     {trade?.status && (
                         <Tag color='green' key={trade.status}>
-                            {trade.status?.toUpperCase()}
+                            {trade.negotiationStatus?.toUpperCase()}
                         </Tag>
                     )}
-                    <EditOutlined style={{marginLeft: '8px'}} onClick={toggleDisabled}/>
+                    { trade?.negotiationStatus !== getEnumKeyByValue(NegotiationStatus, NegotiationStatus.CONFIRMED) && <EditOutlined style={{marginLeft: '8px'}} onClick={toggleDisabled}/> }
                     <Tooltip title="Confirm the negotiation if everything is OK">
-                        <CheckCircleOutlined style={{marginLeft: '8px'}} onClick={toggleDisabled}/>
+                        <CheckCircleOutlined style={{marginLeft: '8px'}} onClick={confirmNegotiation}/>
                     </Tooltip>
                 </div>
             </div>}

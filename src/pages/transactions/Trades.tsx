@@ -1,6 +1,6 @@
 import React, {useEffect} from "react";
 import {CardPage} from "../../components/structure/CardPage/CardPage";
-import {Button, Table, TableProps} from "antd";
+import {Button, Table, TableProps, Tag} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
 import {ColumnsType} from "antd/es/table";
 import {NotificationType, openNotification} from "../../utils/notification";
@@ -107,7 +107,17 @@ export const Trades = () => {
             //         </Dropdown>
             //     )
             // }
-        }
+        },
+        {
+            title: 'Status',
+            dataIndex: 'negotiationStatus',
+            sorter: (a, b) => (a.negotiationStatus || '').localeCompare((b.negotiationStatus || '')),
+            render: (_, {negotiationStatus}) => (
+                <Tag color="geekblue" key={negotiationStatus}>
+                    {negotiationStatus?.toUpperCase()}
+                </Tag>
+            )
+        },
     ];
 
     const onChange: TableProps<TradePresentable>['onChange'] = (pagination, filters, sorter, extra) => {

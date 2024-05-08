@@ -1,7 +1,7 @@
 import useTradeShared from "./tradeShared";
 import {NotificationType, openNotification} from "../../../utils/notification";
 import {DocumentType, TradeType} from "@kbc-lib/coffee-trading-management-lib";
-import {useLocation, useParams} from "react-router-dom";
+import {useLocation, useNavigate, useParams} from "react-router-dom";
 import {useDispatch} from "react-redux";
 import {useEffect, useState} from "react";
 import {TradePresentable} from "../../../api/types/TradePresentable";
@@ -13,10 +13,12 @@ import {regex} from "../../../utils/regex";
 import dayjs from "dayjs";
 import {TradeLinePresentable, TradeLinePrice} from "../../../api/types/TradeLinePresentable";
 import {ProductCategoryPresentable} from "../../../api/types/ProductCategoryPresentable";
+import {paths} from "../../../constants";
 
 export default function useTradeView() {
-    const { tradeService, orderState } = useTradeShared();
+    const { units, fiats, tradeService, orderState } = useTradeShared();
     const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     const {id} = useParams();
     const location = useLocation();
@@ -31,15 +33,22 @@ export default function useTradeView() {
         setDisabled(!disabled);
     }
 
-    const confirmNegotiation = () => {
-
+    const confirmNegotiation = async () => {
+        try {
+            await tradeService.confirmOrderTrade(parseInt(id!));
+            openNotification("Negotiation confirmed", `The negotiation has been confirmed`, NotificationType.SUCCESS, 1);
+            navigate(paths.TRADES);
+        }
+        catch (e: any) {
+            console.log("error: ", e);
+            openNotification("Error", e.message, NotificationType.ERROR);
+        }
     }
 
     const getTradeInfo = async (id: number, type: number) => {
         try {
             dispatch(showLoading("Retrieving trade..."));
             const resp = await tradeService.getTradeByIdAndType(id, type);
-            console.log("resp: ", resp)
             resp && setTrade(resp);
         } catch (e: any) {
             console.log("error: ", e);
@@ -101,7 +110,7 @@ export default function useTradeView() {
                 required: true,
                 regex: regex.ETHEREUM_ADDRESS,
                 defaultValue: trade.supplier,
-                disabled,
+                disabled: true,
             },
             {
                 type: FormElementType.INPUT,
@@ -111,7 +120,7 @@ export default function useTradeView() {
                 required: true,
                 regex: regex.ETHEREUM_ADDRESS,
                 defaultValue: trade.customer,
-                disabled,
+                disabled: true,
             },
             {
                 type: FormElementType.INPUT,
@@ -121,7 +130,7 @@ export default function useTradeView() {
                 required: true,
                 regex: regex.ETHEREUM_ADDRESS,
                 defaultValue: trade.commissioner,
-                disabled,
+                disabled: true,
             },
         ]
 
@@ -172,7 +181,7 @@ export default function useTradeView() {
                     {
                         type: FormElementType.INPUT,
                         span: 8,
-                        name: 'product-category-id-1',
+                        name: `product-category-id-${index+1}`,
                         label: 'Product Category Id',
                         required: true,
                         defaultValue: line.productCategory?.id.toString(),
@@ -181,19 +190,20 @@ export default function useTradeView() {
                     {
                         type: FormElementType.INPUT,
                         span: 6,
-                        name: `quantity-1`,
+                        name: `quantity-${index+1}`,
                         label: 'Quantity',
                         required: true,
                         defaultValue: line.quantity?.toString(),
                         disabled,
                     },
                     {
-                        type: FormElementType.INPUT,
+                        type: FormElementType.SELECT,
                         span: 4,
-                        name: `unit-1`,
+                        name: `unit-${index+1}`,
                         label: 'Unit',
                         required: true,
-                        defaultValue: line.unit,
+                        options: units.map((unit) => ({label: unit, value: unit})),
+                        defaultValue: line.unit!,
                         disabled,
                     },
                     {type: FormElementType.SPACE, span: 6},
@@ -301,7 +311,7 @@ export default function useTradeView() {
                 {
                     type: FormElementType.INPUT,
                     span: 12,
-                    name: 'tokenAddress',
+                    name: 'token-address',
                     label: 'Token Address',
                     required: true,
                     regex: regex.ETHEREUM_ADDRESS,
@@ -315,7 +325,7 @@ export default function useTradeView() {
                     {
                         type: FormElementType.INPUT,
                         span: 6,
-                        name: `product-category-id-1`,
+                        name: `product-category-id-${index+1}`,
                         label: 'Product Category Id',
                         required: true,
                         defaultValue: line.productCategory?.id.toString(),
@@ -323,8 +333,8 @@ export default function useTradeView() {
                     },
                     {
                         type: FormElementType.INPUT,
-                        span: 4,
-                        name: `quantity-${id}`,
+                        span: 5,
+                        name: `quantity-${index+1}`,
                         label: 'Quantity',
                         required: true,
                         regex: regex.ONLY_DIGITS,
@@ -332,30 +342,32 @@ export default function useTradeView() {
                         disabled,
                     },
                     {
-                        type: FormElementType.INPUT,
+                        type: FormElementType.SELECT,
                         span: 4,
-                        name: `unit-1`,
+                        name: `unit-${index+1}`,
                         label: 'Unit',
                         required: true,
-                        defaultValue: line.unit,
+                        options: units.map((unit) => ({label: unit, value: unit})),
+                        defaultValue: line.unit!,
                         disabled,
                     },
                     {
                         type: FormElementType.INPUT,
-                        span: 4,
-                        name: `price-${id}`,
+                        span: 5,
+                        name: `price-${index+1}`,
                         label: 'Price',
                         required: true,
                         defaultValue: line.price?.amount.toString(),
                         disabled,
                     },
                     {
-                        type: FormElementType.INPUT,
+                        type: FormElementType.SELECT,
                         span: 4,
-                        name: `fiat-${id}`,
+                        name: `fiat-${index+1}`,
                         label: 'Fiat',
                         required: true,
-                        defaultValue: line.price?.fiat,
+                        options: fiats.map((fiat) => ({label: fiat, value: fiat})),
+                        defaultValue: line.price!.fiat,
                         disabled,
                     },
                 );
@@ -368,14 +380,14 @@ export default function useTradeView() {
         try {
             dispatch(showLoading("Loading..."));
             if (values['delivery-deadline'] <= values['shipping-deadline']) {
-                openNotification("Invalid dates", '', NotificationType.ERROR);
+                openNotification("Delivery deadline cannot be less then shipping one", '', NotificationType.ERROR);
             }
             const tradeToSubmit: TradePresentable = new TradePresentable()
                 .setSupplier(values['supplier'])
                 .setCustomer(values['customer'])
                 .setCommissioner(values['commissioner']);
             const quantity: number = parseInt(values[`quantity-1`]);
-            const unit: string = values[`unit-${id}`];
+            const unit: string = values[`unit-1`];
             const productCategoryId: number = parseInt(values['product-category-id-1']);
             if(trade?.type === TradeType.BASIC) {
                 tradeToSubmit
@@ -391,12 +403,11 @@ export default function useTradeView() {
                         .setUnit(unit)
                         .setProductCategory(new ProductCategoryPresentable(productCategoryId))
                     ]);
-                console.log("basic trade: ", tradeToSubmit)
                 await tradeService.putBasicTrade(trade.id, tradeToSubmit);
             }
             else if (trade?.type === TradeType.ORDER) {
-                const price: number = parseInt(values[`price-${id}`].split(' ')[0]);
-                const fiat: string = values[`fiat-${id}`];
+                const price: number = parseInt(values[`price-1`]);
+                const fiat: string = values[`fiat-1`];
                 tradeToSubmit
                     .setIncoterms(values['incoterms'])
                     .setPaymentDeadline(dayjs(values['payment-deadline']).toDate())
@@ -469,10 +480,11 @@ export default function useTradeView() {
                         .setProductCategory(new ProductCategoryPresentable(productCategoryId))
                         .setPrice(new TradeLinePrice(price, fiat))
                     ]);
-                console.log("order trade: ", tradeToSubmit)
+                console.log("value: ", values)
                 await tradeService.putOrderTrade(trade.id, tradeToSubmit);
             }
             setDisabled(true);
+            navigate(paths.TRADES);
         } catch (e: any) {
             console.log("error: ", e);
             openNotification("Error", e.message, NotificationType.ERROR);
@@ -490,6 +502,7 @@ export default function useTradeView() {
         loadingDocuments,
         disabled,
         toggleDisabled,
-        onSubmit
+        onSubmit,
+        confirmNegotiation
     }
 }
