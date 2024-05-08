@@ -160,35 +160,39 @@ export default function useTradeView() {
                     disabled,
                 },
                 {type: FormElementType.TITLE, span: 24, label: 'Line Item'},
-                {
-                    type: FormElementType.INPUT,
-                    span: 8,
-                    name: 'product-category-id-1',
-                    label: 'Product Category Id',
-                    required: true,
-                    defaultValue: trade.lines[0].productCategory?.id.toString(),
-                    disabled,
-                },
-                {
-                    type: FormElementType.INPUT,
-                    span: 6,
-                    name: `quantity-1`,
-                    label: 'Quantity',
-                    required: true,
-                    defaultValue: trade.lines[0].quantity?.toString(),
-                    disabled,
-                },
-                {
-                    type: FormElementType.INPUT,
-                    span: 4,
-                    name: `unit-1`,
-                    label: 'Unit',
-                    required: true,
-                    defaultValue: trade.lines[0].unit,
-                    disabled,
-                },
-                {type: FormElementType.SPACE, span: 6},
             );
+            trade.lines.forEach((line, index) => {
+                newElements.push(
+                    {
+                        type: FormElementType.INPUT,
+                        span: 8,
+                        name: 'product-category-id-1',
+                        label: 'Product Category Id',
+                        required: true,
+                        defaultValue: line.productCategory?.id.toString(),
+                        disabled,
+                    },
+                    {
+                        type: FormElementType.INPUT,
+                        span: 6,
+                        name: `quantity-1`,
+                        label: 'Quantity',
+                        required: true,
+                        defaultValue: line.quantity?.toString(),
+                        disabled,
+                    },
+                    {
+                        type: FormElementType.INPUT,
+                        span: 4,
+                        name: `unit-1`,
+                        label: 'Unit',
+                        required: true,
+                        defaultValue: line.unit,
+                        disabled,
+                    },
+                    {type: FormElementType.SPACE, span: 6},
+                );
+            });
             setElements(newElements);
         }
         else {

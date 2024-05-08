@@ -47,7 +47,7 @@ export class BlockchainLibraryUtils {
         return new RelationshipService(relationshipDriver);
     }
 
-    static getTradeManagerService = (storage?: SolidSpec): TradeManagerService<SolidMetadataSpec, SolidStorageACR> => {
+    static getTradeManagerService = (): TradeManagerService<SolidMetadataSpec, SolidStorageACR> => {
         const tradeManagerDriver: TradeManagerDriver = new TradeManagerDriver(this._getSigner(), contractAddresses.TRADE(), contractAddresses.MATERIAL(), contractAddresses.PRODUCT_CATEGORY());
         return new TradeManagerService(tradeManagerDriver);
     }
