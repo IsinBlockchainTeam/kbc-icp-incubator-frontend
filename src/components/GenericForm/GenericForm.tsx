@@ -157,12 +157,13 @@ export const GenericForm = (props: Props) => {
                         labelCol={{span: 24}}
                         label={element.label}
                         name={element.name}
+                        initialValue={element.defaultValue}
                         rules={[{required: element.required, message: `Please select ${element.label}!`}]}>
                         <Select
                             mode={element.mode}
                             disabled={disabled}
                             placeholder={`Select ${element.label}`}
-                            defaultValue={element.defaultValue}
+                            // defaultValue={element.defaultValue}
                             options={element.options}
                         />
                     </Form.Item>
@@ -178,18 +179,21 @@ export const GenericForm = (props: Props) => {
                         labelCol={{span: 24}}
                         label={element.label}
                         name={element.name}
+                        initialValue={element.defaultValue}
                         rules={[
                             {required: element.required, message: `Please insert ${element.label}!`},
                             {
                                 pattern: new RegExp(element.regex || '.*'),
                                 message: `Please enter a valid ${element.label}!`
                             }
-                        ]}>
+                        ]}
+                        >
                         <Input
                             type={element.type}
                             disabled={disabled}
                             placeholder={`Enter ${element.label}`}
-                            defaultValue={element.defaultValue}
+                            // defaultValue={element.defaultValue}
+                            // value={element.defaultValue}
                             className='ant-input'
                         />
                     </Form.Item>
@@ -205,11 +209,12 @@ export const GenericForm = (props: Props) => {
                         labelCol={{span: 24}}
                         label={element.label}
                         name={element.name}
+                        initialValue={element.defaultValue}
                         rules={[{required: element.required, message: `Please insert ${element.label}!`}]}>
                         <DatePicker
                             disabled={disabled}
                             placeholder={`Enter ${element.label}`}
-                            defaultValue={element.defaultValue}
+                            // defaultValue={element.defaultValue}
                             format={dateFormat}
                             className='ant-input'
                         />

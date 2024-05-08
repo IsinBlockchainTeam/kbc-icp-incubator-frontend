@@ -1,7 +1,16 @@
 import {Service} from "./Service";
 import {BlockchainLibraryUtils} from "../BlockchainLibraryUtils";
 import {TradePresentable} from "../types/TradePresentable";
-import {BasicTrade, Line, LineRequest, IConcreteTradeService, OrderLinePrice, OrderLineRequest, TradeType} from "@kbc-lib/coffee-trading-management-lib";
+import {
+    BasicTrade,
+    Line,
+    LineRequest,
+    IConcreteTradeService,
+    OrderLinePrice,
+    OrderLineRequest,
+    TradeType,
+    OrderLine, Material
+} from "@kbc-lib/coffee-trading-management-lib";
 import {CustomError} from "../../utils/error/CustomError";
 import {HttpStatusCode} from "../../utils/error/HttpStatusCode";
 import {TradeLinePresentable, TradeLinePrice} from "../types/TradeLinePresentable";
@@ -122,6 +131,10 @@ export class EthTradeService extends Service {
                             .setMaterial(ol.material ? new MaterialPresentable()
                                 .setId(ol.material.id)
                                 .setName(ol.productCategory.name): undefined)
+                            .setProductCategory(ol.productCategory ? new ProductCategoryPresentable()
+                                .setId(ol.productCategory.id)
+                                .setQuality(ol.productCategory.quality)
+                                .setName(ol.productCategory.name) : undefined)
                             .setQuantity(ol.quantity)
                             .setUnit(ol.unit)
                             .setPrice(new TradeLinePrice().setAmount(ol.price.amount).setFiat(ol.price.fiat))))
@@ -156,6 +169,21 @@ export class EthTradeService extends Service {
         const tradeService = BlockchainLibraryUtils.getBasicTradeService(await this._tradeManagerService.getTrade(id));
         const oldTrade: BasicTrade = await tradeService.getTrade();
         oldTrade.name !== trade.name && await tradeService.setName(trade.name!);
+    }
+
+    async putOrderTrade(id: number, trade: TradePresentable): Promise<void> {
+        const tradeService = BlockchainLibraryUtils.getOrderTradeService(await this._tradeManagerService.getTrade(id));
+        const oldTrade = await tradeService.getTrade();
+        console.log("oldTrade: ", oldTrade)
+        console.log("trade presentable: ", trade)
+        oldTrade.paymentDeadline !== trade.paymentDeadline?.getTime() && await tradeService.updatePaymentDeadline(trade.paymentDeadline!.getTime());
+        oldTrade.documentDeliveryDeadline !== trade.documentDeliveryDeadline?.getTime() && await tradeService.updateDocumentDeliveryDeadline(trade.documentDeliveryDeadline!.getTime());
+        oldTrade.arbiter !== trade.arbiter && await tradeService.updateArbiter(trade.arbiter!);
+        oldTrade.shippingDeadline !== trade.shippingDeadline?.getTime() && await tradeService.updateShippingDeadline(trade.shippingDeadline!.getTime());
+        oldTrade.deliveryDeadline !== trade.deliveryDeadline?.getTime() && await tradeService.updateDeliveryDeadline(trade.deliveryDeadline!.getTime());
+        // update one single line because at this time we manage only one line per trade
+        if (oldTrade.lines[0].productCategory.id !== trade.lines[0].productCategory?.id || oldTrade.lines[0].quantity !== trade.lines[0].quantity || oldTrade.lines[0].unit !== trade.lines[0].unit)
+            await tradeService.updateLine(new OrderLineRequest(trade.lines[0].productCategory!.id, trade.lines[0].quantity!, trade.lines[0].unit!, new OrderLinePrice(trade.lines[0].price!.amount, trade.lines[0].price!.fiat), oldTrade.lines[0].id));
     }
 
     async saveOrderTrade(trade: TradePresentable): Promise<void> {

@@ -1,8 +1,8 @@
 import React from "react";
 import {CardPage} from "../../components/structure/CardPage/CardPage";
 import {GenericForm} from "../../components/GenericForm/GenericForm";
-import {Tag} from "antd";
-import {EditOutlined} from "@ant-design/icons";
+import {Tag, Tooltip} from "antd";
+import {EditOutlined, CheckCircleOutlined} from "@ant-design/icons";
 import {TradeType} from "@kbc-lib/coffee-trading-management-lib";
 import {getEnumKeyByValue, isValueInEnum} from "../../utils/utils";
 import useTradeView from "./logic/tradeView";
@@ -25,6 +25,9 @@ export const TradeView = () => {
                         </Tag>
                     )}
                     <EditOutlined style={{marginLeft: '8px'}} onClick={toggleDisabled}/>
+                    <Tooltip title="Confirm the negotiation if everything is OK">
+                        <CheckCircleOutlined style={{marginLeft: '8px'}} onClick={toggleDisabled}/>
+                    </Tooltip>
                 </div>
             </div>}
         >
