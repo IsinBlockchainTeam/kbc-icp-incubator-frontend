@@ -149,6 +149,5 @@ export const getICPCanisterURL = (canisterId: string): string => {
         url = `http://${canisterId}.localhost:4943/`;
     else
         url = `https://${canisterId}.ic0.app/`;
-    console.log("CANISTER URL: ", url);
     return url;
 }

@@ -1,9 +1,8 @@
 import {Button, Col, Flex, Image, Row, Typography} from "antd";
-import React, {useContext} from "react";
+import React, {useEffect} from "react";
 import {
     ICPIdentityDriver, ICPOrganizationDriver, ICPStorageDriver
 } from "@blockchain-lib/common";
-import {ICPContext} from "../../contexts/ICPProvider";
 import {AuthClient} from "@dfinity/auth-client";
 import {Identity} from "@dfinity/agent";
 import {ICPFileDriver} from "@kbc-lib/coffee-trading-management-lib";
@@ -13,7 +12,14 @@ import {ICP} from "../../constants";
 const Text = Typography.Text;
 
 export const ICPLogin = () => {
-    const {identityDriver, updateIdentityDriver} = useContext(ICPContext);
+    const [identityDriver, setIdentityDriver] = React.useState<ICPIdentityDriver | null>(null);
+
+    useEffect(() => {
+        try {
+            const identityDriver = ICPIdentityDriver.getInstance();
+            setIdentityDriver(identityDriver);
+        } catch (e) {}
+    }, []);
 
     const icpLogin = async () => {
         const driverCanisterIds = {
@@ -35,14 +41,13 @@ export const ICPLogin = () => {
                 ICPFileDriver.init();
             }
         });
-        const identityDriver = new ICPIdentityDriver(authClient);
-        updateIdentityDriver(identityDriver);
+        ICPIdentityDriver.init(authClient);
+        setIdentityDriver(ICPIdentityDriver.getInstance());
     }
 
     const icpLogout = async () => {
         if (!identityDriver) return;
         await identityDriver.logout();
-        updateIdentityDriver(null);
     }
 
     const createOrganization = async () => {

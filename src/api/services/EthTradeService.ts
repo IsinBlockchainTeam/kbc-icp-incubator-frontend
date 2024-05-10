@@ -14,7 +14,7 @@ import {CustomError} from "../../utils/error/CustomError";
 import {HttpStatusCode} from "../../utils/error/HttpStatusCode";
 import {TradeLinePresentable, TradeLinePrice} from "../types/TradeLinePresentable";
 import {MaterialPresentable} from "../types/MaterialPresentable";
-import {ICPResourceSpec} from "@blockchain-lib/common";
+import {ICPOrganizationDriver, ICPResourceSpec} from "@blockchain-lib/common";
 import {ProductCategoryPresentable} from "../types/ProductCategoryPresentable";
 import {getICPCanisterURL} from "../../utils/utils";
 import {ICP} from "../../constants";
@@ -75,7 +75,6 @@ export class EthTradeService extends Service {
         let resp;
         switch (type) {
             case TradeType.BASIC:
-                // TODO: implement basic trade metadata fetch
                 const basicTradeService = BlockchainLibraryUtils.getBasicTradeService(address);
                 resp = await basicTradeService.getTrade();
 
@@ -143,14 +142,13 @@ export class EthTradeService extends Service {
     }
 
     async saveBasicTrade(trade: TradePresentable): Promise<void> {
+        const organizations = await ICPOrganizationDriver.getInstance().getUserOrganizations();
         const metadata = {
             date: new Date(),
         }
         const urlStructure: URLStructure = {
             prefix: getICPCanisterURL(ICP.CANISTER_ID_ORGANIZATION),
-            // prefix: `http://${checkAndGetEnvironmentVariable(ICP.CANISTER_ID_ORGANIZATION)}.localhost:4943/`,
-            // TODO: remove this
-            organizationId: 0,
+            organizationId: Number(organizations[0].organization.id.toString()),
         }
         const [, newTradeAddress, transactionHash] =
             await this._tradeManagerService.registerBasicTrade(trade.supplier, trade.customer!, trade.commissioner!, trade.name!,
@@ -184,6 +182,7 @@ export class EthTradeService extends Service {
     }
 
     async saveOrderTrade(trade: TradePresentable): Promise<void> {
+        const organizations = await ICPOrganizationDriver.getInstance().getUserOrganizations();
         const metadata: OrderTradeMetadata = {
             incoterms: trade.incoterms!,
             shipper: trade.shipper!,
@@ -192,9 +191,7 @@ export class EthTradeService extends Service {
         }
         const urlStructure: URLStructure = {
             prefix: getICPCanisterURL(ICP.CANISTER_ID_ORGANIZATION),
-            // prefix: `http://${process.env.REACT_APP_CANISTER_ID_ORGANIZATION!}.localhost:4943/`,
-            // TODO: remove this
-            organizationId: 0,
+            organizationId: Number(organizations[0].organization.id.toString()),
         }
 
         const [, newTradeAddress, transactionHash] = await this._tradeManagerService.registerOrderTrade(
