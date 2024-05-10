@@ -24,6 +24,7 @@ export const ICPLogin = () => {
             process.env.DFX_NETWORK === "ic"
                 ? "https://identity.ic0.app"
                 : `http://${checkAndGetEnvironmentVariable(ICP.CANISTER_ID_INTERNET_IDENTITY)}.localhost:4943`;
+        console.log("identityProvider", identityProvider)
         const authClient: AuthClient = await AuthClient.create();
         await authClient.login({
             identityProvider,

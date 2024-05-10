@@ -11,7 +11,6 @@ import { updateUserInfo } from "../../redux/reducers/userInfoSlice";
 import {RootState} from "../../redux/store";
 import {Navigate, useNavigate} from "react-router-dom";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
-import {Button} from "antd";
 
 export default function VeramoLogin() {
   const [qrCodeURL, setQrCodeURL] = useState<string>("");
@@ -102,26 +101,6 @@ export default function VeramoLogin() {
         }
     }, [challengeId]);
 
-    const fakeLogin = () => {
-        dispatch(updateSubjectDid("did:ethr:dev:0x90F79bf6EB2c4f870365E785982E1f101E93b906"));
-        const userInfo = {
-            address: "via la Santa 1",
-            email: "isin@supsi.ch",
-            id: "did:ethr:dev:0x90F79bf6EB2c4f870365E785982E1f101E93b906",
-            image: "https://gioconda.supsi.ch/images/ISIN_logo.jpg",
-            industrialSector: "IT",
-            latitude: "46.012120",
-            legalName: "ISIN",
-            longitude: "8.960886",
-            nation: "Switzerland",
-            privateKey: "7c852118294e51e653712a81e05800f419141751be58f605c371e15141b007a6",
-            subjectDid: "did:ethr:dev:0x90F79bf6EB2c4f870365E785982E1f101E93b906",
-            telephone: "+41 79 345 3456",
-            role: "EXPORTER"
-        }
-        dispatch(updateUserInfo({isLogged: true, ...userInfo}));
-    }
-
     if (userInfo.isLogged) {
         return <Navigate to={paths.PROFILE}/>;
     }
@@ -143,7 +122,6 @@ export default function VeramoLogin() {
                     size={300}
                 />
             </Space>
-            <Button danger onClick={fakeLogin}>Fake Login</Button>
         </div>
     );
 }
