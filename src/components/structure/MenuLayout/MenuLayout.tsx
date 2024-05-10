@@ -9,7 +9,7 @@ import KBCLogo from "../../../assets/logo.png";
 import styles from "./MenuLayout.module.scss";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
-import {updateUserInfo} from "../../../redux/reducers/userInfoSlice";
+import {initialState, updateUserInfo} from "../../../redux/reducers/userInfoSlice";
 import SingletonSigner from "../../../api/SingletonSigner";
 
 const { Content, Footer, Sider } = Layout;
@@ -63,19 +63,7 @@ const getUserItemLoggedIn = (name: string, picture: string, dispatch: any) => [
             undefined,
             undefined,
             () => {
-              const reset = {
-                isLogged: false,
-                id: "",
-                legalName: "",
-                email: "",
-                address: "",
-                nation: "",
-                telephone: "",
-                image: "",
-                role: "",
-                privateKey: "",
-              };
-              dispatch(updateUserInfo(reset));
+              dispatch(updateUserInfo(initialState));
               SingletonSigner.resetInstance();
             }
         ),

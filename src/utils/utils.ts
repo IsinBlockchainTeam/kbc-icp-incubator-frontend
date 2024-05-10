@@ -1,6 +1,7 @@
 import {request} from "./request";
 import {OrganizationCredential} from "../api/types/OrganizationCredential";
 import {ICP} from "../constants";
+import {URL_SEGMENTS} from "@kbc-lib/coffee-trading-management-lib";
 
 export const setParametersPath = (
     path = "",
@@ -143,11 +144,7 @@ export const getMimeType = (filename: string): string => {
 }
 
 export const getICPCanisterURL = (canisterId: string): string => {
-    const network = checkAndGetEnvironmentVariable(ICP.DFX_NETWORK);
-    let url;
-    if(network === "local")
-        url = `http://${canisterId}.localhost:4943/`;
-    else
-        url = `https://${canisterId}.ic0.app/`;
-    return url;
+    return checkAndGetEnvironmentVariable(ICP.DFX_NETWORK) === "local" ?
+        URL_SEGMENTS.HTTP + canisterId + '.' + URL_SEGMENTS.LOCAL_REPLICA :
+        URL_SEGMENTS.HTTP + canisterId + '.' + URL_SEGMENTS.MAINNET;
 }

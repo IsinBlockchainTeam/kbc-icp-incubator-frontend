@@ -10,11 +10,11 @@ export type UserInfoState = {
     telephone: string;
     image: string;
     role: string;
+    organizationId: string;
     privateKey: string,
-
 }
 
-const initialState: UserInfoState = {
+export const initialState: UserInfoState = {
     isLogged: false,
     id: "",
     legalName: "",
@@ -24,6 +24,7 @@ const initialState: UserInfoState = {
     telephone: "",
     image: "",
     role: "",
+    organizationId: "",
     privateKey: "",
 }
 const userInfoSlice = createSlice({
@@ -40,6 +41,7 @@ const userInfoSlice = createSlice({
             state.telephone = action.payload.telephone;
             state.image = action.payload.image;
             state.role = action.payload.role;
+            state.organizationId = action.payload.organizationId;
             state.privateKey = action.payload.privateKey;
         },
 

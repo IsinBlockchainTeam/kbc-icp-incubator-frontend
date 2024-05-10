@@ -62,7 +62,6 @@ export default function useTradeNew() {
                         .setFilename(values['certificate-of-shipping'].name)
                         .setContent(values['certificate-of-shipping'])
                     )
-                console.log("trade - saveBasicTrade: ", trade)
                 await tradeService.saveBasicTrade(trade);
                 openNotification("Basic trade registered", `Basic trade "${values.name}" has been registered correctly!`, NotificationType.SUCCESS, 1);
             } else {

@@ -14,10 +14,11 @@ import {CustomError} from "../../utils/error/CustomError";
 import {HttpStatusCode} from "../../utils/error/HttpStatusCode";
 import {TradeLinePresentable, TradeLinePrice} from "../types/TradeLinePresentable";
 import {MaterialPresentable} from "../types/MaterialPresentable";
-import {ICPOrganizationDriver, ICPResourceSpec} from "@blockchain-lib/common";
+import {ICPResourceSpec} from "@blockchain-lib/common";
 import {ProductCategoryPresentable} from "../types/ProductCategoryPresentable";
 import {getICPCanisterURL} from "../../utils/utils";
 import {ICP} from "../../constants";
+import {store} from "../../redux/store";
 
 export class EthTradeService extends Service {
     private readonly _tradeManagerService;
@@ -142,13 +143,13 @@ export class EthTradeService extends Service {
     }
 
     async saveBasicTrade(trade: TradePresentable): Promise<void> {
-        const organizations = await ICPOrganizationDriver.getInstance().getUserOrganizations();
-        const metadata = {
-            date: new Date(),
-        }
+        const state = store.getState();
         const urlStructure: URLStructure = {
             prefix: getICPCanisterURL(ICP.CANISTER_ID_ORGANIZATION),
-            organizationId: Number(organizations[0].organization.id.toString()),
+            organizationId: parseInt(state.userInfo.organizationId),
+        }
+        const metadata = {
+            date: new Date(),
         }
         const [, newTradeAddress, transactionHash] =
             await this._tradeManagerService.registerBasicTrade(trade.supplier, trade.customer!, trade.commissioner!, trade.name!,
@@ -182,16 +183,16 @@ export class EthTradeService extends Service {
     }
 
     async saveOrderTrade(trade: TradePresentable): Promise<void> {
-        const organizations = await ICPOrganizationDriver.getInstance().getUserOrganizations();
+        const state = store.getState();
+        const urlStructure: URLStructure = {
+            prefix: getICPCanisterURL(ICP.CANISTER_ID_ORGANIZATION),
+            organizationId: parseInt(state.userInfo.organizationId),
+        }
         const metadata: OrderTradeMetadata = {
             incoterms: trade.incoterms!,
             shipper: trade.shipper!,
             shippingPort: trade.shippingPort!,
             deliveryPort: trade.deliveryPort!,
-        }
-        const urlStructure: URLStructure = {
-            prefix: getICPCanisterURL(ICP.CANISTER_ID_ORGANIZATION),
-            organizationId: Number(organizations[0].organization.id.toString()),
         }
 
         const [, newTradeAddress, transactionHash] = await this._tradeManagerService.registerOrderTrade(

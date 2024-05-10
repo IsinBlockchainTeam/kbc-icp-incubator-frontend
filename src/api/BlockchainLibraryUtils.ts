@@ -99,7 +99,7 @@ export class BlockchainLibraryUtils {
     }
 
     private static _getSigner = (): Signer => {
-        if (!SingletonSigner.getInstance()) throw new Error("Metamask is not connected");
+        if (!SingletonSigner.getInstance()) throw new Error("Signer not initialized");
         return SingletonSigner.getInstance()!;
     }
 }
