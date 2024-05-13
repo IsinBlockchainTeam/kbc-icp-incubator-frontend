@@ -1,6 +1,5 @@
 import {MaterialPresentable} from "./MaterialPresentable";
 import {ProductCategoryPresentable} from "./ProductCategoryPresentable";
-import material from "../../models/Material";
 
 export class TradeLinePrice {
     private _amount: number;

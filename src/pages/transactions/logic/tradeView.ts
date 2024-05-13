@@ -61,14 +61,6 @@ export default function useTradeView() {
     const getTradeDocuments = async (id: number) => {
         try {
             dispatch(showLoading("Retrieving documents..."));
-            // const documentService = new EthDocumentService(new BlockchainDocumentStrategy({
-            //     serverUrl: subjectClaims!.podServerUrl!,
-            //     sessionCredentials: {
-            //         podName: subjectClaims!.podName!,
-            //         clientId: subjectClaims!.podClientId!,
-            //         clientSecret: subjectClaims!.podClientSecret!
-            //     }
-            // }));
             const documentService = new EthDocumentService();
             const resp = await documentService.getDocumentsByTransactionId(id);
             resp && setDocuments(resp);
@@ -83,11 +75,6 @@ export default function useTradeView() {
     const [elements, setElements] = useState<FormElement[]>([]);
 
     useEffect(() => {
-        // TODO: remove this comment
-        // if (!subjectClaims || !(subjectClaims.podClientSecret && subjectClaims.podClientId && subjectClaims.podServerUrl)) {
-        //     openNotification("Error", "No information about company storage", NotificationType.ERROR);
-        //     return;
-        // }
         (async () => {
             await getTradeInfo(parseInt(id!), type);
             await getTradeDocuments(parseInt(id!));
@@ -96,11 +83,10 @@ export default function useTradeView() {
     }, []);
 
     useEffect(() => {
-        // if(!documents) return;
-        // if(documents.length === 0) return;
         if(!trade) return;
 
-        // const disabled = true;
+        const disabled = true;
+
         const commonElements: FormElement[] = [
             {type: FormElementType.TITLE, span: 24, label: 'Actors'}, {
                 type: FormElementType.INPUT,
@@ -110,7 +96,7 @@ export default function useTradeView() {
                 required: true,
                 regex: regex.ETHEREUM_ADDRESS,
                 defaultValue: trade.supplier,
-                disabled: true,
+                disabled,
             },
             {
                 type: FormElementType.INPUT,
@@ -120,7 +106,7 @@ export default function useTradeView() {
                 required: true,
                 regex: regex.ETHEREUM_ADDRESS,
                 defaultValue: trade.customer,
-                disabled: true,
+                disabled,
             },
             {
                 type: FormElementType.INPUT,
@@ -130,12 +116,27 @@ export default function useTradeView() {
                 required: true,
                 regex: regex.ETHEREUM_ADDRESS,
                 defaultValue: trade.commissioner,
-                disabled: true,
+                disabled,
             },
         ]
 
         let documentElement: FormElement;
-        if(documents && documents.length > 0) {
+        const documentHeight = '45vh';
+        if(type === TradeType.BASIC) {
+            const content = documents?.find(doc => doc.documentType === DocumentType.DELIVERY_NOTE)?.content;
+            documentElement = {
+                type: FormElementType.DOCUMENT,
+                span: 12,
+                name: 'certificate-of-shipping',
+                label: 'Certificate of Shipping',
+                required: false,
+                loading: false,
+                uploadable: false,
+                content: content,
+                height: documentHeight,
+            }
+        } else if(type === TradeType.ORDER) {
+            const content = documents?.find(doc => doc.documentType === DocumentType.PAYMENT_INVOICE)?.content;
             documentElement = {
                 type: FormElementType.DOCUMENT,
                 span: 12,
@@ -144,22 +145,12 @@ export default function useTradeView() {
                 required: false,
                 loading: false,
                 uploadable: false,
-                content: new Blob([documents[0].content]),
-                height: '45vh',
+                content: content,
+                height: documentHeight,
             }
         } else {
-            documentElement = {
-                type: FormElementType.DOCUMENT,
-                span: 12,
-                name: 'payment-invoice',
-                label: 'Payment Invoice',
-                required: false,
-                loading: false,
-                uploadable: false,
-                height: '45vh',
-            }
+            throw new Error("Invalid trade type");
         }
-        const documentHeight = '45vh';
 
         if (type === TradeType.BASIC) {
             const newElements = [...commonElements];
@@ -174,6 +165,7 @@ export default function useTradeView() {
                     defaultValue: trade.name,
                     disabled,
                 },
+                documentElement,
                 {type: FormElementType.TITLE, span: 24, label: 'Line Item'},
             );
             trade.lines.forEach((line, index) => {
@@ -220,7 +212,7 @@ export default function useTradeView() {
                     span: 12,
                     name: 'incoterms',
                     label: 'Incoterms',
-                    required: false,
+                    required: true,
                     defaultValue: trade.incoterms,
                     disabled: true,
                 },
@@ -248,7 +240,7 @@ export default function useTradeView() {
                     span: 12,
                     name: 'shipper',
                     label: 'Shipper',
-                    required: false,
+                    required: true,
                     defaultValue: trade.shipper,
                     disabled: true,
                 },
@@ -267,7 +259,7 @@ export default function useTradeView() {
                     span: 12,
                     name: 'shipping-port',
                     label: 'Shipping Port',
-                    required: false,
+                    required: true,
                     defaultValue: trade.shippingPort,
                     disabled: true,
                 },
@@ -285,7 +277,7 @@ export default function useTradeView() {
                     span: 12,
                     name: 'delivery-port',
                     label: 'Delivery Port',
-                    required: false,
+                    required: true,
                     defaultValue: trade.deliveryPort,
                     disabled: true,
                 },

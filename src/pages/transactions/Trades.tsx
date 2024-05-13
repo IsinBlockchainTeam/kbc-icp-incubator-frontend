@@ -124,6 +124,7 @@ export const Trades = () => {
 
     useEffect(() => {
         loadData();
+
         return () => {
             dispatch(hideLoading());
         }

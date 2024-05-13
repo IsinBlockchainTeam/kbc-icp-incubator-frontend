@@ -10,6 +10,8 @@ import {PersistGate} from "redux-persist/integration/react";
 
 global.Buffer = require("buffer").Buffer;
 
+window.Buffer = window.Buffer || require("buffer").Buffer;
+
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement,
 );

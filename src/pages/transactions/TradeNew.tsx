@@ -1,7 +1,7 @@
 import {GenericForm} from "../../components/GenericForm/GenericForm";
 import {TradeType} from "@kbc-lib/coffee-trading-management-lib";
 import {getEnumKeyByValue} from "../../utils/utils";
-import {Alert, Button, Divider, Dropdown, Steps, Typography} from "antd";
+import {Button, Divider, Dropdown, Steps, Typography} from "antd";
 import {CardPage} from "../../components/structure/CardPage/CardPage";
 import React, {useEffect} from "react";
 import {
@@ -55,13 +55,6 @@ export const TradeNew = () => {
                 </div>
                 {type === TradeType.ORDER &&
                     <>
-                        <Alert
-                            message="Work in progress"
-                            description="Due to the migration to ICP storage, some of the trade constraints are not uploadable."
-                            type="warning"
-                            showIcon
-                            style={{marginTop: '16px'}}
-                        />
                         <Divider>Order status</Divider>
                         <Steps
                             type="navigation"

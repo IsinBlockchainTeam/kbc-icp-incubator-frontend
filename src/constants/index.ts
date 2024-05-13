@@ -25,6 +25,15 @@ export const contractAddresses = {
     OFFER: () => checkAndGetEnvironmentVariable(process.env.REACT_APP_CONTRACT_OFFER, "Offer contract address must be defined")
 }
 
+export const ICP = {
+    DFX_NETWORK: checkAndGetEnvironmentVariable(process.env.DFX_NETWORK, "DFX network must be defined"),
+    CANISTER_ID_STORAGE: checkAndGetEnvironmentVariable(process.env.REACT_APP_CANISTER_ID_STORAGE, "Storage canister ID must be defined"),
+    CANISTER_ID_PROFILE: checkAndGetEnvironmentVariable(process.env.REACT_APP_CANISTER_ID_PROFILE, "Profile canister ID must be defined"),
+    CANISTER_ID_PERMISSION: checkAndGetEnvironmentVariable(process.env.REACT_APP_CANISTER_ID_PERMISSION, "Permission canister ID must be defined"),
+    CANISTER_ID_ORGANIZATION: checkAndGetEnvironmentVariable(process.env.REACT_APP_CANISTER_ID_ORGANIZATION, "Organization canister ID must be defined"),
+    CANISTER_ID_INTERNET_IDENTITY: checkAndGetEnvironmentVariable(process.env.REACT_APP_CANISTER_ID_INTERNET_IDENTITY, "Internet identity canister ID must be defined"),
+}
+
 export const paths = {
     HOME: "/",
     PROFILE: "/profile",

@@ -1,6 +1,6 @@
 {
   "canisters": {
-    "icp_react_frontend": {
+    "kbc-platform": {
       "source": [
         "./build"
       ],

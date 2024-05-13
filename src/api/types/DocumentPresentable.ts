@@ -5,12 +5,12 @@ export class DocumentPresentable {
     private _contentType: string;
     private _documentType: DocumentType;
     private _filename: string;
-    private _content: Uint8Array;
+    private _content: Blob;
     private _date: Date;
     private _transactionLines?: TransactionLine[];
 
-    constructor(id?: number, contentType?: string, documentType?: DocumentType, filename?: string, content?: Uint8Array, date?: Date);
-    constructor(id: number, contentType: string, documentType: DocumentType, filename: string, content: Uint8Array, date: Date) {
+    constructor(id?: number, contentType?: string, documentType?: DocumentType, filename?: string, content?: Blob, date?: Date);
+    constructor(id: number, contentType: string, documentType: DocumentType, filename: string, content: Blob, date: Date) {
         this._id = id;
         this._contentType = contentType;
         this._documentType = documentType;
@@ -31,7 +31,7 @@ export class DocumentPresentable {
         return this._documentType;
     }
 
-    get content(): Uint8Array {
+    get content(): Blob {
         return this._content;
     }
 
@@ -62,7 +62,7 @@ export class DocumentPresentable {
         return this;
     }
 
-    setContent(value: Uint8Array): this {
+    setContent(value: Blob): this {
         this._content = value;
         return this;
     }

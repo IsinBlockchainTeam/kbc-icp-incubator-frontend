@@ -17,12 +17,14 @@ import {
     TradeManagerDriver,
     TradeManagerService,
     AssetOperationDriver,
-    AssetOperationService, TradeService, TradeDriver, GraphService,
+    AssetOperationService,
+    TradeService,
+    TradeDriver,
+    GraphService,
+    ICPFileDriver,
 } from "@kbc-lib/coffee-trading-management-lib";
 import {contractAddresses} from "../constants";
-import {SolidDocumentSpec, SolidMetadataSpec} from "@kbc-lib/coffee-trading-management-lib";
-import {SolidSpec} from "./types/storage";
-import {EnumerableTypeReadDriver, EnumerableTypeService, SolidStorageACR} from "@blockchain-lib/common";
+import {EnumerableTypeReadDriver, EnumerableTypeService} from "@blockchain-lib/common";
 import SingletonSigner from "./SingletonSigner";
 import {EnumerableDefinition} from "./services/EthEnumerableTypeService";
 
@@ -47,25 +49,30 @@ export class BlockchainLibraryUtils {
         return new RelationshipService(relationshipDriver);
     }
 
-    static getTradeManagerService = (): TradeManagerService<SolidMetadataSpec, SolidStorageACR> => {
+    static getTradeManagerService = (): TradeManagerService => {
         const tradeManagerDriver: TradeManagerDriver = new TradeManagerDriver(this._getSigner(), contractAddresses.TRADE(), contractAddresses.MATERIAL(), contractAddresses.PRODUCT_CATEGORY());
-        return new TradeManagerService(tradeManagerDriver);
+        return new TradeManagerService({
+            tradeManagerDriver: tradeManagerDriver,
+            icpFileDriver: ICPFileDriver.getInstance()
+        });
     }
 
-    static getTradeService = (tradeContractAddress: string): TradeService<SolidMetadataSpec, SolidDocumentSpec, SolidStorageACR> => {
+    static getTradeService = (tradeContractAddress: string): TradeService => {
         const tradeDriver = new TradeDriver(this._getSigner(), tradeContractAddress);
-        const documentDriver: DocumentDriver = new DocumentDriver(this._getSigner(), contractAddresses.DOCUMENT());
-        return new TradeService({tradeDriver, documentDriver});
+        const documentDriver = new DocumentDriver(this._getSigner(), contractAddresses.DOCUMENT());
+        return new TradeService(tradeDriver, documentDriver, ICPFileDriver.getInstance());
     }
 
-    static getBasicTradeService = (address: string): BasicTradeService<SolidMetadataSpec, SolidDocumentSpec, SolidStorageACR> => {
+    static getBasicTradeService = (address: string): BasicTradeService => {
         const basicTradeDriver: BasicTradeDriver = new BasicTradeDriver(this._getSigner(), address, contractAddresses.MATERIAL(), contractAddresses.PRODUCT_CATEGORY());
-        return new BasicTradeService({tradeDriver: basicTradeDriver});
+        const documentDriver = new DocumentDriver(this._getSigner(), contractAddresses.DOCUMENT());
+        return new BasicTradeService(basicTradeDriver, documentDriver, ICPFileDriver.getInstance());
     }
 
-    static getOrderTradeService = (address: string): OrderTradeService<SolidMetadataSpec, SolidDocumentSpec, SolidStorageACR> => {
+    static getOrderTradeService = (address: string): OrderTradeService => {
         const orderTradeDriver: OrderTradeDriver = new OrderTradeDriver(this._getSigner(), address, contractAddresses.MATERIAL(), contractAddresses.PRODUCT_CATEGORY());
-        return new OrderTradeService({tradeDriver: orderTradeDriver})
+        const documentDriver = new DocumentDriver(this._getSigner(), contractAddresses.DOCUMENT());
+        return new OrderTradeService(orderTradeDriver, documentDriver, ICPFileDriver.getInstance())
     }
 
     static getAssetOperationService = (): AssetOperationService => {
@@ -73,9 +80,9 @@ export class BlockchainLibraryUtils {
         return new AssetOperationService(assetOperationDriver);
     }
 
-    static getDocumentService = (): DocumentService<SolidMetadataSpec, SolidDocumentSpec, SolidStorageACR> => {
+    static getDocumentService = (): DocumentService => {
         const documentDriver: DocumentDriver = new DocumentDriver(this._getSigner(), contractAddresses.DOCUMENT());
-        return new DocumentService({documentDriver});
+        return new DocumentService(documentDriver, ICPFileDriver.getInstance());
     }
 
     static getOfferService = (): OfferService => {
@@ -83,7 +90,7 @@ export class BlockchainLibraryUtils {
         return new OfferService(offerDriver);
     }
 
-    static getGraphService = (): GraphService<SolidMetadataSpec, SolidStorageACR> => {
+    static getGraphService = (): GraphService => {
         return new GraphService(this._getSigner(), BlockchainLibraryUtils.getTradeManagerService(), BlockchainLibraryUtils.getAssetOperationService());
     }
 
@@ -107,7 +114,7 @@ export class BlockchainLibraryUtils {
     }
 
     private static _getSigner = (): Signer => {
-        if (!SingletonSigner.getInstance()) throw new Error("Metamask is not connected");
+        if (!SingletonSigner.getInstance()) throw new Error("Signer not initialized");
         return SingletonSigner.getInstance()!;
     }
 }

@@ -1,10 +1,9 @@
 import {Service} from "./Service";
 import {DocumentPresentable} from "../types/DocumentPresentable";
 import {BlockchainLibraryUtils} from "../BlockchainLibraryUtils";
-import {ErrorHandler} from "../../utils/error/ErrorHandler";
-import {HttpStatusCode} from "../../utils/error/HttpStatusCode";
+import {getMimeType} from "../../utils/utils";
 
-export class EthDocumentService<T> extends Service {
+export class EthDocumentService extends Service {
     private readonly _documentService;
     private readonly _tradeManagerService;
 
@@ -17,19 +16,26 @@ export class EthDocumentService<T> extends Service {
     async getDocumentsByTransactionId(id: number): Promise<DocumentPresentable[]> {
         const tradeService = BlockchainLibraryUtils.getTradeService(await this._tradeManagerService.getTrade(id));
         const documentsInfo = await tradeService.getAllDocuments();
-        return Promise.all(documentsInfo.map(async (d) => {
-                const documentInfo = await this._documentService.getDocumentInfoById(d.id);
-                ErrorHandler.manageUndefinedOrEmpty(documentInfo, HttpStatusCode.NOT_FOUND, `There are no external information related to the document with id: ${d.id}`);
-                // ErrorHandler.manageUndefinedOrEmpty(documentInfo!.content, HttpStatusCode.NOT_FOUND, `There is no file related to the document with id: ${d.id}`);
-                return new DocumentPresentable()
-                    .setId(documentInfo!.id)
-                    // .setContentType(documentInfo!.content!.type)
-                    // .setDocumentType(type)
-                    // .setContent(documentInfo!.content)
-                    // .setFilename(documentInfo!.filename)
-                    // .setTransactionLines(documentInfo!.transactionLines)
-                    // .setDate(new Date(documentInfo!.date))
-            })
-        );
+
+        const documents: DocumentPresentable[] = [];
+
+        for(const d of documentsInfo) {
+            if(d.externalUrl.endsWith('.json')) continue;
+
+            const completeDocument = await this._documentService.getCompleteDocument(d);
+            const blob = new Blob([completeDocument!.content], { type: getMimeType(completeDocument.filename)});
+
+            documents.push(new DocumentPresentable()
+                .setId(completeDocument.id)
+                .setContentType(blob.type)
+                .setDocumentType(completeDocument.documentType)
+                .setContent(blob)
+                .setFilename(completeDocument.filename)
+                .setTransactionLines(completeDocument.transactionLines)
+                .setDate(new Date(completeDocument.date))
+            );
+        }
+
+        return documents;
     }
 }
