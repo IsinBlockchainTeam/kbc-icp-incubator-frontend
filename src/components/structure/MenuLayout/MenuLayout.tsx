@@ -7,7 +7,6 @@ import {Link, Outlet, useLocation, useNavigate} from "react-router-dom";
 import { defaultPictureURL, paths } from "../../../constants";
 import KBCLogo from "../../../assets/logo.png";
 import styles from "./MenuLayout.module.scss";
-import { useAuth0 } from "@auth0/auth0-react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
 import {updateUserInfo} from "../../../redux/reducers/userInfoSlice";
