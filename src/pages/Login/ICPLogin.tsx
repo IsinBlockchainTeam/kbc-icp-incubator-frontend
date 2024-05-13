@@ -48,11 +48,13 @@ export const ICPLogin = () => {
     const icpLogout = async () => {
         if (!identityDriver) return;
         await identityDriver.logout();
+        setIdentityDriver(null);
     }
 
     const createOrganization = async () => {
         const organizationDriver = ICPOrganizationDriver.getInstance();
-        await organizationDriver.createOrganization("Dunder Mifflin", "The best paper company in the world");
+        const organization = await organizationDriver.createOrganization("Dunder Mifflin", "The best paper company in the world");
+        console.log("organization", organization)
     }
 
     return (

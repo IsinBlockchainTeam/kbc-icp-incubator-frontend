@@ -143,17 +143,21 @@ export class EthTradeService extends Service {
     }
 
     async saveBasicTrade(trade: TradePresentable): Promise<void> {
-        const state = store.getState();
+        const organizationId = parseInt(store.getState().userInfo.organizationId);
+        // TODO: remove this harcoded value
+        const delegatedOrganizationIds: number[] = organizationId === 0 ? [1] : [0];
+        console.log("delegatedOrganizationIds", delegatedOrganizationIds);
+
         const urlStructure: URLStructure = {
             prefix: getICPCanisterURL(ICP.CANISTER_ID_ORGANIZATION),
-            organizationId: parseInt(state.userInfo.organizationId),
+            organizationId,
         }
         const metadata = {
             date: new Date(),
         }
         const [, newTradeAddress, transactionHash] =
             await this._tradeManagerService.registerBasicTrade(trade.supplier, trade.customer!, trade.commissioner!, trade.name!,
-                metadata, urlStructure);
+                metadata, urlStructure, delegatedOrganizationIds);
 
         await BlockchainLibraryUtils.waitForTransactions(transactionHash, Number(process.env.REACT_APP_BC_CONFIRMATION_NUMBER || 0));
 
@@ -166,7 +170,7 @@ export class EthTradeService extends Service {
             }
             const bytes = new Uint8Array(await new Response(trade.deliveryNote.content).arrayBuffer());
 
-            await basicTradeService.addDocument(trade.deliveryNote.documentType, bytes, externalUrl, resourceSpec);
+            await basicTradeService.addDocument(trade.deliveryNote.documentType, bytes, externalUrl, resourceSpec, delegatedOrganizationIds);
         }
 
         if (trade.lines) {
@@ -183,10 +187,14 @@ export class EthTradeService extends Service {
     }
 
     async saveOrderTrade(trade: TradePresentable): Promise<void> {
-        const state = store.getState();
+        const organizationId = parseInt(store.getState().userInfo.organizationId);
+        // TODO: remove this harcoded value
+        const delegatedOrganizationIds: number[] = organizationId === 0 ? [1] : [0];
+        console.log("delegatedOrganizationIds", delegatedOrganizationIds);
+
         const urlStructure: URLStructure = {
             prefix: getICPCanisterURL(ICP.CANISTER_ID_ORGANIZATION),
-            organizationId: parseInt(state.userInfo.organizationId),
+            organizationId,
         }
         const metadata: OrderTradeMetadata = {
             incoterms: trade.incoterms!,
@@ -198,7 +206,7 @@ export class EthTradeService extends Service {
         const [, newTradeAddress, transactionHash] = await this._tradeManagerService.registerOrderTrade(
             trade.supplier, trade.customer!, trade.commissioner!, (trade.paymentDeadline!).getTime(), (trade.documentDeliveryDeadline!).getTime(),
             trade.arbiter!, (trade.shippingDeadline!).getTime(), (trade.deliveryDeadline!).getTime(), trade.agreedAmount!, trade.tokenAddress!,
-            metadata, urlStructure
+            metadata, urlStructure, delegatedOrganizationIds
         );
 
         await BlockchainLibraryUtils.waitForTransactions(transactionHash, Number(process.env.REACT_APP_BC_CONFIRMATION_NUMBER || 0));
@@ -212,7 +220,7 @@ export class EthTradeService extends Service {
             }
             const bytes = new Uint8Array(await new Response(trade.paymentInvoice.content).arrayBuffer());
 
-            await orderTradeService.addDocument(trade.paymentInvoice.documentType, bytes, externalUrl, resourceSpec);
+            await orderTradeService.addDocument(trade.paymentInvoice.documentType, bytes, externalUrl, resourceSpec, delegatedOrganizationIds);
         }
 
         if (trade.lines) {
