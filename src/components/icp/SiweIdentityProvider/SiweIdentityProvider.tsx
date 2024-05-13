@@ -25,7 +25,6 @@ import {
 import type { State } from "./state.type";
 import { createDelegationChain } from "./delegation";
 import { normalizeError } from "./error";
-import { ethers } from 'ethers';
 import SingletonSigner from "../../../api/SingletonSigner";
 import {useDispatch, useSelector} from "react-redux";
 import {clearSiweIdentity, selectSiweIdentity, updateSiweIdentity} from "../../../redux/reducers/siweIdentitySlice";
@@ -147,7 +146,6 @@ export function SiweIdentityProvider<T extends SIWE_IDENTITY_SERVICE>({
    */
   async function prepareLogin(): Promise<string | undefined> {
     const connectedEthAddress = (SingletonSigner.getInstance()?.address || '0xabc') as `0x${string}`;
-    console.log('Eth address: ', connectedEthAddress);
     if (!state.anonymousActor) {
       throw new Error(
           "Hook not initialized properly. Make sure to supply all required props to the SiweIdentityProvider."
@@ -211,7 +209,6 @@ export function SiweIdentityProvider<T extends SIWE_IDENTITY_SERVICE>({
       error: Error | null
   ) {
     const connectedEthAddress = (SingletonSigner.getInstance()?.address || '0xabc') as `0x${string}`;
-    console.log('Eth address: ', connectedEthAddress);
     if (error) {
       rejectLoginWithError(
           error,
@@ -307,7 +304,6 @@ export function SiweIdentityProvider<T extends SIWE_IDENTITY_SERVICE>({
 
   async function login() {
     const connectedEthAddress = SingletonSigner.getInstance()?.address || '';
-    console.log('Eth address: ', connectedEthAddress);
     const promise = new Promise<DelegationIdentity>((resolve, reject) => {
       loginPromiseHandlers.current = { resolve, reject };
     });
@@ -353,7 +349,6 @@ export function SiweIdentityProvider<T extends SIWE_IDENTITY_SERVICE>({
         }
       }
       const loginSignature = await signMessageEthers(siweMessage);
-      console.log('loginSignature',loginSignature)
       // @ts-ignore
       await onLoginSignatureSettled(loginSignature, null);
       // signMessage(
