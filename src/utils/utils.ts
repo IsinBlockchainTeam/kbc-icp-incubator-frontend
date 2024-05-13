@@ -1,5 +1,5 @@
 import {request} from "./request";
-import {OrganizationCredential} from "../api/types/OrganizationCredential";
+import {OrganizationCredential} from "../redux/types/OrganizationCredential";
 import {ICP} from "../constants";
 import {URL_SEGMENTS} from "@kbc-lib/coffee-trading-management-lib";
 

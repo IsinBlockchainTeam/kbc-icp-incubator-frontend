@@ -1,8 +1,6 @@
 import {Service} from "./Service";
-import {MaterialService, ProductCategoryService} from "@kbc-lib/coffee-trading-management-lib";
+import {Material, MaterialService, ProductCategory, ProductCategoryService} from "@kbc-lib/coffee-trading-management-lib";
 import {BlockchainLibraryUtils} from "../BlockchainLibraryUtils";
-import {MaterialPresentable} from "../types/MaterialPresentable";
-import {ProductCategoryPresentable} from "../types/ProductCategoryPresentable";
 
 export class EthMaterialService extends Service {
     private readonly _productCategoryService: ProductCategoryService;
@@ -14,13 +12,8 @@ export class EthMaterialService extends Service {
         this._materialService = BlockchainLibraryUtils.getMaterialService();
     }
 
-    async getProductCategories() {
-        const productCategories = await this._productCategoryService.getProductCategories();
-        return productCategories.map(pc => new ProductCategoryPresentable(
-            pc.id,
-            pc.name,
-            pc.quality,
-        ));
+    async getProductCategories(): Promise<ProductCategory[]> {
+        return this._productCategoryService.getProductCategories();
     }
 
     async saveProductCategory(name: string, quality: number, description: string): Promise<void> {
@@ -31,12 +24,11 @@ export class EthMaterialService extends Service {
         await this._materialService.registerMaterial(productCategoryId);
     }
 
-    async getMaterials(): Promise<MaterialPresentable[]> {
-        const materials = await this._materialService.getMaterialsOfCreator(this._walletAddress);
-        return materials.map(m =>
-            new MaterialPresentable()
-                .setId(m.id)
-                .setName(m.productCategory.name)
-        );
+    async getMaterials(): Promise<Material[]> {
+        return this._materialService.getMaterialsOfCreator(this._walletAddress);
+    }
+
+    async getMaterialById(materialId: number): Promise<Material> {
+        return this._materialService.getMaterial(materialId);
     }
 }

@@ -8,7 +8,7 @@ import {
     TradeStatus,
     TradeType
 } from "../coffee-trading-management-lib/src/index";
-import {TradePresentable} from "../../types/TradePresentable";
+import {TradePreviewPresentable} from "../../types/TradePresentable";
 import {TradeLinePresentable, TradeLinePrice} from "../../types/TradeLinePresentable";
 import {MaterialPresentable} from "../../types/MaterialPresentable";
 import {CustomError} from "../../../utils/error/CustomError";
@@ -48,9 +48,9 @@ describe('BlockchainTradeStrategy', () => {
     const mockSetName = jest.fn();
 
     const walletAddress = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
-    const basicTrade: TradePresentable = new TradePresentable(1, [new TradeLinePresentable(1, new MaterialPresentable(1, 'product category'))], 'supplier1', TradeType.BASIC)
+    const basicTrade: TradePreviewPresentable = new TradePreviewPresentable(1, [new TradeLinePresentable(1, new MaterialPresentable(1, 'product category'))], 'supplier1', TradeType.BASIC)
         .setCustomer('customer1');
-    const orderTrade: TradePresentable = new TradePresentable(1, [
+    const orderTrade: TradePreviewPresentable = new TradePreviewPresentable(1, [
         new TradeLinePresentable(1, new MaterialPresentable(1, 'product category'))
             .setQuantity(10)
             .setPrice(new TradeLinePrice(100.25, 'USD'))
@@ -130,8 +130,8 @@ describe('BlockchainTradeStrategy', () => {
 
         const result = await blockchainTradeStrategy.getGeneralTrades();
         expect(result).toEqual([
-            new TradePresentable(1, [new TradeLinePresentable(1, new MaterialPresentable(1, 'first product category'))], 'supplier1', TradeType.BASIC).setCustomer('customer1').setCommissioner('commissioner1'),
-            new TradePresentable(2, [new TradeLinePresentable(2, new MaterialPresentable(2, 'second product category'))], 'supplier2', TradeType.ORDER).setCustomer('customer2').setCommissioner('commissioner2'),
+            new TradePreviewPresentable(1, [new TradeLinePresentable(1, new MaterialPresentable(1, 'first product category'))], 'supplier1', TradeType.BASIC).setCustomer('customer1').setCommissioner('commissioner1'),
+            new TradePreviewPresentable(2, [new TradeLinePresentable(2, new MaterialPresentable(2, 'second product category'))], 'supplier2', TradeType.ORDER).setCustomer('customer2').setCommissioner('commissioner2'),
         ]);
     });
 
@@ -159,7 +159,7 @@ describe('BlockchainTradeStrategy', () => {
         mockGetTradeStatus.mockReturnValue(TradeStatus.ON_BOARD);
 
         const result = await blockchainTradeStrategy.getTradeByIdAndType(1, TradeType.BASIC);
-        expect(result).toEqual(new TradePresentable(1, [new TradeLinePresentable(1, new MaterialPresentable(1, 'product category'))], 'supplier1', TradeType.BASIC).setCustomer('customer1').setName('test trade').setStatus(TradeStatus.ON_BOARD));
+        expect(result).toEqual(new TradePreviewPresentable(1, [new TradeLinePresentable(1, new MaterialPresentable(1, 'product category'))], 'supplier1', TradeType.BASIC).setCustomer('customer1').setName('test trade').setStatus(TradeStatus.ON_BOARD));
     });
 
     // it('should get trade by id and type - CASE ORDER', async () => {
@@ -234,7 +234,7 @@ describe('BlockchainTradeStrategy', () => {
         const updatedTrade = {
             ...basicTrade,
             name: 'updated trade',
-        } as unknown as TradePresentable;
+        } as unknown as TradePreviewPresentable;
         await blockchainTradeStrategy.putBasicTrade(basicTrade.id, updatedTrade);
 
         expect(mockSetName).toHaveBeenCalledTimes(1);

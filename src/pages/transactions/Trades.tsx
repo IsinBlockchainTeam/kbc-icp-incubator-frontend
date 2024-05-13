@@ -5,7 +5,7 @@ import {ColumnsType} from "antd/es/table";
 import {NotificationType, openNotification} from "../../utils/notification";
 import {getEnumKeyByValue, setParametersPath} from "../../utils/utils";
 import {EthTradeService} from "../../api/services/EthTradeService";
-import {TradePresentable} from "../../api/types/TradePresentable";
+import {TradePreviewPresentable} from "../../api/types/TradePresentable";
 import {Link} from "react-router-dom";
 import {paths} from "../../constants";
 import {TradeType} from "@kbc-lib/coffee-trading-management-lib";
@@ -13,7 +13,7 @@ import {useDispatch} from "react-redux";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
 
 export const Trades = () => {
-    const [trades, setTrades] = React.useState<TradePresentable[]>();
+    const [trades, setTrades] = React.useState<TradePreviewPresentable[]>();
     const dispatch = useDispatch();
 
     const loadData = async () => {
@@ -35,7 +35,7 @@ export const Trades = () => {
         }
     }
 
-    const columns: ColumnsType<TradePresentable> = [
+    const columns: ColumnsType<TradePreviewPresentable> = [
         {
             title: 'Id',
             dataIndex: 'id',
@@ -61,9 +61,9 @@ export const Trades = () => {
             sorter: (a, b) => a.supplier.localeCompare(b.supplier),
         },
         {
-            title: 'Customer',
-            dataIndex: 'customer',
-            sorter: (a, b) => (a.customer || '').localeCompare((b.customer || '')),
+            title: 'Commissioner',
+            dataIndex: 'commissioner',
+            sorter: (a, b) => (a.commissioner || '').localeCompare((b.commissioner || '')),
             render: (customer => {
                 return customer ? customer : '-'
             })
@@ -109,16 +109,16 @@ export const Trades = () => {
         {
             title: 'Status',
             dataIndex: 'negotiationStatus',
-            sorter: (a, b) => (a.negotiationStatus || '').localeCompare((b.negotiationStatus || '')),
+            sorter: (a, b) => (a.negotiationStatus?.toString() || '').localeCompare((b.negotiationStatus?.toString() || '')),
             render: (_, {negotiationStatus}) => (
                 <Tag color="geekblue" key={negotiationStatus}>
-                    {negotiationStatus?.toUpperCase()}
+                    {negotiationStatus?.toString().toUpperCase()}
                 </Tag>
             )
         },
     ];
 
-    const onChange: TableProps<TradePresentable>['onChange'] = (pagination, filters, sorter, extra) => {
+    const onChange: TableProps<TradePreviewPresentable>['onChange'] = (pagination, filters, sorter, extra) => {
         console.log('params', pagination, filters, sorter, extra);
     };
 

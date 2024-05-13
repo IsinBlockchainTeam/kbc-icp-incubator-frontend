@@ -18,12 +18,12 @@ export const TradeView = () => {
             <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
                 {getEnumKeyByValue(TradeType, type)}
                 <div style={{display: 'flex', alignItems: 'center'}}>
-                    {trade?.status && (
-                        <Tag color='green' key={trade.status}>
-                            {trade.negotiationStatus?.toUpperCase()}
-                        </Tag>
-                    )}
-                    { trade?.negotiationStatus !== getEnumKeyByValue(NegotiationStatus, NegotiationStatus.CONFIRMED) && <EditOutlined style={{marginLeft: '8px'}} onClick={toggleDisabled}/> }
+                    {/*{trade?.status && (*/}
+                    {/*    <Tag color='green' key={trade.status}>*/}
+                    {/*        {trade.negotiationStatus?.toUpperCase()}*/}
+                    {/*    </Tag>*/}
+                    {/*)}*/}
+                    {/*{ trade?.negotiationStatus !== getEnumKeyByValue(NegotiationStatus, NegotiationStatus.CONFIRMED) && <EditOutlined style={{marginLeft: '8px'}} onClick={toggleDisabled}/> }*/}
                     <Tooltip title="Confirm the negotiation if everything is OK">
                         <CheckCircleOutlined style={{marginLeft: '8px'}} onClick={confirmNegotiation}/>
                     </Tooltip>

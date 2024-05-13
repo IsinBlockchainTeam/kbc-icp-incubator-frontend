@@ -1,18 +1,17 @@
 import useTradeShared from "./tradeShared";
 import {NotificationType, openNotification} from "../../../utils/notification";
-import {DocumentType, TradeType} from "@kbc-lib/coffee-trading-management-lib";
+import {BasicTrade, DocumentType, OrderLine, OrderTrade, TradeType} from "@kbc-lib/coffee-trading-management-lib";
 import {useLocation, useNavigate, useParams} from "react-router-dom";
 import {useDispatch} from "react-redux";
 import {useEffect, useState} from "react";
-import {TradePresentable} from "../../../api/types/TradePresentable";
+import {DetailedTradePresentable, TradePreviewPresentable} from "../../../api/types/TradePresentable";
 import {DocumentPresentable} from "../../../api/types/DocumentPresentable";
 import {EthDocumentService} from "../../../api/services/EthDocumentService";
 import {hideLoading, showLoading} from "../../../redux/reducers/loadingSlice";
 import {FormElement, FormElementType} from "../../../components/GenericForm/GenericForm";
 import {regex} from "../../../utils/regex";
 import dayjs from "dayjs";
-import {TradeLinePresentable, TradeLinePrice} from "../../../api/types/TradeLinePresentable";
-import {ProductCategoryPresentable} from "../../../api/types/ProductCategoryPresentable";
+import {ProductCategory} from "@kbc-lib/coffee-trading-management-lib";
 import {paths} from "../../../constants";
 
 export default function useTradeView() {
@@ -24,7 +23,7 @@ export default function useTradeView() {
     const location = useLocation();
     const type = parseInt(new URLSearchParams(location.search).get('type')!);
 
-    const [trade, setTrade] = useState<TradePresentable>();
+    const [trade, setTrade] = useState<DetailedTradePresentable>();
     const [documents, setDocuments] = useState<DocumentPresentable[]>();
     const [loadingDocuments, setLoadingDocuments] = useState<boolean>(true);
     const [disabled, setDisabled] = useState<boolean>(true);
@@ -45,10 +44,10 @@ export default function useTradeView() {
         }
     }
 
-    const getTradeInfo = async (id: number, type: number) => {
+    const getTradeInfo = async (id: number) => {
         try {
             dispatch(showLoading("Retrieving trade..."));
-            const resp = await tradeService.getTradeByIdAndType(id, type);
+            const resp = await tradeService.getTradeById(id);
             resp && setTrade(resp);
         } catch (e: any) {
             console.log("error: ", e);
@@ -76,7 +75,7 @@ export default function useTradeView() {
 
     useEffect(() => {
         (async () => {
-            await getTradeInfo(parseInt(id!), type);
+            await getTradeInfo(parseInt(id!));
             await getTradeDocuments(parseInt(id!));
             setLoadingDocuments(false);
         })();
@@ -93,7 +92,7 @@ export default function useTradeView() {
                 label: 'Supplier',
                 required: true,
                 regex: regex.ETHEREUM_ADDRESS,
-                defaultValue: trade.supplier,
+                defaultValue: trade.trade.supplier,
                 disabled: true,
             },
             {
@@ -103,7 +102,7 @@ export default function useTradeView() {
                 label: 'Customer',
                 required: true,
                 regex: regex.ETHEREUM_ADDRESS,
-                defaultValue: trade.customer,
+                defaultValue: trade.trade.customer,
                 disabled: true,
             },
             {
@@ -113,7 +112,7 @@ export default function useTradeView() {
                 label: 'Commissioner',
                 required: true,
                 regex: regex.ETHEREUM_ADDRESS,
-                defaultValue: trade.commissioner,
+                defaultValue: trade.trade.commissioner,
                 disabled: true,
             },
         ]
@@ -151,6 +150,7 @@ export default function useTradeView() {
         }
 
         if (type === TradeType.BASIC) {
+            const basicTrade = trade.trade as BasicTrade;
             const newElements = [...commonElements];
             newElements.push(
                 {type: FormElementType.TITLE, span: 24, label: 'Data'},
@@ -160,13 +160,13 @@ export default function useTradeView() {
                     name: 'name',
                     label: 'Name',
                     required: true,
-                    defaultValue: trade.name,
+                    defaultValue: basicTrade.name,
                     disabled,
                 },
                 documentElement,
                 {type: FormElementType.TITLE, span: 24, label: 'Line Item'},
             );
-            trade.lines.forEach((line, index) => {
+            basicTrade.lines.forEach((line, index) => {
                 newElements.push(
                     {
                         type: FormElementType.INPUT,
@@ -202,6 +202,7 @@ export default function useTradeView() {
             setElements(newElements);
         }
         else {
+            const orderTrade = trade.trade as OrderTrade;
             const newElements = [...commonElements];
             newElements.push(
                 {type: FormElementType.TITLE, span: 24, label: 'Constraints'},
@@ -211,7 +212,7 @@ export default function useTradeView() {
                     name: 'incoterms',
                     label: 'Incoterms',
                     required: true,
-                    defaultValue: trade.incoterms,
+                    defaultValue: orderTrade.metadata?.incoterms,
                     disabled,
                 },
                 documentElement,
@@ -221,7 +222,7 @@ export default function useTradeView() {
                     name: 'payment-deadline',
                     label: 'Payment Deadline',
                     required: true,
-                    defaultValue: trade.paymentDeadline ? dayjs(new Date(trade.paymentDeadline).toISOString()) : '',
+                    defaultValue: orderTrade.paymentDeadline ? dayjs(new Date(orderTrade.paymentDeadline).toISOString()) : '',
                     disabled,
                 },
                 {
@@ -230,7 +231,7 @@ export default function useTradeView() {
                     name: 'document-delivery-deadline',
                     label: 'Document Delivery Deadline',
                     required: false,
-                    defaultValue: trade.documentDeliveryDeadline ? dayjs(new Date(trade.documentDeliveryDeadline).toISOString()) : '',
+                    defaultValue: orderTrade.documentDeliveryDeadline ? dayjs(new Date(orderTrade.documentDeliveryDeadline).toISOString()) : '',
                     disabled,
                 },
                 {
@@ -239,7 +240,7 @@ export default function useTradeView() {
                     name: 'shipper',
                     label: 'Shipper',
                     required: true,
-                    defaultValue: trade.shipper,
+                    defaultValue: orderTrade.metadata?.shipper,
                     disabled,
                 },
                 {
@@ -248,7 +249,7 @@ export default function useTradeView() {
                     name: 'arbiter',
                     label: 'Arbiter',
                     required: true,
-                    defaultValue: trade.arbiter,
+                    defaultValue: orderTrade.arbiter,
                     disabled,
                     regex: regex.ETHEREUM_ADDRESS
                 },
@@ -258,7 +259,7 @@ export default function useTradeView() {
                     name: 'shipping-port',
                     label: 'Shipping Port',
                     required: true,
-                    defaultValue: trade.shippingPort,
+                    defaultValue: orderTrade.metadata?.shippingPort,
                     disabled,
                 },
                 {
@@ -267,7 +268,7 @@ export default function useTradeView() {
                     name: 'shipping-deadline',
                     label: 'Shipping Deadline',
                     required: true,
-                    defaultValue: trade.shippingDeadline ? dayjs(new Date(trade.shippingDeadline).toISOString()) : '',
+                    defaultValue: orderTrade.shippingDeadline ? dayjs(new Date(orderTrade.shippingDeadline).toISOString()) : '',
                     disabled,
                 },
                 {
@@ -276,7 +277,7 @@ export default function useTradeView() {
                     name: 'delivery-port',
                     label: 'Delivery Port',
                     required: true,
-                    defaultValue: trade.deliveryPort,
+                    defaultValue: orderTrade.metadata?.deliveryPort,
                     disabled,
                 },
                 {
@@ -285,7 +286,7 @@ export default function useTradeView() {
                     name: 'delivery-deadline',
                     label: 'Delivery Deadline',
                     required: true,
-                    defaultValue: trade.deliveryDeadline ? dayjs(new Date(trade.deliveryDeadline).toISOString()) : '',
+                    defaultValue: orderTrade.deliveryDeadline ? dayjs(new Date(orderTrade.deliveryDeadline).toISOString()) : '',
                     disabled,
                 },
                 {
@@ -295,7 +296,7 @@ export default function useTradeView() {
                     label: 'Agreed Amount',
                     required: true,
                     regex: regex.ONLY_DIGITS,
-                    defaultValue: trade.agreedAmount,
+                    defaultValue: orderTrade.agreedAmount,
                     disabled,
                 },
                 {
@@ -305,12 +306,12 @@ export default function useTradeView() {
                     label: 'Token Address',
                     required: true,
                     regex: regex.ETHEREUM_ADDRESS,
-                    defaultValue: trade.tokenAddress,
+                    defaultValue: orderTrade.tokenAddress,
                     disabled,
                 },
                 {type: FormElementType.TITLE, span: 24, label: 'Line Items'},
             );
-            trade.lines.forEach((line, index) => {
+            orderTrade.lines.forEach((line, index) => {
                 newElements.push(
                     {
                         type: FormElementType.INPUT,
@@ -347,7 +348,7 @@ export default function useTradeView() {
                         name: `price-${index+1}`,
                         label: 'Price',
                         required: true,
-                        defaultValue: line.price?.amount.toString(),
+                        defaultValue: (line as OrderLine).price?.amount.toString(),
                         disabled,
                     },
                     {
@@ -357,7 +358,7 @@ export default function useTradeView() {
                         label: 'Fiat',
                         required: true,
                         options: fiats.map((fiat) => ({label: fiat, value: fiat})),
-                        defaultValue: line.price!.fiat,
+                        defaultValue: (line as OrderLine).price!.fiat,
                         disabled,
                     },
                 );
@@ -372,106 +373,71 @@ export default function useTradeView() {
             if (values['delivery-deadline'] <= values['shipping-deadline']) {
                 openNotification("Delivery deadline cannot be less then shipping one", '', NotificationType.ERROR);
             }
-            const tradeToSubmit: TradePresentable = new TradePresentable()
-                .setSupplier(values['supplier'])
-                .setCustomer(values['customer'])
-                .setCommissioner(values['commissioner']);
+            // const tradeToSubmit: TradePreviewPresentable = new TradePreviewPresentable()
+            //     .setSupplier(values['supplier'])
+            //     .setCustomer(values['customer'])
+            //     .setCommissioner(values['commissioner']);
+            const supplier: string = values['supplier'];
+            const customer: string = values['customer'];
+            const commissioner: string = values['commissioner'];
             const quantity: number = parseInt(values[`quantity-1`]);
             const unit: string = values[`unit-1`];
             const productCategoryId: number = parseInt(values['product-category-id-1']);
-            if(trade?.type === TradeType.BASIC) {
-                tradeToSubmit
-                    .setName(values['name'])
-                    .setDeliveryNote(values['certificate-of-shipping'] && new DocumentPresentable()
-                        .setContentType(values['certificate-of-shipping'].type)
-                        .setDocumentType(DocumentType.DELIVERY_NOTE)
-                        .setFilename(values['certificate-of-shipping'].name)
-                        .setContent(values['certificate-of-shipping'])
-                    )
-                    .setLines([new TradeLinePresentable()
-                        .setQuantity(quantity)
-                        .setUnit(unit)
-                        .setProductCategory(new ProductCategoryPresentable(productCategoryId))
-                    ]);
-                await tradeService.putBasicTrade(trade.id, tradeToSubmit);
+            if(type === TradeType.BASIC) {
+                // TODO: refactor this
+                // tradeToSubmit
+                //     .setName(values['name'])
+                //     .setDeliveryNote(values['certificate-of-shipping'] && new DocumentPresentable()
+                //         .setContentType(values['certificate-of-shipping'].type)
+                //         .setDocumentType(DocumentType.DELIVERY_NOTE)
+                //         .setFilename(values['certificate-of-shipping'].name)
+                //         .setContent(values['certificate-of-shipping'])
+                //     )
+                //     .setLines([new TradeLinePresentable()
+                //         .setQuantity(quantity)
+                //         .setUnit(unit)
+                //         // TODO: refactor this
+                //         // .setProductCategory(new ProductCategoryPresentable(productCategoryId))
+                //     ]);
+                // await tradeService.putBasicTrade(trade.id, tradeToSubmit);
             }
-            else if (trade?.type === TradeType.ORDER) {
-                const price: number = parseInt(values[`price-1`]);
-                const fiat: string = values[`fiat-1`];
-                tradeToSubmit
-                    .setIncoterms(values['incoterms'])
-                    .setPaymentDeadline(dayjs(values['payment-deadline']).toDate())
-                    .setDocumentDeliveryDeadline(dayjs(values['document-delivery-deadline']).toDate())
-                    .setShippingDeadline(dayjs(values['shipping-deadline']).toDate())
-                    .setDeliveryDeadline(dayjs(values['delivery-deadline']).toDate())
-                    .setShipper(values['shipper'])
-                    .setArbiter(values['arbiter'])
-                    .setShippingPort(values['shipping-port'])
-                    .setDeliveryPort(values['delivery-port'])
-                    .setAgreedAmount(parseInt(values['agreed-amount']))
-                    .setTokenAddress(values['token-address'])
-                    .setPaymentInvoice(values['payment-invoice'] && new DocumentPresentable()
-                        .setContentType(values['payment-invoice'].type)
-                        .setDocumentType(DocumentType.PAYMENT_INVOICE)
-                        .setFilename(values['payment-invoice'].name)
-                        .setContent(values['payment-invoice'])
-                    )
-                    .setSwissDecode(values['swiss-decode'] && new DocumentPresentable()
-                        .setContentType(values['swiss-decode'].type)
-                        .setDocumentType(DocumentType.SWISS_DECODE)
-                        .setFilename(values['swiss-decode'].name)
-                        .setContent(values['swiss-decode'])
-                    )
-                    .setDeliveryNote(values['certificate-of-shipping'] && new DocumentPresentable()
-                        .setContentType(values['certificate-of-shipping'].type)
-                        .setDocumentType(DocumentType.DELIVERY_NOTE)
-                        .setFilename(values['certificate-of-shipping'].name)
-                        .setContent(values['certificate-of-shipping'])
-                    )
-                    .setBillOfLading(values['bill-of-lading'] && new DocumentPresentable()
-                        .setContentType(values['bill-of-lading'].type)
-                        .setDocumentType(DocumentType.BILL_OF_LADING)
-                        .setFilename(values['bill-of-lading'].name)
-                        .setContent(values['bill-of-lading'])
-                    )
-                    .setWeightCertificate(values['certificate-of-weight'] && new DocumentPresentable()
-                        .setContentType(values['certificate-of-weight'].type)
-                        .setDocumentType(DocumentType.WEIGHT_CERTIFICATE)
-                        .setFilename(values['certificate-of-weight'].name)
-                        .setContent(values['certificate-of-weight'])
-                    )
-                    .setPreferentialEntryCertificate(values['certificate-of-preferential-entry'] && new DocumentPresentable()
-                        .setContentType(values['certificate-of-preferential-entry'].type)
-                        .setDocumentType(DocumentType.PREFERENTIAL_ENTRY_CERTIFICATE)
-                        .setFilename(values['certificate-of-preferential-entry'].name)
-                        .setContent(values['certificate-of-preferential-entry'])
-                    )
-                    .setFumigationCertificate(values['certificate-of-fumigation'] && new DocumentPresentable()
-                        .setContentType(values['certificate-of-fumigation'].type)
-                        .setDocumentType(DocumentType.FUMIGATION_CERTIFICATE)
-                        .setFilename(values['certificate-of-fumigation'].name)
-                        .setContent(values['certificate-of-fumigation'])
-                    )
-                    .setPhytosanitaryCertificate(values['certificate-of-phytosanitary'] && new DocumentPresentable()
-                        .setContentType(values['certificate-of-phytosanitary'].type)
-                        .setDocumentType(DocumentType.PHYTOSANITARY_CERTIFICATE)
-                        .setFilename(values['certificate-of-phytosanitary'].name)
-                        .setContent(values['certificate-of-phytosanitary'])
-                    )
-                    .setInsuranceCertificate(values['certificate-of-insurance'] && new DocumentPresentable()
-                        .setContentType(values['certificate-of-insurance'].type)
-                        .setDocumentType(DocumentType.INSURANCE_CERTIFICATE)
-                        .setFilename(values['certificate-of-insurance'].name)
-                        .setContent(values['certificate-of-insurance'])
-                    )
-                    .setLines([new TradeLinePresentable()
-                        .setQuantity(quantity)
-                        .setUnit(unit)
-                        .setProductCategory(new ProductCategoryPresentable(productCategoryId))
-                        .setPrice(new TradeLinePrice(price, fiat))
-                    ]);
-                console.log("value: ", values)
-                await tradeService.putOrderTrade(trade.id, tradeToSubmit);
+            else if (type === TradeType.ORDER) {
+                // TODO: refactor this
+                // const price: number = parseInt(values[`price-1`]);
+                // const fiat: string = values[`fiat-1`];
+                // tradeToSubmit
+                //     .setIncoterms(values['incoterms'])
+                //     .setPaymentDeadline(dayjs(values['payment-deadline']).toDate())
+                //     .setDocumentDeliveryDeadline(dayjs(values['document-delivery-deadline']).toDate())
+                //     .setShippingDeadline(dayjs(values['shipping-deadline']).toDate())
+                //     .setDeliveryDeadline(dayjs(values['delivery-deadline']).toDate())
+                //     .setShipper(values['shipper'])
+                //     .setArbiter(values['arbiter'])
+                //     .setShippingPort(values['shipping-port'])
+                //     .setDeliveryPort(values['delivery-port'])
+                //     .setAgreedAmount(parseInt(values['agreed-amount']))
+                //     .setTokenAddress(values['token-address'])
+                //     .setPaymentInvoice(values['payment-invoice'] && new DocumentPresentable()
+                //         .setContentType(values['payment-invoice'].type)
+                //         .setDocumentType(DocumentType.PAYMENT_INVOICE)
+                //         .setFilename(values['payment-invoice'].name)
+                //         .setContent(values['payment-invoice'])
+                //     )
+                //     .setDeliveryNote(values['certificate-of-shipping'] && new DocumentPresentable()
+                //         .setContentType(values['certificate-of-shipping'].type)
+                //         .setDocumentType(DocumentType.DELIVERY_NOTE)
+                //         .setFilename(values['certificate-of-shipping'].name)
+                //         .setContent(values['certificate-of-shipping'])
+                //     )
+                //     .setLines([new TradeLinePresentable()
+                //         .setQuantity(quantity)
+                //         .setUnit(unit)
+                //         // TODO: refactor this
+                //         // .setProductCategory(new ProductCategoryPresentable(productCategoryId))
+                //         .setPrice(new TradeLinePrice(price, fiat))
+                //     ]);
+                // console.log("value: ", values)
+                // await tradeService.putOrderTrade(trade.id, tradeToSubmit);
             }
             setDisabled(true);
             navigate(paths.TRADES);

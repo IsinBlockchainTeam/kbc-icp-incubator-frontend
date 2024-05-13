@@ -4,7 +4,7 @@ import {EthAssetOperationService} from "../../api/services/EthAssetOperationServ
 import {ColumnsType} from "antd/es/table";
 import {Button, Table, TableProps} from "antd";
 import {CardPage} from "../../components/structure/CardPage/CardPage";
-import {AssetOperationPresentable} from "../../api/types/AssetOperationPresentable";
+import {AssetOperation} from "@kbc-lib/coffee-trading-management-lib";
 import {PlusOutlined} from "@ant-design/icons";
 import {paths} from "../../constants";
 import {useNavigate} from "react-router-dom";
@@ -15,7 +15,7 @@ export const AssetOperations = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
-    const [assetOperations, setAssetOperations] = useState<AssetOperationPresentable[]>();
+    const [assetOperations, setAssetOperations] = useState<AssetOperation[]>();
     const loadData = async () => {
         try {
             dispatch(showLoading("Retrieving asset operations..."))
@@ -34,7 +34,7 @@ export const AssetOperations = () => {
         }
     }
 
-    const columns: ColumnsType<AssetOperationPresentable> = [
+    const columns: ColumnsType<AssetOperation> = [
         {
             title: 'Id',
             dataIndex: 'id',
@@ -51,12 +51,12 @@ export const AssetOperations = () => {
             title: 'Material name',
             dataIndex: 'outputMaterial.name',
             render: (_, {outputMaterial}) => {
-                return outputMaterial ? outputMaterial.name : 'No output material';
+                return outputMaterial ? outputMaterial.productCategory.name : 'No output material';
             }
         }
     ];
 
-    const onChange: TableProps<AssetOperationPresentable>['onChange'] = (pagination, filters, sorter, extra) => {
+    const onChange: TableProps<AssetOperation>['onChange'] = (pagination, filters, sorter, extra) => {
         console.log('params', pagination, filters, sorter, extra);
     };
 

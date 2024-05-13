@@ -1,4 +1,4 @@
-import {TradePresentable} from "../../../api/types/TradePresentable";
+import {TradePreviewPresentable} from "../../../api/types/TradePresentable";
 import {TradeStatus, TradeType} from "../coffee-trading-management-lib/src/index";
 import {FormElement} from "../../../components/GenericForm/GenericForm";
 import {render, screen} from "@testing-library/react";
@@ -41,7 +41,7 @@ jest.mock('react-router-dom', () => ({
 let mockType: TradeType = TradeType.BASIC;
 let mockOrderState: number = 0;
 let mockElements: FormElement[] = [];
-let mockTrade: TradePresentable | undefined;
+let mockTrade: TradePreviewPresentable | undefined;
 let loadingDocuments = false;
 let disabled = false;
 let mockToggleDisabled = jest.fn();
@@ -64,7 +64,7 @@ describe('TradeView', () => {
     beforeAll(() => jest.spyOn(console, 'error').mockImplementation(jest.fn()));
 
     beforeEach(() => {
-        mockTrade = new TradePresentable(1, [], 'supplier', mockType).setStatus(TradeStatus.ON_BOARD);
+        mockTrade = new TradePreviewPresentable(1, [], 'supplier', mockType).setStatus(TradeStatus.ON_BOARD);
         (isValueInEnum as jest.Mock).mockReturnValue(true);
     });
 

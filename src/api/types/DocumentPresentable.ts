@@ -1,4 +1,8 @@
-import {TransactionLine, DocumentType} from "@kbc-lib/coffee-trading-management-lib";
+import {TransactionLine, DocumentType, Document} from "@kbc-lib/coffee-trading-management-lib";
+
+// export type Prova = Omit<typeof Document, "id"> & {
+//     id: number;
+// }
 
 export class DocumentPresentable {
     private _id: number;

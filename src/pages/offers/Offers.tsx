@@ -3,7 +3,7 @@ import {NotificationType, openNotification} from "../../utils/notification";
 import {ColumnsType} from "antd/es/table";
 import {Button, Space, Table, TableProps} from "antd";
 import {CardPage} from "../../components/structure/CardPage/CardPage";
-import {OfferPresentable} from "../../api/types/OfferPresentable";
+import {Offer} from "@kbc-lib/coffee-trading-management-lib";
 import {EthOfferService} from "../../api/services/EthOfferService";
 import Search from "../../components/Search/Search";
 import {PlusOutlined} from "@ant-design/icons";
@@ -17,8 +17,8 @@ export const Offers = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const userInfo = useSelector((state: RootState) => state.userInfo);
-    const [offers, setOffers] = useState<OfferPresentable[]>();
-    const [filteredOffers, setFilteredOffers] = useState<OfferPresentable[]>();
+    const [offers, setOffers] = useState<Offer[]>();
+    const [filteredOffers, setFilteredOffers] = useState<Offer[]>();
     const loadData = async () => {
         try {
             dispatch(showLoading("Retrieving offers..."))
@@ -34,7 +34,7 @@ export const Offers = () => {
         }
     }
 
-    const columns: ColumnsType<OfferPresentable> = [
+    const columns: ColumnsType<Offer> = [
         {
             title: 'Id',
             dataIndex: 'id',
@@ -70,7 +70,7 @@ export const Offers = () => {
         }
     ];
 
-    const onChange: TableProps<OfferPresentable>['onChange'] = (pagination, filters, sorter, extra) => {
+    const onChange: TableProps<Offer>['onChange'] = (pagination, filters, sorter, extra) => {
         console.log('params', pagination, filters, sorter, extra);
     };
 

@@ -1,4 +1,4 @@
-import {TradePresentable} from "../../../api/types/TradePresentable";
+import {TradePreviewPresentable} from "../../../api/types/TradePresentable";
 import {BrowserRouter, useNavigate} from "react-router-dom";
 import Trades from "../Trades";
 import {render, screen, waitFor} from "@testing-library/react";
@@ -50,7 +50,7 @@ jest.mock('react-router-dom', () => ({
 describe('Trades', () => {
     const navigate = jest.fn();
     const mockGetGeneralTrades = jest.fn();
-    let mockTrades: TradePresentable[];
+    let mockTrades: TradePreviewPresentable[];
 
     beforeAll(() => {
         jest.spyOn(console, 'error').mockImplementation(jest.fn())
@@ -59,7 +59,7 @@ describe('Trades', () => {
 
     beforeEach(() => {
         (useNavigate as jest.Mock).mockReturnValue(navigate);
-        mockTrades = [new TradePresentable(1, [], 'supplier1', TradeType.BASIC).setCustomer('customer1'), new TradePresentable(2, [], 'supplier2', TradeType.ORDER).setCustomer('customer2')];
+        mockTrades = [new TradePreviewPresentable(1, [], 'supplier1', TradeType.BASIC).setCustomer('customer1'), new TradePreviewPresentable(2, [], 'supplier2', TradeType.ORDER).setCustomer('customer2')];
     });
 
     afterEach(() => jest.clearAllMocks());
@@ -157,7 +157,7 @@ describe('Trades', () => {
     });
 
     it('should work also with falsy customers', async () => {
-        mockTrades = [new TradePresentable(1, [], 'supplier1', TradeType.BASIC), new TradePresentable(2, [], 'supplier2', TradeType.ORDER).setCustomer('customer2'), new TradePresentable(3, [], 'supplier3', TradeType.BASIC)];
+        mockTrades = [new TradePreviewPresentable(1, [], 'supplier1', TradeType.BASIC), new TradePreviewPresentable(2, [], 'supplier2', TradeType.ORDER).setCustomer('customer2'), new TradePreviewPresentable(3, [], 'supplier3', TradeType.BASIC)];
         _renderTrades();
 
         userEvent.click(screen.getByText('Customer'));

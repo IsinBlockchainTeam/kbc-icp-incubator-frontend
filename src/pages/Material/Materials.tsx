@@ -2,7 +2,6 @@ import React, {useEffect, useState} from "react";
 import {Button, Table, TableProps} from "antd";
 import {NotificationType, openNotification} from "../../utils/notification";
 import {ColumnsType} from "antd/es/table";
-import {MaterialPresentable} from "../../api/types/MaterialPresentable";
 import {EthMaterialService} from "../../api/services/EthMaterialService";
 import {CardPage} from "../../components/structure/CardPage/CardPage";
 import {PlusOutlined} from "@ant-design/icons";
@@ -10,12 +9,13 @@ import {paths} from "../../constants";
 import {useNavigate} from "react-router-dom";
 import {useDispatch} from "react-redux";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
-import {ProductCategoryPresentable} from "../../api/types/ProductCategoryPresentable";
+import {ProductCategory} from "@kbc-lib/coffee-trading-management-lib";
+import {Material} from "@kbc-lib/coffee-trading-management-lib";
 
 export const Materials = () => {
     const navigate = useNavigate();
-    const [materials, setMaterials] = useState<MaterialPresentable[]>();
-    const [productCategories, setProductCategories] = useState<ProductCategoryPresentable[]>();
+    const [materials, setMaterials] = useState<Material[]>();
+    const [productCategories, setProductCategories] = useState<ProductCategory[]>();
     const dispatch = useDispatch();
 
     const loadData = async () => {
@@ -34,7 +34,7 @@ export const Materials = () => {
         }
     }
 
-    const productCategoriesColumns: ColumnsType<ProductCategoryPresentable> = [
+    const productCategoriesColumns: ColumnsType<ProductCategory> = [
         {
             title: 'Id',
             dataIndex: 'id',
@@ -53,7 +53,7 @@ export const Materials = () => {
         },
     ];
 
-    const materialsColumns: ColumnsType<MaterialPresentable> = [
+    const materialsColumns: ColumnsType<Material> = [
         {
             title: 'Id',
             dataIndex: 'id',
@@ -63,14 +63,14 @@ export const Materials = () => {
         {
             title: 'Name',
             dataIndex: 'name',
-            sorter: (a, b) => a.name.localeCompare(b.name),
+            sorter: (a, b) => a.productCategory.name.localeCompare(b.productCategory.name),
         },
     ];
 
-    const onProductCategoriesChange: TableProps<ProductCategoryPresentable>['onChange'] = (pagination, filters, sorter, extra) => {
+    const onProductCategoriesChange: TableProps<ProductCategory>['onChange'] = (pagination, filters, sorter, extra) => {
         console.log('params', pagination, filters, sorter, extra);
     };
-    const onMaterialsChange: TableProps<MaterialPresentable>['onChange'] = (pagination, filters, sorter, extra) => {
+    const onMaterialsChange: TableProps<Material>['onChange'] = (pagination, filters, sorter, extra) => {
         console.log('params', pagination, filters, sorter, extra);
     };
 

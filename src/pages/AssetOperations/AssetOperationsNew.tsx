@@ -6,20 +6,23 @@ import {DeleteOutlined} from "@ant-design/icons";
 import {paths} from "../../constants";
 import {CardPage} from "../../components/structure/CardPage/CardPage";
 import React, {useEffect, useState} from "react";
-import {MaterialPresentable} from "../../api/types/MaterialPresentable";
-import {AssetOperationPresentable} from "../../api/types/AssetOperationPresentable";
+import {Material} from "@kbc-lib/coffee-trading-management-lib";
+import {AssetOperation} from "@kbc-lib/coffee-trading-management-lib";
 import {NotificationType, openNotification} from "../../utils/notification";
 import {v4 as uuid} from "uuid";
 import {regex} from "../../utils/regex";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
 import {useDispatch} from "react-redux";
 import {EnumerableDefinition, EthEnumerableTypeService} from "../../api/services/EthEnumerableTypeService";
+import {EthMaterialService} from "../../api/services/EthMaterialService";
+import {AssetOperationRequest} from "../../api/types/AssetOperationRequest";
 
 export const AssetOperationsNew = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
     const assetOperationService = new EthAssetOperationService();
+    const materialService = new EthMaterialService();
     const [processTypes, setProcessTypes] = useState<string[]>([]);
 
     const [inputMaterials, setInputMaterials] = useState<FormElement[]>([
@@ -177,24 +180,24 @@ export const AssetOperationsNew = () => {
     const onSubmit = async (values: any) => {
         try {
             dispatch(showLoading("Creating asset operation..."));
-            const assetOperation: AssetOperationPresentable = new AssetOperationPresentable();
-            assetOperation.setName(values['name']);
-            assetOperation.setOutputMaterial(new MaterialPresentable(values['output-material-id']));
-            assetOperation.setLatitude(values['latitude']);
-            assetOperation.setLongitude(values['longitude']);
-            assetOperation.setProcessTypes(values['process-types']);
 
-            const inputMaterialIds: MaterialPresentable[] = [];
+            const inputMaterialIds: number[] = [];
             for (const key in values) {
                 if (key.startsWith('input-material-id-')) {
-                    const id: number = parseInt(values[key]);
-                    inputMaterialIds.push(new MaterialPresentable(id))
+                    inputMaterialIds.push(parseInt(values[key]));
                 }
             }
-            assetOperation.setInputMaterials(inputMaterialIds);
+            const newAssetOperation = new AssetOperationRequest(
+                values['name'],
+                inputMaterialIds,
+                parseInt(values['output-material-id']),
+                values['latitude'],
+                values['longitude'],
+                values['process-types'],
+            )
 
-            await assetOperationService.saveAssetOperation(assetOperation);
-            openNotification("Asset operation registered", `Asset operation "${assetOperation.name}" has been registered correctly!`, NotificationType.SUCCESS, 1);
+            await assetOperationService.saveAssetOperation(newAssetOperation);
+            openNotification("Asset operation registered", `Asset operation "${newAssetOperation.name}" has been registered correctly!`, NotificationType.SUCCESS, 1);
             navigate(paths.ASSET_OPERATIONS);
         } catch (e: any) {
             console.log("error: ", e);
