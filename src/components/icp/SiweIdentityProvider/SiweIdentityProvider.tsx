@@ -16,7 +16,6 @@ import type {
   SIWE_IDENTITY_SERVICE,
   SignedDelegation as ServiceSignedDelegation,
 } from "./service.interface";
-import { clearIdentity, loadIdentity, saveIdentity } from "./local-storage";
 import {
   callGetDelegation,
   callLogin,
@@ -28,6 +27,8 @@ import { createDelegationChain } from "./delegation";
 import { normalizeError } from "./error";
 import { ethers } from 'ethers';
 import SingletonSigner from "../../../api/SingletonSigner";
+import {useDispatch, useSelector} from "react-redux";
+import {clearSiweIdentity, selectSiweIdentity, updateSiweIdentity} from "../../../redux/reducers/siweIdentitySlice";
 
 /**
  * Re-export types
@@ -109,8 +110,9 @@ export function SiweIdentityProvider<T extends SIWE_IDENTITY_SERVICE>({
   /** The child components that the SiweIdentityProvider will wrap. This allows any child component to access the authentication context provided by the SiweIdentityProvider. */
   children: ReactNode;
 }) {
-  const connectedEthAddress = (SingletonSigner.getInstance()?.address || '0xabc') as `0x${string}`;
-
+  // const connectedEthAddress = (SingletonSigner.getInstance()?.address || '0xabc') as `0x${string}`;
+  const siweIdentity = useSelector(selectSiweIdentity);
+  const dispatch = useDispatch();
 
   const [state, setState] = useState<State>({
     isInitializing: true,
@@ -144,6 +146,8 @@ export function SiweIdentityProvider<T extends SIWE_IDENTITY_SERVICE>({
    * is optional, as it will be called automatically on login if not called manually.
    */
   async function prepareLogin(): Promise<string | undefined> {
+    const connectedEthAddress = (SingletonSigner.getInstance()?.address || '0xabc') as `0x${string}`;
+    console.log('Eth address: ', connectedEthAddress);
     if (!state.anonymousActor) {
       throw new Error(
           "Hook not initialized properly. Make sure to supply all required props to the SiweIdentityProvider."
@@ -206,6 +210,8 @@ export function SiweIdentityProvider<T extends SIWE_IDENTITY_SERVICE>({
       loginSignature: `0x${string}` | undefined,
       error: Error | null
   ) {
+    const connectedEthAddress = (SingletonSigner.getInstance()?.address || '0xabc') as `0x${string}`;
+    console.log('Eth address: ', connectedEthAddress);
     if (error) {
       rejectLoginWithError(
           error,
@@ -271,7 +277,11 @@ export function SiweIdentityProvider<T extends SIWE_IDENTITY_SERVICE>({
     );
 
     // Save the identity to local storage.
-    await saveIdentity(connectedEthAddress, sessionIdentity, delegationChain);
+    dispatch(updateSiweIdentity({
+      address: connectedEthAddress,
+      sessionIdentity: JSON.stringify(sessionIdentity.toJSON()),
+      delegationChain: JSON.stringify(delegationChain.toJSON()),
+    }));
 
     // Set the identity in state.
     await updateState({
@@ -296,6 +306,8 @@ export function SiweIdentityProvider<T extends SIWE_IDENTITY_SERVICE>({
    */
 
   async function login() {
+    const connectedEthAddress = SingletonSigner.getInstance()?.address || '';
+    console.log('Eth address: ', connectedEthAddress);
     const promise = new Promise<DelegationIdentity>((resolve, reject) => {
       loginPromiseHandlers.current = { resolve, reject };
     });
@@ -372,29 +384,24 @@ export function SiweIdentityProvider<T extends SIWE_IDENTITY_SERVICE>({
       identityAddress: undefined,
       delegationChain: undefined,
     });
-    clearIdentity();
+    dispatch(clearSiweIdentity());
   }
 
   /**
    * Load the identity from local storage on mount.
    */
   useEffect(() => {
-    try {
-      const [a, i, d] = loadIdentity();
-      updateState({
-        identityAddress: a,
-        identity: i,
-        delegationChain: d,
-        isInitializing: false,
-      });
-    } catch (e) {
-      if (e instanceof Error) {
-        console.log("Could not load identity from local storage: ", e.message);
-      }
+    if(!siweIdentity) {
       updateState({
         isInitializing: false,
       });
     }
+    updateState({
+      identityAddress: siweIdentity?.address,
+      identity: siweIdentity?.sessionIdentity,
+      delegationChain: siweIdentity?.delegationChain,
+      isInitializing: false,
+    });
   }, []);
 
   /**
@@ -405,7 +412,7 @@ export function SiweIdentityProvider<T extends SIWE_IDENTITY_SERVICE>({
     if (state.isInitializing) return;
     clear();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [connectedEthAddress]);
+  }, []);
 
   /**
    * Create an anonymous actor on mount. This actor is used during the login

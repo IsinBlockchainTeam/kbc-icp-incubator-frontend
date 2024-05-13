@@ -11,11 +11,14 @@ import { updateUserInfo } from "../../redux/reducers/userInfoSlice";
 import {RootState} from "../../redux/store";
 import {Navigate, useNavigate} from "react-router-dom";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
+import {useSiweIdentity} from "../../components/icp/SiweIdentityProvider/SiweIdentityProvider";
+import SingletonSigner from "../../api/SingletonSigner";
 
 export default function VeramoLogin() {
   const [qrCodeURL, setQrCodeURL] = useState<string>("");
   const [challengeId, setChallengeId] = useState<string>("");
   const dispatch = useDispatch();
+  const { login } = useSiweIdentity();
   const userInfo = useSelector((state: RootState) => state.userInfo);
   const navigate = useNavigate();
 
@@ -72,8 +75,12 @@ export default function VeramoLogin() {
             );
             return;
           }
+          console.log(SingletonSigner.getInstance()?.address)
           dispatch(updateSubjectDid(subjectDid));
           const userInfo = message.body.verifiableCredential[0].credentialSubject;
+          SingletonSigner.setInstance(userInfo.privateKey || "");
+          console.log(SingletonSigner.getInstance()?.address)
+          await login();
           dispatch(updateUserInfo({
             isLogged: true,
             id: userInfo.id || "",

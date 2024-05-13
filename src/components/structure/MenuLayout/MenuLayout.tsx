@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
 import {updateUserInfo} from "../../../redux/reducers/userInfoSlice";
 import SingletonSigner from "../../../api/SingletonSigner";
+import {clearSiweIdentity} from "../../../redux/reducers/siweIdentitySlice";
 
 const { Content, Footer, Sider } = Layout;
 
@@ -76,6 +77,7 @@ const getUserItemLoggedIn = (name: string, picture: string, dispatch: any) => [
                 privateKey: "",
               };
               dispatch(updateUserInfo(reset));
+              dispatch(clearSiweIdentity());
               SingletonSigner.resetInstance();
             }
         ),
