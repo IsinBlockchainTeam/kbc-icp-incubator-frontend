@@ -85,8 +85,6 @@ export default function useTradeView() {
     useEffect(() => {
         if(!trade) return;
 
-        const disabled = true;
-
         const commonElements: FormElement[] = [
             {type: FormElementType.TITLE, span: 24, label: 'Actors'}, {
                 type: FormElementType.INPUT,
@@ -96,7 +94,7 @@ export default function useTradeView() {
                 required: true,
                 regex: regex.ETHEREUM_ADDRESS,
                 defaultValue: trade.supplier,
-                disabled,
+                disabled: true,
             },
             {
                 type: FormElementType.INPUT,
@@ -106,7 +104,7 @@ export default function useTradeView() {
                 required: true,
                 regex: regex.ETHEREUM_ADDRESS,
                 defaultValue: trade.customer,
-                disabled,
+                disabled: true,
             },
             {
                 type: FormElementType.INPUT,
@@ -116,7 +114,7 @@ export default function useTradeView() {
                 required: true,
                 regex: regex.ETHEREUM_ADDRESS,
                 defaultValue: trade.commissioner,
-                disabled,
+                disabled: true,
             },
         ]
 
@@ -131,7 +129,7 @@ export default function useTradeView() {
                 label: 'Certificate of Shipping',
                 required: false,
                 loading: false,
-                uploadable: false,
+                uploadable: !disabled,
                 content: content,
                 height: documentHeight,
             }
@@ -144,7 +142,7 @@ export default function useTradeView() {
                 label: 'Payment Invoice',
                 required: false,
                 loading: false,
-                uploadable: false,
+                uploadable: !disabled,
                 content: content,
                 height: documentHeight,
             }
@@ -214,7 +212,7 @@ export default function useTradeView() {
                     label: 'Incoterms',
                     required: true,
                     defaultValue: trade.incoterms,
-                    disabled: true,
+                    disabled,
                 },
                 documentElement,
                 {
@@ -242,7 +240,7 @@ export default function useTradeView() {
                     label: 'Shipper',
                     required: true,
                     defaultValue: trade.shipper,
-                    disabled: true,
+                    disabled,
                 },
                 {
                     type: FormElementType.INPUT,
@@ -261,7 +259,7 @@ export default function useTradeView() {
                     label: 'Shipping Port',
                     required: true,
                     defaultValue: trade.shippingPort,
-                    disabled: true,
+                    disabled,
                 },
                 {
                     type: FormElementType.DATE,
@@ -279,7 +277,7 @@ export default function useTradeView() {
                     label: 'Delivery Port',
                     required: true,
                     defaultValue: trade.deliveryPort,
-                    disabled: true,
+                    disabled,
                 },
                 {
                     type: FormElementType.DATE,

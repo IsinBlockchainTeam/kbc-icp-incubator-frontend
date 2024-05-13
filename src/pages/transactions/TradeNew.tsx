@@ -47,12 +47,6 @@ export const TradeNew = () => {
                     </Button>
                 </div>
             }>
-                <div style={{display: "flex", alignItems: "center"}}>
-                    <Text style={{marginRight: '16px'}} strong>Trade Type:</Text>
-                    <Dropdown menu={menuProps}>
-                        <Button>{getEnumKeyByValue(TradeType, type)} <DownOutlined/></Button>
-                    </Dropdown>
-                </div>
                 {type === TradeType.ORDER &&
                     <>
                         <Divider>Order status</Divider>

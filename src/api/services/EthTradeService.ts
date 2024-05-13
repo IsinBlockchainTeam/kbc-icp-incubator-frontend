@@ -8,7 +8,7 @@ import {
     IConcreteTradeService,
     OrderLinePrice,
     OrderLineRequest,
-    TradeType, OrderTradeMetadata, URLStructure
+    TradeType, OrderTradeMetadata, URLStructure, OrderTradeService, OrderLine, Material, ProductCategory
 } from "@kbc-lib/coffee-trading-management-lib";
 import {CustomError} from "../../utils/error/CustomError";
 import {HttpStatusCode} from "../../utils/error/HttpStatusCode";
@@ -40,29 +40,28 @@ export class EthTradeService extends Service {
             const tradeService = BlockchainLibraryUtils.getTradeService(tradeAddress);
             let tradeInstanceService: IConcreteTradeService;
             const tradeType = await tradeService.getTradeType();
-            if (tradeType === TradeType.ORDER) {
-                tradeInstanceService = BlockchainLibraryUtils.getOrderTradeService(tradeAddress);
-            } else if (tradeType === TradeType.BASIC) {
+
+            if (tradeType === TradeType.BASIC) {
                 tradeInstanceService = BlockchainLibraryUtils.getBasicTradeService(tradeAddress);
+            } else if (tradeType === TradeType.ORDER) {
+                tradeInstanceService = BlockchainLibraryUtils.getOrderTradeService(tradeAddress);
             } else {
                 throw new CustomError(HttpStatusCode.INTERNAL_SERVER, "Received an invalid trade type");
             }
 
-            const lines: Line[] = await tradeInstanceService.getLines();
-            const {tradeId, supplier, customer, commissioner, negotiationStatus} = await tradeInstanceService.getTrade();
+            const {tradeId, supplier, customer, commissioner} = await tradeInstanceService.getTrade();
 
-            tradePresentables.push(new TradePresentable()
+            const newTradePresentable = new TradePresentable()
                 .setId(tradeId)
                 .setSupplier(supplier)
                 .setCustomer(customer)
                 .setCommissioner(commissioner)
-                .setLines(lines.map(tl => new TradeLinePresentable()
-                    .setId(tl.id)
-                    .setMaterial(tl.material ? new MaterialPresentable()
-                        .setId(tl.material.id)
-                        .setName(tl.productCategory.name) : undefined)))
-                .setType(tradeType))
-                .setNegotiationStatus(negotiationStatus);
+                .setType(tradeType);
+
+            if(tradeType === TradeType.ORDER) {
+                newTradePresentable.setNegotiationStatus(await (tradeInstanceService as unknown as OrderTradeService).getNegotiationStatus())
+            }
+            tradePresentables.push(newTradePresentable)
         }
 
         return tradePresentables;
@@ -220,11 +219,17 @@ export class EthTradeService extends Service {
         oldTrade.tokenAddress !== trade.tokenAddress && await tradeService.updateTokenAddress(trade.tokenAddress!);
         // update one single line because at this time we manage only one line per trade
         console.log("trade: ", trade)
-        console.log("oldTrade: ", oldTrade)
-        await tradeService.updateLine(new OrderLineRequest(trade.lines[0].productCategory!.id, trade.lines[0].quantity!, trade.lines[0].unit!, new OrderLinePrice(trade.lines[0].price!.amount, trade.lines[0].price!.fiat), oldTrade.lines[0].id));
+        console.log("oldTrade: ", oldTrade);
+
+        // TODO: fix this
+        const productCategory = new ProductCategory(trade.lines[0].productCategory?.id!, trade.lines[0].productCategory?.name!, trade.lines[0].productCategory?.quality!, "description");
+        const material = new Material(trade.lines[0].material?.id!, productCategory);
+
+        // await tradeService.updateLine(new OrderLine(trade.lines[0].id, material, productCategory, trade.lines[0].quantity!, trade.lines[0].unit!, new OrderLinePrice(trade.lines[0].price!.amount, trade.lines[0].price!.fiat)));
         // TODO: is it better to check if every field (also price) is changed, so that no useless calls to chain are made
         // if (oldTrade.lines[0].productCategory.id !== trade.lines[0].productCategory?.id || oldTrade.lines[0].quantity !== trade.lines[0].quantity || oldTrade.lines[0].unit !== trade.lines[0].unit)
-        //     await tradeService.updateLine(new OrderLineRequest(trade.lines[0].productCategory!.id, trade.lines[0].quantity!, trade.lines[0].unit!, new OrderLinePrice(trade.lines[0].price!.amount, trade.lines[0].price!.fiat), oldTrade.lines[0].id));
+        // TODO: update line if something has changed
+        // await tradeService.updateLine(new OrderLineRequest(trade.lines[0].productCategory!.id, trade.lines[0].quantity!, trade.lines[0].unit!, new OrderLinePrice(trade.lines[0].price!.amount, trade.lines[0].price!.fiat), oldTrade.lines[0].id));
     }
 
     async saveOrderTrade(trade: TradePresentable): Promise<void> {

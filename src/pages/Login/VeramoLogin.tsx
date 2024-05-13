@@ -102,37 +102,37 @@ export default function VeramoLogin() {
         }
     }, [challengeId]);
 
-    // const fakeLoginExp = () => {
-    //     dispatch(updateUserInfo({
-    //         isLogged: true,
-    //         "legalName": "Dunder Mifflin",
-    //         "address": "st. 5 Scranton",
-    //         "telephone": "+1 233746 432345",
-    //         "email": "sales@dundermifflin.com",
-    //         "image": "https://upload.wikimedia.org/wikipedia/commons/9/9c/Dunder_Mifflin%2C_Inc.svg",
-    //         "nation": "USA",
-    //         "role": "EXPORTER",
-    //         "organizationId": "0",
-    //         "privateKey": "47c99abed3324a2707c28affff1267e45918ec8c3f20b8aa892e8b065d2942dd",
-    //         "id": "did:ethr:dev:0x1CBd3b2770909D4e10f157cABC84C7264073C9Ec"
-    //     }))
-    // }
-    //
-    // const fakeLoginImp = () => {
-    //     dispatch(updateUserInfo({
-    //         isLogged: true,
-    //         "legalName": "ISIN",
-    //         "address": "via la Santa 1",
-    //         "telephone": "+41 79 345 3456",
-    //         "email": "isin@supsi.ch",
-    //         "image": "https://gioconda.supsi.ch/images/ISIN_logo.jpg",
-    //         "nation": "Switzerland",
-    //         "role": "IMPORTER",
-    //         "organizationId": "1",
-    //         "privateKey": "c526ee95bf44d8fc405a158bb884d9d1238d99f0612e9f33d006bb0789009aaa",
-    //         "id": "did:ethr:dev:0xdF3e18d64BC6A983f673Ab319CCaE4f1a57C7097"
-    //     }))
-    // }
+    const fakeLoginExp = () => {
+        dispatch(updateUserInfo({
+            isLogged: true,
+            "legalName": "Dunder Mifflin",
+            "address": "st. 5 Scranton",
+            "telephone": "+1 233746 432345",
+            "email": "sales@dundermifflin.com",
+            "image": "https://upload.wikimedia.org/wikipedia/commons/9/9c/Dunder_Mifflin%2C_Inc.svg",
+            "nation": "USA",
+            "role": "EXPORTER",
+            "organizationId": "0",
+            "privateKey": "47c99abed3324a2707c28affff1267e45918ec8c3f20b8aa892e8b065d2942dd",
+            "id": "did:ethr:dev:0x1CBd3b2770909D4e10f157cABC84C7264073C9Ec"
+        }))
+    }
+
+    const fakeLoginImp = () => {
+        dispatch(updateUserInfo({
+            isLogged: true,
+            "legalName": "ISIN",
+            "address": "via la Santa 1",
+            "telephone": "+41 79 345 3456",
+            "email": "isin@supsi.ch",
+            "image": "https://gioconda.supsi.ch/images/ISIN_logo.jpg",
+            "nation": "Switzerland",
+            "role": "IMPORTER",
+            "organizationId": "1",
+            "privateKey": "c526ee95bf44d8fc405a158bb884d9d1238d99f0612e9f33d006bb0789009aaa",
+            "id": "did:ethr:dev:0xdF3e18d64BC6A983f673Ab319CCaE4f1a57C7097"
+        }))
+    }
 
     if (userInfo.isLogged) {
         return <Navigate to={paths.PROFILE}/>;
@@ -155,8 +155,8 @@ export default function VeramoLogin() {
                     size={300}
                 />
             </Space>
-            {/*<button onClick={fakeLoginExp}>Fake Login Exporter</button>*/}
-            {/*<button onClick={fakeLoginImp}>Fake Login Importer</button>*/}
+            <button onClick={fakeLoginExp}>Fake Login Exporter</button>
+            <button onClick={fakeLoginImp}>Fake Login Importer</button>
         </div>
     );
 }
