@@ -3,19 +3,14 @@ import {BlockchainLibraryUtils} from "../BlockchainLibraryUtils";
 import {
     BasicTrade,
     Line,
-    LineRequest,
     IConcreteTradeService,
     OrderLinePrice,
-    OrderLineRequest,
     TradeType,
     OrderTradeMetadata,
     URLStructure,
     OrderTradeService,
     OrderLine,
-    Material,
-    ProductCategory,
-    Trade,
-    OrderTrade, DocumentType
+    DocumentType
 } from "@kbc-lib/coffee-trading-management-lib";
 import {CustomError} from "../../utils/error/CustomError";
 import {HttpStatusCode} from "../../utils/error/HttpStatusCode";
@@ -30,16 +25,20 @@ import {
     TradePreviewPresentable
 } from "../types/TradePresentable";
 import {DocumentPresentable} from "../types/DocumentPresentable";
-import {OrderTradeRequest} from "../types/TradeRequest";
-
-export type BasicTradeRequest = Omit<typeof BasicTrade, "id">;
+import {BasicTradeRequest, OrderTradeRequest} from "../types/TradeRequest";
+import {EthMaterialService} from "./EthMaterialService";
+import {DocumentRequest} from "../types/DocumentRequest";
+import {EthDocumentService} from "./EthDocumentService";
 
 export class EthTradeService extends Service {
     private readonly _tradeManagerService;
 
+    private readonly _ethDocumentService;
+
     constructor() {
         super();
         this._tradeManagerService = BlockchainLibraryUtils.getTradeManagerService();
+        this._ethDocumentService = new EthDocumentService();
     }
 
     async getGeneralTrades(): Promise<TradePreviewPresentable[]> {
@@ -65,20 +64,27 @@ export class EthTradeService extends Service {
 
             const {tradeId, supplier, commissioner} = await tradeInstanceService.getTrade();
 
-            const newTradePresentable = new TradePreviewPresentable(
-                tradeId,
+            const newTradePresentable: TradePreviewPresentable = {
+                id: tradeId,
                 supplier,
                 commissioner,
-                tradeType
-            );
+                type: tradeType
+            };
 
             if (tradeType === TradeType.ORDER) {
-                newTradePresentable.negotiationStatus = await (BlockchainLibraryUtils.getOrderTradeService(tradeAddress)).getNegotiationStatus();
+                newTradePresentable.negotiationStatus = await (tradeInstanceService as OrderTradeService).getNegotiationStatus();
             }
             tradePresentables.push(newTradePresentable)
         }
 
         return tradePresentables;
+    }
+
+    private async getDocumentMap(tradeId: number): Promise<Map<DocumentType, DocumentPresentable>> {
+        const documents = await this._ethDocumentService.getDocumentsByTransactionId(tradeId);
+        const documentMap = new Map<DocumentType, DocumentPresentable>();
+        documents?.forEach(doc => documentMap.set(doc.documentType, doc));
+        return documentMap;
     }
 
     async getTradeById(id: number): Promise<DetailedTradePresentable> {
@@ -88,72 +94,30 @@ export class EthTradeService extends Service {
         if (!address)
             throw new Error("Trade not found");
 
-        let trade: DetailedTradePresentable;
         switch (type) {
             case TradeType.BASIC:
                 const basicTradeService = BlockchainLibraryUtils.getBasicTradeService(address);
                 const basicTrade = await basicTradeService.getTrade();
                 basicTrade.lines = await basicTradeService.getLines();
 
-                // TODO: check if there are documents
+                return new BasicTradePresentable(basicTrade, await this.getDocumentMap(id));
 
-                return new BasicTradePresentable(basicTrade);
             case TradeType.ORDER:
                 const orderTradeService = BlockchainLibraryUtils.getOrderTradeService(address);
                 const orderTrade = await orderTradeService.getCompleteTrade();
                 orderTrade.lines = await orderTradeService.getLines();
 
-                // TODO: check if there are documents
+                return new OrderTradePresentable(orderTrade, await orderTradeService.getTradeStatus(), await this.getDocumentMap(id));
 
-                // trade
-                //     .setId(orderTrade.tradeId)
-                //     .setCommissioner(orderTrade.commissioner)
-                //     .setCustomer(orderTrade.customer)
-                //     .setIncoterms(orderTrade.metadata?.incoterms)
-                //     .setPaymentDeadline(new Date(orderTrade.paymentDeadline))
-                //     .setDocumentDeliveryDeadline(new Date(orderTrade.documentDeliveryDeadline))
-                //     .setShipper(orderTrade.metadata?.shipper)
-                //     .setArbiter(orderTrade.arbiter)
-                //     .setShippingPort(orderTrade.metadata?.shippingPort)
-                //     .setShippingDeadline(new Date(orderTrade.shippingDeadline))
-                //     .setDeliveryPort(orderTrade.metadata?.deliveryPort)
-                //     .setDeliveryDeadline(new Date(orderTrade.deliveryDeadline))
-                //     .setEscrow(orderTrade.escrow)
-                //     .setSupplier(orderTrade.supplier)
-                //     .setLines(orderLines.map(ol => new TradeLinePresentable()
-                //         .setId(ol.id)
-                //         .setProductCategory(ol.productCategory ? new ProductCategoryPresentable()
-                //             .setId(ol.productCategory.id)
-                //             .setQuality(ol.productCategory.quality)
-                //             .setName(ol.productCategory.name) : undefined)
-                //         .setMaterial(ol.material ? new MaterialPresentable()
-                //             .setId(ol.material.id)
-                //             .setName(ol.productCategory.name) : undefined)
-                //         .setProductCategory(ol.productCategory ? new ProductCategoryPresentable()
-                //             .setId(ol.productCategory.id)
-                //             .setQuality(ol.productCategory.quality)
-                //             .setName(ol.productCategory.name) : undefined)
-                //         .setQuantity(ol.quantity)
-                //         .setUnit(ol.unit)
-                //         .setPrice(new TradeLinePrice().setAmount(ol.price.amount).setFiat(ol.price.fiat))))
-                //     .setType(TradeType.ORDER)
-                //     .setStatus(await orderTradeService.getTradeStatus())
-                //     .setNegotiationStatus(await orderTradeService.getNegotiationStatus())
-                //     .setAgreedAmount(orderTrade.agreedAmount)
-                //     .setTokenAddress(orderTrade.tokenAddress)
-
-                console.log("order trade retrieved: ", orderTrade);
-                return new OrderTradePresentable(orderTrade, await orderTradeService.getTradeStatus());
             default:
                 throw new CustomError(HttpStatusCode.BAD_REQUEST, "Wrong trade type");
         }
     }
 
-    async saveBasicTrade(trade: BasicTradeRequest): Promise<void> {
+    async saveBasicTrade(trade: BasicTradeRequest, documents?: DocumentRequest[]): Promise<void> {
         const organizationId = parseInt(store.getState().userInfo.organizationId);
         // TODO: remove this harcoded value
         const delegatedOrganizationIds: number[] = organizationId === 0 ? [1] : [0];
-        console.log("delegatedOrganizationIds", delegatedOrganizationIds);
 
         const urlStructure: URLStructure = {
             prefix: getICPCanisterURL(ICP.CANISTER_ID_ORGANIZATION),
@@ -163,77 +127,56 @@ export class EthTradeService extends Service {
             date: new Date(),
         }
 
-        // TODO: refactor this
+        const [, newTradeAddress, transactionHash] =
+            await this._tradeManagerService.registerBasicTrade(trade.supplier, trade.customer, trade.commissioner, trade.name,
+                metadata, urlStructure, delegatedOrganizationIds);
 
-        // const [, newTradeAddress, transactionHash] =
-        //     await this._tradeManagerService.registerBasicTrade(trade.supplier, trade.customer!, trade.commissioner!, trade.name!,
-        //         metadata, urlStructure, delegatedOrganizationIds);
-        //
-        // await BlockchainLibraryUtils.waitForTransactions(transactionHash, Number(process.env.REACT_APP_BC_CONFIRMATION_NUMBER || 0));
-        //
-        // const basicTradeService = BlockchainLibraryUtils.getBasicTradeService(newTradeAddress);
-        // if (trade.deliveryNote) {
-        //     const externalUrl = (await basicTradeService.getTrade()).externalUrl;
-        //     const resourceSpec: ICPResourceSpec = {
-        //         name: trade.deliveryNote.filename,
-        //         type: trade.deliveryNote.contentType,
-        //     }
-        //     const bytes = new Uint8Array(await new Response(trade.deliveryNote.content).arrayBuffer());
-        //
-        //     await basicTradeService.addDocument(trade.deliveryNote.documentType, bytes, externalUrl, resourceSpec, delegatedOrganizationIds);
-        // }
-        //
-        // if (trade.lines) {
-        //     await Promise.all(trade.lines.map(async line => {
-        //         await basicTradeService.addLine(new LineRequest(line.productCategory!.id, line.quantity!, line.unit!));
-        //     }));
-        // }
+        await BlockchainLibraryUtils.waitForTransactions(transactionHash, Number(process.env.REACT_APP_BC_CONFIRMATION_NUMBER || 0));
+
+        const basicTradeService = BlockchainLibraryUtils.getBasicTradeService(newTradeAddress);
+        const deliveryNote = documents?.find(doc => doc.documentType === DocumentType.DELIVERY_NOTE);
+        if (deliveryNote) {
+            const externalUrl = (await basicTradeService.getTrade()).externalUrl;
+            const resourceSpec: ICPResourceSpec = {
+                name: deliveryNote.name,
+                type: deliveryNote.content.type,
+            }
+            const bytes = new Uint8Array(await new Response(deliveryNote.content).arrayBuffer());
+
+            await basicTradeService.addDocument(deliveryNote.documentType, bytes, externalUrl, resourceSpec, delegatedOrganizationIds);
+        }
+
+        for (const line of trade.lines) {
+            await basicTradeService.addLine(line)
+        }
     }
 
-    async confirmOrderTrade(id: number): Promise<void> {
-        const tradeService = BlockchainLibraryUtils.getOrderTradeService(await this._tradeManagerService.getTrade(id));
-        await tradeService.confirmOrder();
+    async putBasicTrade(id: number, trade: BasicTradeRequest): Promise<void> {
+        const tradeService = BlockchainLibraryUtils.getBasicTradeService(await this._tradeManagerService.getTrade(id));
+        const oldTrade: BasicTrade = await tradeService.getTrade();
+
+        oldTrade.name !== trade.name && await tradeService.setName(trade.name!);
+
+        // update one single line because at this time we manage only one line per trade
+        const oldLine = oldTrade.lines[0];
+        const newLine = trade.lines[0];
+        if (!oldLine || !newLine)
+            return;
+
+        // Note assigned material is ignored as it is not changeable in the UI
+        if (oldLine.productCategory.id !== newLine.productCategoryId
+            || oldLine.unit !== newLine.unit
+            || oldLine.quantity !== newLine.quantity
+        ) {
+            const productCategory = await new EthMaterialService().getProductCategory(newLine.productCategoryId)
+            await tradeService.updateLine(new Line(oldLine.id, oldLine.material, productCategory, newLine.quantity, newLine.unit));
+        }
     }
 
-    async putBasicTrade(id: number, trade: TradePreviewPresentable): Promise<void> {
-        // TODO: refactor this
-        // const tradeService = BlockchainLibraryUtils.getBasicTradeService(await this._tradeManagerService.getTrade(id));
-        // const oldTrade: BasicTrade = await tradeService.getTrade();
-        // oldTrade.name !== trade.name && await tradeService.setName(trade.name!);
-    }
-
-    async putOrderTrade(id: number, trade: TradePreviewPresentable): Promise<void> {
-        // TODO: refactor this
-        // const tradeService = BlockchainLibraryUtils.getOrderTradeService(await this._tradeManagerService.getTrade(id));
-        // const oldTrade = await tradeService.getTrade();
-        //
-        // oldTrade.paymentDeadline !== trade.paymentDeadline?.getTime() && await tradeService.updatePaymentDeadline(trade.paymentDeadline!.getTime());
-        // oldTrade.documentDeliveryDeadline !== trade.documentDeliveryDeadline?.getTime() && await tradeService.updateDocumentDeliveryDeadline(trade.documentDeliveryDeadline!.getTime());
-        // oldTrade.arbiter !== trade.arbiter && await tradeService.updateArbiter(trade.arbiter!);
-        // oldTrade.shippingDeadline !== trade.shippingDeadline?.getTime() && await tradeService.updateShippingDeadline(trade.shippingDeadline!.getTime());
-        // oldTrade.deliveryDeadline !== trade.deliveryDeadline?.getTime() && await tradeService.updateDeliveryDeadline(trade.deliveryDeadline!.getTime());
-        // oldTrade.agreedAmount !== trade.agreedAmount && await tradeService.updateAgreedAmount(trade.agreedAmount!);
-        // oldTrade.tokenAddress !== trade.tokenAddress && await tradeService.updateTokenAddress(trade.tokenAddress!);
-        // // update one single line because at this time we manage only one line per trade
-        // console.log("trade: ", trade)
-        // console.log("oldTrade: ", oldTrade);
-        //
-        // // TODO: fix this
-        // const productCategory = new ProductCategory(trade.lines[0].productCategory?.id!, trade.lines[0].productCategory?.name!, trade.lines[0].productCategory?.quality!, "description");
-        // const material = new Material(trade.lines[0].material?.id!, productCategory);
-        //
-        // // await tradeService.updateLine(new OrderLine(trade.lines[0].id, material, productCategory, trade.lines[0].quantity!, trade.lines[0].unit!, new OrderLinePrice(trade.lines[0].price!.amount, trade.lines[0].price!.fiat)));
-        // // TODO: is it better to check if every field (also price) is changed, so that no useless calls to chain are made
-        // // if (oldTrade.lines[0].productCategory.id !== trade.lines[0].productCategory?.id || oldTrade.lines[0].quantity !== trade.lines[0].quantity || oldTrade.lines[0].unit !== trade.lines[0].unit)
-        // // TODO: update line if something has changed
-        // // await tradeService.updateLine(new OrderLineRequest(trade.lines[0].productCategory!.id, trade.lines[0].quantity!, trade.lines[0].unit!, new OrderLinePrice(trade.lines[0].price!.amount, trade.lines[0].price!.fiat), oldTrade.lines[0].id));
-    }
-
-    async saveOrderTrade(trade: OrderTradeRequest, documents?: DocumentPresentable[]): Promise<void> {
+    async saveOrderTrade(trade: OrderTradeRequest, documents?: DocumentRequest[]): Promise<void> {
         const organizationId = parseInt(store.getState().userInfo.organizationId);
         // TODO: remove this harcoded value
         const delegatedOrganizationIds: number[] = organizationId === 0 ? [1] : [0];
-        console.log("delegatedOrganizationIds", delegatedOrganizationIds);
 
         const urlStructure: URLStructure = {
             prefix: getICPCanisterURL(ICP.CANISTER_ID_ORGANIZATION),
@@ -259,22 +202,52 @@ export class EthTradeService extends Service {
         if (paymentInvoice) {
             const externalUrl = (await orderTradeService.getTrade()).externalUrl;
             const resourceSpec: ICPResourceSpec = {
-                name: paymentInvoice.filename,
-                type: paymentInvoice.contentType,
+                name: paymentInvoice.name,
+                type: paymentInvoice.content.type,
             }
             const bytes = new Uint8Array(await new Response(paymentInvoice.content).arrayBuffer());
 
             await orderTradeService.addDocument(paymentInvoice.documentType, bytes, externalUrl, resourceSpec, delegatedOrganizationIds);
         }
 
-        if (trade.lines) {
-            // await Promise.all(trade.lines.map(async line => {
-            //     await orderTradeService.addLine(new OrderLineRequest(line.productCategory!.id!, line.quantity!, line.unit!, new OrderLinePrice(line.price!.amount, line.price!.fiat)));
-            // }));
-
-            for (const line of trade.lines) {
-                await orderTradeService.addLine(line);
-            }
+        for (const line of trade.lines) {
+            await orderTradeService.addLine(line);
         }
+    }
+
+    async putOrderTrade(id: number, trade: OrderTradeRequest): Promise<void> {
+        const tradeService = BlockchainLibraryUtils.getOrderTradeService(await this._tradeManagerService.getTrade(id));
+        const oldTrade = await tradeService.getTrade();
+
+        oldTrade.paymentDeadline !== trade.paymentDeadline && await tradeService.updatePaymentDeadline(trade.paymentDeadline);
+        oldTrade.documentDeliveryDeadline !== trade.documentDeliveryDeadline && await tradeService.updateDocumentDeliveryDeadline(trade.documentDeliveryDeadline);
+        oldTrade.arbiter !== trade.arbiter && await tradeService.updateArbiter(trade.arbiter);
+        oldTrade.shippingDeadline !== trade.shippingDeadline && await tradeService.updateShippingDeadline(trade.shippingDeadline);
+        oldTrade.deliveryDeadline !== trade.deliveryDeadline && await tradeService.updateDeliveryDeadline(trade.deliveryDeadline);
+        oldTrade.agreedAmount !== trade.agreedAmount && await tradeService.updateAgreedAmount(trade.agreedAmount);
+        oldTrade.tokenAddress !== trade.tokenAddress && await tradeService.updateTokenAddress(trade.tokenAddress);
+
+        // update one single line because at this time we manage only one line per trade
+        const oldLine = oldTrade.lines[0] as OrderLine;
+        const newLine = trade.lines[0];
+        if (!oldLine || !newLine)
+            return;
+
+        // Note assigned material is ignored as it is not changeable in the UI
+        if (oldLine.productCategory.id !== newLine.productCategoryId
+            || oldLine.unit !== newLine.unit
+            || oldLine.quantity !== newLine.quantity
+            || oldLine.price.amount !== newLine.price.amount
+            || oldLine.price.fiat !== newLine.price.fiat
+        ) {
+            const productCategory = await new EthMaterialService().getProductCategory(newLine.productCategoryId)
+            await tradeService.updateLine(new OrderLine(oldLine.id, oldLine.material, productCategory, newLine.quantity,
+                newLine.unit, new OrderLinePrice(newLine.price.amount, newLine.price.fiat)));
+        }
+    }
+
+    async confirmOrderTrade(id: number): Promise<void> {
+        const tradeService = BlockchainLibraryUtils.getOrderTradeService(await this._tradeManagerService.getTrade(id));
+        await tradeService.confirmOrder();
     }
 }

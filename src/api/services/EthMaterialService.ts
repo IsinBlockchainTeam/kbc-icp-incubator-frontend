@@ -16,6 +16,10 @@ export class EthMaterialService extends Service {
         return this._productCategoryService.getProductCategories();
     }
 
+    getProductCategory(id: number): Promise<ProductCategory> {
+        return this._productCategoryService.getProductCategory(id);
+    }
+
     async saveProductCategory(name: string, quality: number, description: string): Promise<void> {
         await this._productCategoryService.registerProductCategory(name, quality, description);
     }
@@ -26,9 +30,5 @@ export class EthMaterialService extends Service {
 
     async getMaterials(): Promise<Material[]> {
         return this._materialService.getMaterialsOfCreator(this._walletAddress);
-    }
-
-    async getMaterialById(materialId: number): Promise<Material> {
-        return this._materialService.getMaterial(materialId);
     }
 }

@@ -1,30 +1,20 @@
 import {GenericForm} from "../../components/GenericForm/GenericForm";
 import {TradeType} from "@kbc-lib/coffee-trading-management-lib";
-import {getEnumKeyByValue} from "../../utils/utils";
-import {Button, Divider, Dropdown, Steps, Typography} from "antd";
+import {Button} from "antd";
 import {CardPage} from "../../components/structure/CardPage/CardPage";
 import React, {useEffect} from "react";
-import {
-    DeleteOutlined,
-    DownOutlined,
-    EditOutlined,
-    ImportOutlined,
-    ProductOutlined,
-    SendOutlined,
-    TruckOutlined
-} from '@ant-design/icons';
+import {DeleteOutlined} from '@ant-design/icons';
 import {paths} from "../../constants";
 import {useNavigate, useLocation} from "react-router-dom";
 import useTradeNew from "./logic/tradeNew";
 import {useDispatch} from "react-redux";
 import {hideLoading} from "../../redux/reducers/loadingSlice";
-
-const {Text} = Typography;
+import OrderStatusBar from "../../components/OrderStatusBar/OrderStatusBar";
 
 export const TradeNew = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const {type, orderState, elements, menuProps, onSubmit} = useTradeNew();
+    const {type, orderState, elements, onSubmit} = useTradeNew();
     const dispatch = useDispatch();
 
     useEffect(() => {
@@ -47,39 +37,7 @@ export const TradeNew = () => {
                     </Button>
                 </div>
             }>
-                {type === TradeType.ORDER &&
-                    <>
-                        <Divider>Order status</Divider>
-                        <Steps
-                            type="navigation"
-                            current={orderState}
-                            className="order-status"
-                            items={[
-                                {
-                                    status: 'process',
-                                    title: 'Contract stipulation',
-                                    icon: <EditOutlined/>
-                                },
-                                {
-                                    title: 'Coffee Production',
-                                    icon: <ProductOutlined/>
-                                },
-                                {
-                                    title: 'Coffee Export',
-                                    icon: <SendOutlined/>
-                                },
-                                {
-                                    title: 'Coffee Shipment',
-                                    icon: <TruckOutlined/>
-                                },
-                                {
-                                    title: 'Coffee Import',
-                                    icon: <ImportOutlined/>
-                                }
-                            ]}
-                        />
-                    </>
-                }
+                {type === TradeType.ORDER && <OrderStatusBar orderState={orderState}/>}
                 <GenericForm elements={elements} submittable={true} onSubmit={onSubmit}/>
             </CardPage>
         )

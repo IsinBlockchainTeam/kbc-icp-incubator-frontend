@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Button, Table, TableProps} from "antd";
+import {Button, Table} from "antd";
 import {NotificationType, openNotification} from "../../utils/notification";
 import {ColumnsType} from "antd/es/table";
 import {EthMaterialService} from "../../api/services/EthMaterialService";
@@ -9,8 +9,7 @@ import {paths} from "../../constants";
 import {useNavigate} from "react-router-dom";
 import {useDispatch} from "react-redux";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
-import {ProductCategory} from "@kbc-lib/coffee-trading-management-lib";
-import {Material} from "@kbc-lib/coffee-trading-management-lib";
+import {Material, ProductCategory} from "@kbc-lib/coffee-trading-management-lib";
 
 export const Materials = () => {
     const navigate = useNavigate();
@@ -22,10 +21,8 @@ export const Materials = () => {
         try {
             dispatch(showLoading("Retrieving product categories and materials..."));
             const materialService = new EthMaterialService();
-            const productCategories = await materialService.getProductCategories();
-            setProductCategories(productCategories);
-            const materials = await materialService.getMaterials();
-            setMaterials(materials);
+            setProductCategories(await materialService.getProductCategories());
+            setMaterials(await materialService.getMaterials());
         } catch (e: any) {
             console.log("error: ", e);
             openNotification("Error", e.message, NotificationType.ERROR);
@@ -63,16 +60,10 @@ export const Materials = () => {
         {
             title: 'Name',
             dataIndex: 'name',
+            render: (_, {productCategory}) => productCategory.name,
             sorter: (a, b) => a.productCategory.name.localeCompare(b.productCategory.name),
         },
     ];
-
-    const onProductCategoriesChange: TableProps<ProductCategory>['onChange'] = (pagination, filters, sorter, extra) => {
-        console.log('params', pagination, filters, sorter, extra);
-    };
-    const onMaterialsChange: TableProps<Material>['onChange'] = (pagination, filters, sorter, extra) => {
-        console.log('params', pagination, filters, sorter, extra);
-    };
 
     useEffect(() => {
         loadData();
@@ -93,7 +84,7 @@ export const Materials = () => {
                 </div>
             </div>
             }>
-                <Table columns={productCategoriesColumns} dataSource={productCategories} onChange={onProductCategoriesChange} rowKey="id"/>
+                <Table columns={productCategoriesColumns} dataSource={productCategories} rowKey="id"/>
             </CardPage>
             <div style={{height: '16px'}}/>
             <CardPage
@@ -107,7 +98,7 @@ export const Materials = () => {
                     </div>
                 </div>
                 }>
-                <Table columns={materialsColumns} dataSource={materials} onChange={onMaterialsChange} rowKey="id"/>
+                <Table columns={materialsColumns} dataSource={materials} rowKey="id"/>
             </CardPage>
         </>
     );

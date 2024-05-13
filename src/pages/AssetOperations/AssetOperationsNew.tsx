@@ -6,15 +6,12 @@ import {DeleteOutlined} from "@ant-design/icons";
 import {paths} from "../../constants";
 import {CardPage} from "../../components/structure/CardPage/CardPage";
 import React, {useEffect, useState} from "react";
-import {Material} from "@kbc-lib/coffee-trading-management-lib";
-import {AssetOperation} from "@kbc-lib/coffee-trading-management-lib";
 import {NotificationType, openNotification} from "../../utils/notification";
 import {v4 as uuid} from "uuid";
 import {regex} from "../../utils/regex";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
 import {useDispatch} from "react-redux";
 import {EnumerableDefinition, EthEnumerableTypeService} from "../../api/services/EthEnumerableTypeService";
-import {EthMaterialService} from "../../api/services/EthMaterialService";
 import {AssetOperationRequest} from "../../api/types/AssetOperationRequest";
 
 export const AssetOperationsNew = () => {
@@ -22,7 +19,6 @@ export const AssetOperationsNew = () => {
     const dispatch = useDispatch();
 
     const assetOperationService = new EthAssetOperationService();
-    const materialService = new EthMaterialService();
     const [processTypes, setProcessTypes] = useState<string[]>([]);
 
     const [inputMaterials, setInputMaterials] = useState<FormElement[]>([
@@ -150,7 +146,6 @@ export const AssetOperationsNew = () => {
                 required: true,
                 options: processTypes.map((processType) => ({label: processType, value: processType})),
                 mode: 'multiple',
-                defaultValue: '',
                 disabled: false,
             },
             {type: FormElementType.TITLE, span: 24, label: 'Coordinates'},
@@ -187,14 +182,14 @@ export const AssetOperationsNew = () => {
                     inputMaterialIds.push(parseInt(values[key]));
                 }
             }
-            const newAssetOperation = new AssetOperationRequest(
-                values['name'],
+            const newAssetOperation: AssetOperationRequest = {
+                name: values['name'],
                 inputMaterialIds,
-                parseInt(values['output-material-id']),
-                values['latitude'],
-                values['longitude'],
-                values['process-types'],
-            )
+                outputMaterialId: parseInt(values['output-material-id']),
+                latitude: values['latitude'],
+                longitude: values['longitude'],
+                processTypes: values['process-types'],
+            }
 
             await assetOperationService.saveAssetOperation(newAssetOperation);
             openNotification("Asset operation registered", `Asset operation "${newAssetOperation.name}" has been registered correctly!`, NotificationType.SUCCESS, 1);

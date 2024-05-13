@@ -52,8 +52,8 @@ type SelectableElement = Omit<LabeledElement, 'type'> & {
     type: FormElementType.SELECT,
     name: string,
     options: {label: string, value: string}[],
-    defaultValue: string,
     required: boolean,
+    defaultValue?: string,
     mode?: 'multiple',
     disabled?: boolean,
     block?: boolean,
@@ -157,7 +157,7 @@ export const GenericForm = (props: Props) => {
                         labelCol={{span: 24}}
                         label={element.label}
                         name={element.name}
-                        initialValue={element.defaultValue}
+                        initialValue={element.defaultValue ? element.defaultValue : undefined}
                         rules={[{required: element.required, message: `Please select ${element.label}!`}]}>
                         <Select
                             mode={element.mode}
@@ -214,7 +214,6 @@ export const GenericForm = (props: Props) => {
                         <DatePicker
                             disabled={disabled}
                             placeholder={`Enter ${element.label}`}
-                            // defaultValue={element.defaultValue}
                             format={dateFormat}
                             className='ant-input'
                         />

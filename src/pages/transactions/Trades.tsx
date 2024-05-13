@@ -8,7 +8,7 @@ import {EthTradeService} from "../../api/services/EthTradeService";
 import {TradePreviewPresentable} from "../../api/types/TradePresentable";
 import {Link} from "react-router-dom";
 import {paths} from "../../constants";
-import {TradeType} from "@kbc-lib/coffee-trading-management-lib";
+import {NegotiationStatus, TradeType} from "@kbc-lib/coffee-trading-management-lib";
 import {useDispatch} from "react-redux";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
 
@@ -47,14 +47,6 @@ export const Trades = () => {
                 )
             })
         },
-        // {
-        //     title: 'Name',
-        //     dataIndex: 'name',
-        //     sorter: (a, b) => (a.name|| '').localeCompare(b.name || ''),
-        //     render: (name => {
-        //         return name ? name : '-';
-        //     })
-        // },
         {
             title: 'Supplier',
             dataIndex: 'supplier',
@@ -74,37 +66,6 @@ export const Trades = () => {
             render: (type => {
                 return getEnumKeyByValue(TradeType, type);
             })
-            // render: (type, trade) => {
-            //     const constraints = [
-            //         {incoterms: trade.incoterms},
-            //         {paymentDeadline: trade.paymentDeadline},
-            //         {documentDeliveryDeadline: trade.documentDeliveryDeadline},
-            //         {shipper: trade.shipper},
-            //         {arbiter: trade.arbiter},
-            //         {shippingPort: trade.shippingPort},
-            //         {shippingDeadline: trade.shippingDeadline},
-            //         {deliveryPort: trade.deliveryPort},
-            //         {deliveryDeadline: trade.deliveryDeadline},
-            //     ];
-            //
-            //     const items: MenuProps['items'] = [];
-            //     constraints.map((c, index) => {
-            //         const item: {key: string, label: string} = {key: '', label: ''};
-            //         for (let key in constraints[index]) {
-            //             // @ts-ignore
-            //             const value = constraints[index][key];
-            //             item.key = key;
-            //             if (!value) item.label = `${toTitleCase(key)}: Not specified`;
-            //             else item.label = `${toTitleCase(key)}: ${(value instanceof Date) ? value.toLocaleDateString() : value}`;
-            //         }
-            //         items.push(item);
-            //     })
-            //     return (
-            //         <Dropdown menu={{ items }} placement="bottom" arrow>
-            //             <p>{type}</p>
-            //         </Dropdown>
-            //     )
-            // }
         },
         {
             title: 'Status',
@@ -112,7 +73,10 @@ export const Trades = () => {
             sorter: (a, b) => (a.negotiationStatus?.toString() || '').localeCompare((b.negotiationStatus?.toString() || '')),
             render: (_, {negotiationStatus}) => (
                 <Tag color="geekblue" key={negotiationStatus}>
-                    {negotiationStatus?.toString().toUpperCase()}
+                    {negotiationStatus ?
+                        (getEnumKeyByValue(NegotiationStatus, negotiationStatus)?.toString().toUpperCase()) :
+                        '-'
+                    }
                 </Tag>
             )
         },
@@ -135,9 +99,6 @@ export const Trades = () => {
             <div
                 style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                 Trades
-                {/*<Button type="primary" icon={<PlusOutlined/>} onClick={() => navigate(paths.TRADE_NEW)}>*/}
-                {/*    New Trade*/}
-                {/*</Button>*/}
             </div>
         }>
             <Table columns={columns} dataSource={trades} onChange={onChange}/>

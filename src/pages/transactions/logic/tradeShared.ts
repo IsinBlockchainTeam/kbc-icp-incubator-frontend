@@ -4,7 +4,6 @@ import {v4 as uuid} from "uuid";
 import {EthTradeService} from "../../../api/services/EthTradeService";
 import {FormElement, FormElementType} from "../../../components/GenericForm/GenericForm";
 import {regex} from "../../../utils/regex";
-import {BlockchainLibraryUtils} from "../../../api/BlockchainLibraryUtils";
 import {EnumerableDefinition, EthEnumerableTypeService} from "../../../api/services/EthEnumerableTypeService";
 import {useLocation} from "react-router-dom";
 import SingletonSigner from "../../../api/SingletonSigner";
@@ -175,7 +174,9 @@ export default function useTradeShared() {
                     type: FormElementType.INPUT,
                     span: 12,
                     name: 'name',
-                    label: 'Reference ID',
+                    // WTF is this?
+                    // label: 'Reference ID',
+                    label: 'Name',
                     required: true,
                     defaultValue: '',
                     disabled: false,
@@ -230,7 +231,7 @@ export default function useTradeShared() {
                     span: 12,
                     name: 'document-delivery-deadline',
                     label: 'Document Delivery Deadline',
-                    required: false,
+                    required: true,
                     defaultValue: '',
                     disabled: false,
                 },

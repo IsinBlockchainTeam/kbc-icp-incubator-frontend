@@ -1,4 +1,12 @@
-import {OrderLineRequest} from "@kbc-lib/coffee-trading-management-lib";
+import {LineRequest, OrderLineRequest} from "@kbc-lib/coffee-trading-management-lib";
+
+export type BasicTradeRequest = {
+    supplier: string;
+    customer: string;
+    commissioner: string;
+    lines: LineRequest[];
+    name: string;
+}
 
 export type OrderTradeRequest = {
     supplier: string;
