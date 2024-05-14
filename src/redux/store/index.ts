@@ -2,6 +2,7 @@ import {combineReducers, configureStore} from "@reduxjs/toolkit";
 import authReducer from "../reducers/authSlice";
 import userInfoReducer from "../reducers/userInfoSlice";
 import loadingReducer from "../reducers/loadingSlice";
+import siweIdentityReducer from "../reducers/siweIdentitySlice";
 import storage from "redux-persist/lib/storage/session";
 import { persistReducer, persistStore } from "redux-persist";
 
@@ -12,6 +13,7 @@ const persistConfig = {
 const rootReducer = combineReducers({
   auth: authReducer,
   userInfo: userInfoReducer,
+  siweIdentity: siweIdentityReducer,
   loading: loadingReducer
 });
 const persistedReducer = persistReducer(persistConfig, rootReducer);

@@ -11,6 +11,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
 import {initialState, updateUserInfo} from "../../../redux/reducers/userInfoSlice";
 import SingletonSigner from "../../../api/SingletonSigner";
+import {clearSiweIdentity} from "../../../redux/reducers/siweIdentitySlice";
+import {useSiweIdentity} from "../../icp/SiweIdentityProvider/SiweIdentityProvider";
 
 const { Content, Footer, Sider } = Layout;
 
@@ -48,7 +50,7 @@ const settingItems: MenuItem[] = [
   ]),
 ];
 
-const getUserItemLoggedIn = (name: string, picture: string, dispatch: any) => [
+const getUserItemLoggedIn = (name: string, picture: string, dispatch: any, clear: any) => [
   getItem(
       `${name}`,
       "profile",
@@ -64,7 +66,9 @@ const getUserItemLoggedIn = (name: string, picture: string, dispatch: any) => [
             undefined,
             () => {
               dispatch(updateUserInfo(initialState));
+              dispatch(clearSiweIdentity());
               SingletonSigner.resetInstance();
+              clear();
             }
         ),
       ],
@@ -81,6 +85,7 @@ export const MenuLayout = () => {
     token: { colorBgContainer },
   } = theme.useToken();
   const dispatch = useDispatch();
+  const { clear } = useSiweIdentity();
 
   const userInfo = useSelector((state: RootState) => state.userInfo);
   const loading = useSelector((state: RootState) => state.loading);
@@ -120,7 +125,7 @@ export const MenuLayout = () => {
                   mode="vertical"
                   items={
                     userInfo.isLogged
-                        ? getUserItemLoggedIn(userInfo.legalName, userInfo.image || defaultPictureURL, dispatch)
+                        ? getUserItemLoggedIn(userInfo.legalName, userInfo.image || defaultPictureURL, dispatch, clear)
                         : settingItems
                   }
                   onClick={onMenuClick}
