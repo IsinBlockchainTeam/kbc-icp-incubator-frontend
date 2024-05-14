@@ -18,7 +18,7 @@ export default function VeramoLogin() {
     const [qrCodeURL, setQrCodeURL] = useState<string>("");
     const [challengeId, setChallengeId] = useState<string>("");
     const dispatch = useDispatch();
-    const { login } = useSiweIdentity();
+    const {login} = useSiweIdentity();
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const navigate = useNavigate();
 
@@ -54,69 +54,69 @@ export default function VeramoLogin() {
         }
     }, []);
 
-  useEffect(() => {
-    if (challengeId) {
-      const interval = setInterval(async () => {
-        await fetchResponse(interval);
-      }, 1000);
-      return () => clearInterval(interval);
-    }
-  }, [challengeId]);
-
-  const fetchResponse = async (interval: any) => {
-    try {
-      const message = await request(
-          `${requestPath.VERIFIER_BACKEND_URL}/presentations/callback/validated?challengeId=${challengeId}`,
-          { method: "GET" }
-      );
-      if (message) {
-        console.log("MESSAGE", message);
-
-        clearInterval(interval);
-        setChallengeId("");
-        const subjectDid = message.body.holder;
-        if (!subjectDid) {
-          openNotification(
-              "Error",
-              "No subject DID found",
-              NotificationType.ERROR
-          );
-          return;
+    useEffect(() => {
+        if (challengeId) {
+            const interval = setInterval(async () => {
+                await fetchResponse(interval);
+            }, 1000);
+            return () => clearInterval(interval);
         }
-        dispatch(updateSubjectDid(subjectDid));
-        const userInfo = message.body.verifiableCredential[0].credentialSubject;
-        if(!userInfo.privateKey)
-            throw new Error("No private key found");
-        SingletonSigner.setInstance(userInfo.privateKey);
-        await login();
-        dispatch(updateUserInfo({
-            isLogged: true,
-            id: userInfo.id || "",
-            legalName: userInfo.legalName || "",
-            email: userInfo.email || "",
-            address: userInfo.address || "",
-            nation: userInfo.nation || "",
-            telephone: userInfo.telephone || "",
-            image: userInfo.image || "",
-            role: userInfo.role || "",
-            organizationId: userInfo.organizationId || "",
-            privateKey: userInfo.privateKey || ""
-        }));
-        navigate(paths.PROFILE);
-        openNotification(
-            "Authenticated",
-            `Login succeed. Welcome ${userInfo.legalName}!`,
-            NotificationType.SUCCESS
-        );
+    }, [challengeId]);
 
-      } else {
-        console.log("NO MESSAGE");
-      }
-    } catch(error: any) {
-        console.log("error: ", error);
-        openNotification("Error", "Error while logging in", NotificationType.ERROR);
+    const fetchResponse = async (interval: any) => {
+        try {
+            const message = await request(
+                `${requestPath.VERIFIER_BACKEND_URL}/presentations/callback/validated?challengeId=${challengeId}`,
+                {method: "GET"}
+            );
+            if (message) {
+                console.log("MESSAGE", message);
+
+                clearInterval(interval);
+                setChallengeId("");
+                const subjectDid = message.body.holder;
+                if (!subjectDid) {
+                    openNotification(
+                        "Error",
+                        "No subject DID found",
+                        NotificationType.ERROR
+                    );
+                    return;
+                }
+                dispatch(updateSubjectDid(subjectDid));
+                const userInfo = message.body.verifiableCredential[0].credentialSubject;
+                if (!userInfo.privateKey)
+                    throw new Error("No private key found");
+                SingletonSigner.setInstance(userInfo.privateKey);
+                await login();
+                dispatch(updateUserInfo({
+                    isLogged: true,
+                    id: userInfo.id || "",
+                    legalName: userInfo.legalName || "",
+                    email: userInfo.email || "",
+                    address: userInfo.address || "",
+                    nation: userInfo.nation || "",
+                    telephone: userInfo.telephone || "",
+                    image: userInfo.image || "",
+                    role: userInfo.role || "",
+                    organizationId: userInfo.organizationId || "",
+                    privateKey: userInfo.privateKey || ""
+                }));
+                navigate(paths.PROFILE);
+                openNotification(
+                    "Authenticated",
+                    `Login succeed. Welcome ${userInfo.legalName}!`,
+                    NotificationType.SUCCESS
+                );
+
+            } else {
+                console.log("NO MESSAGE");
+            }
+        } catch (error: any) {
+            console.log("error: ", error);
+            openNotification("Error", "Error while logging in", NotificationType.ERROR);
+        }
     }
-  }
 
 
     // Note: use this when you don't want to bother scanning the QR code in development...
