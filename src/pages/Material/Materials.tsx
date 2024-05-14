@@ -1,8 +1,7 @@
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {Button, Table} from "antd";
 import {NotificationType, openNotification} from "../../utils/notification";
 import {ColumnsType} from "antd/es/table";
-import {EthMaterialService} from "../../api/services/EthMaterialService";
 import {CardPage} from "../../components/structure/CardPage/CardPage";
 import {PlusOutlined} from "@ant-design/icons";
 import {paths} from "../../constants";
@@ -10,19 +9,24 @@ import {useNavigate} from "react-router-dom";
 import {useDispatch} from "react-redux";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
 import {Material, ProductCategory} from "@kbc-lib/coffee-trading-management-lib";
+import {EthServicesContext} from "../../providers/EthServicesProvider";
 
 export const Materials = () => {
+    const {ethMaterialService} = useContext(EthServicesContext);
     const navigate = useNavigate();
     const [materials, setMaterials] = useState<Material[]>();
     const [productCategories, setProductCategories] = useState<ProductCategory[]>();
     const dispatch = useDispatch();
 
     const loadData = async () => {
+        if (!ethMaterialService) {
+            console.error("EthMaterialService not found");
+            return;
+        }
         try {
             dispatch(showLoading("Retrieving product categories and materials..."));
-            const materialService = new EthMaterialService();
-            setProductCategories(await materialService.getProductCategories());
-            setMaterials(await materialService.getMaterials());
+            setProductCategories(await ethMaterialService.getProductCategories());
+            setMaterials(await ethMaterialService.getMaterials());
         } catch (e: any) {
             console.log("error: ", e);
             openNotification("Error", e.message, NotificationType.ERROR);

@@ -1,15 +1,14 @@
-import {Service} from "./Service";
 import {Material, MaterialService, ProductCategory, ProductCategoryService} from "@kbc-lib/coffee-trading-management-lib";
-import {BlockchainLibraryUtils} from "../BlockchainLibraryUtils";
 
-export class EthMaterialService extends Service {
+export class EthMaterialService {
+    private readonly _walletAddress: string;
     private readonly _productCategoryService: ProductCategoryService;
     private readonly _materialService: MaterialService;
 
-    constructor() {
-        super();
-        this._productCategoryService = BlockchainLibraryUtils.getProductCategoryService();
-        this._materialService = BlockchainLibraryUtils.getMaterialService();
+    constructor(walletAddress: string, productCategoryService: ProductCategoryService, materialService: MaterialService) {
+        this._walletAddress = walletAddress;
+        this._productCategoryService = productCategoryService;
+        this._materialService = materialService;
     }
 
     async getProductCategories(): Promise<ProductCategory[]> {

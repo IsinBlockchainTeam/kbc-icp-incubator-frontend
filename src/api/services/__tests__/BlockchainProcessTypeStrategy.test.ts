@@ -1,8 +1,8 @@
 import {getWalletAddress} from "../../../../utils/storage";
-import {BlockchainLibraryUtils} from "../../BlockchainLibraryUtils";
+import {UseBlockchainLibraryUtils} from "../../../hooks/useBlockchainLibraryUtils";
 import {BlockchainProcessTypeStrategy} from "../../strategies/process_type/BlockchainProcessTypeStrategy";
 
-jest.mock('../../BlockchainLibraryUtils');
+jest.mock('../../../hooks/useBlockchainLibraryUtils');
 
 describe('BlockchainProcessTypeStrategy', () => {
     const walletAddress = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
@@ -15,7 +15,7 @@ describe('BlockchainProcessTypeStrategy', () => {
 
         beforeEach(() => {
             (getWalletAddress as jest.Mock).mockReturnValue(walletAddress);
-            BlockchainLibraryUtils.getEnumerableTypeService = jest.fn().mockReturnValue({
+            UseBlockchainLibraryUtils.getEnumerableTypeService = jest.fn().mockReturnValue({
                 getTypesList: mockedGetTypesList,
             });
 

@@ -10,7 +10,6 @@ import styles from "./MenuLayout.module.scss";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
 import {resetUserInfo} from "../../../redux/reducers/userInfoSlice";
-import SingletonSigner from "../../../api/SingletonSigner";
 import {clearSiweIdentity} from "../../../redux/reducers/siweIdentitySlice";
 import {useSiweIdentity} from "../../icp/SiweIdentityProvider/SiweIdentityProvider";
 import {
@@ -69,7 +68,6 @@ const getUserItemLoggedIn = (name: string, picture: string, dispatch: any, clear
             () => {
               dispatch(resetUserInfo());
               dispatch(clearSiweIdentity());
-              SingletonSigner.resetInstance();
               ICPIdentityDriver.getInstance().logout();
               clear();
             }

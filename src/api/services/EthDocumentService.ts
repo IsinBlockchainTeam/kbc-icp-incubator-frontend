@@ -1,20 +1,23 @@
-import {Service} from "./Service";
+import {
+    DocumentService,
+    TradeService, TradeManagerService
+} from "@kbc-lib/coffee-trading-management-lib";
 import {DocumentPresentable} from "../types/DocumentPresentable";
-import {BlockchainLibraryUtils} from "../BlockchainLibraryUtils";
 import {getMimeType} from "../../utils/utils";
 
-export class EthDocumentService extends Service {
+export class EthDocumentService {
     private readonly _documentService;
     private readonly _tradeManagerService;
+    private readonly _getTradeService;
 
-    constructor() {
-        super();
-        this._documentService = BlockchainLibraryUtils.getDocumentService();
-        this._tradeManagerService = BlockchainLibraryUtils.getTradeManagerService();
+    constructor(documentService: DocumentService, tradeManagerService: TradeManagerService, getTradeService: (trade: string) => TradeService) {
+        this._documentService = documentService;
+        this._tradeManagerService = tradeManagerService;
+        this._getTradeService = getTradeService;
     }
 
     async getDocumentsByTransactionId(id: number): Promise<DocumentPresentable[]> {
-        const tradeService = BlockchainLibraryUtils.getTradeService(await this._tradeManagerService.getTrade(id));
+        const tradeService = this._getTradeService(await this._tradeManagerService.getTrade(id));
         const documentsInfo = await tradeService.getAllDocuments();
 
         const documents: DocumentPresentable[] = [];

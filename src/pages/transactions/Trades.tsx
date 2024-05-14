@@ -1,26 +1,30 @@
-import React, {useEffect} from "react";
+import React, {useContext, useEffect} from "react";
 import {CardPage} from "../../components/structure/CardPage/CardPage";
 import {Table, TableProps, Tag} from "antd";
 import {ColumnsType} from "antd/es/table";
 import {NotificationType, openNotification} from "../../utils/notification";
 import {getEnumKeyByValue, setParametersPath} from "../../utils/utils";
-import {EthTradeService} from "../../api/services/EthTradeService";
 import {TradePreviewPresentable} from "../../api/types/TradePresentable";
 import {Link} from "react-router-dom";
 import {paths} from "../../constants";
 import {NegotiationStatus, TradeType} from "@kbc-lib/coffee-trading-management-lib";
 import {useDispatch} from "react-redux";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
+import {EthServicesContext} from "../../providers/EthServicesProvider";
 
 export const Trades = () => {
+    const {ethTradeService} = useContext(EthServicesContext);
     const [trades, setTrades] = React.useState<TradePreviewPresentable[]>();
     const dispatch = useDispatch();
 
     const loadData = async () => {
+        if (!ethTradeService) {
+            console.error("EthTradeService not found");
+            return;
+        }
         try {
             dispatch(showLoading("Retrieving trades..."));
-            const tradeService = new EthTradeService();
-            const trades = await tradeService.getGeneralTrades();
+            const trades = await ethTradeService.getGeneralTrades();
 
             setTrades(trades.map(t => {
                 // @ts-ignore

@@ -1,15 +1,15 @@
-import {useEffect, useState} from "react";
+import {useContext, useEffect, useState} from "react";
 import {TradeType} from "@kbc-lib/coffee-trading-management-lib";
 import {v4 as uuid} from "uuid";
-import {EthTradeService} from "../../../api/services/EthTradeService";
 import {FormElement, FormElementType} from "../../../components/GenericForm/GenericForm";
 import {regex} from "../../../utils/regex";
-import {EnumerableDefinition, EthEnumerableTypeService} from "../../../api/services/EthEnumerableTypeService";
 import {useLocation} from "react-router-dom";
-import SingletonSigner from "../../../api/SingletonSigner";
+import {EthServicesContext} from "../../../providers/EthServicesProvider";
+import {SignerContext} from "../../../providers/SignerProvider";
 
 export default function useTradeShared() {
-    const tradeService = new EthTradeService();
+    const {signer} = useContext(SignerContext);
+    const {ethTradeService, ethUnitService, ethFiatService} = useContext(EthServicesContext);
     const location = useLocation();
 
     const [type, setType] = useState<TradeType>(TradeType.ORDER);
@@ -117,12 +117,13 @@ export default function useTradeShared() {
     }
 
     useEffect(() => {
-        const unitService = new EthEnumerableTypeService(EnumerableDefinition.UNIT);
-        const fiatService = new EthEnumerableTypeService(EnumerableDefinition.FIAT);
         (async () => {
-            const units = await unitService.getAll();
+            if (!ethUnitService || !ethFiatService) {
+                return;
+            }
+            const units = await ethUnitService.getAll();
             setUnits(units);
-            const fiats = await fiatService.getAll();
+            const fiats = await ethFiatService.getAll();
             setFiats(fiats);
             setDataLoaded(true);
         })();
@@ -148,7 +149,7 @@ export default function useTradeShared() {
             label: 'Customer',
             required: false,
             regex: regex.ETHEREUM_ADDRESS,
-            defaultValue: SingletonSigner.getInstance()?.address || 'Unknown',
+            defaultValue: signer?.address || 'Unknown',
             disabled: true,
         },
         {
@@ -158,7 +159,7 @@ export default function useTradeShared() {
             label: 'Commissioner',
             required: false,
             regex: regex.ETHEREUM_ADDRESS,
-            defaultValue: SingletonSigner.getInstance()?.address || 'Unknown',
+            defaultValue: signer?.address || 'Unknown',
             disabled: true,
         },
     ]
@@ -193,7 +194,7 @@ export default function useTradeShared() {
                 },
                 {type: FormElementType.TITLE, span: 24, label: 'Line Item'},
                 ...basicLine,
-                ]);
+            ]);
         } else {
             setElements([
                 ...commonElements,
@@ -318,7 +319,7 @@ export default function useTradeShared() {
 
     return {
         type,
-        tradeService,
+        ethTradeService,
         orderState,
         elements,
         updateType,

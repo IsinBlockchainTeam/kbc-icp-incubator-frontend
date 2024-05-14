@@ -1,6 +1,6 @@
 import {BlockchainTradeStrategy} from "../../strategies/trade/BlockchainTradeStrategy";
 import {getWalletAddress} from "../../../../utils/storage";
-import {BlockchainLibraryUtils} from "../../BlockchainLibraryUtils";
+import {UseBlockchainLibraryUtils} from "../../../hooks/useBlockchainLibraryUtils";
 import {
     Line, LineRequest,
     Material, OrderLinePrice, OrderLineRequest,
@@ -68,7 +68,7 @@ describe('BlockchainTradeStrategy', () => {
 
     beforeEach(() => {
         (getWalletAddress as jest.Mock).mockReturnValue(walletAddress);
-        BlockchainLibraryUtils.getTradeManagerService = jest.fn().mockReturnValue({
+        UseBlockchainLibraryUtils.getTradeManagerService = jest.fn().mockReturnValue({
             registerBasicTrade: mockRegisterBasicTrade,
             registerOrderTrade: mockRegisterOrderTrade,
             getGeneralTrades: mockGetGeneralTrades,
@@ -76,17 +76,17 @@ describe('BlockchainTradeStrategy', () => {
             getTradeIdsOfCommissioner: mockGetTradeIdsOfCommissioner,
             getTrade: mockGetTradeAddress,
         });
-        BlockchainLibraryUtils.getTradeService = jest.fn().mockReturnValue({
+        UseBlockchainLibraryUtils.getTradeService = jest.fn().mockReturnValue({
             getTradeType: mockGetTradeType,
         });
-        BlockchainLibraryUtils.getBasicTradeService = jest.fn().mockReturnValue({
+        UseBlockchainLibraryUtils.getBasicTradeService = jest.fn().mockReturnValue({
             addLine: mockAddBasicLine,
             getTrade: mockGetBasicTrade,
             getLines: mockGetBasicLines,
             getTradeStatus: mockGetTradeStatus,
             setName: mockSetName,
         });
-        BlockchainLibraryUtils.getOrderTradeService = jest.fn().mockReturnValue({
+        UseBlockchainLibraryUtils.getOrderTradeService = jest.fn().mockReturnValue({
             addLine: mockAddOrderLine,
             getTrade: mockGetOrderTrade,
             getLines: mockGetOrderLines,

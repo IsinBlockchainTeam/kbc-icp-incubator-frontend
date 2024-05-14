@@ -3,19 +3,18 @@ import {Button} from "antd";
 import {DeleteOutlined} from "@ant-design/icons";
 import {paths} from "../../constants";
 import {FormElement, FormElementType, GenericForm} from "../../components/GenericForm/GenericForm";
-import React, {useEffect} from "react";
+import React, {useContext, useEffect} from "react";
 import {useNavigate} from "react-router-dom";
-import {EthMaterialService} from "../../api/services/EthMaterialService";
 import {NotificationType, openNotification} from "../../utils/notification";
 import {regex} from "../../utils/regex";
 import {useDispatch} from "react-redux";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
+import {EthServicesContext} from "../../providers/EthServicesProvider";
 
 export const MaterialNew = () => {
+    const {ethMaterialService} = useContext(EthServicesContext);
     const navigate = useNavigate();
     const dispatch = useDispatch();
-
-    const materialService = new EthMaterialService();
 
     const elements: FormElement[] = [
         {type: FormElementType.TITLE, span: 24, label: 'Data'},
@@ -32,10 +31,14 @@ export const MaterialNew = () => {
     ];
 
     const onSubmit = async (values: any) => {
+        if (!ethMaterialService) {
+            console.error("EthMaterialService not found");
+            return;
+        }
         try {
             dispatch(showLoading("Creating material..."));
             const productCategoryId: number = parseInt(values['product-category-id']);
-            await materialService.saveMaterial(productCategoryId);
+            await ethMaterialService.saveMaterial(productCategoryId);
             openNotification("Material registered", `Material referencing product category with ID "${productCategoryId}" has been registered correctly!`, NotificationType.SUCCESS, 1);
             navigate(paths.MATERIALS);
         } catch (e: any) {

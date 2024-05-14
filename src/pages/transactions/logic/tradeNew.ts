@@ -13,15 +13,17 @@ import {useDispatch} from "react-redux";
 import {hideLoading, showLoading} from "../../../redux/reducers/loadingSlice";
 import {useLocation, useNavigate} from "react-router-dom";
 import {paths} from "../../../constants";
-import SingletonSigner from "../../../api/SingletonSigner";
 import {BasicTradeRequest, OrderTradeRequest} from "../../../api/types/TradeRequest";
 import {DocumentRequest} from "../../../api/types/DocumentRequest";
+import {useContext} from "react";
+import {SignerContext} from "../../../providers/SignerProvider";
 
 export default function useTradeNew() {
+    const {signer} = useContext(SignerContext);
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const location = useLocation();
-    const { type, updateType, tradeService, orderState, elements } = useTradeShared();
+    const { type, updateType, ethTradeService, orderState, elements } = useTradeShared();
 
     const items: MenuProps['items'] = [
         {label: 'BASIC', key: '0'},
@@ -36,11 +38,15 @@ export default function useTradeNew() {
     }
 
     const onSubmit = async (values: any) => {
+        if(!ethTradeService) {
+            console.error("EthTradeService not found");
+            return;
+        }
         try {
             //FIXME: This is a workaround to get data instead of the form
             values['supplier'] = location?.state?.supplierAddress || 'Unknown';
-            values['customer'] = SingletonSigner.getInstance()?.address || 'Unknown';
-            values['commissioner'] = SingletonSigner.getInstance()?.address || 'Unknown';
+            values['customer'] = signer?.address || 'Unknown';
+            values['commissioner'] = signer?.address || 'Unknown';
             values['product-category-id-1'] = location?.state?.productCategoryId || '0';
             dispatch(showLoading("Creating trade..."));
             const supplier: string = values['supplier'];
@@ -79,7 +85,7 @@ export default function useTradeNew() {
                     filename: values['certificate-of-shipping'].name,
                     documentType: DocumentType.DELIVERY_NOTE,
                 }
-                await tradeService.saveBasicTrade(basicTrade, [deliveryNote]);
+                await ethTradeService.saveBasicTrade(basicTrade, [deliveryNote]);
                 openNotification("Basic trade registered", `Basic trade "${values.name}" has been registered correctly!`, NotificationType.SUCCESS, 1);
             } else {
                 const orderTrade: OrderTradeRequest = {
@@ -104,7 +110,7 @@ export default function useTradeNew() {
                     filename: values['payment-invoice'].name,
                     documentType: DocumentType.PAYMENT_INVOICE,
                 }
-                await tradeService.saveOrderTrade(orderTrade, [paymentInvoice]);
+                await ethTradeService.saveOrderTrade(orderTrade, [paymentInvoice]);
                 openNotification("Order trade registered", `Order trade has been registered correctly!`, NotificationType.SUCCESS, 1);
             }
             navigate(paths.TRADES);

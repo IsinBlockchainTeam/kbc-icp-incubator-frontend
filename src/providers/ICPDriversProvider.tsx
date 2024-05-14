@@ -1,4 +1,4 @@
-import {type ReactNode, useEffect} from "react";
+import {createContext, type ReactNode, useEffect, useState} from "react";
 import {useSiweIdentity} from "../components/icp/SiweIdentityProvider/SiweIdentityProvider";
 import {checkAndGetEnvironmentVariable} from "../utils/utils";
 import {ICP, paths} from "../constants";
@@ -13,14 +13,16 @@ import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../redux/store";
 import {setLogged} from "../redux/reducers/userInfoSlice";
 
-export function DriversProvider({ children }: { children: ReactNode }) {
+export const ICPDriversContext = createContext<boolean>(false);
+export function ICPDriversProvider({ children }: { children: ReactNode }) {
     const { identity } = useSiweIdentity();
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const [isInitialized, setIsInitialized] = useState<boolean>(false);
 
-    //TODO: Instead of using singleton driver, provide them as hooks
     useEffect(() => {
+        setIsInitialized(false);
         if(identity) {
             console.log("Initializing drivers...")
             const driverCanisterIds = {
@@ -31,24 +33,21 @@ export function DriversProvider({ children }: { children: ReactNode }) {
             ICPStorageDriver.init(identity, driverCanisterIds.storage);
             ICPFileDriver.init();
             ICPIdentityDriver.init(identity);
-            console.log(ICPIdentityDriver.getInstance());
-
-            navigate(paths.PROFILE);
+            setIsInitialized(true);
             openNotification(
                 "Authenticated",
                 `Login succeed. Welcome ${userInfo.legalName}!`,
                 NotificationType.SUCCESS
             );
             dispatch(setLogged(true));
+            navigate(paths.PROFILE);
         }
     }, [identity]);
 
     return (
-        // <DriversContext.Provider value={null}>
-        <>
+        <ICPDriversContext.Provider value={isInitialized}>
             {children}
-        </>
-        // </DriversContext.Provider>
+        </ICPDriversContext.Provider>
     );
 
 }

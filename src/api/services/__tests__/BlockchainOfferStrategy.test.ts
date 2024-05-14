@@ -1,4 +1,4 @@
-import {BlockchainLibraryUtils} from "../../BlockchainLibraryUtils";
+import {UseBlockchainLibraryUtils} from "../../../hooks/useBlockchainLibraryUtils";
 import {getWalletAddress} from "../../../../utils/storage";
 import {BlockchainOfferStrategy} from "../../strategies/offer/BlockchainOfferStrategy";
 import {OfferPresentable} from "../../types/OfferPresentable";
@@ -17,7 +17,7 @@ describe('BlockchainOfferStrategy', () => {
 
     beforeAll(() => {
         (getWalletAddress as jest.Mock).mockReturnValue(walletAddress);
-        BlockchainLibraryUtils.getOfferService = jest.fn().mockReturnValue({
+        UseBlockchainLibraryUtils.getOfferService = jest.fn().mockReturnValue({
             registerSupplier: mockedRegisterSupplier,
             registerOffer: mockedRegisterOffer,
             getAllOffers: mockedGetAllOffers,

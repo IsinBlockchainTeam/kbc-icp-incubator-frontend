@@ -4,21 +4,21 @@ import {useSelector} from "react-redux";
 import {RootState} from "../../redux/store";
 import {Navigate} from "react-router-dom";
 import {paths} from "../../constants";
-import SingletonSigner from "../../api/SingletonSigner";
 import {useSiweIdentity} from "../../components/icp/SiweIdentityProvider/SiweIdentityProvider";
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {
     ICPOrganizationDriver
 } from "@blockchain-lib/common";
+import {SignerContext} from "../../providers/SignerProvider";
 const { Title, Paragraph, Text } = Typography;
 export default function Profile() {
+    const {signer} = useContext(SignerContext);
     const { identity } = useSiweIdentity();
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const [principal, setPrincipal] = useState<string>("");
 
     useEffect(() => {
         if(identity) {
-            console.log("Identity is", identity);
             setPrincipal(identity.getPrincipal().toString());
         }
     }, [identity]);
@@ -46,7 +46,7 @@ export default function Profile() {
                 <Paragraph>Address: {userInfo.address}</Paragraph>
                 <Paragraph>Nation: {userInfo.nation}</Paragraph>
                 <Paragraph>Telephone: {userInfo.telephone}</Paragraph>
-                <Paragraph>Ethereum Address: {SingletonSigner.getInstance()?.address || 'undefined'}</Paragraph>
+                <Paragraph>Ethereum Address: {signer?.address || 'undefined'}</Paragraph>
                 {identity &&
                     <>
                         <Paragraph>ICP principal: {principal}</Paragraph>

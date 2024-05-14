@@ -1,24 +1,23 @@
 import {useNavigate} from "react-router-dom";
-import {EthAssetOperationService} from "../../api/services/EthAssetOperationService";
 import {FormElement, FormElementType, GenericForm} from "../../components/GenericForm/GenericForm";
 import {Button} from "antd";
 import {DeleteOutlined} from "@ant-design/icons";
 import {paths} from "../../constants";
 import {CardPage} from "../../components/structure/CardPage/CardPage";
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {NotificationType, openNotification} from "../../utils/notification";
 import {v4 as uuid} from "uuid";
 import {regex} from "../../utils/regex";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
 import {useDispatch} from "react-redux";
-import {EnumerableDefinition, EthEnumerableTypeService} from "../../api/services/EthEnumerableTypeService";
 import {AssetOperationRequest} from "../../api/types/AssetOperationRequest";
+import {EthServicesContext} from "../../providers/EthServicesProvider";
 
 export const AssetOperationsNew = () => {
+    const {ethAssetOperationService, ethProcessTypeService} = useContext(EthServicesContext);
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
-    const assetOperationService = new EthAssetOperationService();
     const [processTypes, setProcessTypes] = useState<string[]>([]);
 
     const [inputMaterials, setInputMaterials] = useState<FormElement[]>([
@@ -88,11 +87,14 @@ export const AssetOperationsNew = () => {
     const [elements, setElements] = useState<FormElement[]>([]);
 
     useEffect(() => {
-        const processTypeService = new EthEnumerableTypeService(EnumerableDefinition.PROCESS_TYPE);
+        if (!ethProcessTypeService) {
+            console.error("EthProcessTypeService not found");
+            return;
+        }
         (async () => {
             try {
                 dispatch(showLoading("Loading process types..."));
-                const processTypesResp: string[] = await processTypeService.getAll();
+                const processTypesResp: string[] = await ethProcessTypeService.getAll();
                 setProcessTypes(processTypesResp);
             } catch (e: any) {
                 console.log("error: ", e);
@@ -173,6 +175,10 @@ export const AssetOperationsNew = () => {
     }, [inputMaterials, processTypes]);
 
     const onSubmit = async (values: any) => {
+        if (!ethAssetOperationService) {
+            console.error("EthAssetOperationService not found");
+            return;
+        }
         try {
             dispatch(showLoading("Creating asset operation..."));
 
@@ -191,7 +197,7 @@ export const AssetOperationsNew = () => {
                 processTypes: values['process-types'],
             }
 
-            await assetOperationService.saveAssetOperation(newAssetOperation);
+            await ethAssetOperationService.saveAssetOperation(newAssetOperation);
             openNotification("Asset operation registered", `Asset operation "${newAssetOperation.name}" has been registered correctly!`, NotificationType.SUCCESS, 1);
             navigate(paths.ASSET_OPERATIONS);
         } catch (e: any) {

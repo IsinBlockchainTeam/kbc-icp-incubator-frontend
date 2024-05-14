@@ -1,25 +1,25 @@
 import {Navigate, useNavigate} from "react-router-dom";
-import {EthOfferService} from "../../api/services/EthOfferService";
 import {FormElement, FormElementType, GenericForm} from "../../components/GenericForm/GenericForm";
 import {NotificationType, openNotification} from "../../utils/notification";
 import {credentials, paths} from "../../constants";
 import {CardPage} from "../../components/structure/CardPage/CardPage";
 import {Button} from "antd";
 import {DeleteOutlined} from "@ant-design/icons";
-import React, {useEffect} from "react";
+import React, {useContext, useEffect} from "react";
 import {formatAddress} from "../../utils/utils";
-import {regex} from "../../utils/regex";
 import {useDispatch, useSelector} from "react-redux";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
 import {RootState} from "../../redux/store";
-import SingletonSigner from "../../api/SingletonSigner";
+import {SignerContext} from "../../providers/SignerProvider";
+import {EthServicesContext} from "../../providers/EthServicesProvider";
 
 export const OffersSupplierNew = () => {
+    const {signer} = useContext(SignerContext);
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const userInfo = useSelector((state: RootState) => state.userInfo);
 
-    const offerService = new EthOfferService();
+    const {ethOfferService} = useContext(EthServicesContext);
 
     const elements: FormElement[] = [
         {type: FormElementType.TITLE, span: 24, label: 'Data'},
@@ -29,7 +29,7 @@ export const OffersSupplierNew = () => {
             name: 'supplier-address',
             label: 'Supplier Address',
             required: false,
-            defaultValue: SingletonSigner.getInstance()?.address || 'Unknown',
+            defaultValue: signer?.address || 'Unknown',
             disabled: true
         },
         {
@@ -45,10 +45,10 @@ export const OffersSupplierNew = () => {
 
     const onSubmit = async (values: any) => {
         try {
-            values['supplier-address'] = SingletonSigner.getInstance()?.address || 'Unknown';
+            values['supplier-address'] = signer?.address || 'Unknown';
             values['supplier-name'] = userInfo.legalName || 'Unknown';
             dispatch(showLoading("Inserting offer supplier..."));
-            await offerService.saveSupplier(values['supplier-address'], values['supplier-name']);
+            await ethOfferService?.saveSupplier(values['supplier-address'], values['supplier-name']);
             openNotification("Offer supplier registered", `Offer supplier with address ${formatAddress(values['supplier-address'])} has been registered correctly!`, NotificationType.SUCCESS, 1);
             navigate(paths.OFFERS);
         } catch (e: any) {

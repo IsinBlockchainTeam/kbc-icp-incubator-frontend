@@ -1,16 +1,15 @@
 import {AssetOperation, AssetOperationService, MaterialService} from "@kbc-lib/coffee-trading-management-lib";
-import {BlockchainLibraryUtils} from "../BlockchainLibraryUtils";
-import {Service} from "./Service";
 import {AssetOperationRequest} from "../types/AssetOperationRequest";
 
-export class EthAssetOperationService extends Service {
+export class EthAssetOperationService {
+    private readonly _walletAddress: string;
     private readonly _assetOperationService: AssetOperationService;
     private readonly _materialService: MaterialService;
 
-    constructor() {
-        super();
-        this._assetOperationService = BlockchainLibraryUtils.getAssetOperationService();
-        this._materialService = BlockchainLibraryUtils.getMaterialService();
+    constructor(walletAddress: string, assetOperationService: AssetOperationService, materialService: MaterialService) {
+        this._walletAddress = walletAddress;
+        this._assetOperationService = assetOperationService;
+        this._materialService = materialService;
     }
 
     async saveAssetOperation(assetOperation: AssetOperationRequest): Promise<void> {

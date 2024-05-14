@@ -1,4 +1,4 @@
-import {BlockchainLibraryUtils} from "../../BlockchainLibraryUtils";
+import {UseBlockchainLibraryUtils} from "../../../hooks/useBlockchainLibraryUtils";
 import {getWalletAddress} from "../../../../utils/storage";
 import {BlockchainGraphStrategy} from "../../strategies/graph/BlockchainGraphStrategy";
 
@@ -13,7 +13,7 @@ describe('BlockchainGraphStrategy', () => {
 
     beforeAll(() => {
         (getWalletAddress as jest.Mock).mockReturnValue(walletAddress);
-        BlockchainLibraryUtils.getGraphService = jest.fn().mockReturnValue({
+        UseBlockchainLibraryUtils.getGraphService = jest.fn().mockReturnValue({
             computeGraph: mockedComputeGraph,
         });
         blockchainGraphStrategy = new BlockchainGraphStrategy();

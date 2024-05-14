@@ -1,6 +1,5 @@
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {NotificationType, openNotification} from "../../utils/notification";
-import {EthAssetOperationService} from "../../api/services/EthAssetOperationService";
 import {ColumnsType} from "antd/es/table";
 import {Button, Table, TableProps} from "antd";
 import {CardPage} from "../../components/structure/CardPage/CardPage";
@@ -10,17 +9,22 @@ import {paths} from "../../constants";
 import {useNavigate} from "react-router-dom";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
 import {useDispatch} from "react-redux";
+import {EthServicesContext} from "../../providers/EthServicesProvider";
 
 export const AssetOperations = () => {
+    const {ethAssetOperationService} = useContext(EthServicesContext);
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
     const [assetOperations, setAssetOperations] = useState<AssetOperation[]>();
     const loadData = async () => {
+        if (!ethAssetOperationService) {
+            console.error("EthAssetOperationService not found");
+            return;
+        }
         try {
             dispatch(showLoading("Retrieving asset operations..."))
-            const assetOperationService = new EthAssetOperationService();
-            const assetOperations = await assetOperationService.getAssetOperations();
+            const assetOperations = await ethAssetOperationService.getAssetOperations();
             setAssetOperations(assetOperations.map(t => {
                 // @ts-ignore
                 t['key'] = t.id;

@@ -1,4 +1,4 @@
-import React, {memo, useEffect, useState} from "react";
+import React, {memo, useContext, useEffect, useState} from "react";
 import Dagre from '@dagrejs/dagre';
 import ReactFlow, {
     Background,
@@ -14,11 +14,12 @@ import styles from "./Graph.module.scss";
 import {Radio, RadioChangeEvent} from 'antd';
 import 'reactflow/dist/style.css';
 import {useParams} from "react-router-dom";
-import {BlockchainGraphData, EthGraphService} from "../../api/services/EthGraphService";
+import {BlockchainGraphData} from "../../api/services/EthGraphService";
 import {AssetOperationType} from "@kbc-lib/coffee-trading-management-lib";
 import {NotificationType, openNotification} from "../../utils/notification";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
 import {useDispatch} from "react-redux";
+import {EthServicesContext} from "../../providers/EthServicesProvider";
 
 const MapNode = memo(() => {
     return (
@@ -45,6 +46,7 @@ const nodeWidth = 172;
 const nodeHeight = 36;
 
 export const GraphPage = () => {
+    const {ethGraphService} = useContext(EthServicesContext);
     const {materialId} = useParams();
     const dispatch = useDispatch();
     const [graphType, setGraphType] = useState('simple');
@@ -53,12 +55,15 @@ export const GraphPage = () => {
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
     useEffect(() => {
+        if(!ethGraphService) {
+            console.error("EthGraphService not found");
+            return;
+        }
         g.setGraph({rankdir: 'LR'});
         (async () => {
             try {
                 dispatch(showLoading("Loading graph..."));
-                const graphService = new EthGraphService();
-                const result: BlockchainGraphData = await graphService.computeGraph(parseInt(materialId!));
+                const result: BlockchainGraphData = await ethGraphService.computeGraph(parseInt(materialId!));
 
                 result.nodes.forEach((node: any) => {
                     g.setNode(node.name, {width: nodeWidth, height: nodeHeight});

@@ -1,4 +1,4 @@
-import {BlockchainLibraryUtils} from "../../BlockchainLibraryUtils";
+import {UseBlockchainLibraryUtils} from "../../../hooks/useBlockchainLibraryUtils";
 import {BlockchainMaterialStrategy} from "../../strategies/material/BlockchainMaterialStrategy";
 import {getWalletAddress} from "../../../../utils/storage";
 import {Material, ProductCategory} from "../coffee-trading-management-lib/src/index";
@@ -17,10 +17,10 @@ describe('BlockchainMaterialStrategy', () => {
 
     beforeAll(() => {
         (getWalletAddress as jest.Mock).mockReturnValue(walletAddress);
-        BlockchainLibraryUtils.getProductCategoryService = jest.fn().mockReturnValue({
+        UseBlockchainLibraryUtils.getProductCategoryService = jest.fn().mockReturnValue({
             registerProductCategory: mockedRegisterProductCategory,
         });
-        BlockchainLibraryUtils.getMaterialService = jest.fn().mockReturnValue({
+        UseBlockchainLibraryUtils.getMaterialService = jest.fn().mockReturnValue({
             registerMaterial: mockedRegisterMaterial,
             getMaterialsOfCreator: mockedGetMaterialsOfCreator,
         });

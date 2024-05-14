@@ -1,6 +1,4 @@
-import {Service} from "./Service";
 import {GraphData as LibGraphData, GraphService} from "@kbc-lib/coffee-trading-management-lib";
-import {BlockchainLibraryUtils} from "../BlockchainLibraryUtils";
 
 export type GraphData = {
     nodes: any[],
@@ -11,12 +9,11 @@ export type BlockchainGraphData = {
     [K in keyof GraphData]: LibGraphData[K];
 }
 
-export class EthGraphService extends Service {
+export class EthGraphService {
     private readonly _graphService: GraphService;
 
-    constructor() {
-        super();
-        this._graphService = BlockchainLibraryUtils.getGraphService()
+    constructor(graphService: GraphService) {
+        this._graphService = graphService;
 
     }
 

@@ -1,10 +1,9 @@
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {NotificationType, openNotification} from "../../utils/notification";
 import {ColumnsType} from "antd/es/table";
 import {Button, Space, Table, TableProps} from "antd";
 import {CardPage} from "../../components/structure/CardPage/CardPage";
 import {Offer} from "@kbc-lib/coffee-trading-management-lib";
-import {EthOfferService} from "../../api/services/EthOfferService";
 import Search from "../../components/Search/Search";
 import {PlusOutlined} from "@ant-design/icons";
 import {credentials, paths} from "../../constants";
@@ -12,18 +11,23 @@ import {useNavigate} from "react-router-dom";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
 import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../../redux/store";
+import {EthServicesContext} from "../../providers/EthServicesProvider";
 
 export const Offers = () => {
+    const {ethOfferService} = useContext(EthServicesContext);
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const [offers, setOffers] = useState<Offer[]>();
     const [filteredOffers, setFilteredOffers] = useState<Offer[]>();
     const loadData = async () => {
+        if (!ethOfferService) {
+            console.error("EthOfferService not found");
+            return;
+        }
         try {
             dispatch(showLoading("Retrieving offers..."))
-            const offerService = new EthOfferService();
-            const offers = await offerService.getAllOffers();
+            const offers = await ethOfferService.getAllOffers();
             setOffers(offers);
             setFilteredOffers(offers);
         } catch (e: any) {

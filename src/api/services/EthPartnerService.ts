@@ -1,14 +1,13 @@
 import { RelationshipService } from "@kbc-lib/coffee-trading-management-lib";
-import {Service} from "./Service";
-import {BlockchainLibraryUtils} from "../BlockchainLibraryUtils";
 import {PartnershipPresentable} from "../types/PartnershipPresentable";
 
-export class EthPartnerService extends Service {
+export class EthPartnerService {
+    private readonly _walletAddress: string;
     private _relationshipService: RelationshipService;
 
-    constructor() {
-        super();
-        this._relationshipService = BlockchainLibraryUtils.getRelationshipService();
+    constructor(walletAddress: string, relationshipService: RelationshipService) {
+        this._walletAddress = walletAddress;
+        this._relationshipService = relationshipService;
     }
 
     async getPartners(): Promise<PartnershipPresentable[]> {

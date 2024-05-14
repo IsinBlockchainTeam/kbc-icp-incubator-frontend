@@ -1,6 +1,6 @@
 import {BlockchainAssetOperationStrategy} from "../../strategies/asset_operation/BlockchainAssetOperationStrategy";
 import {getWalletAddress} from "../../../../utils/storage";
-import {BlockchainLibraryUtils} from "../../BlockchainLibraryUtils";
+import {UseBlockchainLibraryUtils} from "../../../hooks/useBlockchainLibraryUtils";
 import {AssetOperationPresentable} from "../../types/AssetOperationPresentable";
 import {MaterialPresentable} from "../../types/MaterialPresentable";
 import {AssetOperation, Material, ProductCategory} from "../coffee-trading-management-lib/src/index";
@@ -31,12 +31,12 @@ describe('BlockchainAssetOperationStrategy', () => {
 
     beforeAll(() => {
         (getWalletAddress as jest.Mock).mockReturnValue(walletAddress);
-        BlockchainLibraryUtils.getAssetOperationService = jest.fn().mockReturnValue({
+        UseBlockchainLibraryUtils.getAssetOperationService = jest.fn().mockReturnValue({
             registerAssetOperation: mockedRegisterAssetOperation,
             getAssetOperationsOfCreator: mockedGetAssetOperationsOfCreator,
             getAssetOperation: mockedGetAssetOperation,
         });
-        BlockchainLibraryUtils.getMaterialService = jest.fn().mockReturnValue({
+        UseBlockchainLibraryUtils.getMaterialService = jest.fn().mockReturnValue({
             getMaterial: mockedGetMaterial,
         });
         blockchainAssetOperationStrategy = new BlockchainAssetOperationStrategy();

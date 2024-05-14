@@ -111,13 +111,11 @@ export function SiweIdentityProvider<T extends SIWE_IDENTITY_SERVICE>({
     /** The child components that the SiweIdentityProvider will wrap. This allows any child component to access the authentication context provided by the SiweIdentityProvider. */
     children: ReactNode;
 }) {
-    // const connectedEthAddress = (SingletonSigner.getInstance()?.address || '0xabc') as `0x${string}`;
     const siweIdentity = useSelector(selectSiweIdentity);
     const dispatch = useDispatch();
-    const signer = useContext(SignerContext);
+    const {signer} = useContext(SignerContext);
 
     useEffect(() => {
-        console.log("Signer in SiweIdentityProvider", signer);
         console.log("SiweIdentity", siweIdentity);
         if(signer && !siweIdentity) {
             tryLogin();

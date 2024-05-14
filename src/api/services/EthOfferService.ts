@@ -1,13 +1,10 @@
-import {Service} from "./Service";
-import {BlockchainLibraryUtils} from "../BlockchainLibraryUtils";
 import {Offer, OfferService} from "@kbc-lib/coffee-trading-management-lib";
 
-export class EthOfferService extends Service {
+export class EthOfferService {
     private readonly _offerService: OfferService;
 
-    constructor() {
-        super();
-        this._offerService = BlockchainLibraryUtils.getOfferService();
+    constructor(offerService: OfferService) {
+        this._offerService = offerService;
     }
 
     async saveSupplier(supplier: string, name: string): Promise<void> {

@@ -21,7 +21,7 @@ import {getEnumKeyByValue} from "../../../utils/utils";
 import {BasicTradeRequest, OrderTradeRequest} from "../../../api/types/TradeRequest";
 
 export default function useTradeView() {
-    const { units, fiats, tradeService, orderState } = useTradeShared();
+    const { units, fiats, ethTradeService, orderState } = useTradeShared();
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -39,8 +39,12 @@ export default function useTradeView() {
     }
 
     const confirmNegotiation = async () => {
+        if (!ethTradeService) {
+            console.error("EthTradeService not found");
+            return;
+        }
         try {
-            await tradeService.confirmOrderTrade(parseInt(id!));
+            await ethTradeService.confirmOrderTrade(parseInt(id!));
             openNotification("Negotiation confirmed", `The negotiation has been confirmed`, NotificationType.SUCCESS, 1);
             navigate(paths.TRADES);
         }
@@ -51,9 +55,13 @@ export default function useTradeView() {
     }
 
     const getTradeInfo = async (id: number) => {
+        if (!ethTradeService) {
+            console.error("EthTradeService not found");
+            return;
+        }
         try {
             dispatch(showLoading("Retrieving trade..."));
-            const resp = await tradeService.getTradeById(id);
+            const resp = await ethTradeService.getTradeById(id);
             resp && setTrade(resp);
         } catch (e: any) {
             console.log("error: ", e);
@@ -361,6 +369,10 @@ export default function useTradeView() {
     }, [trade, disabled]);
 
     const onSubmit = async (values: any) => {
+        if (!ethTradeService) {
+            console.error("EthTradeService not found");
+            return;
+        }
         try {
             dispatch(showLoading("Loading..."));
             if (values['delivery-deadline'] <= values['shipping-deadline']) {
@@ -382,7 +394,7 @@ export default function useTradeView() {
                     lines: [new LineRequest(productCategoryId, quantity, unit)],
                     name: values['name'],
                 };
-                await tradeService.putBasicTrade(parseInt(id!), updatedBasicTrade);
+                await ethTradeService.putBasicTrade(parseInt(id!), updatedBasicTrade);
             }
             else if (type === TradeType.ORDER) {
                 const price: number = parseInt(values[`price-1`]);
@@ -405,7 +417,7 @@ export default function useTradeView() {
                     shippingPort: values['shipping-port'],
                     deliveryPort: values['delivery-port'],
                 };
-                await tradeService.putOrderTrade(parseInt(id!), updatedOrderTrade);
+                await ethTradeService.putOrderTrade(parseInt(id!), updatedOrderTrade);
             }
             setDisabled(true);
             navigate(paths.TRADES);

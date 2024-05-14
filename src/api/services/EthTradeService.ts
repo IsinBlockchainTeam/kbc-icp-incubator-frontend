@@ -1,5 +1,3 @@
-import {Service} from "./Service";
-import {BlockchainLibraryUtils} from "../BlockchainLibraryUtils";
 import {
     BasicTrade,
     Line,
@@ -10,7 +8,7 @@ import {
     URLStructure,
     OrderTradeService,
     OrderLine,
-    DocumentType
+    DocumentType, TradeManagerService, TradeService, BasicTradeService
 } from "@kbc-lib/coffee-trading-management-lib";
 import {CustomError} from "../../utils/error/CustomError";
 import {HttpStatusCode} from "../../utils/error/HttpStatusCode";
@@ -30,15 +28,34 @@ import {EthMaterialService} from "./EthMaterialService";
 import {DocumentRequest} from "../types/DocumentRequest";
 import {EthDocumentService} from "./EthDocumentService";
 
-export class EthTradeService extends Service {
-    private readonly _tradeManagerService;
+export class EthTradeService {
+    private readonly _walletAddress: string;
+    private readonly _ethMaterialService: EthMaterialService;
+    private readonly _tradeManagerService: TradeManagerService;
+    private readonly _ethDocumentService: EthDocumentService;
+    private readonly _getTradeService: (address: string) => TradeService;
+    private readonly _getBasicTradeService: (address: string) => BasicTradeService;
+    private readonly _getOrderTradeService: (address: string) => OrderTradeService;
+    private readonly _waitForTransactions: (transactionHash: string, confirmations: number) => Promise<void>;
 
-    private readonly _ethDocumentService;
-
-    constructor() {
-        super();
-        this._tradeManagerService = BlockchainLibraryUtils.getTradeManagerService();
-        this._ethDocumentService = new EthDocumentService();
+    constructor(
+        walletAddress: string,
+        materialService: EthMaterialService,
+        tradeManagerService: TradeManagerService,
+        ethDocumentService: EthDocumentService,
+        getTradeService: (address: string) => TradeService,
+        getBasicTradeService: (address: string) => BasicTradeService,
+        getOrderTradeService: (address: string) => OrderTradeService,
+        waitForTransactions: (transactionHash: string, confirmations: number) => Promise<void>
+    ) {
+        this._walletAddress = walletAddress;
+        this._ethMaterialService = materialService;
+        this._tradeManagerService = tradeManagerService;
+        this._ethDocumentService = ethDocumentService;
+        this._getTradeService = getTradeService;
+        this._getBasicTradeService = getBasicTradeService;
+        this._getOrderTradeService = getOrderTradeService;
+        this._waitForTransactions = waitForTransactions;
     }
 
     async getGeneralTrades(): Promise<TradePreviewPresentable[]> {
@@ -50,14 +67,14 @@ export class EthTradeService extends Service {
 
         const tradeContractAddresses = await Promise.all(tradeIds.map(async id => this._tradeManagerService.getTrade(id)));
         for (const tradeAddress of tradeContractAddresses) {
-            const tradeService = BlockchainLibraryUtils.getTradeService(tradeAddress);
+            const tradeService = this._getTradeService(tradeAddress);
             let tradeInstanceService: IConcreteTradeService;
             const tradeType = await tradeService.getTradeType();
 
             if (tradeType === TradeType.BASIC) {
-                tradeInstanceService = BlockchainLibraryUtils.getBasicTradeService(tradeAddress);
+                tradeInstanceService = this._getBasicTradeService(tradeAddress);
             } else if (tradeType === TradeType.ORDER) {
-                tradeInstanceService = BlockchainLibraryUtils.getOrderTradeService(tradeAddress);
+                tradeInstanceService = this._getOrderTradeService(tradeAddress);
             } else {
                 throw new CustomError(HttpStatusCode.INTERNAL_SERVER, "Received an invalid trade type");
             }
@@ -96,14 +113,14 @@ export class EthTradeService extends Service {
 
         switch (type) {
             case TradeType.BASIC:
-                const basicTradeService = BlockchainLibraryUtils.getBasicTradeService(address);
+                const basicTradeService = this._getBasicTradeService(address);
                 const basicTrade = await basicTradeService.getTrade();
                 basicTrade.lines = await basicTradeService.getLines();
 
                 return new BasicTradePresentable(basicTrade, await this.getDocumentMap(id));
 
             case TradeType.ORDER:
-                const orderTradeService = BlockchainLibraryUtils.getOrderTradeService(address);
+                const orderTradeService = this._getOrderTradeService(address);
                 const orderTrade = await orderTradeService.getCompleteTrade();
                 orderTrade.lines = await orderTradeService.getLines();
 
@@ -131,9 +148,9 @@ export class EthTradeService extends Service {
             await this._tradeManagerService.registerBasicTrade(trade.supplier, trade.customer, trade.commissioner, trade.name,
                 metadata, urlStructure, delegatedOrganizationIds);
 
-        await BlockchainLibraryUtils.waitForTransactions(transactionHash, Number(process.env.REACT_APP_BC_CONFIRMATION_NUMBER || 0));
+        await this._waitForTransactions(transactionHash, Number(process.env.REACT_APP_BC_CONFIRMATION_NUMBER || 0));
 
-        const basicTradeService = BlockchainLibraryUtils.getBasicTradeService(newTradeAddress);
+        const basicTradeService = this._getBasicTradeService(newTradeAddress);
         const deliveryNote = documents?.find(doc => doc.documentType === DocumentType.DELIVERY_NOTE);
         if (deliveryNote) {
             const externalUrl = (await basicTradeService.getTrade()).externalUrl;
@@ -152,7 +169,7 @@ export class EthTradeService extends Service {
     }
 
     async putBasicTrade(id: number, trade: BasicTradeRequest): Promise<void> {
-        const tradeService = BlockchainLibraryUtils.getBasicTradeService(await this._tradeManagerService.getTrade(id));
+        const tradeService = this._getBasicTradeService(await this._tradeManagerService.getTrade(id));
         const oldTrade: BasicTrade = await tradeService.getTrade();
 
         oldTrade.name !== trade.name && await tradeService.setName(trade.name!);
@@ -168,7 +185,7 @@ export class EthTradeService extends Service {
             || oldLine.unit !== newLine.unit
             || oldLine.quantity !== newLine.quantity
         ) {
-            const productCategory = await new EthMaterialService().getProductCategory(newLine.productCategoryId)
+            const productCategory = await this._ethMaterialService.getProductCategory(newLine.productCategoryId)
             await tradeService.updateLine(new Line(oldLine.id, oldLine.material, productCategory, newLine.quantity, newLine.unit));
         }
     }
@@ -195,9 +212,9 @@ export class EthTradeService extends Service {
             metadata, urlStructure, delegatedOrganizationIds
         );
 
-        await BlockchainLibraryUtils.waitForTransactions(transactionHash, Number(process.env.REACT_APP_BC_CONFIRMATION_NUMBER || 0));
+        await this._waitForTransactions(transactionHash, Number(process.env.REACT_APP_BC_CONFIRMATION_NUMBER || 0));
 
-        const orderTradeService = BlockchainLibraryUtils.getOrderTradeService(newTradeAddress);
+        const orderTradeService = this._getOrderTradeService(newTradeAddress);
         const paymentInvoice = documents?.find(doc => doc.documentType === DocumentType.PAYMENT_INVOICE);
         if (paymentInvoice) {
             const externalUrl = (await orderTradeService.getTrade()).externalUrl;
@@ -216,7 +233,7 @@ export class EthTradeService extends Service {
     }
 
     async putOrderTrade(id: number, trade: OrderTradeRequest): Promise<void> {
-        const tradeService = BlockchainLibraryUtils.getOrderTradeService(await this._tradeManagerService.getTrade(id));
+        const tradeService = this._getOrderTradeService(await this._tradeManagerService.getTrade(id));
         const oldTrade = await tradeService.getTrade();
 
         oldTrade.paymentDeadline !== trade.paymentDeadline && await tradeService.updatePaymentDeadline(trade.paymentDeadline);
@@ -240,14 +257,14 @@ export class EthTradeService extends Service {
             || oldLine.price.amount !== newLine.price.amount
             || oldLine.price.fiat !== newLine.price.fiat
         ) {
-            const productCategory = await new EthMaterialService().getProductCategory(newLine.productCategoryId)
+            const productCategory = await this._ethMaterialService.getProductCategory(newLine.productCategoryId)
             await tradeService.updateLine(new OrderLine(oldLine.id, oldLine.material, productCategory, newLine.quantity,
                 newLine.unit, new OrderLinePrice(newLine.price.amount, newLine.price.fiat)));
         }
     }
 
     async confirmOrderTrade(id: number): Promise<void> {
-        const tradeService = BlockchainLibraryUtils.getOrderTradeService(await this._tradeManagerService.getTrade(id));
+        const tradeService = this._getOrderTradeService(await this._tradeManagerService.getTrade(id));
         await tradeService.confirmOrder();
     }
 }
