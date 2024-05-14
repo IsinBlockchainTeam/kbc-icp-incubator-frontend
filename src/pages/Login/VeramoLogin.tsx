@@ -6,24 +6,16 @@ import {request} from "../../utils/request";
 import {v4 as uuid} from "uuid";
 import {openNotification, NotificationType} from "../../utils/notification";
 import {useDispatch, useSelector} from "react-redux";
-import {updateSubjectDid} from "../../redux/reducers/authSlice";
 import {updateUserInfo} from "../../redux/reducers/userInfoSlice";
 import {RootState} from "../../redux/store";
-import {Navigate, useNavigate} from "react-router-dom";
+import {Navigate} from "react-router-dom";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
-import {useSiweIdentity} from "../../components/icp/SiweIdentityProvider/SiweIdentityProvider";
-import SingletonSigner from "../../api/SingletonSigner";
-import {
-    ICPIdentityDriver
-} from "@blockchain-lib/common";
 
 export default function VeramoLogin() {
     const [qrCodeURL, setQrCodeURL] = useState<string>("");
     const [challengeId, setChallengeId] = useState<string>("");
     const dispatch = useDispatch();
-    const {login} = useSiweIdentity();
     const userInfo = useSelector((state: RootState) => state.userInfo);
-    const navigate = useNavigate();
 
     const requestAuthPresentation = async () => {
         try {
@@ -73,10 +65,7 @@ export default function VeramoLogin() {
                 {method: "GET"}
             );
             if (message) {
-                dispatch(showLoading("Loading identity..."));
-
                 console.log("MESSAGE", message);
-
                 clearInterval(interval);
                 setChallengeId("");
                 const subjectDid = message.body.holder;
@@ -88,19 +77,8 @@ export default function VeramoLogin() {
                     );
                     return;
                 }
-                dispatch(updateSubjectDid(subjectDid));
                 const userInfo = message.body.verifiableCredential[0].credentialSubject;
-                if (!userInfo.privateKey)
-                    throw new Error("No private key found");
-                SingletonSigner.setInstance(userInfo.privateKey);
-                const identity = await login();
-                console.log("Identity: ", identity)
-                if(identity) {
-                    ICPIdentityDriver.init(identity);
-                }
-
                 dispatch(updateUserInfo({
-                    isLogged: true,
                     id: userInfo.id || "",
                     legalName: userInfo.legalName || "",
                     email: userInfo.email || "",
@@ -112,21 +90,12 @@ export default function VeramoLogin() {
                     organizationId: userInfo.organizationId || "",
                     privateKey: userInfo.privateKey || ""
                 }));
-                navigate(paths.PROFILE);
-                openNotification(
-                    "Authenticated",
-                    `Login succeed. Welcome ${userInfo.legalName}!`,
-                    NotificationType.SUCCESS
-                );
-
             } else {
                 console.log("NO MESSAGE");
             }
         } catch (error: any) {
             console.log("error: ", error);
-            openNotification("Error", "Error while logging in", NotificationType.ERROR);
-        } finally {
-            dispatch(hideLoading());
+            openNotification("Error", "Error while processing VC", NotificationType.ERROR);
         }
     }
 

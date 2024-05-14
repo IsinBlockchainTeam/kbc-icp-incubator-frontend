@@ -27,7 +27,7 @@ export function createAnonymousActor({
   if (!idlFactory || !canisterId) return;
   const agent = new HttpAgent({ ...httpAgentOptions });
 
-  if (process.env.REACT_APP_DFX_NETWORK !== "ic") {
+  if (process.env.DFX_NETWORK !== "ic") {
     agent.fetchRootKey().catch((err) => {
       console.warn(
         "Unable to fetch root key. Check to ensure that your local replica is running"

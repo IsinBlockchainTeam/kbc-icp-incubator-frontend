@@ -9,6 +9,9 @@ import {PersistGate} from "redux-persist/integration/react";
 import {SiweIdentityProvider} from "./components/icp/SiweIdentityProvider/SiweIdentityProvider";
 import {canisterId, idlFactory} from "./components/icp/declarations/ic_siwe_provider";
 import {_SERVICE} from "./components/icp/declarations/ic_siwe_provider/ic_siwe_provider.did";
+import {DriversProvider} from "./providers/DriversProvider";
+import {SignerProvider} from "./providers/SignerProvider";
+import {HashRouter} from "react-router-dom";
 
 global.Buffer = require("buffer").Buffer;
 
@@ -19,16 +22,22 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <React.Fragment>
-      <Provider store={store}>
-        <PersistGate loading={null} persistor={persistor}>
-            <SiweIdentityProvider<_SERVICE>
-                canisterId={canisterId}
-                idlFactory={idlFactory}
-            >
-                <App />
-            </SiweIdentityProvider>
-        </PersistGate>
-      </Provider>
+      <HashRouter>
+          <Provider store={store}>
+            <PersistGate loading={null} persistor={persistor}>
+                <SignerProvider>
+                    <SiweIdentityProvider<_SERVICE>
+                        canisterId={canisterId}
+                        idlFactory={idlFactory}
+                    >
+                        <DriversProvider>
+                            <App />
+                        </DriversProvider>
+                    </SiweIdentityProvider>
+                </SignerProvider>
+            </PersistGate>
+          </Provider>
+      </HashRouter>
   </React.Fragment>,
 );
 

@@ -27,12 +27,13 @@ export const initialState: UserInfoState = {
     organizationId: "",
     privateKey: "",
 }
+export type UpdatableUserInfoState = Omit<UserInfoState, "isLogged">;
+
 const userInfoSlice = createSlice({
     name: "userInfo",
     initialState,
     reducers: {
-        updateUserInfo: (state: UserInfoState, action: {payload: UserInfoState, type: string}) => {
-            state.isLogged = action.payload.isLogged;
+        updateUserInfo: (state: UserInfoState, action: {payload: UpdatableUserInfoState, type: string}) => {
             state.id = action.payload.id;
             state.legalName = action.payload.legalName;
             state.email = action.payload.email;
@@ -44,9 +45,25 @@ const userInfoSlice = createSlice({
             state.organizationId = action.payload.organizationId;
             state.privateKey = action.payload.privateKey;
         },
+        resetUserInfo: (state: UserInfoState) => {
+            state.isLogged = false;
+            state.id = "";
+            state.legalName = "";
+            state.email = "";
+            state.address = "";
+            state.nation = "";
+            state.telephone = "";
+            state.image = "";
+            state.role = "";
+            state.organizationId = "";
+            state.privateKey = "";
+        },
+        setLogged: (state: UserInfoState, action: {payload: boolean, type: string}) => {
+            state.isLogged = action.payload;
+        }
 
     },
 });
-export const { updateUserInfo } = userInfoSlice.actions;
+export const { updateUserInfo, resetUserInfo, setLogged } = userInfoSlice.actions;
 
 export default userInfoSlice.reducer;
