@@ -102,7 +102,9 @@ export default function VeramoLogin() {
         }
     }, [challengeId]);
 
-    const fakeLoginExp = () => {
+
+    // Note: use this when you don't want to bother scanning the QR code in development...
+    /* const fakeLoginExp = () => {
         dispatch(updateUserInfo({
             isLogged: true,
             "legalName": "Dunder Mifflin",
@@ -132,7 +134,7 @@ export default function VeramoLogin() {
             "privateKey": "c526ee95bf44d8fc405a158bb884d9d1238d99f0612e9f33d006bb0789009aaa",
             "id": "did:ethr:dev:0xdF3e18d64BC6A983f673Ab319CCaE4f1a57C7097"
         }))
-    }
+    } */
 
     if (userInfo.isLogged) {
         return <Navigate to={paths.PROFILE}/>;
@@ -155,8 +157,8 @@ export default function VeramoLogin() {
                     size={300}
                 />
             </Space>
-            <button onClick={fakeLoginExp}>Fake Login Exporter</button>
-            <button onClick={fakeLoginImp}>Fake Login Importer</button>
+            {/* <button onClick={fakeLoginExp}>Fake Login Exporter</button>
+            <button onClick={fakeLoginImp}>Fake Login Importer</button> */}
         </div>
     );
 }

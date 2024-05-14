@@ -138,7 +138,7 @@ export class EthTradeService extends Service {
         if (deliveryNote) {
             const externalUrl = (await basicTradeService.getTrade()).externalUrl;
             const resourceSpec: ICPResourceSpec = {
-                name: deliveryNote.name,
+                name: deliveryNote.filename,
                 type: deliveryNote.content.type,
             }
             const bytes = new Uint8Array(await new Response(deliveryNote.content).arrayBuffer());
@@ -202,7 +202,7 @@ export class EthTradeService extends Service {
         if (paymentInvoice) {
             const externalUrl = (await orderTradeService.getTrade()).externalUrl;
             const resourceSpec: ICPResourceSpec = {
-                name: paymentInvoice.name,
+                name: paymentInvoice.filename,
                 type: paymentInvoice.content.type,
             }
             const bytes = new Uint8Array(await new Response(paymentInvoice.content).arrayBuffer());

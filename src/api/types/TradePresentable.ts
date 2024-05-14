@@ -26,8 +26,12 @@ export abstract class DetailedTradePresentable {
         return this._documents;
     }
 
-    set document(value: Map<DocumentType, DocumentPresentable>) {
+    set documents(value: Map<DocumentType, DocumentPresentable>) {
         this._documents = value;
+    }
+
+    addDocument(document: DocumentPresentable) {
+        this._documents.set(document.documentType, document);
     }
 
     abstract get trade(): Trade;

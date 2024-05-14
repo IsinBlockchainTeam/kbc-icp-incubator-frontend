@@ -25,15 +25,15 @@ export class EthDocumentService extends Service {
             const completeDocument = await this._documentService.getCompleteDocument(d);
             const blob = new Blob([completeDocument!.content], { type: getMimeType(completeDocument.filename)});
 
-            documents.push(new DocumentPresentable()
-                .setId(completeDocument.id)
-                .setContentType(blob.type)
-                .setDocumentType(completeDocument.documentType)
-                .setContent(blob)
-                .setFilename(completeDocument.filename)
-                .setTransactionLines(completeDocument.transactionLines)
-                .setDate(new Date(completeDocument.date))
-            );
+            documents.push({
+                id: completeDocument.id,
+                contentType: blob.type,
+                documentType: completeDocument.documentType,
+                content: blob,
+                filename: completeDocument.filename,
+                date: new Date(completeDocument.date),
+                transactionLines: completeDocument.transactionLines
+            });
         }
 
         return documents;

@@ -76,7 +76,7 @@ export default function useTradeNew() {
                 };
                 const deliveryNote: DocumentRequest = {
                     content: values['certificate-of-shipping'],
-                    name: values['certificate-of-shipping'].name,
+                    filename: values['certificate-of-shipping'].name,
                     documentType: DocumentType.DELIVERY_NOTE,
                 }
                 await tradeService.saveBasicTrade(basicTrade, [deliveryNote]);
@@ -101,7 +101,7 @@ export default function useTradeNew() {
                 }
                 const paymentInvoice: DocumentRequest = {
                     content: values['payment-invoice'],
-                    name: values['payment-invoice'].name,
+                    filename: values['payment-invoice'].name,
                     documentType: DocumentType.PAYMENT_INVOICE,
                 }
                 await tradeService.saveOrderTrade(orderTrade, [paymentInvoice]);
