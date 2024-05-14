@@ -3,14 +3,16 @@ import styles from "./Profile.module.scss";
 import {useSelector} from "react-redux";
 import {RootState} from "../../redux/store";
 import {Navigate} from "react-router-dom";
-import {paths} from "../../constants";
+import {ICP, paths} from "../../constants";
 import SingletonSigner from "../../api/SingletonSigner";
 import {useSiweIdentity} from "../../components/icp/SiweIdentityProvider/SiweIdentityProvider";
 import React, {useEffect, useState} from "react";
 import {
     ICPIdentityDriver,
-    ICPOrganizationDriver
+    ICPOrganizationDriver, ICPStorageDriver
 } from "@blockchain-lib/common";
+import {ICPFileDriver} from "@kbc-lib/coffee-trading-management-lib";
+import {checkAndGetEnvironmentVariable} from "../../utils/utils";
 const { Title, Paragraph, Text } = Typography;
 export default function Profile() {
     const { identity } = useSiweIdentity();
@@ -21,11 +23,24 @@ export default function Profile() {
         if(identity) {
             console.log("Identity is", identity);
             setPrincipal(identity.getPrincipal().toString());
-            console.log("ICPIdentityDriver init");
+            initDrivers();
+        }
+    }, [identity]);
+
+    const initDrivers = () => {
+        if(identity) {
+            console.log("Initializing drivers...")
+            const driverCanisterIds = {
+                organization: checkAndGetEnvironmentVariable(ICP.CANISTER_ID_ORGANIZATION),
+                storage: checkAndGetEnvironmentVariable(ICP.CANISTER_ID_STORAGE),
+            }
+            ICPOrganizationDriver.init(identity, driverCanisterIds.organization);
+            ICPStorageDriver.init(identity, driverCanisterIds.storage);
+            ICPFileDriver.init();
             ICPIdentityDriver.init(identity);
             console.log(ICPIdentityDriver.getInstance());
         }
-    }, [identity]);
+    }
 
     const createOrganization = async () => {
         const organizationDriver = ICPOrganizationDriver.getInstance();
