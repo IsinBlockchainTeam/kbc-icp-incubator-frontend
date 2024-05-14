@@ -6,8 +6,12 @@ import {Navigate} from "react-router-dom";
 import {paths} from "../../constants";
 import SingletonSigner from "../../api/SingletonSigner";
 import {useSiweIdentity} from "../../components/icp/SiweIdentityProvider/SiweIdentityProvider";
-import {useEffect, useState} from "react";
-const { Title, Paragraph } = Typography;
+import React, {useEffect, useState} from "react";
+import {
+    ICPIdentityDriver,
+    ICPOrganizationDriver
+} from "@blockchain-lib/common";
+const { Title, Paragraph, Text } = Typography;
 export default function Profile() {
     const { identity } = useSiweIdentity();
     const userInfo = useSelector((state: RootState) => state.userInfo);
@@ -17,9 +21,17 @@ export default function Profile() {
         if(identity) {
             console.log("Identity is", identity);
             setPrincipal(identity.getPrincipal().toString());
+            console.log("ICPIdentityDriver init");
+            ICPIdentityDriver.init(identity);
+            console.log(ICPIdentityDriver.getInstance());
         }
     }, [identity]);
 
+    const createOrganization = async () => {
+        const organizationDriver = ICPOrganizationDriver.getInstance();
+        const organization = await organizationDriver.createOrganization("Dunder Mifflin", "The best paper company in the world");
+        console.log("organization", organization)
+    }
 
     if (!userInfo.isLogged) {
         return <Navigate to={paths.LOGIN} />
@@ -38,7 +50,14 @@ export default function Profile() {
                 <Paragraph>Nation: {userInfo.nation}</Paragraph>
                 <Paragraph>Telephone: {userInfo.telephone}</Paragraph>
                 <Paragraph>Ethereum Address: {SingletonSigner.getInstance()?.address || 'undefined'}</Paragraph>
-                <Paragraph>ICP principal: {principal}</Paragraph>
+                {identity &&
+                    <>
+                        <Paragraph>ICP principal: {principal}</Paragraph>
+                        <Button size="large" onClick={createOrganization}>
+                            <Text>Create organization</Text>
+                        </Button>
+                    </>
+                }
             </Card>
         </div>
     );

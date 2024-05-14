@@ -13,7 +13,9 @@ import {initialState, updateUserInfo} from "../../../redux/reducers/userInfoSlic
 import SingletonSigner from "../../../api/SingletonSigner";
 import {clearSiweIdentity} from "../../../redux/reducers/siweIdentitySlice";
 import {useSiweIdentity} from "../../icp/SiweIdentityProvider/SiweIdentityProvider";
-
+import {
+    ICPIdentityDriver
+} from "@blockchain-lib/common";
 const { Content, Footer, Sider } = Layout;
 
 type MenuItem = Required<MenuProps>["items"][number];
@@ -68,6 +70,7 @@ const getUserItemLoggedIn = (name: string, picture: string, dispatch: any, clear
               dispatch(updateUserInfo(initialState));
               dispatch(clearSiweIdentity());
               SingletonSigner.resetInstance();
+              ICPIdentityDriver.getInstance().logout();
               clear();
             }
         ),

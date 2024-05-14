@@ -1,6 +1,6 @@
 import {Timeline, Space, QRCode} from "antd";
 import styles from "./Login.module.scss";
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {paths, requestPath} from "../../constants";
 import {request} from "../../utils/request";
 import {v4 as uuid} from "uuid";
@@ -13,6 +13,9 @@ import {Navigate, useNavigate} from "react-router-dom";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
 import {useSiweIdentity} from "../../components/icp/SiweIdentityProvider/SiweIdentityProvider";
 import SingletonSigner from "../../api/SingletonSigner";
+import {
+    ICPIdentityDriver
+} from "@blockchain-lib/common";
 
 export default function VeramoLogin() {
     const [qrCodeURL, setQrCodeURL] = useState<string>("");
@@ -70,6 +73,8 @@ export default function VeramoLogin() {
                 {method: "GET"}
             );
             if (message) {
+                dispatch(showLoading("Loading identity..."));
+
                 console.log("MESSAGE", message);
 
                 clearInterval(interval);
@@ -88,7 +93,12 @@ export default function VeramoLogin() {
                 if (!userInfo.privateKey)
                     throw new Error("No private key found");
                 SingletonSigner.setInstance(userInfo.privateKey);
-                await login();
+                const identity = await login();
+                console.log("Identity: ", identity)
+                if(identity) {
+                    ICPIdentityDriver.init(identity);
+                }
+
                 dispatch(updateUserInfo({
                     isLogged: true,
                     id: userInfo.id || "",
@@ -115,6 +125,8 @@ export default function VeramoLogin() {
         } catch (error: any) {
             console.log("error: ", error);
             openNotification("Error", "Error while logging in", NotificationType.ERROR);
+        } finally {
+            dispatch(hideLoading());
         }
     }
 
