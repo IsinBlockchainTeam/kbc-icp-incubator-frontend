@@ -24,11 +24,10 @@ ARG REACT_APP_CONTRACT_OFFER=contract_offer
 # ---------------------------------------------------------------------------------------------
 
 WORKDIR /app
-COPY config-overrides.js /app/
-COPY package.json /app/
-COPY tsconfig.json /app/
+COPY config-overrides.js canister_ids.json dfx.json package.json tsconfig.json /app/
 COPY public /app/public
 COPY src /app/src
+COPY scripts /app/scripts
 
 RUN npm config set @blockchain-lib:registry https://$BLOCKCHAIN_LIB_REGISTRY_DOMAIN
 RUN npm config set -- "//$BLOCKCHAIN_LIB_REGISTRY_DOMAIN:_authToken" "$BLOCKCHAIN_LIB_REGISTRY_READ_TOKEN"
