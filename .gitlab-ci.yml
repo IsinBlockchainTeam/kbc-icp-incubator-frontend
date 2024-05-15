@@ -11,6 +11,7 @@ frontend-build:
     - dev
     - main
     - demo
+    - sprint13
   script:
     - cp $WEBAPP_UI_BUILD_FILE .conf.webapp-ui
     # Build the frontend
