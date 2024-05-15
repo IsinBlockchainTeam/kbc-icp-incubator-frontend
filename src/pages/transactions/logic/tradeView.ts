@@ -17,7 +17,7 @@ import {FormElement, FormElementType} from "../../../components/GenericForm/Gene
 import {regex} from "../../../utils/regex";
 import dayjs from "dayjs";
 import {paths} from "../../../constants";
-import {getEnumKeyByValue} from "../../../utils/utils";
+import {getEnumKeyByValue, getNameByDID} from "../../../utils/utils";
 import {BasicTradeRequest, OrderTradeRequest} from "../../../api/types/TradeRequest";
 
 export default function useTradeView() {
@@ -83,289 +83,293 @@ export default function useTradeView() {
     useEffect(() => {
         if(!trade) return;
 
-        const commonElements: FormElement[] = [
-            {type: FormElementType.TITLE, span: 24, label: 'Actors'}, {
-                type: FormElementType.INPUT,
-                span: 8,
-                name: 'supplier',
-                label: 'Supplier',
-                required: true,
-                regex: regex.ETHEREUM_ADDRESS,
-                defaultValue: trade.trade.supplier,
-                disabled: true,
-            },
-            {
-                type: FormElementType.INPUT,
-                span: 8,
-                name: 'customer',
-                label: 'Customer',
-                required: true,
-                regex: regex.ETHEREUM_ADDRESS,
-                defaultValue: trade.trade.customer,
-                disabled: true,
-            },
-            {
-                type: FormElementType.INPUT,
-                span: 8,
-                name: 'commissioner',
-                label: 'Commissioner',
-                required: true,
-                regex: regex.ETHEREUM_ADDRESS,
-                defaultValue: trade.trade.commissioner,
-                disabled: true,
-            },
-        ]
+        (async () => {
+            const supplier = await getNameByDID("did:ethr:dev:" + trade.trade.supplier);
+            const commissioner = await getNameByDID("did:ethr:dev:" + trade.trade.commissioner);
 
-        let documentElement: FormElement;
-        const documentHeight = '45vh';
-        if(type === TradeType.BASIC) {
-            const content = trade.documents.get(DocumentType.DELIVERY_NOTE)?.content;
-            documentElement = {
-                type: FormElementType.DOCUMENT,
-                span: 12,
-                name: 'certificate-of-shipping',
-                label: 'Certificate of Shipping',
-                required: false,
-                loading: false,
-                uploadable: !disabled,
-                content: content,
-                height: documentHeight,
-            }
-        } else if(type === TradeType.ORDER) {
-            const content = trade.documents.get(DocumentType.PAYMENT_INVOICE)?.content;
-            documentElement = {
-                type: FormElementType.DOCUMENT,
-                span: 12,
-                name: 'payment-invoice',
-                label: 'Payment Invoice',
-                required: false,
-                loading: false,
-                uploadable: !disabled,
-                content: content,
-                height: documentHeight,
-            }
-        } else {
-            throw new Error("Invalid trade type");
-        }
-
-        if (type === TradeType.BASIC) {
-            const basicTrade = trade.trade as BasicTrade;
-            const newElements = [...commonElements];
-            newElements.push(
-                {type: FormElementType.TITLE, span: 24, label: 'Data'},
-                {
+            const commonElements: FormElement[] = [
+                {type: FormElementType.TITLE, span: 24, label: 'Actors'}, {
                     type: FormElementType.INPUT,
-                    span: 12,
-                    name: 'name',
-                    label: 'Name',
-                    required: true,
-                    defaultValue: basicTrade.name,
-                    disabled,
-                },
-                documentElement,
-                {type: FormElementType.TITLE, span: 24, label: 'Line Item'},
-            );
-            basicTrade.lines.forEach((line, index) => {
-                newElements.push(
-                    {
-                        type: FormElementType.INPUT,
-                        span: 8,
-                        name: `product-category-id-${index+1}`,
-                        label: 'Product Category Id',
-                        required: true,
-                        defaultValue: line.productCategory?.id.toString(),
-                        disabled,
-                    },
-                    {
-                        type: FormElementType.INPUT,
-                        span: 6,
-                        name: `quantity-${index+1}`,
-                        label: 'Quantity',
-                        required: true,
-                        defaultValue: line.quantity?.toString(),
-                        disabled,
-                    },
-                    {
-                        type: FormElementType.SELECT,
-                        span: 4,
-                        name: `unit-${index+1}`,
-                        label: 'Unit',
-                        required: true,
-                        options: units.map((unit) => ({label: unit, value: unit})),
-                        defaultValue: line.unit!,
-                        disabled,
-                    },
-                    {type: FormElementType.SPACE, span: 6},
-                );
-            });
-            setElements(newElements);
-        }
-        else {
-            const orderTrade = trade.trade as OrderTrade;
-
-            setNegotiationStatus(getEnumKeyByValue(NegotiationStatus, orderTrade.negotiationStatus));
-            const newElements = [...commonElements];
-            newElements.push(
-                {type: FormElementType.TITLE, span: 24, label: 'Constraints'},
-                {
-                    type: FormElementType.INPUT,
-                    span: 12,
-                    name: 'incoterms',
-                    label: 'Incoterms',
-                    required: true,
-                    defaultValue: orderTrade.metadata?.incoterms,
-                    disabled,
-                },
-                documentElement,
-                {
-                    type: FormElementType.DATE,
-                    span: 12,
-                    name: 'payment-deadline',
-                    label: 'Payment Deadline',
-                    required: true,
-                    defaultValue: dayjs.unix(orderTrade.paymentDeadline),
-                    disabled,
-                },
-                {
-                    type: FormElementType.DATE,
-                    span: 12,
-                    name: 'document-delivery-deadline',
-                    label: 'Document Delivery Deadline',
-                    required: true,
-                    defaultValue: dayjs.unix(orderTrade.documentDeliveryDeadline),
-                    disabled,
-                },
-                {
-                    type: FormElementType.INPUT,
-                    span: 12,
-                    name: 'shipper',
-                    label: 'Shipper',
-                    required: true,
-                    defaultValue: orderTrade.metadata?.shipper,
-                    disabled,
-                },
-                {
-                    type: FormElementType.INPUT,
-                    span: 12,
-                    name: 'arbiter',
-                    label: 'Arbiter',
-                    required: true,
-                    defaultValue: orderTrade.arbiter,
-                    disabled,
-                    regex: regex.ETHEREUM_ADDRESS
-                },
-                {
-                    type: FormElementType.INPUT,
-                    span: 12,
-                    name: 'shipping-port',
-                    label: 'Shipping Port',
-                    required: true,
-                    defaultValue: orderTrade.metadata?.shippingPort,
-                    disabled,
-                },
-                {
-                    type: FormElementType.DATE,
-                    span: 12,
-                    name: 'shipping-deadline',
-                    label: 'Shipping Deadline',
-                    required: true,
-                    defaultValue: dayjs.unix(orderTrade.shippingDeadline),
-                    disabled,
-                },
-                {
-                    type: FormElementType.INPUT,
-                    span: 12,
-                    name: 'delivery-port',
-                    label: 'Delivery Port',
-                    required: true,
-                    defaultValue: orderTrade.metadata?.deliveryPort,
-                    disabled,
-                },
-                {
-                    type: FormElementType.DATE,
-                    span: 12,
-                    name: 'delivery-deadline',
-                    label: 'Delivery Deadline',
-                    required: true,
-                    defaultValue: dayjs.unix(orderTrade.deliveryDeadline),
-                    disabled,
-                },
-                {
-                    type: FormElementType.INPUT,
-                    span: 12,
-                    name: 'agreed-amount',
-                    label: 'Agreed Amount',
-                    required: true,
-                    regex: regex.ONLY_DIGITS,
-                    defaultValue: orderTrade.agreedAmount,
-                    disabled,
-                },
-                {
-                    type: FormElementType.INPUT,
-                    span: 12,
-                    name: 'token-address',
-                    label: 'Token Address',
+                    span: 8,
+                    name: 'supplier',
+                    label: 'Supplier',
                     required: true,
                     regex: regex.ETHEREUM_ADDRESS,
-                    defaultValue: orderTrade.tokenAddress,
-                    disabled,
+                    defaultValue: supplier,
+                    disabled: true,
                 },
-                {type: FormElementType.TITLE, span: 24, label: 'Line Items'},
-            );
-            orderTrade.lines.forEach((line, index) => {
+                {
+                    type: FormElementType.INPUT,
+                    span: 8,
+                    name: 'customer',
+                    label: 'Customer',
+                    required: true,
+                    regex: regex.ETHEREUM_ADDRESS,
+                    defaultValue: commissioner,
+                    disabled: true,
+                },
+                {
+                    type: FormElementType.INPUT,
+                    span: 8,
+                    name: 'commissioner',
+                    label: 'Commissioner',
+                    required: true,
+                    regex: regex.ETHEREUM_ADDRESS,
+                    defaultValue: commissioner,
+                    disabled: true,
+                },
+            ]
+
+            let documentElement: FormElement;
+            const documentHeight = '45vh';
+            if (type === TradeType.BASIC) {
+                const content = trade.documents.get(DocumentType.DELIVERY_NOTE)?.content;
+                documentElement = {
+                    type: FormElementType.DOCUMENT,
+                    span: 12,
+                    name: 'certificate-of-shipping',
+                    label: 'Certificate of Shipping',
+                    required: false,
+                    loading: false,
+                    uploadable: !disabled,
+                    content: content,
+                    height: documentHeight,
+                }
+            } else if (type === TradeType.ORDER) {
+                const content = trade.documents.get(DocumentType.PAYMENT_INVOICE)?.content;
+                documentElement = {
+                    type: FormElementType.DOCUMENT,
+                    span: 12,
+                    name: 'payment-invoice',
+                    label: 'Payment Invoice',
+                    required: false,
+                    loading: false,
+                    uploadable: !disabled,
+                    content: content,
+                    height: documentHeight,
+                }
+            } else {
+                throw new Error("Invalid trade type");
+            }
+
+            if (type === TradeType.BASIC) {
+                const basicTrade = trade.trade as BasicTrade;
+                const newElements = [...commonElements];
                 newElements.push(
+                    {type: FormElementType.TITLE, span: 24, label: 'Data'},
                     {
                         type: FormElementType.INPUT,
-                        span: 6,
-                        name: `product-category-id-${index+1}`,
-                        label: 'Product Category Id',
+                        span: 12,
+                        name: 'name',
+                        label: 'Name',
                         required: true,
-                        defaultValue: line.productCategory?.id.toString(),
+                        defaultValue: basicTrade.name,
+                        disabled,
+                    },
+                    documentElement,
+                    {type: FormElementType.TITLE, span: 24, label: 'Line Item'},
+                );
+                basicTrade.lines.forEach((line, index) => {
+                    newElements.push(
+                        {
+                            type: FormElementType.INPUT,
+                            span: 8,
+                            name: `product-category-id-${index + 1}`,
+                            label: 'Product Category Id',
+                            required: true,
+                            defaultValue: line.productCategory?.id.toString(),
+                            disabled,
+                        },
+                        {
+                            type: FormElementType.INPUT,
+                            span: 6,
+                            name: `quantity-${index + 1}`,
+                            label: 'Quantity',
+                            required: true,
+                            defaultValue: line.quantity?.toString(),
+                            disabled,
+                        },
+                        {
+                            type: FormElementType.SELECT,
+                            span: 4,
+                            name: `unit-${index + 1}`,
+                            label: 'Unit',
+                            required: true,
+                            options: units.map((unit) => ({label: unit, value: unit})),
+                            defaultValue: line.unit!,
+                            disabled,
+                        },
+                        {type: FormElementType.SPACE, span: 6},
+                    );
+                });
+                setElements(newElements);
+            } else {
+                const orderTrade = trade.trade as OrderTrade;
+
+                setNegotiationStatus(getEnumKeyByValue(NegotiationStatus, orderTrade.negotiationStatus));
+                const newElements = [...commonElements];
+                newElements.push(
+                    {type: FormElementType.TITLE, span: 24, label: 'Constraints'},
+                    {
+                        type: FormElementType.INPUT,
+                        span: 12,
+                        name: 'incoterms',
+                        label: 'Incoterms',
+                        required: true,
+                        defaultValue: orderTrade.metadata?.incoterms,
+                        disabled,
+                    },
+                    documentElement,
+                    {
+                        type: FormElementType.DATE,
+                        span: 12,
+                        name: 'payment-deadline',
+                        label: 'Payment Deadline',
+                        required: true,
+                        defaultValue: dayjs.unix(orderTrade.paymentDeadline),
+                        disabled,
+                    },
+                    {
+                        type: FormElementType.DATE,
+                        span: 12,
+                        name: 'document-delivery-deadline',
+                        label: 'Document Delivery Deadline',
+                        required: true,
+                        defaultValue: dayjs.unix(orderTrade.documentDeliveryDeadline),
                         disabled,
                     },
                     {
                         type: FormElementType.INPUT,
-                        span: 5,
-                        name: `quantity-${index+1}`,
-                        label: 'Quantity',
+                        span: 12,
+                        name: 'shipper',
+                        label: 'Shipper',
+                        required: true,
+                        defaultValue: orderTrade.metadata?.shipper,
+                        disabled,
+                    },
+                    {
+                        type: FormElementType.INPUT,
+                        span: 12,
+                        name: 'arbiter',
+                        label: 'Arbiter',
+                        required: true,
+                        defaultValue: orderTrade.arbiter,
+                        disabled,
+                        regex: regex.ETHEREUM_ADDRESS
+                    },
+                    {
+                        type: FormElementType.INPUT,
+                        span: 12,
+                        name: 'shipping-port',
+                        label: 'Shipping Port',
+                        required: true,
+                        defaultValue: orderTrade.metadata?.shippingPort,
+                        disabled,
+                    },
+                    {
+                        type: FormElementType.DATE,
+                        span: 12,
+                        name: 'shipping-deadline',
+                        label: 'Shipping Deadline',
+                        required: true,
+                        defaultValue: dayjs.unix(orderTrade.shippingDeadline),
+                        disabled,
+                    },
+                    {
+                        type: FormElementType.INPUT,
+                        span: 12,
+                        name: 'delivery-port',
+                        label: 'Delivery Port',
+                        required: true,
+                        defaultValue: orderTrade.metadata?.deliveryPort,
+                        disabled,
+                    },
+                    {
+                        type: FormElementType.DATE,
+                        span: 12,
+                        name: 'delivery-deadline',
+                        label: 'Delivery Deadline',
+                        required: true,
+                        defaultValue: dayjs.unix(orderTrade.deliveryDeadline),
+                        disabled,
+                    },
+                    {
+                        type: FormElementType.INPUT,
+                        span: 12,
+                        name: 'agreed-amount',
+                        label: 'Agreed Amount',
                         required: true,
                         regex: regex.ONLY_DIGITS,
-                        defaultValue: line.quantity?.toString(),
-                        disabled,
-                    },
-                    {
-                        type: FormElementType.SELECT,
-                        span: 4,
-                        name: `unit-${index+1}`,
-                        label: 'Unit',
-                        required: true,
-                        options: units.map((unit) => ({label: unit, value: unit})),
-                        defaultValue: line.unit!,
+                        defaultValue: orderTrade.agreedAmount,
                         disabled,
                     },
                     {
                         type: FormElementType.INPUT,
-                        span: 5,
-                        name: `price-${index+1}`,
-                        label: 'Price',
+                        span: 12,
+                        name: 'token-address',
+                        label: 'Token Address',
                         required: true,
-                        defaultValue: (line as OrderLine).price?.amount.toString(),
+                        regex: regex.ETHEREUM_ADDRESS,
+                        defaultValue: orderTrade.tokenAddress,
                         disabled,
                     },
-                    {
-                        type: FormElementType.SELECT,
-                        span: 4,
-                        name: `fiat-${index+1}`,
-                        label: 'Fiat',
-                        required: true,
-                        options: fiats.map((fiat) => ({label: fiat, value: fiat})),
-                        defaultValue: (line as OrderLine).price!.fiat,
-                        disabled,
-                    },
+                    {type: FormElementType.TITLE, span: 24, label: 'Line Items'},
                 );
-            });
-            setElements(newElements);
-        }
+                orderTrade.lines.forEach((line, index) => {
+                    newElements.push(
+                        {
+                            type: FormElementType.INPUT,
+                            span: 6,
+                            name: `product-category-id-${index + 1}`,
+                            label: 'Product Category Id',
+                            required: true,
+                            defaultValue: line.productCategory?.id.toString(),
+                            disabled,
+                        },
+                        {
+                            type: FormElementType.INPUT,
+                            span: 5,
+                            name: `quantity-${index + 1}`,
+                            label: 'Quantity',
+                            required: true,
+                            regex: regex.ONLY_DIGITS,
+                            defaultValue: line.quantity?.toString(),
+                            disabled,
+                        },
+                        {
+                            type: FormElementType.SELECT,
+                            span: 4,
+                            name: `unit-${index + 1}`,
+                            label: 'Unit',
+                            required: true,
+                            options: units.map((unit) => ({label: unit, value: unit})),
+                            defaultValue: line.unit!,
+                            disabled,
+                        },
+                        {
+                            type: FormElementType.INPUT,
+                            span: 5,
+                            name: `price-${index + 1}`,
+                            label: 'Price',
+                            required: true,
+                            defaultValue: (line as OrderLine).price?.amount.toString(),
+                            disabled,
+                        },
+                        {
+                            type: FormElementType.SELECT,
+                            span: 4,
+                            name: `fiat-${index + 1}`,
+                            label: 'Fiat',
+                            required: true,
+                            options: fiats.map((fiat) => ({label: fiat, value: fiat})),
+                            defaultValue: (line as OrderLine).price!.fiat,
+                            disabled,
+                        },
+                    );
+                });
+                setElements(newElements);
+            }
+        })();
     }, [trade, disabled]);
 
     const onSubmit = async (values: any) => {

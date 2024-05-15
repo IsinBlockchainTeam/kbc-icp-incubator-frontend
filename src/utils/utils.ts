@@ -1,7 +1,10 @@
 import {request} from "./request";
 import {OrganizationCredential} from "../redux/types/OrganizationCredential";
-import {ICP} from "../constants";
-import {URL_SEGMENTS} from "@kbc-lib/coffee-trading-management-lib";
+import {ICP, requestPath} from "../constants";
+import {URL_SEGMENT_INDEXES, URL_SEGMENTS} from "@kbc-lib/coffee-trading-management-lib";
+import {
+    ICPOrganizationDriver
+} from "@blockchain-lib/common";
 
 export const setParametersPath = (
     path = "",
@@ -147,4 +150,37 @@ export const getICPCanisterURL = (canisterId: string): string => {
     return checkAndGetEnvironmentVariable(ICP.DFX_NETWORK) === "local" ?
         URL_SEGMENTS.HTTP + canisterId + '.' + URL_SEGMENTS.LOCAL_REPLICA :
         URL_SEGMENTS.HTTP + canisterId + '.' + URL_SEGMENTS.MAINNET;
+}
+
+export const getNameByDID = async (did: string): Promise<string> => {
+    const didDocument = await request(`${requestPath.VERIFIER_BACKEND_URL}/identifiers/resolve?did-url=${did}`, {
+        method: 'GET',
+    });
+    console.log("DID Document", didDocument);
+
+    const serviceUrl = didDocument.didDocument.service[0].serviceEndpoint;
+    console.log("Service URL", serviceUrl);
+
+    const canisterId = serviceUrl.split('/')[URL_SEGMENT_INDEXES.CANISTER_ID]
+        .split('.')[0];
+    console.log("Canister ID", canisterId);
+    if(canisterId != ICP.CANISTER_ID_ORGANIZATION) {
+        console.log("Unknown canister ID");
+        return "Unknown";
+    }
+
+    const organizationId = serviceUrl.split('/')[URL_SEGMENT_INDEXES.ORGANIZATION_ID];
+    const organizationDriver = ICPOrganizationDriver.getInstance();
+
+    let verifiablePresentation;
+    try {
+        verifiablePresentation = await organizationDriver.getVerifiablePresentation(organizationId);
+    } catch (e) {
+        console.log("Error getting verifiable presentation", e);
+        return "Unknown";
+    }
+
+    const name = verifiablePresentation.legalName;
+    console.log("Name", name);
+    return name;
 }
