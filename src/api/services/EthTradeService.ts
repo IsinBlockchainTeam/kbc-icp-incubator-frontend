@@ -1,14 +1,21 @@
 import {
     BasicTrade,
-    Line,
+    BasicTradeService,
+    DocumentStatus,
+    DocumentType,
     IConcreteTradeService,
-    OrderLinePrice,
-    TradeType,
-    OrderTradeMetadata,
-    URLStructure,
-    OrderTradeService,
+    Line,
+    NegotiationStatus,
     OrderLine,
-    DocumentType, TradeManagerService, TradeService, BasicTradeService
+    OrderLinePrice,
+    OrderTrade,
+    OrderTradeMetadata,
+    OrderTradeService,
+    TradeManagerService,
+    TradeService,
+    TradeStatus,
+    TradeType,
+    URLStructure
 } from "@kbc-lib/coffee-trading-management-lib";
 import {CustomError} from "../../utils/error/CustomError";
 import {HttpStatusCode} from "../../utils/error/HttpStatusCode";
@@ -70,6 +77,7 @@ export class EthTradeService {
             const tradeService = this._getTradeService(tradeAddress);
             let tradeInstanceService: IConcreteTradeService;
             const tradeType = await tradeService.getTradeType();
+            const documentsInfo = await tradeService.getAllDocuments();
 
             if (tradeType === TradeType.BASIC) {
                 tradeInstanceService = this._getBasicTradeService(tradeAddress);
@@ -80,12 +88,33 @@ export class EthTradeService {
             }
 
             const {tradeId, supplier, commissioner} = await tradeInstanceService.getTrade();
+            const trade = await tradeInstanceService.getTrade();
+
+            let actionRequired ;
+            if (tradeType === TradeType.ORDER) {
+                const order = trade as OrderTrade;
+                const orderService = tradeInstanceService as OrderTradeService;
+                const whoSigned = await orderService.getWhoSigned();
+                console.log("documentsInfo: ", documentsInfo)
+                if (!whoSigned.includes(this._walletAddress) && order.negotiationStatus === NegotiationStatus.PENDING)
+                    actionRequired = "This negotiation needs your sign to proceed";
+
+                // if (documentsInfo.length && documentsInfo.some((doc) => doc.status === DocumentStatus.NOT_EVALUATED)) {
+                //     const status = await orderService.getTradeStatus();
+                //     TODO: per ora si ipotizza che solo il supplier debba caricare i documenti e quindi che sia il commissioner a validarli
+                //     nel caso di caricamenti da entrambi i lati, si potrà verificare in base al trade status
+                    // if (this._walletAddress === commissioner)
+                    //     actionRequired = "Some documents need to be evaluated";
+                // }
+            }
+
 
             const newTradePresentable: TradePreviewPresentable = {
                 id: tradeId,
                 supplier,
                 commissioner,
-                type: tradeType
+                type: tradeType,
+                actionRequired
             };
 
             if (tradeType === TradeType.ORDER) {

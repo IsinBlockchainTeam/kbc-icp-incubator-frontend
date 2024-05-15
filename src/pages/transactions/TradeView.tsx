@@ -34,10 +34,13 @@ export const TradeView = () => {
                         </Tag>
                     }
                     {negotiationStatus !== getEnumKeyByValue(NegotiationStatus, NegotiationStatus.CONFIRMED) &&
-                        <EditOutlined style={{marginLeft: '8px'}} onClick={toggleDisabled}/>}
-                    <Tooltip title="Confirm the negotiation if everything is OK">
-                        <CheckCircleOutlined style={{marginLeft: '8px'}} onClick={confirmNegotiation}/>
-                    </Tooltip>
+                        <div>
+                            <EditOutlined style={{marginLeft: '8px'}} onClick={toggleDisabled}/>
+                            <Tooltip title="Confirm the negotiation if everything is OK">
+                                <CheckCircleOutlined style={{marginLeft: '8px'}} onClick={confirmNegotiation}/>
+                            </Tooltip>
+                        </div>
+                    }
                 </div>
             </div>}
         >

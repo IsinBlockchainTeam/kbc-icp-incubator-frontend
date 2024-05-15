@@ -1,6 +1,7 @@
 import React, {useContext, useEffect} from "react";
 import {CardPage} from "../../components/structure/CardPage/CardPage";
-import {Table, TableProps, Tag} from "antd";
+import {Table, TableProps, Tag, Tooltip} from "antd";
+import {ExclamationCircleOutlined, CheckCircleOutlined, SettingOutlined} from "@ant-design/icons";
 import {ColumnsType} from "antd/es/table";
 import {NotificationType, openNotification} from "../../utils/notification";
 import {getEnumKeyByValue, setParametersPath} from "../../utils/utils";
@@ -84,6 +85,15 @@ export const Trades = () => {
                 </Tag>
             )
         },
+        {
+            title: <SettingOutlined />,
+            dataIndex: 'actionRequired',
+            render: (_, {actionRequired}) => {
+                return actionRequired ?
+                    <Tooltip title={actionRequired}><ExclamationCircleOutlined style={{fontSize: '1.5rem', color: 'orange'}}/></Tooltip> :
+                    <Tooltip title={"There are no operations charged to you at this time"}><CheckCircleOutlined style={{fontSize: '1.5rem', color: 'green'}}/></Tooltip>
+            }
+        }
     ];
 
     const onChange: TableProps<TradePreviewPresentable>['onChange'] = (pagination, filters, sorter, extra) => {

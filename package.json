@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@blockchain-lib/common": "2.0.3",
+    "@blockchain-lib/common": "file:../../Blockchain_Library/one_lib_to_rule_them_all/packages/common",
     "@dagrejs/dagre": "^1.0.2",
     "@dfinity/agent": "^1.2.0",
     "@dfinity/candid": "^1.2.0",

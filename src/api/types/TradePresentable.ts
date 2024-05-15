@@ -13,6 +13,7 @@ export type TradePreviewPresentable = {
     commissioner: string;
     type: TradeType;
     negotiationStatus?: NegotiationStatus;
+    actionRequired?: string;
 }
 
 export abstract class DetailedTradePresentable {
