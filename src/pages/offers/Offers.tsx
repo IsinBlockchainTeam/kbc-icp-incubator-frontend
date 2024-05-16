@@ -3,23 +3,24 @@ import {NotificationType, openNotification} from "../../utils/notification";
 import {ColumnsType} from "antd/es/table";
 import {Button, Space, Table, TableProps} from "antd";
 import {CardPage} from "../../components/structure/CardPage/CardPage";
-import {Offer} from "@kbc-lib/coffee-trading-management-lib";
 import Search from "../../components/Search/Search";
 import {PlusOutlined} from "@ant-design/icons";
-import {credentials, paths} from "../../constants";
+import {credentials, DID_METHOD, paths} from "../../constants";
 import {useNavigate} from "react-router-dom";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
 import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../../redux/store";
 import {EthServicesContext} from "../../providers/EthServicesProvider";
+import {getNameByDID} from "../../utils/utils";
+import {OfferPresentable} from "../../api/types/OfferPresentable";
 
 export const Offers = () => {
     const {ethOfferService} = useContext(EthServicesContext);
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const userInfo = useSelector((state: RootState) => state.userInfo);
-    const [offers, setOffers] = useState<Offer[]>();
-    const [filteredOffers, setFilteredOffers] = useState<Offer[]>();
+    const [offers, setOffers] = useState<OfferPresentable[]>();
+    const [filteredOffers, setFilteredOffers] = useState<OfferPresentable[]>();
     const loadData = async () => {
         if (!ethOfferService) {
             console.error("EthOfferService not found");
@@ -28,8 +29,26 @@ export const Offers = () => {
         try {
             dispatch(showLoading("Retrieving offers..."))
             const offers = await ethOfferService.getAllOffers();
-            setOffers(offers);
-            setFilteredOffers(offers);
+            const offerPresentables: OfferPresentable[] = [];
+
+            const names: Map<string, string> = new Map<string, string>();
+
+            for (const offer of offers) {
+                let supplierName = names.get(offer.owner);
+                if (!supplierName) {
+                    supplierName = await getNameByDID(DID_METHOD + ':' + offer.owner) || "Unknown";
+                    names.set(offer.owner, supplierName);
+                }
+                offerPresentables.push({
+                    id: offer.id,
+                    supplierName,
+                    supplierAddress: offer.owner,
+                    productCategory: offer.productCategory
+                });
+            }
+
+            setOffers(offerPresentables);
+            setFilteredOffers(offerPresentables);
         } catch (e: any) {
             console.log("error: ", e);
             openNotification("Error", e.message, NotificationType.ERROR);
@@ -38,7 +57,7 @@ export const Offers = () => {
         }
     }
 
-    const columns: ColumnsType<Offer> = [
+    const columns: ColumnsType<OfferPresentable> = [
         {
             title: 'Id',
             dataIndex: 'id',
@@ -47,8 +66,8 @@ export const Offers = () => {
         },
         {
             title: 'Company',
-            dataIndex: 'owner',
-            sorter: (a, b) => (a.owner || '').localeCompare((b.owner || '')),
+            dataIndex: 'supplierName',
+            sorter: (a, b) => (a.supplierName || '').localeCompare((b.supplierName || '')),
             sortDirections: ['descend']
         },
         {
@@ -64,7 +83,7 @@ export const Offers = () => {
                     return <Space size="middle">
                         <a onClick={() => navigate(
                             paths.TRADE_NEW,
-                            {state: {supplierAddress: record.owner, productCategoryId: record.productCategory.id}}
+                            {state: {supplierAddress: record.supplierAddress, productCategoryId: record.productCategory.id}}
                         )}>Start a negotiation →</a>
                     </Space>
                 } else {
@@ -74,12 +93,11 @@ export const Offers = () => {
         }
     ];
 
-    const onChange: TableProps<Offer>['onChange'] = (pagination, filters, sorter, extra) => {
+    const onChange: TableProps<OfferPresentable>['onChange'] = (pagination, filters, sorter, extra) => {
         console.log('params', pagination, filters, sorter, extra);
     };
 
     const filterOffers = (productCategory: string) => {
-        console.log('Called')
         const filtered = offers?.filter(o => o.productCategory.name.toLowerCase().includes(productCategory.toLowerCase()));
         setFilteredOffers(filtered);
     }

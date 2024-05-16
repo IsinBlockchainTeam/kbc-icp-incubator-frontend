@@ -3,16 +3,13 @@ import styles from "./Profile.module.scss";
 import {useSelector} from "react-redux";
 import {RootState} from "../../redux/store";
 import {Navigate} from "react-router-dom";
-import {ICP, paths, requestPath} from "../../constants";
+import {paths} from "../../constants";
 import {useSiweIdentity} from "../../components/icp/SiweIdentityProvider/SiweIdentityProvider";
 import React, {useContext, useEffect, useState} from "react";
 import {
     ICPOrganizationDriver
 } from "@blockchain-lib/common";
 import {SignerContext} from "../../providers/SignerProvider";
-import {request} from "../../utils/request";
-import {URL_SEGMENT_INDEXES, URL_SEGMENTS} from "@kbc-lib/coffee-trading-management-lib";
-import {getNameByDID} from "../../utils/utils";
 const { Title, Paragraph, Text } = Typography;
 export default function Profile() {
     const {signer} = useContext(SignerContext);
@@ -34,11 +31,6 @@ export default function Profile() {
             { legalName: userInfo.legalName }
         );
         console.log("organization", organization);
-    }
-
-    const getName = async () => {
-        const did = "did:ethr:dev:" + signer?.address
-        console.log(await getNameByDID(did));
     }
 
     if (!userInfo.isLogged) {
@@ -67,7 +59,6 @@ export default function Profile() {
                         </Button>
                     </>
                 }
-                <Button size="large" onClick={getName}>Name</Button>
             </Card>
         </div>
     );

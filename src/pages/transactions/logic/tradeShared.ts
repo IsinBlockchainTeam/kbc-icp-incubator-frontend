@@ -100,6 +100,7 @@ export default function useTradeShared() {
             name: `price-1`,
             label: 'Price',
             required: true,
+            regex: regex.ONLY_DIGITS,
             defaultValue: '',
             disabled: false,
         },
