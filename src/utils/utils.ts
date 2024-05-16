@@ -153,17 +153,20 @@ export const getICPCanisterURL = (canisterId: string): string => {
 }
 
 export const getNameByDID = async (did: string): Promise<string> => {
-    const didDocument = await request(`${requestPath.VERIFIER_BACKEND_URL}/identifiers/resolve?did-url=${did}`, {
-        method: 'GET',
-    });
-    console.log("DID Document", didDocument);
+    let serviceUrl;
+    try {
+        const didDocument = await request(`${requestPath.VERIFIER_BACKEND_URL}/identifiers/resolve?did-url=${did}`, {
+            method: 'GET',
+        });
 
-    const serviceUrl = didDocument.didDocument.service[0].serviceEndpoint;
-    console.log("Service URL", serviceUrl);
+        serviceUrl = didDocument.didDocument.service[0].serviceEndpoint;
+    } catch (e) {
+        console.log("Error getting service URL", e);
+        return "Unknown";
+    }
 
     const canisterId = serviceUrl.split('/')[URL_SEGMENT_INDEXES.CANISTER_ID]
         .split('.')[0];
-    console.log("Canister ID", canisterId);
     if(canisterId != ICP.CANISTER_ID_ORGANIZATION) {
         console.log("Unknown canister ID");
         return "Unknown";
@@ -180,7 +183,5 @@ export const getNameByDID = async (did: string): Promise<string> => {
         return "Unknown";
     }
 
-    const name = verifiablePresentation.legalName;
-    console.log("Name", name);
-    return name;
+    return verifiablePresentation.legalName;
 }

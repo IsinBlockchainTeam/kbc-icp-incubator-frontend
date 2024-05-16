@@ -6,6 +6,9 @@ import {regex} from "../../../utils/regex";
 import {useLocation} from "react-router-dom";
 import {EthServicesContext} from "../../../providers/EthServicesProvider";
 import {SignerContext} from "../../../providers/SignerProvider";
+import {getNameByDID} from "../../../utils/utils";
+import {DID_METHOD} from "../../../constants";
+import {NotificationType, openNotification} from "../../../utils/notification";
 
 export default function useTradeShared() {
     const {signer} = useContext(SignerContext);
@@ -23,6 +26,7 @@ export default function useTradeShared() {
     const [dataLoaded, setDataLoaded] = useState<boolean>(false);
     const [units, setUnits] = useState<string[]>([]);
     const [fiats, setFiats] = useState<string[]>([]);
+    const [actorNames, setActorNames] = useState<string[]>([]);
 
     const [, setLineOrder] = useState<string[]>([]);
 
@@ -116,6 +120,20 @@ export default function useTradeShared() {
         return id;
     }
 
+    const getActorNames = async () => {
+        const supplierAddress = location?.state?.supplierAddress;
+        const commissionerAddress = signer?.address;
+
+        try {
+            const supplier = supplierAddress ? await getNameByDID(DID_METHOD + ':' + supplierAddress) : 'Unknown';
+            const commissioner = commissionerAddress ? await getNameByDID(DID_METHOD + ':' + commissionerAddress) : 'Unknown';
+            setActorNames([supplier, commissioner]);
+        } catch (e: any) {
+            console.log("error: ", e);
+            openNotification("Error", e.message, NotificationType.ERROR);
+        }
+    }
+
     useEffect(() => {
         (async () => {
             if (!ethUnitService || !ethFiatService) {
@@ -125,48 +143,48 @@ export default function useTradeShared() {
             setUnits(units);
             const fiats = await ethFiatService.getAll();
             setFiats(fiats);
+            await getActorNames();
             setDataLoaded(true);
         })();
     }, []);
 
     const [elements, setElements] = useState<FormElement[]>([]);
 
-    const commonElements: FormElement[] = [
-        {type: FormElementType.TITLE, span: 24, label: 'Actors'}, {
-            type: FormElementType.INPUT,
-            span: 8,
-            name: 'supplier',
-            label: 'Supplier',
-            required: false,
-            regex: regex.ETHEREUM_ADDRESS,
-            defaultValue: location?.state?.supplierAddress || 'Unknown',
-            disabled: true,
-        },
-        {
-            type: FormElementType.INPUT,
-            span: 8,
-            name: 'customer',
-            label: 'Customer',
-            required: false,
-            regex: regex.ETHEREUM_ADDRESS,
-            defaultValue: signer?.address || 'Unknown',
-            disabled: true,
-        },
-        {
-            type: FormElementType.INPUT,
-            span: 8,
-            name: 'commissioner',
-            label: 'Commissioner',
-            required: false,
-            regex: regex.ETHEREUM_ADDRESS,
-            defaultValue: signer?.address || 'Unknown',
-            disabled: true,
-        },
-    ]
-
     const documentHeight = '45vh';
 
     useEffect(() => {
+        if (!dataLoaded) {
+            return;
+        }
+        const commonElements: FormElement[] = [
+            {type: FormElementType.TITLE, span: 24, label: 'Actors'}, {
+                type: FormElementType.INPUT,
+                span: 8,
+                name: 'supplier',
+                label: 'Supplier',
+                required: true,
+                defaultValue: actorNames[0],
+                disabled: true,
+            },
+            {
+                type: FormElementType.INPUT,
+                span: 8,
+                name: 'customer',
+                label: 'Customer',
+                required: true,
+                defaultValue: actorNames[1],
+                disabled: true,
+            },
+            {
+                type: FormElementType.INPUT,
+                span: 8,
+                name: 'commissioner',
+                label: 'Commissioner',
+                required: true,
+                defaultValue: actorNames[1],
+                disabled: true,
+            },
+        ];
         if (type === TradeType.BASIC) {
             setElements([
                 ...commonElements,
@@ -315,7 +333,7 @@ export default function useTradeShared() {
                 ...orderLine,
             ])
         }
-    }, [type, dataLoaded]);
+    }, [type, actorNames, dataLoaded]);
 
     return {
         type,
