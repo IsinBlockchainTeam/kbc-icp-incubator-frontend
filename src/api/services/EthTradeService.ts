@@ -18,8 +18,8 @@ import {
 import {CustomError} from "../../utils/error/CustomError";
 import {HttpStatusCode} from "../../utils/error/HttpStatusCode";
 import {ICPResourceSpec} from "@blockchain-lib/common";
-import {getICPCanisterURL} from "../../utils/utils";
-import {ICP} from "../../constants";
+import {getICPCanisterURL, getNameByDID} from "../../utils/utils";
+import {DID_METHOD, ICP} from "../../constants";
 import {store} from "../../redux/store";
 import {
     BasicTradePresentable,
@@ -64,6 +64,8 @@ export class EthTradeService {
     }
 
     async getGeneralTrades(): Promise<TradePreviewPresentable[]> {
+        const names: Map<string, string> = new Map<string, string>();
+
         const tradeIds: number[] = await this._tradeManagerService.getTradeIdsOfSupplier(this._walletAddress);
         tradeIds.push(...await this._tradeManagerService.getTradeIdsOfCommissioner(this._walletAddress));
         let tradePresentables: TradePreviewPresentable[] = [];
@@ -105,10 +107,21 @@ export class EthTradeService {
             }
 
 
+            let supplierName = names.get(supplier);
+            if(! supplierName) {
+                supplierName = await getNameByDID(DID_METHOD + ':' + supplier) || "Unknown";
+                names.set(supplier, supplierName);
+            }
+            let commissionerName = names.get(commissioner);
+            if(! commissionerName) {
+                commissionerName = await getNameByDID(DID_METHOD + ':' + commissioner) || "Unknown";
+                names.set(commissioner, commissionerName);
+            }
+
             const newTradePresentable: TradePreviewPresentable = {
                 id: tradeId,
-                supplier,
-                commissioner,
+                supplier: supplierName,
+                commissioner: commissionerName,
                 type: tradeType,
                 actionRequired
             };

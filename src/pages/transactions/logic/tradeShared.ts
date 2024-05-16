@@ -10,7 +10,6 @@ import {useDispatch} from "react-redux";
 import {NotificationType, openNotification} from "../../../utils/notification";
 import {getNameByDID} from "../../../utils/utils";
 import {DID_METHOD} from "../../../constants";
-import {NotificationType, openNotification} from "../../../utils/notification";
 
 export default function useTradeShared() {
     const {signer} = useContext(SignerContext);

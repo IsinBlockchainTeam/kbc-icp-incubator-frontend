@@ -1,7 +1,7 @@
 import {Navigate, useNavigate} from "react-router-dom";
 import {FormElement, FormElementType, GenericForm} from "../../components/GenericForm/GenericForm";
 import {NotificationType, openNotification} from "../../utils/notification";
-import {credentials, paths} from "../../constants";
+import {credentials, DID_METHOD, paths} from "../../constants";
 import {CardPage} from "../../components/structure/CardPage/CardPage";
 import {Button} from "antd";
 import {DeleteOutlined} from "@ant-design/icons";
@@ -12,6 +12,7 @@ import {RootState} from "../../redux/store";
 import {EthServicesContext} from "../../providers/EthServicesProvider";
 import {SignerContext} from "../../providers/SignerProvider";
 import {ProductCategory} from "@kbc-lib/coffee-trading-management-lib";
+import {getNameByDID} from "../../utils/utils";
 
 export const OffersNew = () => {
     const {signer} = useContext(SignerContext);
@@ -20,6 +21,7 @@ export const OffersNew = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const userInfo = useSelector((state: RootState) => state.userInfo);
+    const [elements, setElements] = React.useState<FormElement[]>([]);
 
     useEffect(() => {
         loadProductCategories();
@@ -27,6 +29,10 @@ export const OffersNew = () => {
             dispatch(hideLoading());
         }
     }, []);
+
+    useEffect(() => {
+        loadElements();
+    }, [productCategories]);
 
     async function loadProductCategories() {
         try {
@@ -41,6 +47,38 @@ export const OffersNew = () => {
         }
     }
 
+    async function loadElements() {
+        try {
+            const supplierName = await getNameByDID(DID_METHOD + ':' + signer?.address) || "Unknown";
+            setElements([
+                {type: FormElementType.TITLE, span: 24, label: 'Data'},
+                {
+                    type: FormElementType.INPUT,
+                    span: 8,
+                    name: 'offeror',
+                    label: 'Offeror Company Address',
+                    required: true,
+                    defaultValue: supplierName,
+                    disabled: true
+                },
+                {
+                    type: FormElementType.SELECT,
+                    span: 8,
+                    name: 'product-category-id',
+                    label: 'Product Category ID',
+                    required: true,
+                    options: productCategories.map((productCategory) => ({label: productCategory.name, value: productCategory.id})),
+                    defaultValue: '',
+                    disabled: false
+                },
+            ]);
+        } catch (e: any) {
+            console.log("error: ", e);
+            openNotification("Error", "Error loading elements", NotificationType.ERROR);
+        } finally {
+            dispatch(hideLoading());
+        }
+    }
 
     const onSubmit = async (values: any) => {
         try {
@@ -63,29 +101,6 @@ export const OffersNew = () => {
         )
     }
 
-    const elements: FormElement[] = [
-        {type: FormElementType.TITLE, span: 24, label: 'Data'},
-        {
-            type: FormElementType.INPUT,
-            span: 8,
-            name: 'offeror',
-            label: 'Offeror Company Address',
-            required: false,
-            defaultValue: signer?.address || 'Unknown',
-            disabled: true
-        },
-        {
-            type: FormElementType.SELECT,
-            span: 8,
-            name: 'product-category-id',
-            label: 'Product Category ID',
-            required: true,
-            options: productCategories.map((productCategory) => ({label: productCategory.name, value: productCategory.id})),
-            defaultValue: '',
-            disabled: false
-        },
-    ];
-
     return (
         <CardPage title={
             <div
@@ -96,7 +111,7 @@ export const OffersNew = () => {
                 </Button>
             </div>
         }>
-            <GenericForm elements={elements} submittable={true} onSubmit={onSubmit}/>
+            {elements && <GenericForm elements={elements} submittable={true} onSubmit={onSubmit}/>}
         </CardPage>
     );
 }
