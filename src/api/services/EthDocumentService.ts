@@ -1,6 +1,6 @@
 import {
     DocumentService,
-    TradeService, TradeManagerService
+    TradeService, TradeManagerService, DocumentStatus
 } from "@kbc-lib/coffee-trading-management-lib";
 import {DocumentPresentable} from "../types/DocumentPresentable";
 import {getMimeType} from "../../utils/utils";
@@ -35,10 +35,15 @@ export class EthDocumentService {
                 content: blob,
                 filename: completeDocument.filename,
                 date: new Date(completeDocument.date),
-                transactionLines: completeDocument.transactionLines
+                transactionLines: completeDocument.transactionLines,
+                status: completeDocument.status
             });
         }
 
         return documents;
+    }
+
+    async validateDocument(documentId: number, validationStatus: DocumentStatus): Promise<void> {
+        await this._documentService.validateDocument(documentId, validationStatus);
     }
 }

@@ -1,6 +1,14 @@
-import React, {useEffect} from "react";
-import {Button, Col, DatePicker, Divider, Form, Input, Row, Select} from "antd";
+import React, {useContext, useEffect} from "react";
+import {Button, Col, DatePicker, Divider, Form, Input, Popover, Row, Select} from "antd";
 import PDFViewer from "../PDFViewer/PDFViewer";
+import {DownloadOutlined} from "@ant-design/icons";
+import {createDownloadWindow} from "../../utils/utils";
+import {DocumentStatus} from "@kbc-lib/coffee-trading-management-lib";
+import {EthServicesContext} from "../../providers/EthServicesProvider";
+import {DocumentPresentable} from "../../api/types/DocumentPresentable";
+import {NotificationType, openNotification} from "../../utils/notification";
+import {useNavigate} from "react-router-dom";
+import { paths } from "../../constants";
 
 export enum FormElementType {
     TITLE = 'title',
@@ -75,8 +83,9 @@ export type DocumentElement = Omit<LabeledElement, 'type'> & {
     uploadable: boolean,
     required: boolean,
     loading: boolean,
-    content?: Blob,
+    info?: DocumentPresentable,
     height?: `${number}px` | `${number}%` | `${number}vh` | 'auto',
+    evaluable: boolean,
 }
 
 type Props = {
@@ -86,19 +95,32 @@ type Props = {
 }
 export const GenericForm = (props: Props) => {
     const [form] = Form.useForm();
+    const navigate = useNavigate();
     const documents: Map<string, Blob | undefined> = new Map<string, Blob>();
     const dateFormat = 'DD/MM/YYYY';
+    const { ethDocumentService } = useContext(EthServicesContext)
 
     useEffect(() => {
         props.elements.forEach((element) => {
             if (element.type === FormElementType.DOCUMENT) {
                 const doc = element as DocumentElement;
-                if (doc.content) {
-                    documents.set(doc.name, doc.content);
+                if (doc?.info?.content) {
+                    documents.set(doc.name, doc.info.content);
                 }
             }
         });
     }, [props.elements]);
+
+    const validateDocument = async (documentId: number, validationStatus: DocumentStatus) => {
+        if (!ethDocumentService) {
+            console.error("EthTradeService not found");
+            return;
+        }
+        await ethDocumentService.validateDocument(documentId, validationStatus);
+        if (validationStatus === DocumentStatus.APPROVED) openNotification("Document approved", "The document has been successfully approved", NotificationType.SUCCESS, 1);
+        else if (validationStatus === DocumentStatus.NOT_APPROVED) openNotification("Document rejected", "The document has been rejected", NotificationType.SUCCESS, 1);
+        navigate(paths.TRADES);
+    }
 
     const addDocument = (name: string, file?: Blob) => {
         documents.set(name, file);
@@ -223,6 +245,7 @@ export const GenericForm = (props: Props) => {
         },
         [FormElementType.DOCUMENT]: (element: FormElement, index: number) => {
             element = element as DocumentElement;
+            const docInfo = element.info!;
 
             return (
                 <Col span={element.span} key={index}>
@@ -234,6 +257,28 @@ export const GenericForm = (props: Props) => {
                         // rules={[{required: element.required, message: `Please insert ${element.label}!`}]}
                     >
                         <PDFViewer element={element} onDocumentChange={addDocument} />
+                        { element.evaluable &&
+                            <Popover
+                                title="Validate the document"
+                                trigger="click"
+                                placement="bottom"
+                                content={
+                                    <Row gutter={[16, 10]}>
+                                        <Col span={24}>
+                                            Download the document
+                                            <Button style={{marginLeft: '1rem'}} type="default" onClick={() => {
+                                                const filenameSlices = docInfo.filename.split("/");
+                                                createDownloadWindow(docInfo.content, filenameSlices[filenameSlices.length - 1])
+                                            }} icon={<DownloadOutlined />} />
+                                        </Col>
+                                        <Col span={12}><Button type="primary" style={{width: '100%'}} onClick={() => validateDocument(docInfo.id, DocumentStatus.APPROVED)}>Approve</Button></Col>
+                                        <Col span={12}><Button danger type="primary" style={{width: '100%'}} onClick={() => validateDocument(docInfo.id, DocumentStatus.NOT_APPROVED)}>Reject</Button></Col>
+                                    </Row>
+                                }
+                            >
+                                <Button type="default" style={{width: '100%'}}>Check content and validate</Button>
+                            </Popover>
+                        }
                     </Form.Item>
                 </Col>
             )
