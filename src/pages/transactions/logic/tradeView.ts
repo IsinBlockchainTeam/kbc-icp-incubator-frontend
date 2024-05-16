@@ -16,8 +16,8 @@ import {hideLoading, showLoading} from "../../../redux/reducers/loadingSlice";
 import {FormElement, FormElementType} from "../../../components/GenericForm/GenericForm";
 import {regex} from "../../../utils/regex";
 import dayjs from "dayjs";
-import {paths} from "../../../constants";
-import {getEnumKeyByValue} from "../../../utils/utils";
+import {DID_METHOD, paths} from "../../../constants";
+import {getEnumKeyByValue, getNameByDID} from "../../../utils/utils";
 import {BasicTradeRequest, OrderTradeRequest} from "../../../api/types/TradeRequest";
 
 export default function useTradeView() {
@@ -32,6 +32,7 @@ export default function useTradeView() {
     const [trade, setTrade] = useState<DetailedTradePresentable>();
     const [disabled, setDisabled] = useState<boolean>(true);
     const [negotiationStatus, setNegotiationStatus] = useState<string | undefined>(undefined);
+    const [actorNames, setActorNames] = useState<string[]>([]);
     const [elements, setElements] = useState<FormElement[]>([]);
 
     const toggleDisabled = () => {
@@ -43,8 +44,7 @@ export default function useTradeView() {
             await ethTradeService.confirmOrderTrade(parseInt(id!));
             openNotification("Negotiation confirmed", `The negotiation has been confirmed`, NotificationType.SUCCESS, 1);
             navigate(paths.TRADES);
-        }
-        catch (e: any) {
+        } catch (e: any) {
             console.log("error: ", e);
             openNotification("Error", e.message, NotificationType.ERROR);
         }
@@ -75,8 +75,31 @@ export default function useTradeView() {
         }
     }
 
+    const getActorNames = async () => {
+        if (!trade) {
+            console.error("Trade not found");
+            return;
+        }
+        try {
+            dispatch(showLoading("Retrieving actors..."));
+            const supplier = await getNameByDID(DID_METHOD + ':' + trade.trade.supplier);
+            const commissioner = await getNameByDID(DID_METHOD + ':' + trade.trade.commissioner);
+            setActorNames([supplier, commissioner]);
+        } catch (e: any) {
+            console.log("error: ", e);
+            openNotification("Error", e.message, NotificationType.ERROR);
+        } finally {
+            dispatch(hideLoading())
+        }
+    }
+
     useEffect(() => {
-        if(!trade) return;
+        if (!trade) return;
+        getActorNames();
+    }, [trade]);
+
+    useEffect(() => {
+        if(!trade || actorNames.length === 0) return;
 
         const commonElements: FormElement[] = [
             {type: FormElementType.TITLE, span: 24, label: 'Actors'}, {
@@ -85,8 +108,7 @@ export default function useTradeView() {
                 name: 'supplier',
                 label: 'Supplier',
                 required: true,
-                regex: regex.ETHEREUM_ADDRESS,
-                defaultValue: trade.trade.supplier,
+                defaultValue: actorNames[0],
                 disabled: true,
             },
             {
@@ -95,8 +117,7 @@ export default function useTradeView() {
                 name: 'customer',
                 label: 'Customer',
                 required: true,
-                regex: regex.ETHEREUM_ADDRESS,
-                defaultValue: trade.trade.customer,
+                defaultValue: actorNames[1],
                 disabled: true,
             },
             {
@@ -105,15 +126,14 @@ export default function useTradeView() {
                 name: 'commissioner',
                 label: 'Commissioner',
                 required: true,
-                regex: regex.ETHEREUM_ADDRESS,
-                defaultValue: trade.trade.commissioner,
+                defaultValue: actorNames[1],
                 disabled: true,
             },
         ]
 
         let documentElement: FormElement;
         const documentHeight = '45vh';
-        if(type === TradeType.BASIC) {
+        if (type === TradeType.BASIC) {
             const content = trade.documents.get(DocumentType.DELIVERY_NOTE)?.content;
             documentElement = {
                 type: FormElementType.DOCUMENT,
@@ -126,7 +146,7 @@ export default function useTradeView() {
                 content: content,
                 height: documentHeight,
             }
-        } else if(type === TradeType.ORDER) {
+        } else if (type === TradeType.ORDER) {
             const content = trade.documents.get(DocumentType.PAYMENT_INVOICE)?.content;
             documentElement = {
                 type: FormElementType.DOCUMENT,
@@ -165,7 +185,7 @@ export default function useTradeView() {
                     {
                         type: FormElementType.SELECT,
                         span: 8,
-                        name: `product-category-id-${index+1}`,
+                        name: `product-category-id-${index + 1}`,
                         label: 'Product Category Id',
                         required: true,
                         options: productCategories.map((productCategory) => ({label: productCategory.name, value: productCategory.id})),
@@ -175,7 +195,7 @@ export default function useTradeView() {
                     {
                         type: FormElementType.INPUT,
                         span: 6,
-                        name: `quantity-${index+1}`,
+                        name: `quantity-${index + 1}`,
                         label: 'Quantity',
                         required: true,
                         defaultValue: line.quantity?.toString(),
@@ -184,7 +204,7 @@ export default function useTradeView() {
                     {
                         type: FormElementType.SELECT,
                         span: 4,
-                        name: `unit-${index+1}`,
+                        name: `unit-${index + 1}`,
                         label: 'Unit',
                         required: true,
                         options: units.map((unit) => ({label: unit, value: unit})),
@@ -195,8 +215,7 @@ export default function useTradeView() {
                 );
             });
             setElements(newElements);
-        }
-        else {
+        } else {
             const orderTrade = trade.trade as OrderTrade;
 
             setNegotiationStatus(getEnumKeyByValue(NegotiationStatus, orderTrade.negotiationStatus));
@@ -313,7 +332,7 @@ export default function useTradeView() {
                     {
                         type: FormElementType.SELECT,
                         span: 6,
-                        name: `product-category-id-${index+1}`,
+                        name: `product-category-id-${index + 1}`,
                         label: 'Product Category Id',
                         required: true,
                         options: productCategories.map((productCategory) => ({label: productCategory.name, value: productCategory.id})),
@@ -323,7 +342,7 @@ export default function useTradeView() {
                     {
                         type: FormElementType.INPUT,
                         span: 5,
-                        name: `quantity-${index+1}`,
+                        name: `quantity-${index + 1}`,
                         label: 'Quantity',
                         required: true,
                         regex: regex.ONLY_DIGITS,
@@ -333,7 +352,7 @@ export default function useTradeView() {
                     {
                         type: FormElementType.SELECT,
                         span: 4,
-                        name: `unit-${index+1}`,
+                        name: `unit-${index + 1}`,
                         label: 'Unit',
                         required: true,
                         options: units.map((unit) => ({label: unit, value: unit})),
@@ -343,7 +362,7 @@ export default function useTradeView() {
                     {
                         type: FormElementType.INPUT,
                         span: 5,
-                        name: `price-${index+1}`,
+                        name: `price-${index + 1}`,
                         label: 'Price',
                         required: true,
                         defaultValue: (line as OrderLine).price?.amount.toString(),
@@ -352,7 +371,7 @@ export default function useTradeView() {
                     {
                         type: FormElementType.SELECT,
                         span: 4,
-                        name: `fiat-${index+1}`,
+                        name: `fiat-${index + 1}`,
                         label: 'Fiat',
                         required: true,
                         options: fiats.map((fiat) => ({label: fiat, value: fiat})),
@@ -363,7 +382,7 @@ export default function useTradeView() {
             });
             setElements(newElements);
         }
-    }, [trade, disabled]);
+    }, [trade, actorNames, disabled]);
 
     const onSubmit = async (values: any) => {
         if (!ethTradeService) {
@@ -383,7 +402,7 @@ export default function useTradeView() {
             const unit: string = values[`unit-1`];
             const productCategoryId: number = parseInt(values['product-category-id-1']);
 
-            if(type === TradeType.BASIC) {
+            if (type === TradeType.BASIC) {
                 const updatedBasicTrade: BasicTradeRequest = {
                     supplier,
                     customer,
@@ -392,8 +411,7 @@ export default function useTradeView() {
                     name: values['name'],
                 };
                 await ethTradeService.putBasicTrade(parseInt(id!), updatedBasicTrade);
-            }
-            else if (type === TradeType.ORDER) {
+            } else if (type === TradeType.ORDER) {
                 const price: number = parseInt(values[`price-1`]);
                 const fiat: string = values[`fiat-1`];
 

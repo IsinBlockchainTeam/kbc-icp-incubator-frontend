@@ -8,7 +8,7 @@ import {paths} from "../../constants";
 import {useNavigate, useLocation} from "react-router-dom";
 import useTradeNew from "./logic/tradeNew";
 import {useDispatch} from "react-redux";
-import {hideLoading} from "../../redux/reducers/loadingSlice";
+import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
 import OrderStatusBar from "../../components/OrderStatusBar/OrderStatusBar";
 
 export const TradeNew = () => {
@@ -18,15 +18,22 @@ export const TradeNew = () => {
     const dispatch = useDispatch();
 
     useEffect(() => {
+        dispatch(showLoading("Loading..."));
+
         return () => {
-            dispatch(hideLoading())
+            dispatch(hideLoading());
         }
     }, []);
 
+    useEffect(() => {
+        if (elements.length > 0) {
+            dispatch(hideLoading());
+        }
+    }, [elements]);
+
     if (!location?.state?.supplierAddress || !location?.state?.productCategoryId) {
         navigate(paths.HOME);
-    }
-    else {
+    } else {
         return (
             <CardPage title={
                 <div
@@ -42,5 +49,5 @@ export const TradeNew = () => {
             </CardPage>
         )
     }
-    return(<></>);
+    return (<></>);
 }

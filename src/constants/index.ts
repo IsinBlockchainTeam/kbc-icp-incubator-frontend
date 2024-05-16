@@ -75,3 +75,5 @@ export const defaultPictureURL: string =
 export const utils = {
   DATE_FORMAT: "DD/MM/YYYY",
 };
+
+export const DID_METHOD: string = "did:ethr:dev";

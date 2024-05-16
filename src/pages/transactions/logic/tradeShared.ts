@@ -8,6 +8,9 @@ import {SignerContext} from "../../../providers/SignerProvider";
 import {hideLoading, showLoading} from "../../../redux/reducers/loadingSlice";
 import {useDispatch} from "react-redux";
 import {NotificationType, openNotification} from "../../../utils/notification";
+import {getNameByDID} from "../../../utils/utils";
+import {DID_METHOD} from "../../../constants";
+import {NotificationType, openNotification} from "../../../utils/notification";
 
 export default function useTradeShared() {
     const {signer} = useContext(SignerContext);
@@ -24,6 +27,7 @@ export default function useTradeShared() {
     const [dataLoaded, setDataLoaded] = useState<boolean>(false);
     const [units, setUnits] = useState<string[]>([]);
     const [fiats, setFiats] = useState<string[]>([]);
+    const [actorNames, setActorNames] = useState<string[]>([]);
     const [productCategories, setProductCategories] = useState<ProductCategory[]>([]);
     const [elements, setElements] = useState<FormElement[]>([]);
 
@@ -43,6 +47,7 @@ export default function useTradeShared() {
             setFiats(fiats);
             const productCategories = await ethMaterialService.getProductCategories();
             setProductCategories(productCategories);
+            await getActorNames();
             setDataLoaded(true);
         } catch (e: any) {
             console.log("error: ", e);
@@ -55,6 +60,20 @@ export default function useTradeShared() {
 
 
     const documentHeight = '45vh';
+
+    const getActorNames = async () => {
+        const supplierAddress = location?.state?.supplierAddress;
+        const commissionerAddress = signer?.address;
+
+        try {
+            const supplier = supplierAddress ? await getNameByDID(DID_METHOD + ':' + supplierAddress) : 'Unknown';
+            const commissioner = commissionerAddress ? await getNameByDID(DID_METHOD + ':' + commissionerAddress) : 'Unknown';
+            setActorNames([supplier, commissioner]);
+        } catch (e: any) {
+            console.log("error: ", e);
+            openNotification("Error", e.message, NotificationType.ERROR);
+        }
+    }
 
     useEffect(() => {
         if (!dataLoaded) {
@@ -148,9 +167,8 @@ export default function useTradeShared() {
                 span: 8,
                 name: 'supplier',
                 label: 'Supplier',
-                required: false,
-                regex: regex.ETHEREUM_ADDRESS,
-                defaultValue: location?.state?.supplierAddress || 'Unknown',
+                required: true,
+                defaultValue: actorNames[0],
                 disabled: true,
             },
             {
@@ -158,9 +176,8 @@ export default function useTradeShared() {
                 span: 8,
                 name: 'customer',
                 label: 'Customer',
-                required: false,
-                regex: regex.ETHEREUM_ADDRESS,
-                defaultValue: signer?.address || 'Unknown',
+                required: true,
+                defaultValue: actorNames[1],
                 disabled: true,
             },
             {
@@ -168,9 +185,8 @@ export default function useTradeShared() {
                 span: 8,
                 name: 'commissioner',
                 label: 'Commissioner',
-                required: false,
-                regex: regex.ETHEREUM_ADDRESS,
-                defaultValue: signer?.address || 'Unknown',
+                required: true,
+                defaultValue: actorNames[1],
                 disabled: true,
             },
         ];
@@ -322,7 +338,7 @@ export default function useTradeShared() {
                 ...orderLine,
             ])
         }
-    }, [type, productCategories, dataLoaded]);
+    }, [type, productCategories, actorNames, dataLoaded]);
 
     return {
         dataLoaded,
