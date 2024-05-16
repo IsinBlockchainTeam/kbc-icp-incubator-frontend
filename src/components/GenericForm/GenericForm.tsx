@@ -112,10 +112,6 @@ export const GenericForm = (props: Props) => {
     }, [props.elements]);
 
     const validateDocument = async (documentId: number, validationStatus: DocumentStatus) => {
-        if (!ethDocumentService) {
-            console.error("EthTradeService not found");
-            return;
-        }
         await ethDocumentService.validateDocument(documentId, validationStatus);
         if (validationStatus === DocumentStatus.APPROVED) openNotification("Document approved", "The document has been successfully approved", NotificationType.SUCCESS, 1);
         else if (validationStatus === DocumentStatus.NOT_APPROVED) openNotification("Document rejected", "The document has been rejected", NotificationType.SUCCESS, 1);

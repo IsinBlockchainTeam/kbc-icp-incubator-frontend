@@ -44,6 +44,6 @@ export class EthDocumentService {
     }
 
     async validateDocument(documentId: number, validationStatus: DocumentStatus): Promise<void> {
-        await this._documentService.validateDocument(documentId, validationStatus);
+        await this._documentService.evaluateDocument(documentId, validationStatus);
     }
 }

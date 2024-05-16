@@ -1,6 +1,6 @@
 import {
     BasicTrade,
-    BasicTradeService,
+    BasicTradeService, DocumentStatus,
     DocumentType,
     IConcreteTradeService,
     Line,
@@ -305,9 +305,5 @@ export class EthTradeService {
     async confirmOrderTrade(id: number): Promise<void> {
         const tradeService = this._getOrderTradeService(await this._tradeManagerService.getTrade(id));
         await tradeService.confirmOrder();
-    }
-
-    async validateDocument(id: number, validationStatus: DocumentStatus): Promise<void> {
-        await this._ethDocumentService
     }
 }

@@ -26,10 +26,9 @@ import {BasicTradeRequest, OrderTradeRequest} from "../../../api/types/TradeRequ
 import {SignerContext} from "../../../providers/SignerProvider";
 
 export default function useTradeView() {
-    const { dataLoaded, productCategories, units, fiats, ethTradeService } = useTradeShared();
     const {signer} = useContext(SignerContext);
 
-    const { units, fiats, ethTradeService, orderState } = useTradeShared();
+    const { dataLoaded, productCategories, units, fiats, ethTradeService } = useTradeShared();
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -49,12 +48,15 @@ export default function useTradeView() {
 
     const confirmNegotiation = async () => {
         try {
+            dispatch(showLoading("Retrieving trade..."));
             await ethTradeService.confirmOrderTrade(parseInt(id!));
             openNotification("Negotiation confirmed", `The negotiation has been confirmed`, NotificationType.SUCCESS, 1);
             navigate(paths.TRADES);
         } catch (e: any) {
             console.log("error: ", e);
             openNotification("Error", e.message, NotificationType.ERROR);
+        } finally {
+            dispatch(hideLoading());
         }
     }
 
