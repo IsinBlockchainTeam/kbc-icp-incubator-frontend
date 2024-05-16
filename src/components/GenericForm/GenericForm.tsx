@@ -51,9 +51,9 @@ const mapAdditionalPropertiesToButtonProps: Record<AdditionalButtonProperties, R
 type SelectableElement = Omit<LabeledElement, 'type'> & {
     type: FormElementType.SELECT,
     name: string,
-    options: {label: string, value: string}[],
+    options: {label: string, value: string | number}[],
     required: boolean,
-    defaultValue?: string,
+    defaultValue?: string | number,
     mode?: 'multiple',
     disabled?: boolean,
     block?: boolean,

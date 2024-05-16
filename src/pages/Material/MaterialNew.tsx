@@ -3,28 +3,29 @@ import {Button} from "antd";
 import {DeleteOutlined} from "@ant-design/icons";
 import {paths} from "../../constants";
 import {FormElement, FormElementType, GenericForm} from "../../components/GenericForm/GenericForm";
-import React, {useContext, useEffect} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {NotificationType, openNotification} from "../../utils/notification";
-import {regex} from "../../utils/regex";
 import {useDispatch} from "react-redux";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
 import {EthServicesContext} from "../../providers/EthServicesProvider";
+import {ProductCategory} from "@kbc-lib/coffee-trading-management-lib";
 
 export const MaterialNew = () => {
     const {ethMaterialService} = useContext(EthServicesContext);
+    const [productCategories, setProductCategories] = useState<ProductCategory[]>([]);
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
     const elements: FormElement[] = [
         {type: FormElementType.TITLE, span: 24, label: 'Data'},
         {
-            type: FormElementType.INPUT,
+            type: FormElementType.SELECT,
             span: 8,
             name: 'product-category-id',
             label: 'Product Category ID',
             required: true,
-            regex: regex.ONLY_DIGITS,
+            options: productCategories.map((productCategory) => ({label: productCategory.name, value: productCategory.id})),
             defaultValue: '',
             disabled: false,
         },
@@ -50,10 +51,28 @@ export const MaterialNew = () => {
     }
 
     useEffect(() => {
+        loadProductCategories();
         return () => {
             dispatch(hideLoading())
         }
     }, []);
+
+    async function loadProductCategories() {
+        if (!ethMaterialService) {
+            console.error("EthMaterialService not found");
+            return;
+        }
+        try {
+            dispatch(showLoading("Loading product categories..."));
+            const pC = await ethMaterialService.getProductCategories();
+            setProductCategories(pC);
+        } catch (e: any) {
+            console.log("error: ", e);
+            openNotification("Error", "Error loading product categories", NotificationType.ERROR);
+        } finally {
+            dispatch(hideLoading());
+        }
+    }
 
     return (
         <CardPage title={

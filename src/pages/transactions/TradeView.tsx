@@ -11,7 +11,6 @@ import OrderStatusBar from "../../components/OrderStatusBar/OrderStatusBar";
 export const TradeView = () => {
     const {
         type,
-        orderState,
         elements,
         disabled,
         negotiationStatus,
@@ -44,7 +43,7 @@ export const TradeView = () => {
                 </div>
             </div>}
         >
-            {type === TradeType.ORDER && <OrderStatusBar orderState={orderState}/>}
+            {type === TradeType.ORDER && <OrderStatusBar orderState={0}/>}
             <GenericForm elements={elements} submittable={!disabled} onSubmit={onSubmit}/>
         </CardPage>
     )

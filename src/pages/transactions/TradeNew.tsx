@@ -14,7 +14,7 @@ import OrderStatusBar from "../../components/OrderStatusBar/OrderStatusBar";
 export const TradeNew = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const {type, orderState, elements, onSubmit} = useTradeNew();
+    const {type, elements, onSubmit} = useTradeNew();
     const dispatch = useDispatch();
 
     useEffect(() => {
@@ -37,7 +37,7 @@ export const TradeNew = () => {
                     </Button>
                 </div>
             }>
-                {type === TradeType.ORDER && <OrderStatusBar orderState={orderState}/>}
+                {type === TradeType.ORDER && <OrderStatusBar orderState={0}/>}
                 <GenericForm elements={elements} submittable={true} onSubmit={onSubmit}/>
             </CardPage>
         )

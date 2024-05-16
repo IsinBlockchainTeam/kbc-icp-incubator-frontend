@@ -1,16 +1,19 @@
 import {useContext, useEffect, useState} from "react";
-import {TradeType} from "@kbc-lib/coffee-trading-management-lib";
-import {v4 as uuid} from "uuid";
+import {ProductCategory, TradeType} from "@kbc-lib/coffee-trading-management-lib";
 import {FormElement, FormElementType} from "../../../components/GenericForm/GenericForm";
 import {regex} from "../../../utils/regex";
 import {useLocation} from "react-router-dom";
 import {EthServicesContext} from "../../../providers/EthServicesProvider";
 import {SignerContext} from "../../../providers/SignerProvider";
+import {hideLoading, showLoading} from "../../../redux/reducers/loadingSlice";
+import {useDispatch} from "react-redux";
+import {NotificationType, openNotification} from "../../../utils/notification";
 
 export default function useTradeShared() {
     const {signer} = useContext(SignerContext);
-    const {ethTradeService, ethUnitService, ethFiatService} = useContext(EthServicesContext);
+    const {ethTradeService, ethUnitService, ethFiatService, ethMaterialService} = useContext(EthServicesContext);
     const location = useLocation();
+    const dispatch = useDispatch();
 
     const [type, setType] = useState<TradeType>(TradeType.ORDER);
 
@@ -18,155 +21,159 @@ export default function useTradeShared() {
         setType(newType);
     }
 
-    const [orderState, setOrderState] = useState<number>(0);
-
     const [dataLoaded, setDataLoaded] = useState<boolean>(false);
     const [units, setUnits] = useState<string[]>([]);
     const [fiats, setFiats] = useState<string[]>([]);
-
-    const [, setLineOrder] = useState<string[]>([]);
-
-    const basicLine: FormElement[] = [
-        {
-            type: FormElementType.INPUT,
-            span: 8,
-            name: 'product-category-id-1',
-            label: 'Product Category Id',
-            required: false,
-            regex: regex.ONLY_DIGITS,
-            defaultValue: location?.state?.productCategoryId || '0',
-            disabled: true,
-        },
-        {
-            type: FormElementType.INPUT,
-            span: 6,
-            name: `quantity-1`,
-            label: 'Quantity',
-            required: true,
-            regex: regex.ONLY_DIGITS,
-            defaultValue: '',
-            disabled: false,
-        },
-        {
-            type: FormElementType.SELECT,
-            span: 4,
-            name: `unit-1`,
-            label: 'Unit',
-            required: true,
-            options: units.map((unit) => ({label: unit, value: unit})),
-            defaultValue: '',
-            disabled: false,
-        },
-        {type: FormElementType.SPACE, span: 6},];
-
-    const orderLine: FormElement[] = [
-        {
-            type: FormElementType.INPUT,
-            span: 6,
-            name: `product-category-id-1`,
-            label: 'Product Category Id',
-            required: false,
-            regex: regex.ONLY_DIGITS,
-            defaultValue: location?.state?.productCategoryId || '0',
-            disabled: true,
-        },
-        {
-            type: FormElementType.INPUT,
-            span: 5,
-            name: `quantity-1`,
-            label: 'Quantity',
-            required: true,
-            regex: regex.ONLY_DIGITS,
-            defaultValue: '',
-            disabled: false,
-        },
-        {
-            type: FormElementType.SELECT,
-            span: 4,
-            name: `unit-1`,
-            label: 'Unit',
-            required: true,
-            options: units.map((unit) => ({label: unit, value: unit})),
-            defaultValue: '',
-            disabled: false,
-        },
-        {
-            type: FormElementType.INPUT,
-            span: 5,
-            name: `price-1`,
-            label: 'Price',
-            required: true,
-            defaultValue: '',
-            disabled: false,
-        },
-        {
-            type: FormElementType.SELECT,
-            span: 4,
-            name: `fiat-1`,
-            label: 'Fiat',
-            required: true,
-            options: fiats.map((fiat) => ({label: fiat, value: fiat})),
-            defaultValue: '',
-            disabled: false,
-        }];
-
-    const getLineId = (): string => {
-        const id: string = uuid();
-        setLineOrder((prev) => [...prev, id]);
-        return id;
-    }
+    const [productCategories, setProductCategories] = useState<ProductCategory[]>([]);
+    const [elements, setElements] = useState<FormElement[]>([]);
 
     useEffect(() => {
-        (async () => {
-            if (!ethUnitService || !ethFiatService) {
-                return;
-            }
+        loadData();
+    }, []);
+
+    async function loadData() {
+        if (!ethUnitService || !ethFiatService || !ethMaterialService) {
+            return;
+        }
+        try {
+            dispatch(showLoading("Retrieving data..."));
             const units = await ethUnitService.getAll();
             setUnits(units);
             const fiats = await ethFiatService.getAll();
             setFiats(fiats);
+            const productCategories = await ethMaterialService.getProductCategories();
+            setProductCategories(productCategories);
             setDataLoaded(true);
-        })();
-    }, []);
+        } catch (e: any) {
+            console.log("error: ", e);
+            openNotification("Error", e.message, NotificationType.ERROR);
+        } finally {
+            dispatch(hideLoading())
+        }
 
-    const [elements, setElements] = useState<FormElement[]>([]);
+    }
 
-    const commonElements: FormElement[] = [
-        {type: FormElementType.TITLE, span: 24, label: 'Actors'}, {
-            type: FormElementType.INPUT,
-            span: 8,
-            name: 'supplier',
-            label: 'Supplier',
-            required: false,
-            regex: regex.ETHEREUM_ADDRESS,
-            defaultValue: location?.state?.supplierAddress || 'Unknown',
-            disabled: true,
-        },
-        {
-            type: FormElementType.INPUT,
-            span: 8,
-            name: 'customer',
-            label: 'Customer',
-            required: false,
-            regex: regex.ETHEREUM_ADDRESS,
-            defaultValue: signer?.address || 'Unknown',
-            disabled: true,
-        },
-        {
-            type: FormElementType.INPUT,
-            span: 8,
-            name: 'commissioner',
-            label: 'Commissioner',
-            required: false,
-            regex: regex.ETHEREUM_ADDRESS,
-            defaultValue: signer?.address || 'Unknown',
-            disabled: true,
-        },
-    ]
 
     const documentHeight = '45vh';
 
     useEffect(() => {
+        if (!dataLoaded) {
+            return;
+        }
+        const basicLine: FormElement[] = [
+            {
+                type: FormElementType.SELECT,
+                span: 8,
+                name: 'product-category-id-1',
+                label: 'Product Category',
+                required: false,
+                options: productCategories.map((productCategory) => ({label: productCategory.name, value: productCategory.id})),
+                defaultValue: productCategories.find(pc => pc.id === location?.state?.productCategoryId)?.id || -1,
+                disabled: true,
+            },
+            {
+                type: FormElementType.INPUT,
+                span: 6,
+                name: `quantity-1`,
+                label: 'Quantity',
+                required: true,
+                regex: regex.ONLY_DIGITS,
+                defaultValue: '',
+                disabled: false,
+            },
+            {
+                type: FormElementType.SELECT,
+                span: 4,
+                name: `unit-1`,
+                label: 'Unit',
+                required: true,
+                options: units.map((unit) => ({label: unit, value: unit})),
+                defaultValue: '',
+                disabled: false,
+            },
+            {type: FormElementType.SPACE, span: 6},];
+        const orderLine: FormElement[] = [
+            {
+                type: FormElementType.SELECT,
+                span: 6,
+                name: 'product-category-id-1',
+                label: 'Product Category',
+                required: false,
+                options: productCategories.map((productCategory) => ({label: productCategory.name, value: productCategory.id})),
+                defaultValue: productCategories.find(pc => pc.id === location?.state?.productCategoryId)?.id || -1,
+                disabled: true,
+            },
+            {
+                type: FormElementType.INPUT,
+                span: 5,
+                name: `quantity-1`,
+                label: 'Quantity',
+                required: true,
+                regex: regex.ONLY_DIGITS,
+                defaultValue: '',
+                disabled: false,
+            },
+            {
+                type: FormElementType.SELECT,
+                span: 4,
+                name: `unit-1`,
+                label: 'Unit',
+                required: true,
+                options: units.map((unit) => ({label: unit, value: unit})),
+                defaultValue: '',
+                disabled: false,
+            },
+            {
+                type: FormElementType.INPUT,
+                span: 5,
+                name: `price-1`,
+                label: 'Price',
+                required: true,
+                defaultValue: '',
+                disabled: false,
+            },
+            {
+                type: FormElementType.SELECT,
+                span: 4,
+                name: `fiat-1`,
+                label: 'Fiat',
+                required: true,
+                options: fiats.map((fiat) => ({label: fiat, value: fiat})),
+                defaultValue: '',
+                disabled: false,
+            }];
+        const commonElements: FormElement[] = [
+            {type: FormElementType.TITLE, span: 24, label: 'Actors'}, {
+                type: FormElementType.INPUT,
+                span: 8,
+                name: 'supplier',
+                label: 'Supplier',
+                required: false,
+                regex: regex.ETHEREUM_ADDRESS,
+                defaultValue: location?.state?.supplierAddress || 'Unknown',
+                disabled: true,
+            },
+            {
+                type: FormElementType.INPUT,
+                span: 8,
+                name: 'customer',
+                label: 'Customer',
+                required: false,
+                regex: regex.ETHEREUM_ADDRESS,
+                defaultValue: signer?.address || 'Unknown',
+                disabled: true,
+            },
+            {
+                type: FormElementType.INPUT,
+                span: 8,
+                name: 'commissioner',
+                label: 'Commissioner',
+                required: false,
+                regex: regex.ETHEREUM_ADDRESS,
+                defaultValue: signer?.address || 'Unknown',
+                disabled: true,
+            },
+        ];
         if (type === TradeType.BASIC) {
             setElements([
                 ...commonElements,
@@ -315,12 +322,13 @@ export default function useTradeShared() {
                 ...orderLine,
             ])
         }
-    }, [type, dataLoaded]);
+    }, [type, productCategories, dataLoaded]);
 
     return {
+        dataLoaded,
+        productCategories,
         type,
         ethTradeService,
-        orderState,
         elements,
         updateType,
         units,

@@ -5,43 +5,46 @@ import {credentials, paths} from "../../constants";
 import {CardPage} from "../../components/structure/CardPage/CardPage";
 import {Button} from "antd";
 import {DeleteOutlined} from "@ant-design/icons";
-import React, {useContext, useEffect} from "react";
-import {regex} from "../../utils/regex";
+import React, {useContext, useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
 import {RootState} from "../../redux/store";
 import {EthServicesContext} from "../../providers/EthServicesProvider";
 import {SignerContext} from "../../providers/SignerProvider";
+import {ProductCategory} from "@kbc-lib/coffee-trading-management-lib";
 
 export const OffersNew = () => {
     const {signer} = useContext(SignerContext);
-    const {ethOfferService} = useContext(EthServicesContext);
+    const {ethOfferService, ethMaterialService} = useContext(EthServicesContext);
+    const [productCategories, setProductCategories] = useState<ProductCategory[]>([]);
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const userInfo = useSelector((state: RootState) => state.userInfo);
 
-    const elements: FormElement[] = [
-        {type: FormElementType.TITLE, span: 24, label: 'Data'},
-        {
-            type: FormElementType.INPUT,
-            span: 8,
-            name: 'offeror',
-            label: 'Offeror Company Address',
-            required: false,
-            defaultValue: signer?.address || 'Unknown',
-            disabled: true
-        },
-        {
-            type: FormElementType.INPUT,
-            span: 8,
-            name: 'product-category-id',
-            label: 'Product Category ID',
-            required: true,
-            regex: regex.ONLY_DIGITS,
-            defaultValue: '',
-            disabled: false
-        },
-    ];
+    useEffect(() => {
+        loadProductCategories();
+        return () => {
+            dispatch(hideLoading());
+        }
+    }, []);
+
+    async function loadProductCategories() {
+        if (!ethMaterialService) {
+            console.error("EthMaterialService not found");
+            return;
+        }
+        try {
+            dispatch(showLoading("Loading product categories..."));
+            const pC = await ethMaterialService.getProductCategories();
+            setProductCategories(pC);
+        } catch (e: any) {
+            console.log("error: ", e);
+            openNotification("Error", "Error loading product categories", NotificationType.ERROR);
+        } finally {
+            dispatch(hideLoading());
+        }
+    }
+
 
     const onSubmit = async (values: any) => {
         if(!ethOfferService) {
@@ -62,17 +65,34 @@ export const OffersNew = () => {
         }
     }
 
-    useEffect(() => {
-        return () => {
-            dispatch(hideLoading());
-        }
-    }, []);
-
     if(userInfo.role !== credentials.ROLE_EXPORTER) {
         return (
             <Navigate to={paths.HOME} />
         )
     }
+
+    const elements: FormElement[] = [
+        {type: FormElementType.TITLE, span: 24, label: 'Data'},
+        {
+            type: FormElementType.INPUT,
+            span: 8,
+            name: 'offeror',
+            label: 'Offeror Company Address',
+            required: false,
+            defaultValue: signer?.address || 'Unknown',
+            disabled: true
+        },
+        {
+            type: FormElementType.SELECT,
+            span: 8,
+            name: 'product-category-id',
+            label: 'Product Category ID',
+            required: true,
+            options: productCategories.map((productCategory) => ({label: productCategory.name, value: productCategory.id})),
+            defaultValue: '',
+            disabled: false
+        },
+    ];
 
     return (
         <CardPage title={

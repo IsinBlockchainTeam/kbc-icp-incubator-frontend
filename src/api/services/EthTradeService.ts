@@ -1,7 +1,6 @@
 import {
     BasicTrade,
     BasicTradeService,
-    DocumentStatus,
     DocumentType,
     IConcreteTradeService,
     Line,
@@ -13,7 +12,6 @@ import {
     OrderTradeService,
     TradeManagerService,
     TradeService,
-    TradeStatus,
     TradeType,
     URLStructure
 } from "@kbc-lib/coffee-trading-management-lib";
@@ -77,7 +75,6 @@ export class EthTradeService {
             const tradeService = this._getTradeService(tradeAddress);
             let tradeInstanceService: IConcreteTradeService;
             const tradeType = await tradeService.getTradeType();
-            const documentsInfo = await tradeService.getAllDocuments();
 
             if (tradeType === TradeType.BASIC) {
                 tradeInstanceService = this._getBasicTradeService(tradeAddress);
@@ -95,7 +92,6 @@ export class EthTradeService {
                 const order = trade as OrderTrade;
                 const orderService = tradeInstanceService as OrderTradeService;
                 const whoSigned = await orderService.getWhoSigned();
-                console.log("documentsInfo: ", documentsInfo)
                 if (!whoSigned.includes(this._walletAddress) && order.negotiationStatus === NegotiationStatus.PENDING)
                     actionRequired = "This negotiation needs your sign to proceed";
 

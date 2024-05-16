@@ -21,7 +21,7 @@ import {getEnumKeyByValue} from "../../../utils/utils";
 import {BasicTradeRequest, OrderTradeRequest} from "../../../api/types/TradeRequest";
 
 export default function useTradeView() {
-    const { units, fiats, ethTradeService, orderState } = useTradeShared();
+    const { dataLoaded, productCategories, units, fiats, ethTradeService } = useTradeShared();
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -30,9 +30,9 @@ export default function useTradeView() {
     const type = parseInt(new URLSearchParams(location.search).get('type')!);
 
     const [trade, setTrade] = useState<DetailedTradePresentable>();
-    const [loadingDocuments, setLoadingDocuments] = useState<boolean>(true);
     const [disabled, setDisabled] = useState<boolean>(true);
     const [negotiationStatus, setNegotiationStatus] = useState<string | undefined>(undefined);
+    const [elements, setElements] = useState<FormElement[]>([]);
 
     const toggleDisabled = () => {
         setDisabled(!disabled);
@@ -54,7 +54,19 @@ export default function useTradeView() {
         }
     }
 
-    const getTradeInfo = async (id: number) => {
+    useEffect(() => {
+        return () => {
+            dispatch(hideLoading())
+        }
+    }, []);
+
+    useEffect(() => {
+        if(!dataLoaded)
+            return;
+        loadTradeInfo(parseInt(id!));
+    }, [dataLoaded]);
+
+    const loadTradeInfo = async (id: number) => {
         if (!ethTradeService) {
             console.error("EthTradeService not found");
             return;
@@ -70,15 +82,6 @@ export default function useTradeView() {
             dispatch(hideLoading())
         }
     }
-
-    const [elements, setElements] = useState<FormElement[]>([]);
-
-    useEffect(() => {
-        (async () => {
-            await getTradeInfo(parseInt(id!));
-            setLoadingDocuments(false);
-        })();
-    }, []);
 
     useEffect(() => {
         if(!trade) return;
@@ -168,12 +171,13 @@ export default function useTradeView() {
             basicTrade.lines.forEach((line, index) => {
                 newElements.push(
                     {
-                        type: FormElementType.INPUT,
+                        type: FormElementType.SELECT,
                         span: 8,
                         name: `product-category-id-${index+1}`,
                         label: 'Product Category Id',
                         required: true,
-                        defaultValue: line.productCategory?.id.toString(),
+                        options: productCategories.map((productCategory) => ({label: productCategory.name, value: productCategory.id})),
+                        defaultValue: productCategories.find(pc => pc.id === line.productCategory?.id)?.id || -1,
                         disabled,
                     },
                     {
@@ -315,12 +319,13 @@ export default function useTradeView() {
             orderTrade.lines.forEach((line, index) => {
                 newElements.push(
                     {
-                        type: FormElementType.INPUT,
+                        type: FormElementType.SELECT,
                         span: 6,
                         name: `product-category-id-${index+1}`,
                         label: 'Product Category Id',
                         required: true,
-                        defaultValue: line.productCategory?.id.toString(),
+                        options: productCategories.map((productCategory) => ({label: productCategory.name, value: productCategory.id})),
+                        defaultValue: productCategories.find(pc => pc.id === line.productCategory?.id)?.id || -1,
                         disabled,
                     },
                     {
@@ -431,10 +436,8 @@ export default function useTradeView() {
 
     return {
         type,
-        orderState,
         elements,
         trade,
-        loadingDocuments,
         disabled,
         negotiationStatus,
         toggleDisabled,

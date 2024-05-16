@@ -62,7 +62,7 @@ export const Materials = () => {
             sortDirections: ['descend']
         },
         {
-            title: 'Name',
+            title: 'Product category',
             dataIndex: 'name',
             render: (_, {productCategory}) => productCategory.name,
             sorter: (a, b) => a.productCategory.name.localeCompare(b.productCategory.name),
@@ -94,7 +94,7 @@ export const Materials = () => {
             <CardPage
                 title={<div
                     style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                    Materials
+                    Your Materials
                     <div>
                         <Button type="primary" icon={<PlusOutlined/>} onClick={() => navigate(paths.MATERIAL_NEW)}>
                             New Material

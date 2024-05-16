@@ -23,7 +23,7 @@ export default function useTradeNew() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const location = useLocation();
-    const { type, updateType, ethTradeService, orderState, elements } = useTradeShared();
+    const { type, updateType, ethTradeService, elements } = useTradeShared();
 
     const items: MenuProps['items'] = [
         {label: 'BASIC', key: '0'},
@@ -124,7 +124,6 @@ export default function useTradeNew() {
 
     return {
         type,
-        orderState,
         elements,
         menuProps,
         onSubmit
