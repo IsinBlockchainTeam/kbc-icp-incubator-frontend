@@ -55,10 +55,6 @@ export const GraphPage = () => {
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
     useEffect(() => {
-        if(!ethGraphService) {
-            console.error("EthGraphService not found");
-            return;
-        }
         g.setGraph({rankdir: 'LR'});
         (async () => {
             try {

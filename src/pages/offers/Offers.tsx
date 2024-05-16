@@ -21,10 +21,6 @@ export const Offers = () => {
     const [offers, setOffers] = useState<Offer[]>();
     const [filteredOffers, setFilteredOffers] = useState<Offer[]>();
     const loadData = async () => {
-        if (!ethOfferService) {
-            console.error("EthOfferService not found");
-            return;
-        }
         try {
             dispatch(showLoading("Retrieving offers..."))
             const offers = await ethOfferService.getAllOffers();

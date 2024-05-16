@@ -32,10 +32,6 @@ export const MaterialNew = () => {
     ];
 
     const onSubmit = async (values: any) => {
-        if (!ethMaterialService) {
-            console.error("EthMaterialService not found");
-            return;
-        }
         try {
             dispatch(showLoading("Creating material..."));
             const productCategoryId: number = parseInt(values['product-category-id']);
@@ -58,10 +54,6 @@ export const MaterialNew = () => {
     }, []);
 
     async function loadProductCategories() {
-        if (!ethMaterialService) {
-            console.error("EthMaterialService not found");
-            return;
-        }
         try {
             dispatch(showLoading("Loading product categories..."));
             const pC = await ethMaterialService.getProductCategories();

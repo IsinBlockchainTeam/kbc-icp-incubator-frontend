@@ -48,7 +48,7 @@ export const OffersSupplierNew = () => {
             values['supplier-address'] = signer?.address || 'Unknown';
             values['supplier-name'] = userInfo.legalName || 'Unknown';
             dispatch(showLoading("Inserting offer supplier..."));
-            await ethOfferService?.saveSupplier(values['supplier-address'], values['supplier-name']);
+            await ethOfferService.saveSupplier(values['supplier-address'], values['supplier-name']);
             openNotification("Offer supplier registered", `Offer supplier with address ${formatAddress(values['supplier-address'])} has been registered correctly!`, NotificationType.SUCCESS, 1);
             navigate(paths.OFFERS);
         } catch (e: any) {

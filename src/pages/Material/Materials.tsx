@@ -19,10 +19,6 @@ export const Materials = () => {
     const dispatch = useDispatch();
 
     const loadData = async () => {
-        if (!ethMaterialService) {
-            console.error("EthMaterialService not found");
-            return;
-        }
         try {
             dispatch(showLoading("Retrieving product categories and materials..."));
             setProductCategories(await ethMaterialService.getProductCategories());

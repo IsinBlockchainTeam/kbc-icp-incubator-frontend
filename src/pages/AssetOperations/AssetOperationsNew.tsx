@@ -39,10 +39,6 @@ export const AssetOperationsNew = () => {
     }, [loadingCount]);
 
     async function loadProcessTypes() {
-        if (!ethProcessTypeService) {
-            console.error("EthProcessTypeService not found");
-            return;
-        }
         try {
             setLoadingCount(c => c + 1);
             const pT: string[] = await ethProcessTypeService.getAll();
@@ -56,10 +52,6 @@ export const AssetOperationsNew = () => {
     }
 
     async function loadMaterials() {
-        if (!ethMaterialService) {
-            console.error("EthMaterialService not found");
-            return;
-        }
         try {
             setLoadingCount(c => c + 1);
             const m = await ethMaterialService.getMaterials();
@@ -80,10 +72,6 @@ export const AssetOperationsNew = () => {
     }
 
     const onSubmit = async (values: any) => {
-        if (!ethAssetOperationService) {
-            console.error("EthAssetOperationService not found");
-            return;
-        }
         try {
             dispatch(showLoading("Creating asset operation..."));
 

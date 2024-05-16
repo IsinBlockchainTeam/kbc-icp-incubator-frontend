@@ -49,10 +49,6 @@ export const ProductCategoryNew = () => {
     ];
 
     const onSubmit = async (values: any) => {
-        if (!ethMaterialService) {
-            console.error("EthMaterialService not found");
-            return;
-        }
         try {
             dispatch(showLoading("Creating product category..."));
             await ethMaterialService.saveProductCategory(values.name, values.quality, values.description);

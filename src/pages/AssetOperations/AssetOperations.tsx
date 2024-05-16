@@ -18,10 +18,6 @@ export const AssetOperations = () => {
 
     const [assetOperations, setAssetOperations] = useState<AssetOperation[]>();
     const loadData = async () => {
-        if (!ethAssetOperationService) {
-            console.error("EthAssetOperationService not found");
-            return;
-        }
         try {
             dispatch(showLoading("Retrieving asset operations..."))
             const assetOperations = await ethAssetOperationService.getAssetOperations();
@@ -52,7 +48,7 @@ export const AssetOperations = () => {
             sortDirections: ['descend']
         },
         {
-            title: 'Material name',
+            title: 'Product category',
             dataIndex: 'outputMaterial.name',
             render: (_, {outputMaterial}) => {
                 return outputMaterial ? outputMaterial.productCategory.name : 'No output material';

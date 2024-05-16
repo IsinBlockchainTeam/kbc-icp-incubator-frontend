@@ -19,10 +19,6 @@ export const Trades = () => {
     const dispatch = useDispatch();
 
     const loadData = async () => {
-        if (!ethTradeService) {
-            console.error("EthTradeService not found");
-            return;
-        }
         try {
             dispatch(showLoading("Retrieving trades..."));
             const trades = await ethTradeService.getGeneralTrades();

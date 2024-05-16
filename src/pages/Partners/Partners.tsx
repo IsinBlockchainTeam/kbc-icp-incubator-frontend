@@ -16,10 +16,6 @@ export const Partners = () => {
     const dispatch = useDispatch();
 
     const loadData = async () => {
-        if (!ethPartnerService) {
-            console.error("EthPartnerService not found");
-            return;
-        }
         try {
             dispatch(showLoading("Retrieving partners..."));
 

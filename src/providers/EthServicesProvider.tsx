@@ -12,30 +12,18 @@ import {EthTradeService} from "../api/services/EthTradeService";
 import {ICPDriversContext} from "./ICPDriversProvider";
 
 type EthServicesContextState = {
-    ethAssetOperationService: EthAssetOperationService | null,
-    ethDocumentService: EthDocumentService | null,
-    ethProcessTypeService: EthEnumerableTypeService | null,
-    ethUnitService: EthEnumerableTypeService | null,
-    ethFiatService: EthEnumerableTypeService | null,
-    ethGraphService: EthGraphService | null,
-    ethMaterialService: EthMaterialService | null,
-    ethOfferService: EthOfferService | null,
-    ethPartnerService: EthPartnerService | null,
-    ethTradeService: EthTradeService | null
+    ethAssetOperationService: EthAssetOperationService,
+    ethDocumentService: EthDocumentService,
+    ethProcessTypeService: EthEnumerableTypeService,
+    ethUnitService: EthEnumerableTypeService,
+    ethFiatService: EthEnumerableTypeService,
+    ethGraphService: EthGraphService,
+    ethMaterialService: EthMaterialService,
+    ethOfferService: EthOfferService,
+    ethPartnerService: EthPartnerService,
+    ethTradeService: EthTradeService
 }
-const initialState: EthServicesContextState = {
-    ethAssetOperationService: null,
-    ethDocumentService: null,
-    ethProcessTypeService: null,
-    ethUnitService: null,
-    ethFiatService: null,
-    ethGraphService: null,
-    ethMaterialService: null,
-    ethOfferService: null,
-    ethPartnerService: null,
-    ethTradeService: null
-}
-export const EthServicesContext = createContext<EthServicesContextState>(initialState);
+export const EthServicesContext = createContext<EthServicesContextState>({} as EthServicesContextState);
 export function EthServicesProvider({ children }: { children: ReactNode }) {
     const {
         waitForTransactions,
@@ -55,29 +43,29 @@ export function EthServicesProvider({ children }: { children: ReactNode }) {
     const isDriverInitialized = useContext(ICPDriversContext);
     const {signer} = useContext(SignerContext);
 
-    const [ethAssetOperationService, setEthAssetOperationService] = useState<EthAssetOperationService | null>(null);
-    const [ethDocumentService, setEthDocumentService] = useState<EthDocumentService | null>(null);
-    const [ethProcessTypeService, setEthProcessTypeService] = useState<EthEnumerableTypeService | null>(null);
-    const [ethUnitService, setEthUnitService] = useState<EthEnumerableTypeService | null>(null);
-    const [ethFiatService, setEthFiatService] = useState<EthEnumerableTypeService | null>(null);
-    const [ethGraphService, setEthGraphService] = useState<EthGraphService | null>(null);
-    const [ethMaterialService, setEthMaterialService] = useState<EthMaterialService | null>(null);
-    const [ethOfferService, setEthOfferService] = useState<EthOfferService | null>(null);
-    const [ethPartnerService, setEthPartnerService] = useState<EthPartnerService | null>(null);
-    const [ethTradeService, setEthTradeService] = useState<EthTradeService | null>(null);
+    const [ethAssetOperationService, setEthAssetOperationService] = useState<EthAssetOperationService>();
+    const [ethDocumentService, setEthDocumentService] = useState<EthDocumentService>();
+    const [ethProcessTypeService, setEthProcessTypeService] = useState<EthEnumerableTypeService>();
+    const [ethUnitService, setEthUnitService] = useState<EthEnumerableTypeService>();
+    const [ethFiatService, setEthFiatService] = useState<EthEnumerableTypeService>();
+    const [ethGraphService, setEthGraphService] = useState<EthGraphService>();
+    const [ethMaterialService, setEthMaterialService] = useState<EthMaterialService>();
+    const [ethOfferService, setEthOfferService] = useState<EthOfferService>();
+    const [ethPartnerService, setEthPartnerService] = useState<EthPartnerService>();
+    const [ethTradeService, setEthTradeService] = useState<EthTradeService>();
 
     useEffect(() => {
         if(!signer || !isDriverInitialized) {
-            setEthAssetOperationService(null);
-            setEthDocumentService(null);
-            setEthProcessTypeService(null);
-            setEthUnitService(null);
-            setEthFiatService(null);
-            setEthGraphService(null);
-            setEthMaterialService(null);
-            setEthOfferService(null);
-            setEthPartnerService(null);
-            setEthTradeService(null);
+            setEthAssetOperationService(undefined);
+            setEthDocumentService(undefined);
+            setEthProcessTypeService(undefined);
+            setEthUnitService(undefined);
+            setEthFiatService(undefined);
+            setEthGraphService(undefined);
+            setEthMaterialService(undefined);
+            setEthOfferService(undefined);
+            setEthPartnerService(undefined);
+            setEthTradeService(undefined);
             return;
         }
         const ethAssetOperationService = new EthAssetOperationService(signer.address, getAssetOperationService(), getMaterialService());
@@ -110,6 +98,20 @@ export function EthServicesProvider({ children }: { children: ReactNode }) {
         setEthPartnerService(ethPartnerService);
         setEthTradeService(ethTradeService);
     }, [signer, isDriverInitialized]);
+
+    if(!ethAssetOperationService ||
+        !ethDocumentService ||
+        !ethProcessTypeService ||
+        !ethUnitService ||
+        !ethFiatService ||
+        !ethGraphService ||
+        !ethMaterialService ||
+        !ethOfferService ||
+        !ethPartnerService ||
+        !ethTradeService
+    ) {
+        return <></>;
+    }
 
     return (
         <EthServicesContext.Provider value={{

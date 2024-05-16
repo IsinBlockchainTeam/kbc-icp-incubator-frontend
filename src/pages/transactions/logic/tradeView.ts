@@ -39,10 +39,6 @@ export default function useTradeView() {
     }
 
     const confirmNegotiation = async () => {
-        if (!ethTradeService) {
-            console.error("EthTradeService not found");
-            return;
-        }
         try {
             await ethTradeService.confirmOrderTrade(parseInt(id!));
             openNotification("Negotiation confirmed", `The negotiation has been confirmed`, NotificationType.SUCCESS, 1);
@@ -67,10 +63,6 @@ export default function useTradeView() {
     }, [dataLoaded]);
 
     const loadTradeInfo = async (id: number) => {
-        if (!ethTradeService) {
-            console.error("EthTradeService not found");
-            return;
-        }
         try {
             dispatch(showLoading("Retrieving trade..."));
             const resp = await ethTradeService.getTradeById(id);

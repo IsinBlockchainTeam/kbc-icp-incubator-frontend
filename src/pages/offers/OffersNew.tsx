@@ -29,10 +29,6 @@ export const OffersNew = () => {
     }, []);
 
     async function loadProductCategories() {
-        if (!ethMaterialService) {
-            console.error("EthMaterialService not found");
-            return;
-        }
         try {
             dispatch(showLoading("Loading product categories..."));
             const pC = await ethMaterialService.getProductCategories();
@@ -47,10 +43,6 @@ export const OffersNew = () => {
 
 
     const onSubmit = async (values: any) => {
-        if(!ethOfferService) {
-            console.error("EthOfferService not found");
-            return;
-        }
         try {
             values['offeror'] = signer?.address || 'Unknown';
             dispatch(showLoading("Creating offer..."));

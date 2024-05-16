@@ -38,10 +38,6 @@ export default function useTradeNew() {
     }
 
     const onSubmit = async (values: any) => {
-        if(!ethTradeService) {
-            console.error("EthTradeService not found");
-            return;
-        }
         try {
             //FIXME: This is a workaround to get data instead of the form
             values['supplier'] = location?.state?.supplierAddress || 'Unknown';
