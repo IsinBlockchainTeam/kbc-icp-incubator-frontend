@@ -90,6 +90,7 @@ export default function VeramoLogin() {
                     organizationId: userInfo.organizationId || "",
                     privateKey: userInfo.privateKey || ""
                 }));
+
             } else {
                 console.log("NO MESSAGE");
             }

@@ -49,6 +49,7 @@ export const OffersNew = () => {
 
     async function loadElements() {
         try {
+            dispatch(showLoading("Loading elements..."));
             const supplierName = await getNameByDID(DID_METHOD + ':' + signer?.address) || "Unknown";
             setElements([
                 {type: FormElementType.TITLE, span: 24, label: 'Data'},

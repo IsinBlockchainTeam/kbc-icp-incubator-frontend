@@ -55,6 +55,7 @@ export function EthServicesProvider({ children }: { children: ReactNode }) {
     const [ethTradeService, setEthTradeService] = useState<EthTradeService>();
 
     useEffect(() => {
+        console.log("Initializing services...", signer, isDriverInitialized);
         if(!signer || !isDriverInitialized) {
             setEthAssetOperationService(undefined);
             setEthDocumentService(undefined);
@@ -99,7 +100,9 @@ export function EthServicesProvider({ children }: { children: ReactNode }) {
         setEthTradeService(ethTradeService);
     }, [signer, isDriverInitialized]);
 
-    if(!ethAssetOperationService ||
+    if(
+        !signer ||
+        !ethAssetOperationService ||
         !ethDocumentService ||
         !ethProcessTypeService ||
         !ethUnitService ||
@@ -110,7 +113,11 @@ export function EthServicesProvider({ children }: { children: ReactNode }) {
         !ethPartnerService ||
         !ethTradeService
     ) {
-        return <></>;
+        return (
+            <EthServicesContext.Provider value={{} as EthServicesContextState}>
+                {children}
+            </EthServicesContext.Provider>
+        )
     }
 
     return (
