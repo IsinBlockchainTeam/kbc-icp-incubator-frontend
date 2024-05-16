@@ -10,14 +10,13 @@ export interface PDFViewerProps {
 }
 
 export default function PDFViewer({element, onDocumentChange}: PDFViewerProps) {
-    const {height = '100%', uploadable, loading, content, name} = element;
+    const {height = '100%', uploadable, loading, info, name} = element;
     const [file, setFile] = useState<Blob | undefined>(undefined);
 
     useEffect(() => {
-        if (content) {
-            setFile(content);
-        }
-    }, [content]);
+        if (info)
+            setFile(info.content);
+    }, [info?.content]);
 
     const onFileUpload = (file: Blob) => {
         setFile(file);
@@ -25,8 +24,8 @@ export default function PDFViewer({element, onDocumentChange}: PDFViewerProps) {
     }
 
     const onRevert = () => {
-        setFile(content);
-        onDocumentChange(name, content);
+        setFile(info?.content);
+        onDocumentChange(name, info?.content);
     }
 
     return (

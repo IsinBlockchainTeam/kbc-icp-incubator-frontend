@@ -212,7 +212,8 @@ export default function useTradeShared() {
                     required: true,
                     loading: false,
                     uploadable: true,
-                    height: documentHeight
+                    height: documentHeight,
+                    evaluable: false,
                 },
                 {type: FormElementType.TITLE, span: 24, label: 'Line Item'},
                 ...basicLine,
@@ -238,7 +239,8 @@ export default function useTradeShared() {
                     required: true,
                     loading: false,
                     uploadable: true,
-                    height: documentHeight
+                    height: documentHeight,
+                    evaluable: false,
                 },
                 {
                     type: FormElementType.DATE,

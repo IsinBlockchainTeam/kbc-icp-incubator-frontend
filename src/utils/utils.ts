@@ -146,6 +146,16 @@ export const getMimeType = (filename: string): string => {
     }
 }
 
+export const createDownloadWindow = (file: Blob, fileName: string) => {
+    const url = window.URL.createObjectURL(file);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', fileName);
+    document.body.appendChild(link);
+    link.click();
+}
+
+
 export const getICPCanisterURL = (canisterId: string): string => {
     return checkAndGetEnvironmentVariable(ICP.DFX_NETWORK) === "local" ?
         URL_SEGMENTS.HTTP + canisterId + '.' + URL_SEGMENTS.LOCAL_REPLICA :

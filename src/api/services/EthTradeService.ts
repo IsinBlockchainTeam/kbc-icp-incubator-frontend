@@ -91,19 +91,20 @@ export class EthTradeService {
 
             let actionRequired ;
             if (tradeType === TradeType.ORDER) {
+                const documentsInfo = (await tradeService.getAllDocuments()).filter(doc => !doc.externalUrl.includes("metadata.json"));
                 const order = trade as OrderTrade;
                 const orderService = tradeInstanceService as OrderTradeService;
                 const whoSigned = await orderService.getWhoSigned();
                 if (!whoSigned.includes(this._walletAddress) && order.negotiationStatus === NegotiationStatus.PENDING)
                     actionRequired = "This negotiation needs your sign to proceed";
 
-                // if (documentsInfo.length && documentsInfo.some((doc) => doc.status === DocumentStatus.NOT_EVALUATED)) {
-                //     const status = await orderService.getTradeStatus();
+                if (documentsInfo.length && documentsInfo.some((doc) => doc.status === DocumentStatus.NOT_EVALUATED)) {
                 //     TODO: per ora si ipotizza che solo il supplier debba caricare i documenti e quindi che sia il commissioner a validarli
                 //     nel caso di caricamenti da entrambi i lati, si potrà verificare in base al trade status
-                    // if (this._walletAddress === commissioner)
-                    //     actionRequired = "Some documents need to be evaluated";
-                // }
+                //     const status = await orderService.getTradeStatus();
+                    if (this._walletAddress === commissioner)
+                        actionRequired = "Some documents need to be evaluated";
+                }
             }
 
 
@@ -304,5 +305,9 @@ export class EthTradeService {
     async confirmOrderTrade(id: number): Promise<void> {
         const tradeService = this._getOrderTradeService(await this._tradeManagerService.getTrade(id));
         await tradeService.confirmOrder();
+    }
+
+    async validateDocument(id: number, validationStatus: DocumentStatus): Promise<void> {
+        await this._ethDocumentService
     }
 }

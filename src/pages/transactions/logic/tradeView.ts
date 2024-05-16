@@ -2,15 +2,19 @@ import useTradeShared from "./tradeShared";
 import {NotificationType, openNotification} from "../../../utils/notification";
 import {
     BasicTrade,
-    DocumentType, LineRequest,
+    DocumentStatus,
+    DocumentType,
+    LineRequest,
     NegotiationStatus,
-    OrderLine, OrderLinePrice, OrderLineRequest,
+    OrderLine,
+    OrderLinePrice,
+    OrderLineRequest,
     OrderTrade,
     TradeType
 } from "@kbc-lib/coffee-trading-management-lib";
 import {useLocation, useNavigate, useParams} from "react-router-dom";
 import {useDispatch} from "react-redux";
-import {useEffect, useState} from "react";
+import {useContext, useEffect, useState} from "react";
 import {DetailedTradePresentable} from "../../../api/types/TradePresentable";
 import {hideLoading, showLoading} from "../../../redux/reducers/loadingSlice";
 import {FormElement, FormElementType} from "../../../components/GenericForm/GenericForm";
@@ -19,9 +23,13 @@ import dayjs from "dayjs";
 import {DID_METHOD, paths} from "../../../constants";
 import {getEnumKeyByValue, getNameByDID} from "../../../utils/utils";
 import {BasicTradeRequest, OrderTradeRequest} from "../../../api/types/TradeRequest";
+import {SignerContext} from "../../../providers/SignerProvider";
 
 export default function useTradeView() {
     const { dataLoaded, productCategories, units, fiats, ethTradeService } = useTradeShared();
+    const {signer} = useContext(SignerContext);
+
+    const { units, fiats, ethTradeService, orderState } = useTradeShared();
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -134,7 +142,7 @@ export default function useTradeView() {
         let documentElement: FormElement;
         const documentHeight = '45vh';
         if (type === TradeType.BASIC) {
-            const content = trade.documents.get(DocumentType.DELIVERY_NOTE)?.content;
+            const doc = trade.documents.get(DocumentType.DELIVERY_NOTE);
             documentElement = {
                 type: FormElementType.DOCUMENT,
                 span: 12,
@@ -143,11 +151,12 @@ export default function useTradeView() {
                 required: false,
                 loading: false,
                 uploadable: !disabled,
-                content: content,
+                info: doc,
                 height: documentHeight,
+                evaluable: false
             }
         } else if (type === TradeType.ORDER) {
-            const content = trade.documents.get(DocumentType.PAYMENT_INVOICE)?.content;
+            const doc = trade.documents.get(DocumentType.PAYMENT_INVOICE);
             documentElement = {
                 type: FormElementType.DOCUMENT,
                 span: 12,
@@ -156,8 +165,9 @@ export default function useTradeView() {
                 required: false,
                 loading: false,
                 uploadable: !disabled,
-                content: content,
+                info: doc,
                 height: documentHeight,
+                evaluable: doc?.status === DocumentStatus.NOT_EVALUATED && trade.trade.commissioner === signer?.address
             }
         } else {
             throw new Error("Invalid trade type");
