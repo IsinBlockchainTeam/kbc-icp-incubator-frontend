@@ -235,7 +235,9 @@ export default function useTradeShared() {
                     type: FormElementType.DOCUMENT,
                     span: 12,
                     name: 'payment-invoice',
-                    label: 'Payment Invoice',
+                    // TODO: DEMO ONLY!! Remove this Label!!!
+                    label: 'Commercial Register Certificate',
+                    // label: 'Payment Invoice',
                     required: true,
                     loading: false,
                     uploadable: true,

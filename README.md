@@ -28,12 +28,22 @@ This package is written in TypeScript.
 9. Open your browser and navigate to `http://localhost:3000` to see the _React_ webapp
 
 
-## Deploy React App on ICP
+## Deploy React App on ICP - Local Replica
 This project is configured to be optionally deployed on an ICP network. To deploy the project on your local ICP network, follow these steps:
 1. Make sure you have the IC SDK `dfx` tool installed. You can find the installation instructions [here](https://internetcomputer.org/docs/current/developer-docs/getting-started/install/)
 2. Make sure you have followed the project configuration as explained in section [Getting Started](#getting-started)
 3. Build the project using `npm run build`
 4. Run `dfx deploy` to deploy the project on the local ICP network. You should receive the URL where the project has been deployed
+
+
+## Deploy React App on ICP - Mainnet
+To deploy the project on the ICP mainnet, follow these steps:
+1. Check you have configured your wallet correctly and have enough cycles to deploy the canisters. You can check your balance using `dfx wallet balance --network ic`
+2. If you have not created the canister on the mainnet yet, run `dfx canister create --network ic kbc-platform --with-cycles <desired_cycles> <canister_name>`
+3. Make sure you have followed the project configuration as explained in section [Getting Started](#getting-started)
+4. Build the project using `npm run build`
+5. Deploy canister using `dfx canister install --network ic --mode <mode> --argument=<arguments> kbc-platform`. Mode "reinstall" is suggested
+
 
 ### `npmrc` Configuration
 | Registry name              | Description                                                                                                                                                                                                                                                          |

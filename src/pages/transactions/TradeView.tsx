@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import {CardPage} from "../../components/structure/CardPage/CardPage";
 import {GenericForm} from "../../components/GenericForm/GenericForm";
 import {Tag, Tooltip} from "antd";
@@ -7,6 +7,7 @@ import {NegotiationStatus, TradeType} from "@kbc-lib/coffee-trading-management-l
 import {getEnumKeyByValue, isValueInEnum} from "../../utils/utils";
 import useTradeView from "./logic/tradeView";
 import OrderStatusBar from "../../components/OrderStatusBar/OrderStatusBar";
+import ConfirmedTradeView from "./ConfirmedTradeView";
 
 export const TradeView = () => {
     const {
@@ -14,13 +15,28 @@ export const TradeView = () => {
         elements,
         disabled,
         negotiationStatus,
+        orderStatus,
         toggleDisabled,
         onSubmit,
         confirmNegotiation
     } = useTradeView();
 
-    if (!isValueInEnum(type, TradeType))
+    const [current, setCurrent] = React.useState(-1);
+
+    useEffect(() => {
+        setCurrent(orderStatus);
+    }, [orderStatus]);
+
+    const onChange = (value: number) => {
+        console.log(value, orderStatus)
+        if(value > orderStatus)
+            return;
+        setCurrent(value);
+    }
+
+    if (!isValueInEnum(type, TradeType)) {
         return <div>Wrong type</div>;
+    }
 
     return (
         <CardPage title={
@@ -43,8 +59,15 @@ export const TradeView = () => {
                 </div>
             </div>}
         >
-            {type === TradeType.ORDER && <OrderStatusBar orderState={0}/>}
-            <GenericForm elements={elements} submittable={!disabled} onSubmit={onSubmit}/>
+            {type === TradeType.ORDER && <OrderStatusBar orderStatus={current} onChange={onChange}/>}
+            {
+                current === 0 &&
+                <GenericForm elements={elements} submittable={!disabled} onSubmit={onSubmit}/>
+            }
+            {
+                current === 1 &&
+                <ConfirmedTradeView/>
+            }
         </CardPage>
     )
 }

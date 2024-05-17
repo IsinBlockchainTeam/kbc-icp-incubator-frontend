@@ -20,6 +20,7 @@ import AssetOperations from "./pages/AssetOperations/AssetOperations";
 import AssetOperationsNew from "./pages/AssetOperations/AssetOperationsNew";
 import GraphPage from "./pages/Graph/GraphPage";
 import Login from "./pages/Login/Login";
+import ICPLogin from "./pages/Login/ICPLogin";
 
 export const App = () => {
 
@@ -45,6 +46,7 @@ export const App = () => {
                         <Route path={paths.GRAPH} element={<GraphPage />}/>
                     </Route>
                     <Route path={paths.LOGIN} element={<Login />}/>
+                    <Route path={paths.ICP_LOGIN} element={<ICPLogin />}/>
                     <Route path="*" element={<Navigate to={paths.LOGIN}/>}/>
                 </Route>
             </Routes>

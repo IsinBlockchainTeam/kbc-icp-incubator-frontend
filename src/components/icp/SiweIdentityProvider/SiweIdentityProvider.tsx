@@ -28,8 +28,10 @@ import {normalizeError} from "./error";
 import {useDispatch, useSelector} from "react-redux";
 import {clearSiweIdentity, selectSiweIdentity, updateSiweIdentity} from "../../../redux/reducers/siweIdentitySlice";
 import {SignerContext} from "../../../providers/SignerProvider";
-import {hideLoading, showLoading} from "../../../redux/reducers/loadingSlice";
+import {hideLoading} from "../../../redux/reducers/loadingSlice";
 import {NotificationType, openNotification} from "../../../utils/notification";
+import {useNavigate} from "react-router-dom";
+import {paths} from "../../../constants";
 
 /**
  * Re-export types
@@ -114,6 +116,7 @@ export function SiweIdentityProvider<T extends SIWE_IDENTITY_SERVICE>({
     const siweIdentity = useSelector(selectSiweIdentity);
     const dispatch = useDispatch();
     const {signer} = useContext(SignerContext);
+    const navigate = useNavigate();
 
     useEffect(() => {
         console.log("SiweIdentity", siweIdentity);
@@ -124,7 +127,8 @@ export function SiweIdentityProvider<T extends SIWE_IDENTITY_SERVICE>({
 
     async function tryLogin() {
         try {
-            dispatch(showLoading("Loading identity..."));
+            navigate(paths.ICP_LOGIN);
+            // dispatch(showLoading("Loading identity..."));
             await login();
         } catch(e) {
             console.error("Error in SiweIdentityProvider", e);

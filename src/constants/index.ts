@@ -37,6 +37,7 @@ export const paths = {
     HOME: "/",
     PROFILE: "/profile",
     LOGIN: "/login",
+    ICP_LOGIN: "/icp-login",
     CONTRACTS: "/contracts",
     CONTRACT_VIEW: "/contracts/:id",
     ORDERS: "/orders",

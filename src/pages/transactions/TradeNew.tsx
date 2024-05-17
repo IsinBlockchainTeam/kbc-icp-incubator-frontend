@@ -27,7 +27,7 @@ export const TradeNew = () => {
                     </Button>
                 </div>
             }>
-                {type === TradeType.ORDER && <OrderStatusBar orderState={0}/>}
+                {type === TradeType.ORDER && <OrderStatusBar orderStatus={0}/>}
                 <GenericForm elements={elements} submittable={true} onSubmit={onSubmit}/>
             </CardPage>
         )

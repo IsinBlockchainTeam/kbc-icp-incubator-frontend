@@ -42,6 +42,8 @@ export default function useTradeView() {
     const [actorNames, setActorNames] = useState<string[]>([]);
     const [elements, setElements] = useState<FormElement[]>([]);
 
+    const [orderStatus, setOrderStatus] = useState<number>(-1);
+
     const toggleDisabled = () => {
         setDisabled(!disabled);
     }
@@ -163,13 +165,17 @@ export default function useTradeView() {
                 type: FormElementType.DOCUMENT,
                 span: 12,
                 name: 'payment-invoice',
-                label: 'Payment Invoice',
+                // TODO: DEMO ONLY!! Remove this Label!!!
+                label: 'Commercial Register Certificate',
+                // label: 'Payment Invoice',
                 required: false,
                 loading: false,
                 uploadable: !disabled,
                 info: doc,
                 height: documentHeight,
-                evaluable: doc?.status === DocumentStatus.NOT_EVALUATED && trade.trade.commissioner === signer?.address
+                // TODO: DEMO ONLY!! Remove this!!!
+                evaluable: false
+                // evaluable: doc?.status === DocumentStatus.NOT_EVALUATED && trade.trade.commissioner === signer?.address
             }
         } else {
             throw new Error("Invalid trade type");
@@ -229,8 +235,15 @@ export default function useTradeView() {
             setElements(newElements);
         } else {
             const orderTrade = trade.trade as OrderTrade;
-
             setNegotiationStatus(getEnumKeyByValue(NegotiationStatus, orderTrade.negotiationStatus));
+
+            // TODO: DEMO ONLY!! Remove this!!!
+            if (orderTrade.negotiationStatus === NegotiationStatus.INITIALIZED || orderTrade.negotiationStatus === NegotiationStatus.PENDING) {
+                setOrderStatus(0);
+            } else if (orderTrade.negotiationStatus === NegotiationStatus.CONFIRMED) {
+                setOrderStatus(1);
+            }
+
             const newElements = [...commonElements];
             newElements.push(
                 {type: FormElementType.TITLE, span: 24, label: 'Constraints'},
@@ -462,6 +475,7 @@ export default function useTradeView() {
         trade,
         disabled,
         negotiationStatus,
+        orderStatus,
         toggleDisabled,
         onSubmit,
         confirmNegotiation

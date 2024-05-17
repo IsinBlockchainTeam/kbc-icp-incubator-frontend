@@ -3,16 +3,19 @@ import {EditOutlined, ImportOutlined, ProductOutlined, SendOutlined, TruckOutlin
 import React from "react";
 
 export interface OrderStatusBarProps {
-    orderState: number;
+    orderStatus: number;
+    onChange?: (value: number) => void;
 }
 
-export default function OrderStatusBar({orderState}: OrderStatusBarProps) {
+export default function OrderStatusBar({orderStatus, onChange}: OrderStatusBarProps) {
+    console.log("RECEIVED ORDER STATUS", orderStatus)
     return (
         <>
             <Divider>Order status</Divider>
             <Steps
                 type="navigation"
-                current={orderState}
+                current={orderStatus}
+                onChange={onChange}
                 className="order-status"
                 items={[
                     {
