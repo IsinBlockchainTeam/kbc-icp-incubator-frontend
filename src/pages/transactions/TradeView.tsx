@@ -11,6 +11,7 @@ import ConfirmedTradeView from "./ConfirmedTradeView";
 
 export const TradeView = () => {
     const {
+        trade,
         type,
         elements,
         disabled,
@@ -59,7 +60,7 @@ export const TradeView = () => {
                 </div>
             </div>}
         >
-            {type === TradeType.ORDER && <OrderStatusBar orderStatus={current} onChange={onChange}/>}
+            {type === TradeType.ORDER && <OrderStatusBar trade={trade?.trade} orderStatus={current} onChange={onChange}/>}
             {
                 current === 0 &&
                 <GenericForm elements={elements} submittable={!disabled} onSubmit={onSubmit}/>

@@ -1,7 +1,7 @@
 import {
     NegotiationStatus,
     TradeType,
-    TradeStatus,
+    OrderStatus,
     DocumentType,
     BasicTrade, OrderTrade, Trade
 } from "@kbc-lib/coffee-trading-management-lib";
@@ -60,19 +60,19 @@ export class BasicTradePresentable extends DetailedTradePresentable {
 export class OrderTradePresentable extends DetailedTradePresentable {
     private _orderTrade: OrderTrade;
 
-    private _status: TradeStatus;
+    private _status: OrderStatus;
 
-    constructor(orderTrade: OrderTrade, status: TradeStatus, documents?: Map<DocumentType, DocumentPresentable>) {
+    constructor(orderTrade: OrderTrade, status: OrderStatus, documents?: Map<DocumentType, DocumentPresentable>) {
         super(documents);
         this._orderTrade = orderTrade;
         this._status = status;
     }
 
-    get status(): TradeStatus {
+    get status(): OrderStatus {
         return this._status;
     }
 
-    set status(value: TradeStatus) {
+    set status(value: OrderStatus) {
         this._status = value;
     }
 

@@ -1,6 +1,6 @@
 import {
     BasicTrade,
-    BasicTradeService, DocumentStatus,
+    BasicTradeService,
     DocumentType,
     IConcreteTradeService,
     Line,
@@ -101,7 +101,7 @@ export class EthTradeService {
                 // if (documentsInfo.length && documentsInfo.some((doc) => doc.status === DocumentStatus.NOT_EVALUATED)) {
                 // //     TODO: per ora si ipotizza che solo il supplier debba caricare i documenti e quindi che sia il commissioner a validarli
                 // //     nel caso di caricamenti da entrambi i lati, si potrà verificare in base al trade status
-                // //     const status = await orderService.getTradeStatus();
+                // //     const status = await orderService.getOrderStatus();
                 //     if (this._walletAddress === commissioner)
                 //         actionRequired = "Some documents need to be evaluated";
                 // }
@@ -163,7 +163,7 @@ export class EthTradeService {
                 const orderTrade = await orderTradeService.getCompleteTrade();
                 orderTrade.lines = await orderTradeService.getLines();
 
-                return new OrderTradePresentable(orderTrade, await orderTradeService.getTradeStatus(), await this.getDocumentMap(id));
+                return new OrderTradePresentable(orderTrade, await orderTradeService.getOrderStatus(), await this.getDocumentMap(id));
 
             default:
                 throw new CustomError(HttpStatusCode.BAD_REQUEST, "Wrong trade type");
@@ -300,6 +300,23 @@ export class EthTradeService {
             await tradeService.updateLine(new OrderLine(oldLine.id, oldLine.material, productCategory, newLine.quantity,
                 newLine.unit, new OrderLinePrice(newLine.price.amount, newLine.price.fiat)));
         }
+    }
+
+    async addDocument(tradeId: number, tradeType: TradeType, document: DocumentRequest, externalUrl: string): Promise<void> {
+        const tradeAddress = await this._tradeManagerService.getTrade(tradeId);
+        const organizationId = parseInt(store.getState().userInfo.organizationId);
+        // TODO: remove this harcoded value
+        const delegatedOrganizationIds: number[] = organizationId === 0 ? [1] : [0];
+        let tradeService: TradeService;
+        if (tradeType === TradeType.BASIC) tradeService = this._getBasicTradeService(tradeAddress);
+        else tradeService = this._getOrderTradeService(tradeAddress);
+
+        const resourceSpec: ICPResourceSpec = {
+            name: document.filename,
+            type: document.content.type,
+        }
+
+        await tradeService.addDocument(document.documentType, new Uint8Array(await new Response(document.content).arrayBuffer()), externalUrl, resourceSpec, delegatedOrganizationIds);
     }
 
     async confirmOrderTrade(id: number): Promise<void> {

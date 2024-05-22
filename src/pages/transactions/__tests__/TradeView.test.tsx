@@ -1,5 +1,5 @@
 import {TradePreviewPresentable} from "../../../api/types/TradePresentable";
-import {TradeStatus, TradeType} from "../coffee-trading-management-lib/src/index";
+import {OrderStatus, TradeType} from "../coffee-trading-management-lib/src/index";
 import {FormElement} from "../../../components/GenericForm/GenericForm";
 import {render, screen} from "@testing-library/react";
 import TradeView from "../TradeView";
@@ -64,7 +64,7 @@ describe('TradeView', () => {
     beforeAll(() => jest.spyOn(console, 'error').mockImplementation(jest.fn()));
 
     beforeEach(() => {
-        mockTrade = new TradePreviewPresentable(1, [], 'supplier', mockType).setStatus(TradeStatus.ON_BOARD);
+        mockTrade = new TradePreviewPresentable(1, [], 'supplier', mockType).setStatus(OrderStatus.ON_BOARD);
         (isValueInEnum as jest.Mock).mockReturnValue(true);
     });
 

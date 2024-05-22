@@ -5,7 +5,7 @@ import {
     Line, LineRequest,
     Material, OrderLinePrice, OrderLineRequest,
     ProductCategory,
-    TradeStatus,
+    OrderStatus,
     TradeType
 } from "../coffee-trading-management-lib/src/index";
 import {TradePreviewPresentable} from "../../types/TradePresentable";
@@ -44,7 +44,7 @@ describe('BlockchainTradeStrategy', () => {
     const mockRegisterOrderTrade = jest.fn();
     const mockAddBasicLine = jest.fn();
     const mockAddOrderLine = jest.fn();
-    const mockGetTradeStatus = jest.fn();
+    const mockgetOrderStatus = jest.fn();
     const mockSetName = jest.fn();
 
     const walletAddress = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
@@ -83,7 +83,7 @@ describe('BlockchainTradeStrategy', () => {
             addLine: mockAddBasicLine,
             getTrade: mockGetBasicTrade,
             getLines: mockGetBasicLines,
-            getTradeStatus: mockGetTradeStatus,
+            getOrderStatus: mockgetOrderStatus,
             setName: mockSetName,
         });
         UseBlockchainLibraryUtils.getOrderTradeService = jest.fn().mockReturnValue({
@@ -156,10 +156,10 @@ describe('BlockchainTradeStrategy', () => {
         mockGetBasicLines.mockReturnValue(
             [new Line(1, new Material(1, productCategory), productCategory)]
         );
-        mockGetTradeStatus.mockReturnValue(TradeStatus.ON_BOARD);
+        mockgetOrderStatus.mockReturnValue(OrderStatus.ON_BOARD);
 
         const result = await blockchainTradeStrategy.getTradeByIdAndType(1, TradeType.BASIC);
-        expect(result).toEqual(new TradePreviewPresentable(1, [new TradeLinePresentable(1, new MaterialPresentable(1, 'product category'))], 'supplier1', TradeType.BASIC).setCustomer('customer1').setName('test trade').setStatus(TradeStatus.ON_BOARD));
+        expect(result).toEqual(new TradePreviewPresentable(1, [new TradeLinePresentable(1, new MaterialPresentable(1, 'product category'))], 'supplier1', TradeType.BASIC).setCustomer('customer1').setName('test trade').setStatus(OrderStatus.ON_BOARD));
     });
 
     // it('should get trade by id and type - CASE ORDER', async () => {
