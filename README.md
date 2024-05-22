@@ -42,7 +42,7 @@ To deploy the project on the ICP mainnet, follow these steps:
 2. If you have not created the canister on the mainnet yet, run `dfx canister create --network ic kbc-platform --with-cycles <desired_cycles> <canister_name>`
 3. Make sure you have followed the project configuration as explained in section [Getting Started](#getting-started)
 4. Build the project using `npm run build`
-5. Deploy canister using `dfx canister install --network ic --mode <mode> --argument=<arguments> kbc-platform`. Mode "reinstall" is suggested
+5. Deploy canister using `dfx canister install --network ic --mode <mode> kbc-platform`. Mode "reinstall" is suggested
 
 
 ### `npmrc` Configuration

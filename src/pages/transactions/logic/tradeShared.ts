@@ -236,7 +236,7 @@ export default function useTradeShared() {
                     span: 12,
                     name: 'payment-invoice',
                     // TODO: DEMO ONLY!! Remove this Label!!!
-                    label: 'Commercial Register Certificate',
+                    label: 'Attachments',
                     // label: 'Payment Invoice',
                     required: true,
                     loading: false,

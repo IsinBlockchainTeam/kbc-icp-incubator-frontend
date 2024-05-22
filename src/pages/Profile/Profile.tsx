@@ -28,9 +28,9 @@ export default function Profile() {
 
     const checkOrganization = async () => {
         const organizationDriver = ICPOrganizationDriver.getInstance();
-        const organizations = await organizationDriver.getUserOrganizations();
-        console.log("user organizations:", organizations)
-        if (organizations.length === 0) {
+        try {
+            await organizationDriver.getUserOrganizations();
+        } catch (e) {
             setShowButton(true);
         }
     }
