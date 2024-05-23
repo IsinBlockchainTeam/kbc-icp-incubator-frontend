@@ -3,7 +3,6 @@ import {TradeStatus, TradeType} from "../coffee-trading-management-lib/src/index
 import {FormElement} from "../../../components/GenericForm/GenericForm";
 import {render, screen} from "@testing-library/react";
 import TradeView from "../TradeView";
-import {isValueInEnum} from "../../../utils/utils";
 
 jest.mock('../../../../components/structure/CardPage/CardPage', () => ({
     CardPage: ({title, children}: any) =>

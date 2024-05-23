@@ -32,6 +32,7 @@ import {hideLoading} from "../../../redux/reducers/loadingSlice";
 import {NotificationType, openNotification} from "../../../utils/notification";
 import {useNavigate} from "react-router-dom";
 import {paths} from "../../../constants";
+import {RootState} from "../../../redux/store";
 
 /**
  * Re-export types
@@ -117,19 +118,31 @@ export function SiweIdentityProvider<T extends SIWE_IDENTITY_SERVICE>({
     const dispatch = useDispatch();
     const {signer} = useContext(SignerContext);
     const navigate = useNavigate();
+    const userInfo = useSelector((state: RootState) => state.userInfo);
+
+    const [state, setState] = useState<State>({
+        isInitializing: true,
+        prepareLoginStatus: "idle",
+        loginStatus: "idle",
+    });
 
     useEffect(() => {
-        console.log("SiweIdentity", siweIdentity);
-        if(signer && !siweIdentity) {
+        if(state.anonymousActor && !siweIdentity) {
+            console.log("Trying siwe login...");
             tryLogin();
         }
-    }, [signer]);
+    }, [siweIdentity, state.anonymousActor]);
 
     async function tryLogin() {
         try {
             navigate(paths.ICP_LOGIN);
-            // dispatch(showLoading("Loading identity..."));
             await login();
+            navigate(paths.PROFILE);
+            openNotification(
+                "Authenticated",
+                `Login succeed. Welcome ${userInfo.legalName}!`,
+                NotificationType.SUCCESS
+            );
         } catch(e) {
             console.error("Error in SiweIdentityProvider", e);
             openNotification("Error", "Error while logging in", NotificationType.ERROR);
@@ -137,13 +150,6 @@ export function SiweIdentityProvider<T extends SIWE_IDENTITY_SERVICE>({
             dispatch(hideLoading());
         }
     }
-
-    const [state, setState] = useState<State>({
-        isInitializing: true,
-        prepareLoginStatus: "idle",
-        loginStatus: "idle",
-
-    });
 
     const signMessageEthers = async (message: string) => {
         return signer?.signMessage(message);
