@@ -1,6 +1,5 @@
 import {createSlice} from "@reduxjs/toolkit";
 import {DelegationChain, DelegationIdentity, Ed25519KeyIdentity} from "@dfinity/identity";
-import type {SiweIdentityStorage} from "../../components/icp/SiweIdentityProvider/storage.type";
 
 export type SiweIdentityState = {
     isLogged: boolean,

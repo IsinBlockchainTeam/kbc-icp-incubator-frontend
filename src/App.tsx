@@ -19,16 +19,9 @@ import AssetOperations from "./pages/AssetOperations/AssetOperations";
 import AssetOperationsNew from "./pages/AssetOperations/AssetOperationsNew";
 import GraphPage from "./pages/Graph/GraphPage";
 import Login from "./pages/Login/Login";
-import ICPLogin from "./pages/Login/ICPLogin";
 import {Provider as ReduxProvider} from "react-redux/es/exports";
 import {persistor, store} from "./redux/store";
 import {PersistGate} from "redux-persist/integration/react";
-import {SignerProvider} from "./providers/SignerProvider";
-import {SiweIdentityProvider} from "./components/icp/SiweIdentityProvider/SiweIdentityProvider";
-import {_SERVICE} from "./components/icp/declarations/ic_siwe_provider/ic_siwe_provider.did";
-import {canisterId, idlFactory} from "./components/icp/declarations/ic_siwe_provider";
-import {ICPDriversProvider} from "./providers/ICPDriversProvider";
-import {EthServicesProvider} from "./providers/EthServicesProvider";
 
 export const App = () => {
 
@@ -56,7 +49,6 @@ export const App = () => {
                                     <Route path={paths.GRAPH} element={<GraphPage />}/>
                                 </Route>
                                 <Route path={paths.LOGIN} element={<Login />}/>
-                                <Route path={paths.ICP_LOGIN} element={<ICPLogin />}/>
                                 <Route path="*" element={<Navigate to={paths.LOGIN}/>}/>
                             </Route>
                         </Routes>

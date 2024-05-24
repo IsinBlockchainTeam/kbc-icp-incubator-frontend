@@ -1,6 +1,6 @@
 import React from "react";
 import {type ReactNode, useEffect, useState} from "react";
-import {useSiweIdentity} from "../components/icp/SiweIdentityProvider/SiweIdentityProvider";
+import {useSiweIdentity} from "./SiweIdentityProvider";
 import {checkAndGetEnvironmentVariable} from "../utils/utils";
 import {ICP} from "../constants";
 import {

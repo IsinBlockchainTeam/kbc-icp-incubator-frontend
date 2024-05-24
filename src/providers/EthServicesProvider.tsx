@@ -10,6 +10,7 @@ import {EthMaterialService} from "../api/services/EthMaterialService";
 import {EthOfferService} from "../api/services/EthOfferService";
 import {EthPartnerService} from "../api/services/EthPartnerService";
 import {EthTradeService} from "../api/services/EthTradeService";
+import {Typography} from "antd";
 
 type EthServicesContextState = {
     ethAssetOperationService: EthAssetOperationService,
@@ -62,6 +63,11 @@ export function EthServicesProvider({ children }: { children: ReactNode }) {
         waitForTransactions
     );
 
+    if (!signer) {
+        return (<Typography.Text>
+            Signer is not initialized
+        </Typography.Text>)
+    }
     return (
         <EthServicesContext.Provider value={{
             ethAssetOperationService,
