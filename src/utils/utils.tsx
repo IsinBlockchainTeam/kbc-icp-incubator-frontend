@@ -5,6 +5,7 @@ import {URL_SEGMENT_INDEXES, URL_SEGMENTS} from "@kbc-lib/coffee-trading-managem
 import {
     ICPOrganizationDriver
 } from "@blockchain-lib/common";
+import React, {ReactNode} from "react";
 
 export const setParametersPath = (
     path = "",
@@ -194,4 +195,14 @@ export const getNameByDID = async (did: string): Promise<string> => {
     }
 
     return verifiablePresentation.legalName;
+}
+
+export const showTextWithHtmlLinebreaks = (text: string): ReactNode => {
+    return (
+        <>
+            {text.split('\n').map((str, index) => (
+                <React.Fragment key={index}> {str}<br/> </React.Fragment>
+            ))}
+        </>
+    );
 }

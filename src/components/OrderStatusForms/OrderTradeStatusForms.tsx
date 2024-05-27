@@ -69,13 +69,17 @@ export default function OrderTradeStatusForms(props: Props) {
 
     const steps = useMemo(() => {
         let elementsAfterNegotiation: Map<OrderStatus, {elements: FormElement[], onSubmit: (values: any) => Promise<void>}> | undefined;
-        console.log("tradeInfo: ", tradeInfo)
         if (tradeInfo) {
             onSubmit = tradeView.onSubmit;
 
             elementsAfterNegotiation = new Map<OrderStatus, {elements: FormElement[], onSubmit: (values: any) => Promise<void>}>()
                 .set(OrderStatus.PRODUCTION, {
                     elements: [
+                        {
+                            type: FormElementType.TIP,
+                            span: 24,
+                            label: 'At this stage, the exporter has to load a payment invoice for the goods that have been negotiated. \n This operation allows coffee production to be started and planned only against a guarantee deposit from the importer'
+                        },
                         {
                             type: FormElementType.DOCUMENT,
                             span: 12,

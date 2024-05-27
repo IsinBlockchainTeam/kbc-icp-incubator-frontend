@@ -1,5 +1,6 @@
 import {Col, Image, Row, Typography} from "antd";
 import React from "react";
+import {showTextWithHtmlLinebreaks} from "../../utils/utils";
 
 export enum DutiesWaiting {
     EXPORTER_PRODUCTION, EXPORTER_EXPORT, EXPORTER_SHIPPING
@@ -21,9 +22,7 @@ export default function TradeDutiesWaiting(props: Props) {
             <Col style={{ textAlign: 'center' }}>
                 <Image src={imagePath} preview={false} style={{ width: '80%' }}/>
                 <Typography.Title level={3}>
-                    {message.split('\n').map((str, index) => (
-                        <React.Fragment key={index}> {str}<br/> </React.Fragment>
-                    ))}
+                    {showTextWithHtmlLinebreaks(message)}
                 </Typography.Title>
             </Col>
         </Row>

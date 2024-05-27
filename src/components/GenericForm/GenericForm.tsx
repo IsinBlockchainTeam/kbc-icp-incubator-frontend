@@ -1,8 +1,8 @@
 import React, {useContext, useEffect} from "react";
-import {Button, Col, DatePicker, Divider, Form, Input, Popover, Row, Select} from "antd";
+import {Alert, Button, Col, DatePicker, Divider, Form, Input, Popover, Row, Select} from "antd";
 import PDFViewer from "../PDFViewer/PDFViewer";
 import {DownloadOutlined} from "@ant-design/icons";
-import {createDownloadWindow} from "../../utils/utils";
+import {createDownloadWindow, showTextWithHtmlLinebreaks} from "../../utils/utils";
 import {DocumentStatus} from "@kbc-lib/coffee-trading-management-lib";
 import {EthServicesContext} from "../../providers/EthServicesProvider";
 import {DocumentPresentable} from "../../api/types/DocumentPresentable";
@@ -12,6 +12,7 @@ import { paths } from "../../constants";
 
 export enum FormElementType {
     TITLE = 'title',
+    TIP = 'tip',
     INPUT = 'input',
     SELECT = 'select',
     DATE = 'date',
@@ -28,7 +29,7 @@ type BasicElement = {
 }
 
 type LabeledElement = Omit<BasicElement, 'type'> & {
-    type: FormElementType.TITLE,
+    type: FormElementType.TITLE | FormElementType.TIP,
     label: string,
 }
 
@@ -132,6 +133,15 @@ export const GenericForm = (props: Props) => {
             const {span, label} = element;
             return (
                 <Col span={span} key={index}><Divider>{label}</Divider></Col>
+            )
+        },
+        [FormElementType.TIP]: (element: FormElement, index: number) => {
+            element = element as LabeledElement;
+            const {span, label} = element;
+            return (
+                <Col span={span} key={index}>
+                    <Alert style={{textAlign: 'center'}} message={showTextWithHtmlLinebreaks(label)} />
+                </Col>
             )
         },
         [FormElementType.BUTTON]: (element: FormElement, index: number) => {
