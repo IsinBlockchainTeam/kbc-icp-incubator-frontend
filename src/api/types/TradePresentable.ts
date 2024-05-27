@@ -31,10 +31,6 @@ export abstract class DetailedTradePresentable {
         this._documents = value;
     }
 
-    addDocument(document: DocumentPresentable) {
-        this._documents.set(document.documentType, document);
-    }
-
     abstract get trade(): Trade;
 
     abstract set trade(value: Trade);

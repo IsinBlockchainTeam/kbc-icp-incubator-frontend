@@ -1,20 +1,21 @@
 import {useContext, useEffect, useState} from "react";
-import {ProductCategory, TradeType} from "@kbc-lib/coffee-trading-management-lib";
+import {DocumentStatus, ProductCategory, TradeType} from "@kbc-lib/coffee-trading-management-lib";
 import {FormElement, FormElementType} from "../../../components/GenericForm/GenericForm";
 import {regex} from "../../../utils/regex";
-import {useLocation} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import {EthServicesContext} from "../../../providers/EthServicesProvider";
 import {SignerContext} from "../../../providers/SignerProvider";
 import {hideLoading, showLoading} from "../../../redux/reducers/loadingSlice";
 import {useDispatch} from "react-redux";
 import {NotificationType, openNotification} from "../../../utils/notification";
 import {getNameByDID} from "../../../utils/utils";
-import {DID_METHOD} from "../../../constants";
+import {DID_METHOD, paths} from "../../../constants";
 
 export default function useTradeShared() {
     const {signer} = useContext(SignerContext);
-    const {ethTradeService, ethUnitService, ethFiatService, ethMaterialService} = useContext(EthServicesContext);
+    const {ethTradeService, ethDocumentService, ethUnitService, ethFiatService, ethMaterialService} = useContext(EthServicesContext);
     const location = useLocation();
+    const navigate = useNavigate();
     const dispatch = useDispatch();
 
     const [type, setType] = useState<TradeType>(TradeType.ORDER);
@@ -57,6 +58,15 @@ export default function useTradeShared() {
 
     }
 
+    const validateDocument = async (tradeId: number, documentId: number, validationStatus: DocumentStatus) => {
+        console.log("document id: ", documentId)
+        const documents = await ethDocumentService.getDocumentsByTransactionId(tradeId);
+        console.log("documents: ", documents)
+        await ethTradeService.validateDocument(tradeId, documentId, validationStatus);
+        if (validationStatus === DocumentStatus.APPROVED) openNotification("Document approved", "The document has been successfully approved", NotificationType.SUCCESS, 1);
+        else if (validationStatus === DocumentStatus.NOT_APPROVED) openNotification("Document rejected", "The document has been rejected", NotificationType.SUCCESS, 1);
+        navigate(paths.TRADES);
+    }
 
     const documentHeight = '45vh';
 
@@ -213,7 +223,6 @@ export default function useTradeShared() {
                     loading: false,
                     uploadable: true,
                     height: documentHeight,
-                    evaluable: false,
                 },
                 {type: FormElementType.TITLE, span: 24, label: 'Line Item'},
                 ...basicLine,
@@ -232,17 +241,14 @@ export default function useTradeShared() {
                     disabled: false,
                 },
                 {
-                    type: FormElementType.DOCUMENT,
+                    type: FormElementType.INPUT,
                     span: 12,
-                    name: 'payment-invoice',
-                    // TODO: DEMO ONLY!! Remove this Label!!!
-                    label: 'Attachments',
-                    // label: 'Payment Invoice',
+                    name: 'arbiter',
+                    label: 'Arbiter',
                     required: true,
-                    loading: false,
-                    uploadable: true,
-                    height: documentHeight,
-                    evaluable: false,
+                    defaultValue: '',
+                    disabled: false,
+                    regex: regex.ETHEREUM_ADDRESS
                 },
                 {
                     type: FormElementType.DATE,
@@ -264,7 +270,7 @@ export default function useTradeShared() {
                 },
                 {
                     type: FormElementType.INPUT,
-                    span: 12,
+                    span: 8,
                     name: 'shipper',
                     label: 'Shipper',
                     required: true,
@@ -273,17 +279,7 @@ export default function useTradeShared() {
                 },
                 {
                     type: FormElementType.INPUT,
-                    span: 12,
-                    name: 'arbiter',
-                    label: 'Arbiter',
-                    required: true,
-                    defaultValue: '',
-                    disabled: false,
-                    regex: regex.ETHEREUM_ADDRESS
-                },
-                {
-                    type: FormElementType.INPUT,
-                    span: 12,
+                    span: 8,
                     name: 'shipping-port',
                     label: 'Shipping Port',
                     required: true,
@@ -292,7 +288,7 @@ export default function useTradeShared() {
                 },
                 {
                     type: FormElementType.DATE,
-                    span: 12,
+                    span: 8,
                     name: 'shipping-deadline',
                     label: 'Shipping Deadline',
                     required: true,
@@ -345,6 +341,7 @@ export default function useTradeShared() {
 
     return {
         dataLoaded,
+        validateDocument,
         productCategories,
         type,
         ethTradeService,

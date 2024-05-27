@@ -101,12 +101,7 @@ export default function useTradeNew() {
                     shippingPort: values['shipping-port'],
                     deliveryPort: values['delivery-port']
                 }
-                const paymentInvoice: DocumentRequest = {
-                    content: values['payment-invoice'],
-                    filename: values['payment-invoice'].name,
-                    documentType: DocumentType.PAYMENT_INVOICE,
-                }
-                await ethTradeService.saveOrderTrade(orderTrade, [paymentInvoice]);
+                await ethTradeService.saveOrderTrade(orderTrade);
                 openNotification("Order trade registered", `Order trade has been registered correctly!`, NotificationType.SUCCESS, 1);
             }
             navigate(paths.TRADES);

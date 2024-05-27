@@ -1,43 +1,31 @@
-import React, {useEffect} from "react";
+import React from "react";
 import {CardPage} from "../../components/structure/CardPage/CardPage";
-import {GenericForm} from "../../components/GenericForm/GenericForm";
-import {Tag, Tooltip} from "antd";
+import {Spin, Tag, Tooltip} from "antd";
 import {EditOutlined, CheckCircleOutlined} from "@ant-design/icons";
 import {NegotiationStatus, TradeType} from "@kbc-lib/coffee-trading-management-lib";
 import {getEnumKeyByValue, isValueInEnum} from "../../utils/utils";
 import useTradeView from "./logic/tradeView";
-import OrderStatusBar from "../../components/OrderStatusBar/OrderStatusBar";
-import ConfirmedTradeView from "./ConfirmedTradeView";
+import OrderTradeStatusForms from "../../components/OrderStatusForms/OrderTradeStatusForms";
+import {GenericForm} from "../../components/GenericForm/GenericForm";
+import {OrderTradePresentable} from "../../api/types/TradePresentable";
 
 export const TradeView = () => {
     const {
         trade,
         type,
         elements,
-        disabled,
         negotiationStatus,
-        orderStatus,
+        disabled,
         toggleDisabled,
         onSubmit,
         confirmNegotiation
     } = useTradeView();
 
-    const [current, setCurrent] = React.useState(-1);
-
-    useEffect(() => {
-        setCurrent(orderStatus);
-    }, [orderStatus]);
-
-    const onChange = (value: number) => {
-        console.log(value, orderStatus)
-        if(value > orderStatus)
-            return;
-        setCurrent(value);
-    }
-
     if (!isValueInEnum(type, TradeType)) {
         return <div>Wrong type</div>;
     }
+
+    if (!trade) return <Spin />;
 
     return (
         <CardPage title={
@@ -60,15 +48,19 @@ export const TradeView = () => {
                 </div>
             </div>}
         >
-            {type === TradeType.ORDER && <OrderStatusBar trade={trade?.trade} orderStatus={current} onChange={onChange}/>}
-            {
-                current === 0 &&
+            {type === TradeType.ORDER ?
+                <OrderTradeStatusForms status={(trade as OrderTradePresentable).status} tradeInfo={trade} submittable={!disabled} negotiationElements={elements}/>
+                :
                 <GenericForm elements={elements} submittable={!disabled} onSubmit={onSubmit}/>
             }
-            {
-                current === 1 &&
-                <ConfirmedTradeView/>
-            }
+            {/*{*/}
+            {/*    current === 0 &&*/}
+            {/*    <GenericForm elements={elements} submittable={!disabled} onSubmit={onSubmit}/>*/}
+            {/*}*/}
+            {/*{*/}
+            {/*    current === 1 &&*/}
+            {/*    <ConfirmedTradeView/>*/}
+            {/*}*/}
         </CardPage>
     )
 }

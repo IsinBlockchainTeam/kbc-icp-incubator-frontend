@@ -1,13 +1,13 @@
 import {GenericForm} from "../../components/GenericForm/GenericForm";
-import {TradeType} from "@kbc-lib/coffee-trading-management-lib";
+import {OrderStatus, TradeType} from "@kbc-lib/coffee-trading-management-lib";
 import {Button} from "antd";
 import {CardPage} from "../../components/structure/CardPage/CardPage";
 import React from "react";
 import {DeleteOutlined} from '@ant-design/icons';
 import {paths} from "../../constants";
-import {useNavigate, useLocation} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import useTradeNew from "./logic/tradeNew";
-import OrderStatusBar from "../../components/OrderStatusBar/OrderStatusBar";
+import OrderTradeStatusForms from "../../components/OrderStatusForms/OrderTradeStatusForms";
 
 export const TradeNew = () => {
     const navigate = useNavigate();
@@ -27,8 +27,11 @@ export const TradeNew = () => {
                     </Button>
                 </div>
             }>
-                {type === TradeType.ORDER && <OrderStatusBar orderStatus={0}/>}
-                <GenericForm elements={elements} submittable={true} onSubmit={onSubmit}/>
+                {type === TradeType.ORDER ?
+                    <OrderTradeStatusForms status={OrderStatus.CONTRACTING} submittable={true} negotiationElements={elements}/>
+                    :
+                    <GenericForm elements={elements} submittable={true} onSubmit={onSubmit}/>
+                }
             </CardPage>
         )
     }

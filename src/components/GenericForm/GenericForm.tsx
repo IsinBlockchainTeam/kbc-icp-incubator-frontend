@@ -85,7 +85,10 @@ export type DocumentElement = Omit<LabeledElement, 'type'> & {
     loading: boolean,
     info?: DocumentPresentable,
     height?: `${number}px` | `${number}%` | `${number}vh` | 'auto',
-    evaluable: boolean,
+    validationCallback?: {
+        approve: (...args: any[]) => Promise<void>,
+        reject: (...args: any[]) => Promise<void>,
+    }
 }
 
 type Props = {
@@ -110,13 +113,6 @@ export const GenericForm = (props: Props) => {
             }
         });
     }, [props.elements]);
-
-    const validateDocument = async (documentId: number, validationStatus: DocumentStatus) => {
-        await ethDocumentService.validateDocument(documentId, validationStatus);
-        if (validationStatus === DocumentStatus.APPROVED) openNotification("Document approved", "The document has been successfully approved", NotificationType.SUCCESS, 1);
-        else if (validationStatus === DocumentStatus.NOT_APPROVED) openNotification("Document rejected", "The document has been rejected", NotificationType.SUCCESS, 1);
-        navigate(paths.TRADES);
-    }
 
     const addDocument = (name: string, file?: Blob) => {
         documents.set(name, file);
@@ -253,7 +249,7 @@ export const GenericForm = (props: Props) => {
                         // rules={[{required: element.required, message: `Please insert ${element.label}!`}]}
                     >
                         <PDFViewer element={element} onDocumentChange={addDocument} />
-                        { element.evaluable &&
+                        { element.validationCallback &&
                             <Popover
                                 title="Validate the document"
                                 trigger="click"
@@ -267,8 +263,8 @@ export const GenericForm = (props: Props) => {
                                                 createDownloadWindow(docInfo.content, filenameSlices[filenameSlices.length - 1])
                                             }} icon={<DownloadOutlined />} />
                                         </Col>
-                                        <Col span={12}><Button type="primary" style={{width: '100%'}} onClick={() => validateDocument(docInfo.id, DocumentStatus.APPROVED)}>Approve</Button></Col>
-                                        <Col span={12}><Button danger type="primary" style={{width: '100%'}} onClick={() => validateDocument(docInfo.id, DocumentStatus.NOT_APPROVED)}>Reject</Button></Col>
+                                        <Col span={12}><Button type="primary" style={{width: '100%'}} onClick={element.validationCallback.approve}>Approve</Button></Col>
+                                        <Col span={12}><Button danger type="primary" style={{width: '100%'}} onClick={element.validationCallback.reject}>Reject</Button></Col>
                                     </Row>
                                 }
                             >

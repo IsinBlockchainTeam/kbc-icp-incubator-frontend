@@ -26,24 +26,22 @@ export class EthDocumentService {
             if(d.externalUrl.endsWith('.json')) continue;
 
             const completeDocument = await this._documentService.getCompleteDocument(d);
+            const status = await tradeService.getDocumentStatus(d.id);
             const blob = new Blob([completeDocument!.content], { type: getMimeType(completeDocument.filename)});
 
             documents.push({
                 id: completeDocument.id,
                 contentType: blob.type,
+                uploadedBy: d.uploadedBy,
                 documentType: completeDocument.documentType,
                 content: blob,
                 filename: completeDocument.filename,
                 date: new Date(completeDocument.date),
                 transactionLines: completeDocument.transactionLines,
-                status: completeDocument.status
+                status
             });
         }
 
         return documents;
-    }
-
-    async validateDocument(documentId: number, validationStatus: DocumentStatus): Promise<void> {
-        await this._documentService.validateDocument(documentId, validationStatus);
     }
 }

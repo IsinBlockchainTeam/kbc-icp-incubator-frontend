@@ -3,6 +3,7 @@ import {TransactionLine, DocumentType, DocumentStatus} from "@kbc-lib/coffee-tra
 export type DocumentPresentable = {
     id: number;
     contentType: string;
+    uploadedBy: string;
     documentType: DocumentType;
     content: Blob;
     filename: string;

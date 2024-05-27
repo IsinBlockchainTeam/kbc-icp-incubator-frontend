@@ -24,11 +24,11 @@ import {DID_METHOD, paths} from "../../../constants";
 import {getEnumKeyByValue, getNameByDID} from "../../../utils/utils";
 import {BasicTradeRequest, OrderTradeRequest} from "../../../api/types/TradeRequest";
 import {SignerContext} from "../../../providers/SignerProvider";
+import documentService from "../../../../../coffee-trading-management-lib/src/services/DocumentService";
 
 export default function useTradeView() {
+    const { dataLoaded, validateDocument, productCategories, units, fiats, ethTradeService } = useTradeShared();
     const {signer} = useContext(SignerContext);
-
-    const { dataLoaded, productCategories, units, fiats, ethTradeService } = useTradeShared();
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -41,8 +41,6 @@ export default function useTradeView() {
     const [negotiationStatus, setNegotiationStatus] = useState<string | undefined>(undefined);
     const [actorNames, setActorNames] = useState<string[]>([]);
     const [elements, setElements] = useState<FormElement[]>([]);
-
-    const [orderStatus, setOrderStatus] = useState<number>(-1);
 
     const toggleDisabled = () => {
         setDisabled(!disabled);
@@ -69,9 +67,8 @@ export default function useTradeView() {
     }, []);
 
     useEffect(() => {
-        if(!dataLoaded)
-            return;
-        loadTradeInfo(parseInt(id!));
+        if(!dataLoaded) return;
+        if (id) loadTradeInfo(parseInt(id));
     }, [dataLoaded]);
 
     const loadTradeInfo = async (id: number) => {
@@ -103,6 +100,16 @@ export default function useTradeView() {
         } finally {
             dispatch(hideLoading())
         }
+    }
+
+    const validationCallback = (tradeInfo: DetailedTradePresentable | undefined, documentType: DocumentType) => {
+        if (!tradeInfo) return undefined;
+        const doc = tradeInfo.documents.get(documentType);
+        console.log("validation callback document: ", doc)
+        return doc && doc.status === DocumentStatus.NOT_EVALUATED && doc.uploadedBy !== signer?.address ? {
+            approve: () => validateDocument(tradeInfo.trade.tradeId, doc.id, DocumentStatus.APPROVED),
+            reject: () => validateDocument(tradeInfo.trade.tradeId, doc.id, DocumentStatus.NOT_APPROVED)
+        } : undefined;
     }
 
     useEffect(() => {
@@ -143,11 +150,10 @@ export default function useTradeView() {
             },
         ]
 
-        let documentElement: FormElement;
         const documentHeight = '45vh';
         if (type === TradeType.BASIC) {
             const doc = trade.documents.get(DocumentType.DELIVERY_NOTE);
-            documentElement = {
+            const documentElement: FormElement = {
                 type: FormElementType.DOCUMENT,
                 span: 12,
                 name: 'certificate-of-shipping',
@@ -157,31 +163,9 @@ export default function useTradeView() {
                 uploadable: !disabled,
                 info: doc,
                 height: documentHeight,
-                evaluable: false
+                validationCallback: validationCallback(trade, DocumentType.DELIVERY_NOTE),
             }
-        } else if (type === TradeType.ORDER) {
-            const doc = trade.documents.get(DocumentType.PAYMENT_INVOICE);
-            documentElement = {
-                type: FormElementType.DOCUMENT,
-                span: 12,
-                name: 'payment-invoice',
-                // TODO: DEMO ONLY!! Remove this Label!!!
-                label: 'Attachments',
-                // label: 'Payment Invoice',
-                required: false,
-                loading: false,
-                uploadable: !disabled,
-                info: doc,
-                height: documentHeight,
-                // TODO: DEMO ONLY!! Remove this!!!
-                evaluable: false
-                // evaluable: doc?.status === DocumentStatus.NOT_EVALUATED && trade.trade.commissioner === signer?.address
-            }
-        } else {
-            throw new Error("Invalid trade type");
-        }
 
-        if (type === TradeType.BASIC) {
             const basicTrade = trade.trade as BasicTrade;
             const newElements = [...commonElements];
             newElements.push(
@@ -237,13 +221,6 @@ export default function useTradeView() {
             const orderTrade = trade.trade as OrderTrade;
             setNegotiationStatus(getEnumKeyByValue(NegotiationStatus, orderTrade.negotiationStatus));
 
-            // TODO: DEMO ONLY!! Remove this!!!
-            if (orderTrade.negotiationStatus === NegotiationStatus.INITIALIZED || orderTrade.negotiationStatus === NegotiationStatus.PENDING) {
-                setOrderStatus(0);
-            } else if (orderTrade.negotiationStatus === NegotiationStatus.CONFIRMED) {
-                setOrderStatus(1);
-            }
-
             const newElements = [...commonElements];
             newElements.push(
                 {type: FormElementType.TITLE, span: 24, label: 'Constraints'},
@@ -256,7 +233,16 @@ export default function useTradeView() {
                     defaultValue: orderTrade.metadata?.incoterms,
                     disabled,
                 },
-                documentElement,
+                {
+                    type: FormElementType.INPUT,
+                    span: 12,
+                    name: 'arbiter',
+                    label: 'Arbiter',
+                    required: true,
+                    defaultValue: orderTrade.arbiter,
+                    disabled,
+                    regex: regex.ETHEREUM_ADDRESS
+                },
                 {
                     type: FormElementType.DATE,
                     span: 12,
@@ -277,7 +263,7 @@ export default function useTradeView() {
                 },
                 {
                     type: FormElementType.INPUT,
-                    span: 12,
+                    span: 8,
                     name: 'shipper',
                     label: 'Shipper',
                     required: true,
@@ -286,17 +272,7 @@ export default function useTradeView() {
                 },
                 {
                     type: FormElementType.INPUT,
-                    span: 12,
-                    name: 'arbiter',
-                    label: 'Arbiter',
-                    required: true,
-                    defaultValue: orderTrade.arbiter,
-                    disabled,
-                    regex: regex.ETHEREUM_ADDRESS
-                },
-                {
-                    type: FormElementType.INPUT,
-                    span: 12,
+                    span: 8,
                     name: 'shipping-port',
                     label: 'Shipping Port',
                     required: true,
@@ -305,7 +281,7 @@ export default function useTradeView() {
                 },
                 {
                     type: FormElementType.DATE,
-                    span: 12,
+                    span: 8,
                     name: 'shipping-deadline',
                     label: 'Shipping Deadline',
                     required: true,
@@ -475,7 +451,7 @@ export default function useTradeView() {
         trade,
         disabled,
         negotiationStatus,
-        orderStatus,
+        validationCallback,
         toggleDisabled,
         onSubmit,
         confirmNegotiation

@@ -1,6 +1,6 @@
 import {
     BasicTrade,
-    BasicTradeService,
+    BasicTradeService, DocumentStatus,
     DocumentType,
     IConcreteTradeService,
     Line,
@@ -136,10 +136,12 @@ export class EthTradeService {
         return tradePresentables;
     }
 
-    private async getDocumentMap(tradeId: number): Promise<Map<DocumentType, DocumentPresentable>> {
+    private async getDocumentsMap(tradeId: number): Promise<Map<DocumentType, DocumentPresentable>> {
         const documents = await this._ethDocumentService.getDocumentsByTransactionId(tradeId);
         const documentMap = new Map<DocumentType, DocumentPresentable>();
         documents?.forEach(doc => documentMap.set(doc.documentType, doc));
+        console.log("documentMap: ", documentMap)
+        console.log("documents: ", documents)
         return documentMap;
     }
 
@@ -156,14 +158,14 @@ export class EthTradeService {
                 const basicTrade = await basicTradeService.getTrade();
                 basicTrade.lines = await basicTradeService.getLines();
 
-                return new BasicTradePresentable(basicTrade, await this.getDocumentMap(id));
+                return new BasicTradePresentable(basicTrade, await this.getDocumentsMap(id));
 
             case TradeType.ORDER:
                 const orderTradeService = this._getOrderTradeService(address);
                 const orderTrade = await orderTradeService.getCompleteTrade();
                 orderTrade.lines = await orderTradeService.getLines();
 
-                return new OrderTradePresentable(orderTrade, await orderTradeService.getOrderStatus(), await this.getDocumentMap(id));
+                return new OrderTradePresentable(orderTrade, await orderTradeService.getOrderStatus(), await this.getDocumentsMap(id));
 
             default:
                 throw new CustomError(HttpStatusCode.BAD_REQUEST, "Wrong trade type");
@@ -271,6 +273,7 @@ export class EthTradeService {
         }
     }
 
+    // TODO: BUG! -> Right now metadata of the trade are not updated, is it possible to update metadata file in ICP or it must be replaced?
     async putOrderTrade(id: number, trade: OrderTradeRequest): Promise<void> {
         const tradeService = this._getOrderTradeService(await this._tradeManagerService.getTrade(id));
         const oldTrade = await tradeService.getTrade();
@@ -317,6 +320,12 @@ export class EthTradeService {
         }
 
         await tradeService.addDocument(document.documentType, new Uint8Array(await new Response(document.content).arrayBuffer()), externalUrl, resourceSpec, delegatedOrganizationIds);
+    }
+
+    async validateDocument(tradeId: number, documentId: number, validationStatus: DocumentStatus): Promise<void> {
+        const tradeAddress = await this._tradeManagerService.getTrade(tradeId);
+        const tradeService = this._getTradeService(tradeAddress);
+        await tradeService.validateDocument(documentId, validationStatus);
     }
 
     async confirmOrderTrade(id: number): Promise<void> {
