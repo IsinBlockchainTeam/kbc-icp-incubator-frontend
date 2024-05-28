@@ -4,7 +4,7 @@ import {Table, TableProps, Tag, Tooltip} from "antd";
 import {ExclamationCircleOutlined, CheckCircleOutlined, SettingOutlined} from "@ant-design/icons";
 import {ColumnsType} from "antd/es/table";
 import {NotificationType, openNotification} from "../../utils/notification";
-import {getEnumKeyByValue, setParametersPath} from "../../utils/utils";
+import {setParametersPath} from "../../utils/utils";
 import {TradePreviewPresentable} from "../../api/types/TradePresentable";
 import {Link} from "react-router-dom";
 import {paths} from "../../constants";
@@ -65,7 +65,7 @@ export const Trades = () => {
             title: 'Type',
             dataIndex: 'type',
             render: (type => {
-                return getEnumKeyByValue(TradeType, type);
+                return TradeType[type];
             })
         },
         {
@@ -75,7 +75,7 @@ export const Trades = () => {
             render: (_, {negotiationStatus}) => (
                 <Tag color="geekblue" key={negotiationStatus}>
                     {negotiationStatus ?
-                        (getEnumKeyByValue(NegotiationStatus, negotiationStatus)?.toString().toUpperCase()) :
+                        (NegotiationStatus[negotiationStatus]?.toString().toUpperCase()) :
                         '-'
                     }
                 </Tag>

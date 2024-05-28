@@ -11,7 +11,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
 import {resetUserInfo} from "../../../redux/reducers/userInfoSlice";
 import {clearSiweIdentity} from "../../../redux/reducers/siweIdentitySlice";
-import {useSiweIdentity} from "../../icp/SiweIdentityProvider/SiweIdentityProvider";
 import {
     ICPIdentityDriver
 } from "@blockchain-lib/common";
@@ -51,7 +50,7 @@ const settingItems: MenuItem[] = [
   ]),
 ];
 
-const getUserItemLoggedIn = (name: string, picture: string, dispatch: any, clear: any) => [
+const getUserItemLoggedIn = (name: string, picture: string, dispatch: any) => [
   getItem(
       `${name}`,
       "profile",
@@ -69,7 +68,6 @@ const getUserItemLoggedIn = (name: string, picture: string, dispatch: any, clear
               dispatch(resetUserInfo());
               dispatch(clearSiweIdentity());
               ICPIdentityDriver.getInstance().logout();
-              clear();
             }
         ),
       ],
@@ -86,7 +84,6 @@ export const MenuLayout = () => {
     token: { colorBgContainer },
   } = theme.useToken();
   const dispatch = useDispatch();
-  const { clear } = useSiweIdentity();
 
   const userInfo = useSelector((state: RootState) => state.userInfo);
   const loading = useSelector((state: RootState) => state.loading);
@@ -126,7 +123,7 @@ export const MenuLayout = () => {
                   mode="vertical"
                   items={
                     userInfo.isLogged
-                        ? getUserItemLoggedIn(userInfo.legalName, userInfo.image || defaultPictureURL, dispatch, clear)
+                        ? getUserItemLoggedIn(userInfo.legalName, userInfo.image || defaultPictureURL, dispatch)
                         : settingItems
                   }
                   onClick={onMenuClick}

@@ -1,24 +1,17 @@
-import {createContext, type ReactNode, useEffect, useState} from "react";
-import {useSiweIdentity} from "../components/icp/SiweIdentityProvider/SiweIdentityProvider";
+import React from "react";
+import {type ReactNode, useEffect, useState} from "react";
+import {useSiweIdentity} from "./SiweIdentityProvider";
 import {checkAndGetEnvironmentVariable} from "../utils/utils";
-import {ICP, paths} from "../constants";
+import {ICP} from "../constants";
 import {
     ICPIdentityDriver,
     ICPOrganizationDriver, ICPStorageDriver
 } from "@blockchain-lib/common";
 import {ICPFileDriver} from "@kbc-lib/coffee-trading-management-lib";
-import {NotificationType, openNotification} from "../utils/notification";
-import {useNavigate} from "react-router-dom";
-import {useDispatch, useSelector} from "react-redux";
-import {RootState} from "../redux/store";
-import {setLogged} from "../redux/reducers/userInfoSlice";
+import {Typography} from "antd";
 
-export const ICPDriversContext = createContext<boolean>(false);
 export function ICPDriversProvider({ children }: { children: ReactNode }) {
     const { identity } = useSiweIdentity();
-    const userInfo = useSelector((state: RootState) => state.userInfo);
-    const navigate = useNavigate();
-    const dispatch = useDispatch();
     const [isInitialized, setIsInitialized] = useState<boolean>(false);
 
     useEffect(() => {
@@ -34,20 +27,18 @@ export function ICPDriversProvider({ children }: { children: ReactNode }) {
             ICPFileDriver.init();
             ICPIdentityDriver.init(identity);
             setIsInitialized(true);
-            openNotification(
-                "Authenticated",
-                `Login succeed. Welcome ${userInfo.legalName}!`,
-                NotificationType.SUCCESS
-            );
-            dispatch(setLogged(true));
-            navigate(paths.PROFILE);
         }
     }, [identity]);
 
-    return (
-        <ICPDriversContext.Provider value={isInitialized}>
-            {children}
-        </ICPDriversContext.Provider>
-    );
+    if ( isInitialized ) {
+        return (
+            <>
+                {children}
+            </>
+        );
+    } else {
+        return <Typography.Text>Loading...</Typography.Text>
+    }
+
 
 }

@@ -4,7 +4,7 @@ import {useSelector} from "react-redux";
 import {RootState} from "../../redux/store";
 import {Navigate} from "react-router-dom";
 import {paths} from "../../constants";
-import {useSiweIdentity} from "../../components/icp/SiweIdentityProvider/SiweIdentityProvider";
+import {useSiweIdentity} from "../../providers/SiweIdentityProvider";
 import React, {useContext, useEffect, useState} from "react";
 import {
     ICPOrganizationDriver

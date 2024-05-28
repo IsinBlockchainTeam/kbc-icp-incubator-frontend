@@ -1,9 +1,14 @@
+type Options = {
+    method: string;
+    body?: string;
+    responseType?: string;
+};
 export const request = async (
     url: string,
-    options: any,
+    options: Options,
     contentType = "application/json",
 ): Promise<any> => {
-  let headers = {
+  const headers = {
     "Content-Type": contentType,
     Accept: "application/json",
     "ngrok-skip-browser-warning": "true",

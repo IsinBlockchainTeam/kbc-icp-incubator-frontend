@@ -1,5 +1,5 @@
 /* eslint-disable */
-import {
+import React, {
     createContext,
     useContext,
     type ReactNode,
@@ -9,36 +9,36 @@ import {
 } from "react";
 import {type ActorConfig, type HttpAgentOptions} from "@dfinity/agent";
 import {DelegationIdentity, Ed25519KeyIdentity} from "@dfinity/identity";
-import type {SiweIdentityContextType} from "./context.type";
+import type {SiweIdentityContextType} from "../icp/siwe-identity-utils/context.type";
 import {IDL} from "@dfinity/candid";
 import type {
     LoginOkResponse,
     SIWE_IDENTITY_SERVICE,
     SignedDelegation as ServiceSignedDelegation,
-} from "./service.interface";
+} from "../icp/siwe-identity-utils/service.interface";
 import {
     callGetDelegation,
     callLogin,
     callPrepareLogin,
     createAnonymousActor,
-} from "./siwe-provider";
-import type {State} from "./state.type";
-import {createDelegationChain} from "./delegation";
-import {normalizeError} from "./error";
+} from "../icp/siwe-identity-utils/siwe-provider";
+import type {State} from "../icp/siwe-identity-utils/state.type";
+import {createDelegationChain} from "../icp/siwe-identity-utils/delegation";
+import {normalizeError} from "../icp/siwe-identity-utils/error";
 import {useDispatch, useSelector} from "react-redux";
-import {clearSiweIdentity, selectSiweIdentity, updateSiweIdentity} from "../../../redux/reducers/siweIdentitySlice";
-import {SignerContext} from "../../../providers/SignerProvider";
-import {hideLoading} from "../../../redux/reducers/loadingSlice";
-import {NotificationType, openNotification} from "../../../utils/notification";
-import {useNavigate} from "react-router-dom";
-import {paths} from "../../../constants";
+import {clearSiweIdentity, selectSiweIdentity, updateSiweIdentity} from "../redux/reducers/siweIdentitySlice";
+import {SignerContext} from "./SignerProvider";
+import {NotificationType, openNotification} from "../utils/notification";
+import {RootState} from "../redux/store";
+import {Typography} from "antd";
+import ICPLoading from "../components/ICPLoading/ICPLoading";
 
 /**
  * Re-export types
  */
-export * from "./context.type";
-export * from "./service.interface";
-export * from "./storage.type";
+export * from "../icp/siwe-identity-utils/context.type";
+export * from "../icp/siwe-identity-utils/service.interface";
+export * from "../icp/siwe-identity-utils/storage.type";
 
 /**
  * React context for managing SIWE (Sign-In with Ethereum) identity.
@@ -116,34 +116,34 @@ export function SiweIdentityProvider<T extends SIWE_IDENTITY_SERVICE>({
     const siweIdentity = useSelector(selectSiweIdentity);
     const dispatch = useDispatch();
     const {signer} = useContext(SignerContext);
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        console.log("SiweIdentity", siweIdentity);
-        if(signer && !siweIdentity) {
-            tryLogin();
-        }
-    }, [signer]);
-
-    async function tryLogin() {
-        try {
-            navigate(paths.ICP_LOGIN);
-            // dispatch(showLoading("Loading identity..."));
-            await login();
-        } catch(e) {
-            console.error("Error in SiweIdentityProvider", e);
-            openNotification("Error", "Error while logging in", NotificationType.ERROR);
-        } finally {
-            dispatch(hideLoading());
-        }
-    }
+    const userInfo = useSelector((state: RootState) => state.userInfo);
 
     const [state, setState] = useState<State>({
         isInitializing: true,
         prepareLoginStatus: "idle",
         loginStatus: "idle",
-
     });
+
+    useEffect(() => {
+        if (state.anonymousActor && !siweIdentity) {
+            console.log("Trying siwe login...");
+            tryLogin();
+        }
+    }, [siweIdentity, state.anonymousActor]);
+
+    async function tryLogin() {
+        try {
+            await login();
+            openNotification(
+                "Authenticated",
+                `Login succeed. Welcome ${userInfo.legalName}!`,
+                NotificationType.SUCCESS
+            );
+        } catch (e) {
+            console.error("Error in SiweIdentityProvider", e);
+            openNotification("Error", "Error while logging in", NotificationType.ERROR);
+        }
+    }
 
     const signMessageEthers = async (message: string) => {
         return signer?.signMessage(message);
@@ -421,9 +421,6 @@ export function SiweIdentityProvider<T extends SIWE_IDENTITY_SERVICE>({
             delegationChain: siweIdentity?.delegationChain,
             isInitializing: false,
         });
-        return () => {
-            dispatch(hideLoading())
-        }
     }, []);
 
     /**
@@ -452,6 +449,15 @@ export function SiweIdentityProvider<T extends SIWE_IDENTITY_SERVICE>({
         });
     }, [idlFactory, canisterId, httpAgentOptions, actorOptions]);
 
+    if (!signer) {
+        return <Typography.Text>
+            Signer not available
+        </Typography.Text>
+    }
+    const isLoggingIn = state.loginStatus === "logging-in";
+    if (isLoggingIn) {
+        return <ICPLoading/>
+    }
     return (
         <SiweIdentityContext.Provider
             value={{
@@ -462,7 +468,7 @@ export function SiweIdentityProvider<T extends SIWE_IDENTITY_SERVICE>({
                 isPrepareLoginSuccess: state.prepareLoginStatus === "success",
                 isPrepareLoginIdle: state.prepareLoginStatus === "idle",
                 login,
-                isLoggingIn: state.loginStatus === "logging-in",
+                isLoggingIn,
                 isLoginError: state.loginStatus === "error",
                 isLoginSuccess: state.loginStatus === "success",
                 isLoginIdle: state.loginStatus === "idle",

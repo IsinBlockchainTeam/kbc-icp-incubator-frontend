@@ -21,7 +21,7 @@ import {FormElement, FormElementType} from "../../../components/GenericForm/Gene
 import {regex} from "../../../utils/regex";
 import dayjs from "dayjs";
 import {DID_METHOD, paths} from "../../../constants";
-import {getEnumKeyByValue, getNameByDID} from "../../../utils/utils";
+import {getNameByDID} from "../../../utils/utils";
 import {BasicTradeRequest, OrderTradeRequest} from "../../../api/types/TradeRequest";
 import {SignerContext} from "../../../providers/SignerProvider";
 import documentService from "../../../../../coffee-trading-management-lib/src/services/DocumentService";
@@ -218,7 +218,7 @@ export default function useTradeView() {
             setElements(newElements);
         } else {
             const orderTrade = trade.trade as OrderTrade;
-            setNegotiationStatus(getEnumKeyByValue(NegotiationStatus, orderTrade.negotiationStatus));
+            setNegotiationStatus(NegotiationStatus[orderTrade.negotiationStatus]);
 
             const newElements = [...commonElements];
             newElements.push(
