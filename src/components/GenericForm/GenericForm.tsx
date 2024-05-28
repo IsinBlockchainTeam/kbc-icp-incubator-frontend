@@ -3,12 +3,9 @@ import {Alert, Button, Col, DatePicker, Divider, Form, Input, Popover, Row, Sele
 import PDFViewer from "../PDFViewer/PDFViewer";
 import {DownloadOutlined} from "@ant-design/icons";
 import {createDownloadWindow, showTextWithHtmlLinebreaks} from "../../utils/utils";
-import {DocumentStatus} from "@kbc-lib/coffee-trading-management-lib";
 import {EthServicesContext} from "../../providers/EthServicesProvider";
 import {DocumentPresentable} from "../../api/types/DocumentPresentable";
-import {NotificationType, openNotification} from "../../utils/notification";
 import {useNavigate} from "react-router-dom";
-import { paths } from "../../constants";
 
 export enum FormElementType {
     TITLE = 'title',
@@ -248,6 +245,7 @@ export const GenericForm = (props: Props) => {
         [FormElementType.DOCUMENT]: (element: FormElement, index: number) => {
             element = element as DocumentElement;
             const docInfo = element.info!;
+            console.log("docInfo: ", docInfo    )
 
             return (
                 <Col span={element.span} key={index}>
@@ -258,7 +256,7 @@ export const GenericForm = (props: Props) => {
                         // TODO: if document is required, it shows error message also if the document is uploaded, to fix when document uploading will be re-introduced
                         // rules={[{required: element.required, message: `Please insert ${element.label}!`}]}
                     >
-                        <PDFViewer element={element} onDocumentChange={addDocument} />
+                        <PDFViewer element={element} onDocumentChange={addDocument} validationStatus={docInfo?.status} />
                         { element.validationCallback &&
                             <Popover
                                 title="Validate the document"

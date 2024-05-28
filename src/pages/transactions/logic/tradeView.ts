@@ -105,7 +105,6 @@ export default function useTradeView() {
     const validationCallback = (tradeInfo: DetailedTradePresentable | undefined, documentType: DocumentType) => {
         if (!tradeInfo) return undefined;
         const doc = tradeInfo.documents.get(documentType);
-        console.log("validation callback document: ", doc)
         return doc && doc.status === DocumentStatus.NOT_EVALUATED && doc.uploadedBy !== signer?.address ? {
             approve: () => validateDocument(tradeInfo.trade.tradeId, doc.id, DocumentStatus.APPROVED),
             reject: () => validateDocument(tradeInfo.trade.tradeId, doc.id, DocumentStatus.NOT_APPROVED)

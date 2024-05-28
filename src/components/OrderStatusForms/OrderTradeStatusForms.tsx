@@ -98,6 +98,11 @@ export default function OrderTradeStatusForms(props: Props) {
                 .set(OrderStatus.PAYED, {
                     elements: [
                         {
+                            type: FormElementType.TIP,
+                            span: 24,
+                            label: 'This is the export phase, the exporter has to load the following documents to proceed with the export, \n in order to prove the quality of the goods and the intrinsic characteristics of the coffee.'
+                        },
+                        {
                             type: FormElementType.DOCUMENT,
                             span: 12,
                             name: 'swiss-decode',
@@ -182,6 +187,11 @@ export default function OrderTradeStatusForms(props: Props) {
                 .set(OrderStatus.EXPORTED, {
                     elements: [
                         {
+                            type: FormElementType.TIP,
+                            span: 24,
+                            label: 'This is the last step for the exporter, in which is important to prove that the goods are ready to be shipped. \n The exporter has to load the Bill of Lading to proceed with the shipment.'
+                        },
+                        {
                             type: FormElementType.DOCUMENT,
                             span: 12,
                             name: 'bill-of-lading',
@@ -236,7 +246,9 @@ export default function OrderTradeStatusForms(props: Props) {
             {
                 title: 'Coffee Shipment',
                 icon: <TruckOutlined />,
-                content: elementsAfterNegotiation ? <GenericForm elements={elementsAfterNegotiation.get(OrderStatus.EXPORTED)!.elements} submittable={current === OrderStatus.EXPORTED} onSubmit={elementsAfterNegotiation.get(OrderStatus.EXPORTED)!.onSubmit}/> : <></>
+                content: hasPendingDuties(OrderStatus.EXPORTED, elementsAfterNegotiation) ?
+                    <GenericForm elements={elementsAfterNegotiation.get(OrderStatus.EXPORTED)!.elements} submittable={current === OrderStatus.EXPORTED} onSubmit={elementsAfterNegotiation.get(OrderStatus.EXPORTED)!.onSubmit}/> :
+                    <TradeDutiesWaiting waitingType={DutiesWaiting.EXPORTER_SHIPPING} message={"The exporter has not uploaded the Bill of Lading. \n You will be notified when there are new developments."} />
             },
             {
                 title: 'Coffee Import',

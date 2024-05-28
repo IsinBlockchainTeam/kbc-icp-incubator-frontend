@@ -1,21 +1,27 @@
-import {Empty, Spin} from "antd";
+import {Badge, Empty, Spin} from "antd";
 import React, {useEffect, useState} from "react";
 import {DocumentElement} from "../GenericForm/GenericForm";
 import {Viewer} from "@react-pdf-viewer/core";
 import PDFUploader from "../PDFUploader/PDFUploader";
+import {DocumentStatus} from "@kbc-lib/coffee-trading-management-lib";
 
 export interface PDFViewerProps {
     element: DocumentElement;
     onDocumentChange: (name: string, file?: Blob) => void;
+    validationStatus?: DocumentStatus;
 }
 
-export default function PDFViewer({element, onDocumentChange}: PDFViewerProps) {
+export default function PDFViewer(props: PDFViewerProps) {
+    const {
+        element,
+        onDocumentChange,
+        validationStatus
+    } = props;
     const {height = '100%', uploadable, loading, info, name} = element;
     const [file, setFile] = useState<Blob | undefined>(undefined);
 
     useEffect(() => {
-        if (info)
-            setFile(info.content);
+        if (info) setFile(info.content);
     }, [info?.content]);
 
     const onFileUpload = (file: Blob) => {
@@ -28,43 +34,48 @@ export default function PDFViewer({element, onDocumentChange}: PDFViewerProps) {
         onDocumentChange(name, info?.content);
     }
 
+    console.log("validationStatus: ", validationStatus)
     return (
-        <div style={{
-            height,
-            width: '100%',
-        }}>
+        <Badge.Ribbon text={validationStatus !== undefined && validationStatus !== DocumentStatus.NOT_EVALUATED ? (validationStatus === DocumentStatus.APPROVED ? "Approved" : "Rejected") : ""} color={validationStatus !== undefined && validationStatus !== DocumentStatus.NOT_EVALUATED ? (validationStatus === DocumentStatus.APPROVED ? "green" : "red") : "rgba(0,0,0,0)"}>
             <div style={{
-                border: '1px solid #d9d9d9',
-                borderRadius: '6px',
-                height: uploadable ? '70%' : '100%',
+                height,
                 width: '100%',
-                overflowY: file ? 'scroll' : 'hidden',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-            }}
-            >
-                {
-                    !loading ? (
-                        file ? (
-                                <Viewer
-                                    fileUrl={URL.createObjectURL(file)}
-                                />
-                            ) :
-                            (
-                                <Empty />
-                            )
-                    ) : (
-                        <Spin/>
-                    )}
-            </div>
-            {uploadable &&
-                <div style={{height: '30%'}}>
-                    <PDFUploader onFileUpload={onFileUpload} onRevert={onRevert}/>
+            }}>
+                <div style={{
+                    border: '1px solid #d9d9d9',
+                    borderRadius: '6px',
+                    height: uploadable ? '70%' : '100%',
+                    width: '100%',
+                    overflowY: file ? 'scroll' : 'hidden',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                }}
+
+                >
+                    {
+                        !loading ? (
+                            file ? (
+                                    <Viewer
+                                        fileUrl={URL.createObjectURL(file)}
+                                    />
+                                ) :
+                                (
+                                    <Empty />
+                                )
+                        ) : (
+                            <Spin/>
+                        )}
                 </div>
-            }
-        </div>
+                {uploadable &&
+                    <div style={{height: '30%'}}>
+                        <PDFUploader onFileUpload={onFileUpload} onRevert={onRevert}/>
+                    </div>
+                }
+            </div>
+        </Badge.Ribbon>
+
 
     )
 }
