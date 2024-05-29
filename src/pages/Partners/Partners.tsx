@@ -1,15 +1,16 @@
 import {CardPage} from "../../components/structure/CardPage/CardPage";
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {ColumnsType} from "antd/es/table";
 import {Table, TableProps} from "antd";
 import {NotificationType, openNotification} from "../../utils/notification";
-import {EthPartnerService} from "../../api/services/EthPartnerService";
 import {PartnershipPresentable} from "../../api/types/PartnershipPresentable";
 import {InviteCompany} from "./InviteCompany";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
 import {useDispatch} from "react-redux";
+import {EthServicesContext} from "../../providers/EthServicesProvider";
 
 export const Partners = () => {
+    const {ethPartnerService} = useContext(EthServicesContext);
     const [partnership, setPartnership] = useState<PartnershipPresentable[]>();
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const dispatch = useDispatch();
@@ -18,8 +19,7 @@ export const Partners = () => {
         try {
             dispatch(showLoading("Retrieving partners..."));
 
-            const partnerService = new EthPartnerService();
-            const partners = await partnerService.getPartners();
+            const partners = await ethPartnerService.getPartners();
             setPartnership(partners.map(p => {
                 // @ts-ignore
                 p['key'] = p.companyName;

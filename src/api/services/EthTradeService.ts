@@ -1,201 +1,309 @@
-import {Service} from "./Service";
-import {SolidSpec} from "../types/storage";
-import {BlockchainLibraryUtils} from "../BlockchainLibraryUtils";
-import {TradePresentable} from "../types/TradePresentable";
-import {BasicTrade, Line, LineRequest, IConcreteTradeService, OrderLinePrice, OrderLineRequest, OrderTradeInfo, TradeType} from "@kbc-lib/coffee-trading-management-lib";
+import {
+    BasicTrade,
+    BasicTradeService, DocumentStatus,
+    DocumentType,
+    IConcreteTradeService,
+    Line,
+    NegotiationStatus,
+    OrderLine,
+    OrderLinePrice,
+    OrderTrade,
+    OrderTradeMetadata,
+    OrderTradeService,
+    TradeManagerService,
+    TradeService,
+    TradeType,
+    URLStructure
+} from "@kbc-lib/coffee-trading-management-lib";
 import {CustomError} from "../../utils/error/CustomError";
 import {HttpStatusCode} from "../../utils/error/HttpStatusCode";
-import {TradeLinePresentable, TradeLinePrice} from "../types/TradeLinePresentable";
-import {MaterialPresentable} from "../types/MaterialPresentable";
+import {ICPResourceSpec} from "@blockchain-lib/common";
+import {getICPCanisterURL, getNameByDID} from "../../utils/utils";
+import {DID_METHOD, ICP} from "../../constants";
+import {store} from "../../redux/store";
+import {
+    BasicTradePresentable,
+    DetailedTradePresentable,
+    OrderTradePresentable,
+    TradePreviewPresentable
+} from "../types/TradePresentable";
+import {DocumentPresentable} from "../types/DocumentPresentable";
+import {BasicTradeRequest, OrderTradeRequest} from "../types/TradeRequest";
+import {EthMaterialService} from "./EthMaterialService";
+import {DocumentRequest} from "../types/DocumentRequest";
+import {EthDocumentService} from "./EthDocumentService";
 
-export class EthTradeService extends Service {
-    private readonly _tradeManagerService;
-    private readonly _storageSpec?: SolidSpec;
+export class EthTradeService {
+    private readonly _walletAddress: string;
+    private readonly _ethMaterialService: EthMaterialService;
+    private readonly _tradeManagerService: TradeManagerService;
+    private readonly _ethDocumentService: EthDocumentService;
+    private readonly _getTradeService: (address: string) => TradeService;
+    private readonly _getBasicTradeService: (address: string) => BasicTradeService;
+    private readonly _getOrderTradeService: (address: string) => OrderTradeService;
+    private readonly _waitForTransactions: (transactionHash: string, confirmations: number) => Promise<void>;
 
-    constructor(storageSpec?: SolidSpec) {
-        super();
-        this._storageSpec = storageSpec;
-        this._tradeManagerService = BlockchainLibraryUtils.getTradeManagerService(this._storageSpec);
+    constructor(
+        walletAddress: string,
+        materialService: EthMaterialService,
+        tradeManagerService: TradeManagerService,
+        ethDocumentService: EthDocumentService,
+        getTradeService: (address: string) => TradeService,
+        getBasicTradeService: (address: string) => BasicTradeService,
+        getOrderTradeService: (address: string) => OrderTradeService,
+        waitForTransactions: (transactionHash: string, confirmations: number) => Promise<void>
+    ) {
+        this._walletAddress = walletAddress;
+        this._ethMaterialService = materialService;
+        this._tradeManagerService = tradeManagerService;
+        this._ethDocumentService = ethDocumentService;
+        this._getTradeService = getTradeService;
+        this._getBasicTradeService = getBasicTradeService;
+        this._getOrderTradeService = getOrderTradeService;
+        this._waitForTransactions = waitForTransactions;
     }
 
-    async getGeneralTrades(): Promise<TradePresentable[]> {
+    async getGeneralTrades(): Promise<TradePreviewPresentable[]> {
+        const names: Map<string, string> = new Map<string, string>();
+
         const tradeIds: number[] = await this._tradeManagerService.getTradeIdsOfSupplier(this._walletAddress);
         tradeIds.push(...await this._tradeManagerService.getTradeIdsOfCommissioner(this._walletAddress));
-        let tradePresentables: TradePresentable[] = [];
+        let tradePresentables: TradePreviewPresentable[] = [];
 
         if (!tradeIds.length) return tradePresentables;
 
         const tradeContractAddresses = await Promise.all(tradeIds.map(async id => this._tradeManagerService.getTrade(id)));
         for (const tradeAddress of tradeContractAddresses) {
-            // const tradeService = BlockchainLibraryUtils.getTradeService(tradeAddress, this._storageSpec);
-            const tradeService = BlockchainLibraryUtils.getTradeService(tradeAddress);
+            const tradeService = this._getTradeService(tradeAddress);
             let tradeInstanceService: IConcreteTradeService;
             const tradeType = await tradeService.getTradeType();
-            if(tradeType === TradeType.ORDER) {
-                // tradeInstanceService = BlockchainLibraryUtils.getOrderTradeService(tradeAddress, this._storageSpec);
-                tradeInstanceService = BlockchainLibraryUtils.getOrderTradeService(tradeAddress);
-            } else if(tradeType === TradeType.BASIC) {
-                // tradeInstanceService = BlockchainLibraryUtils.getBasicTradeService(tradeAddress, this._storageSpec);
-                tradeInstanceService = BlockchainLibraryUtils.getBasicTradeService(tradeAddress);
+
+            if (tradeType === TradeType.BASIC) {
+                tradeInstanceService = this._getBasicTradeService(tradeAddress);
+            } else if (tradeType === TradeType.ORDER) {
+                tradeInstanceService = this._getOrderTradeService(tradeAddress);
             } else {
                 throw new CustomError(HttpStatusCode.INTERNAL_SERVER, "Received an invalid trade type");
             }
 
-            const lines: Line[] = await tradeInstanceService.getLines();
-            const {tradeId, supplier, customer, commissioner} = await tradeInstanceService.getTrade();
+            const {tradeId, supplier, commissioner} = await tradeInstanceService.getTrade();
+            const trade = await tradeInstanceService.getTrade();
 
-            tradePresentables.push(new TradePresentable()
-                .setId(tradeId)
-                .setSupplier(supplier)
-                .setCustomer(customer)
-                .setCommissioner(commissioner)
-                .setLines(lines.map(tl => new TradeLinePresentable()
-                    .setId(tl.id)
-                    .setMaterial(tl.material ? new MaterialPresentable()
-                        .setId(tl.material.id)
-                        .setName(tl.productCategory.name): undefined)))
-                .setType(tradeType));
+            let actionRequired ;
+            if (tradeType === TradeType.ORDER) {
+                const documentsInfo = (await tradeService.getAllDocuments()).filter(doc => !doc.externalUrl.includes("metadata.json"));
+                const order = trade as OrderTrade;
+                const orderService = tradeInstanceService as OrderTradeService;
+                const whoSigned = await orderService.getWhoSigned();
+                if (!whoSigned.includes(this._walletAddress) && order.negotiationStatus === NegotiationStatus.PENDING)
+                    actionRequired = "This negotiation needs your sign to proceed";
+
+                // if (documentsInfo.length && documentsInfo.some((doc) => doc.status === DocumentStatus.NOT_EVALUATED)) {
+                // //     TODO: per ora si ipotizza che solo il supplier debba caricare i documenti e quindi che sia il commissioner a validarli
+                // //     nel caso di caricamenti da entrambi i lati, si potrà verificare in base al trade status
+                // //     const status = await orderService.getTradeStatus();
+                //     if (this._walletAddress === commissioner)
+                //         actionRequired = "Some documents need to be evaluated";
+                // }
+            }
+
+
+            let supplierName = names.get(supplier);
+            if(! supplierName) {
+                supplierName = await getNameByDID(DID_METHOD + ':' + supplier) || "Unknown";
+                names.set(supplier, supplierName);
+            }
+            let commissionerName = names.get(commissioner);
+            if(! commissionerName) {
+                commissionerName = await getNameByDID(DID_METHOD + ':' + commissioner) || "Unknown";
+                names.set(commissioner, commissionerName);
+            }
+
+            const newTradePresentable: TradePreviewPresentable = {
+                id: tradeId,
+                supplier: supplierName,
+                commissioner: commissionerName,
+                type: tradeType,
+                actionRequired
+            };
+
+            if (tradeType === TradeType.ORDER) {
+                newTradePresentable.negotiationStatus = await (tradeInstanceService as OrderTradeService).getNegotiationStatus();
+            }
+            tradePresentables.push(newTradePresentable)
         }
 
         return tradePresentables;
     }
 
-    async getTradeByIdAndType(id: number, type: number): Promise<TradePresentable | undefined> {
-        const trade = new TradePresentable();
+    private async getDocumentMap(tradeId: number): Promise<Map<DocumentType, DocumentPresentable>> {
+        const documents = await this._ethDocumentService.getDocumentsByTransactionId(tradeId);
+        const documentMap = new Map<DocumentType, DocumentPresentable>();
+        documents?.forEach(doc => documentMap.set(doc.documentType, doc));
+        return documentMap;
+    }
+
+    async getTradeById(id: number): Promise<DetailedTradePresentable> {
         const address: string = await this._tradeManagerService.getTrade(id);
+        const type: TradeType = await this._tradeManagerService.getTradeType(id);
 
-        if(!address) return;
+        if (!address)
+            throw new Error("Trade not found");
 
-        let resp;
         switch (type) {
             case TradeType.BASIC:
-                // const basicTradeService = BlockchainLibraryUtils.getBasicTradeService(address, this._storageSpec);
-                const basicTradeService = BlockchainLibraryUtils.getBasicTradeService(address);
-                resp = await basicTradeService.getTrade();
+                const basicTradeService = this._getBasicTradeService(address);
+                const basicTrade = await basicTradeService.getTrade();
+                basicTrade.lines = await basicTradeService.getLines();
 
-                if (resp) {
-                    const lines: Line[] = await basicTradeService.getLines();
-                    trade
-                        .setId(resp.tradeId)
-                        .setName(resp.name)
-                        .setSupplier(resp.supplier)
-                        .setCustomer(resp.customer)
-                        .setLines(lines ? lines.map(tl => new TradeLinePresentable()
-                            .setId(tl.id)
-                            .setMaterial(tl.material ? new MaterialPresentable()
-                                .setId(tl.material.id)
-                                .setName(tl.productCategory.name): undefined)): [])
-                        .setType(TradeType.BASIC)
-                        .setStatus(await basicTradeService.getTradeStatus())
-                }
-                break;
+                return new BasicTradePresentable(basicTrade, await this.getDocumentMap(id));
+
             case TradeType.ORDER:
-                // const orderTradeService = BlockchainLibraryUtils.getOrderTradeService(address, this._storageSpec);
-                const orderTradeService = BlockchainLibraryUtils.getOrderTradeService(address);
-                resp = await orderTradeService.getTrade();
+                const orderTradeService = this._getOrderTradeService(address);
+                const orderTrade = await orderTradeService.getCompleteTrade();
+                orderTrade.lines = await orderTradeService.getLines();
 
-                if (resp) {
-                    const orderTrade = await orderTradeService.getCompleteTrade({
-                        entireResourceUrl: resp.externalUrl,
-                    })
-                    const orderLines = await orderTradeService.getLines();
+                return new OrderTradePresentable(orderTrade, await orderTradeService.getTradeStatus(), await this.getDocumentMap(id));
 
-                    trade
-                        .setId(orderTrade.tradeId)
-                        .setCommissioner(orderTrade.commissioner)
-                        .setCustomer(orderTrade.customer)
-                        .setIncoterms(orderTrade.incoterms)
-                        .setPaymentDeadline(new Date(orderTrade.paymentDeadline))
-                        .setDocumentDeliveryDeadline(new Date(orderTrade.documentDeliveryDeadline))
-                        .setShipper(orderTrade.shipper)
-                        .setArbiter(orderTrade.arbiter)
-                        .setShippingPort(orderTrade.shippingPort)
-                        .setShippingDeadline(new Date(orderTrade.shippingDeadline))
-                        .setDeliveryPort(orderTrade.deliveryPort)
-                        .setDeliveryDeadline(new Date(orderTrade.deliveryDeadline))
-                        .setEscrow(orderTrade.escrow)
-                        .setSupplier(orderTrade.supplier)
-                        .setLines(orderLines.map(ol => new TradeLinePresentable()
-                            .setId(ol.id)
-                            .setMaterial(ol.material ? new MaterialPresentable()
-                                .setId(ol.material.id)
-                                .setName(ol.productCategory.name): undefined)
-                            .setQuantity(ol.quantity)
-                            .setPrice(new TradeLinePrice().setAmount(ol.price.amount).setFiat(ol.price.fiat))))
-                        .setType(TradeType.ORDER)
-                        .setStatus(await orderTradeService.getTradeStatus())
-                }
-                break;
             default:
                 throw new CustomError(HttpStatusCode.BAD_REQUEST, "Wrong trade type");
         }
-        return trade;
     }
 
-    async saveBasicTrade(trade: TradePresentable): Promise<void> {
-        const newTrade: BasicTrade = await this._tradeManagerService.registerBasicTrade(trade.supplier, trade.customer!, trade.commissioner!, trade.name!, {
-            value: { issueDate: new Date() },
-            // aclRules: [
-            //     {
-            //         agents: [basicTrade.supplierWebId],
-            //         modes: [AccessMode.READ, AccessMode.WRITE, AccessMode.CONTROL],
-            //     },
-            //     {
-            //         agents: [basicTrade.commissionerWebId],
-            //         modes: [AccessMode.READ],
-            //     },
-            // ],
-        });
-        if (trade.lines) {
-            const basicTradeService = BlockchainLibraryUtils.getBasicTradeService(await this._tradeManagerService.getTrade(newTrade.tradeId));
-            await Promise.all(trade.lines.map(async line => {
-                await basicTradeService.addLine(new LineRequest(line.material?.id!));
-            }));
+    async saveBasicTrade(trade: BasicTradeRequest, documents?: DocumentRequest[]): Promise<void> {
+        const organizationId = parseInt(store.getState().userInfo.organizationId);
+        // TODO: remove this harcoded value
+        const delegatedOrganizationIds: number[] = organizationId === 0 ? [1] : [0];
+
+        const urlStructure: URLStructure = {
+            prefix: getICPCanisterURL(ICP.CANISTER_ID_ORGANIZATION),
+            organizationId,
+        }
+        const metadata = {
+            date: new Date(),
+        }
+
+        const [, newTradeAddress, transactionHash] =
+            await this._tradeManagerService.registerBasicTrade(trade.supplier, trade.customer, trade.commissioner, trade.name,
+                metadata, urlStructure, delegatedOrganizationIds);
+
+        await this._waitForTransactions(transactionHash, Number(process.env.REACT_APP_BC_CONFIRMATION_NUMBER || 0));
+
+        const basicTradeService = this._getBasicTradeService(newTradeAddress);
+        const deliveryNote = documents?.find(doc => doc.documentType === DocumentType.DELIVERY_NOTE);
+        if (deliveryNote) {
+            const externalUrl = (await basicTradeService.getTrade()).externalUrl;
+            const resourceSpec: ICPResourceSpec = {
+                name: deliveryNote.filename,
+                type: deliveryNote.content.type,
+            }
+            const bytes = new Uint8Array(await new Response(deliveryNote.content).arrayBuffer());
+
+            await basicTradeService.addDocument(deliveryNote.documentType, bytes, externalUrl, resourceSpec, delegatedOrganizationIds);
+        }
+
+        for (const line of trade.lines) {
+            await basicTradeService.addLine(line)
         }
     }
 
-    async putBasicTrade(id: number, trade: TradePresentable): Promise<void> {
-        // const tradeService = BlockchainLibraryUtils.getBasicTradeService(await this._tradeManagerService.getTrade(id), this._storageSpec);
-        const tradeService = BlockchainLibraryUtils.getBasicTradeService(await this._tradeManagerService.getTrade(id));
+    async putBasicTrade(id: number, trade: BasicTradeRequest): Promise<void> {
+        const tradeService = this._getBasicTradeService(await this._tradeManagerService.getTrade(id));
         const oldTrade: BasicTrade = await tradeService.getTrade();
+
         oldTrade.name !== trade.name && await tradeService.setName(trade.name!);
+
+        // update one single line because at this time we manage only one line per trade
+        const oldLine = oldTrade.lines[0];
+        const newLine = trade.lines[0];
+        if (!oldLine || !newLine)
+            return;
+
+        // Note assigned material is ignored as it is not changeable in the UI
+        if (oldLine.productCategory.id !== newLine.productCategoryId
+            || oldLine.unit !== newLine.unit
+            || oldLine.quantity !== newLine.quantity
+        ) {
+            const productCategory = await this._ethMaterialService.getProductCategory(newLine.productCategoryId)
+            await tradeService.updateLine(new Line(oldLine.id, oldLine.material, productCategory, newLine.quantity, newLine.unit));
+        }
     }
 
-    async saveOrderTrade(trade: TradePresentable, storageSpec?: SolidSpec): Promise<void> {
-        const newTrade: OrderTradeInfo = await this._tradeManagerService.registerOrderTrade(
-            trade.supplier, trade.customer!, trade.commissioner!, (trade.paymentDeadline!).getTime(), (trade.documentDeliveryDeadline!).getTime(),
-            trade.arbiter!, (trade.shippingDeadline!).getTime(), (trade.deliveryDeadline!).getTime(), trade.agreedAmount!, trade.tokenAddress!,
-            { value: { incoterms: trade.incoterms, shipper: trade.shipper, shippingPort: trade.shippingPort, deliveryPort: trade.deliveryPort }}
-        );
-        // const orderTradeService = BlockchainLibraryUtils.getOrderTradeService(await this._tradeManagerService.getTrade(newTrade.tradeId), this._storageSpec);
-        const orderTradeService = BlockchainLibraryUtils.getOrderTradeService(await this._tradeManagerService.getTrade(newTrade.tradeId));
+    async saveOrderTrade(trade: OrderTradeRequest, documents?: DocumentRequest[]): Promise<void> {
+        const organizationId = parseInt(store.getState().userInfo.organizationId);
+        // TODO: remove this harcoded value
+        const delegatedOrganizationIds: number[] = organizationId === 0 ? [1] : [0];
 
-        const externalUrlSegments = newTrade.externalUrl.split('/');
-        const externalStorageTradeId = externalUrlSegments[externalUrlSegments.length - 1] === '' ? externalUrlSegments[externalUrlSegments.length - 2] : externalUrlSegments[externalUrlSegments.length - 1];
-
-        if (trade.paymentInvoice)
-            await orderTradeService.addDocument(trade.paymentInvoice.documentType, {spec: {filename: trade.paymentInvoice.filename, bcResourceId: externalStorageTradeId}, fileBuffer: trade.paymentInvoice.content}, {spec: {resourceName: trade.paymentInvoice.filename, bcResourceId: externalStorageTradeId}, value: {filename: trade.paymentInvoice.filename}});
-        if (trade.swissDecode)
-            await orderTradeService.addDocument(trade.swissDecode.documentType, {spec: {filename: trade.swissDecode.filename, bcResourceId: externalStorageTradeId}, fileBuffer: trade.swissDecode.content}, {spec: {resourceName: trade.swissDecode.filename, bcResourceId: externalStorageTradeId}, value: {filename: trade.swissDecode.filename}});
-        if (trade.deliveryNote)
-            await orderTradeService.addDocument(trade.deliveryNote.documentType, {spec: {filename: trade.deliveryNote.filename, bcResourceId: externalStorageTradeId}, fileBuffer: trade.deliveryNote.content}, {spec: {resourceName: trade.deliveryNote.filename, bcResourceId: externalStorageTradeId}, value: {filename: trade.deliveryNote.filename}});
-        if (trade.billOfLading)
-            await orderTradeService.addDocument(trade.billOfLading.documentType, {spec: {filename: trade.billOfLading.filename, bcResourceId: externalStorageTradeId}, fileBuffer: trade.billOfLading.content}, {spec: {resourceName: trade.billOfLading.filename, bcResourceId: externalStorageTradeId}, value: {filename: trade.billOfLading.filename}});
-        if (trade.weightCertificate)
-            await orderTradeService.addDocument(trade.weightCertificate.documentType, {spec: {filename: trade.weightCertificate.filename, bcResourceId: externalStorageTradeId}, fileBuffer: trade.weightCertificate.content}, {spec: {resourceName: trade.weightCertificate.filename, bcResourceId: externalStorageTradeId}, value: {filename: trade.weightCertificate.filename}});
-        if (trade.preferentialEntryCertificate)
-            await orderTradeService.addDocument(trade.preferentialEntryCertificate.documentType, {spec: {filename: trade.preferentialEntryCertificate.filename, bcResourceId: externalStorageTradeId}, fileBuffer: trade.preferentialEntryCertificate.content}, {spec: {resourceName: trade.preferentialEntryCertificate.filename, bcResourceId: externalStorageTradeId}, value: {filename: trade.preferentialEntryCertificate.filename}});
-        if (trade.fumigationCertificate)
-            await orderTradeService.addDocument(trade.fumigationCertificate.documentType, {spec: {filename: trade.fumigationCertificate.filename, bcResourceId: externalStorageTradeId}, fileBuffer: trade.fumigationCertificate.content}, {spec: {resourceName: trade.fumigationCertificate.filename, bcResourceId: externalStorageTradeId}, value: {filename: trade.fumigationCertificate.filename}});
-        if (trade.phytosanitaryCertificate)
-            await orderTradeService.addDocument(trade.phytosanitaryCertificate.documentType, {spec: {filename: trade.phytosanitaryCertificate.filename, bcResourceId: externalStorageTradeId}, fileBuffer: trade.phytosanitaryCertificate.content}, {spec: {resourceName: trade.phytosanitaryCertificate.filename, bcResourceId: externalStorageTradeId}, value: {filename: trade.phytosanitaryCertificate.filename}});
-        if (trade.insuranceCertificate)
-            await orderTradeService.addDocument(trade.insuranceCertificate.documentType, {spec: {filename: trade.insuranceCertificate.filename, bcResourceId: externalStorageTradeId}, fileBuffer: trade.insuranceCertificate.content}, {spec: {resourceName: trade.insuranceCertificate.filename, bcResourceId: externalStorageTradeId}, value: {filename: trade.insuranceCertificate.filename}});
-
-        if (trade.lines) {
-            await Promise.all(trade.lines.map(async line => {
-                await orderTradeService.addLine(new OrderLineRequest(line.material?.id!, line.quantity!, new OrderLinePrice(line.price!.amount, line.price!.fiat)));
-            }));
+        const urlStructure: URLStructure = {
+            prefix: getICPCanisterURL(ICP.CANISTER_ID_ORGANIZATION),
+            organizationId,
         }
+        const metadata: OrderTradeMetadata = {
+            incoterms: trade.incoterms,
+            shipper: trade.shipper,
+            shippingPort: trade.shippingPort,
+            deliveryPort: trade.deliveryPort,
+        }
+
+        const [, newTradeAddress, transactionHash] = await this._tradeManagerService.registerOrderTrade(
+            trade.supplier, trade.customer, trade.commissioner, trade.paymentDeadline, trade.documentDeliveryDeadline,
+            trade.arbiter!, trade.shippingDeadline, trade.deliveryDeadline, trade.agreedAmount!, trade.tokenAddress!,
+            metadata, urlStructure, delegatedOrganizationIds
+        );
+
+        await this._waitForTransactions(transactionHash, Number(process.env.REACT_APP_BC_CONFIRMATION_NUMBER || 0));
+
+        const orderTradeService = this._getOrderTradeService(newTradeAddress);
+        const paymentInvoice = documents?.find(doc => doc.documentType === DocumentType.PAYMENT_INVOICE);
+        if (paymentInvoice) {
+            const externalUrl = (await orderTradeService.getTrade()).externalUrl;
+            const resourceSpec: ICPResourceSpec = {
+                name: paymentInvoice.filename,
+                type: paymentInvoice.content.type,
+            }
+            const bytes = new Uint8Array(await new Response(paymentInvoice.content).arrayBuffer());
+
+            await orderTradeService.addDocument(paymentInvoice.documentType, bytes, externalUrl, resourceSpec, delegatedOrganizationIds);
+        }
+
+        for (const line of trade.lines) {
+            await orderTradeService.addLine(line);
+        }
+    }
+
+    async putOrderTrade(id: number, trade: OrderTradeRequest): Promise<void> {
+        const tradeService = this._getOrderTradeService(await this._tradeManagerService.getTrade(id));
+        const oldTrade = await tradeService.getTrade();
+
+        oldTrade.paymentDeadline !== trade.paymentDeadline && await tradeService.updatePaymentDeadline(trade.paymentDeadline);
+        oldTrade.documentDeliveryDeadline !== trade.documentDeliveryDeadline && await tradeService.updateDocumentDeliveryDeadline(trade.documentDeliveryDeadline);
+        oldTrade.arbiter !== trade.arbiter && await tradeService.updateArbiter(trade.arbiter);
+        oldTrade.shippingDeadline !== trade.shippingDeadline && await tradeService.updateShippingDeadline(trade.shippingDeadline);
+        oldTrade.deliveryDeadline !== trade.deliveryDeadline && await tradeService.updateDeliveryDeadline(trade.deliveryDeadline);
+        oldTrade.agreedAmount !== trade.agreedAmount && await tradeService.updateAgreedAmount(trade.agreedAmount);
+        oldTrade.tokenAddress !== trade.tokenAddress && await tradeService.updateTokenAddress(trade.tokenAddress);
+
+        // update one single line because at this time we manage only one line per trade
+        const oldLine = oldTrade.lines[0] as OrderLine;
+        const newLine = trade.lines[0];
+        if (!oldLine || !newLine)
+            return;
+
+        // Note assigned material is ignored as it is not changeable in the UI
+        if (oldLine.productCategory.id !== newLine.productCategoryId
+            || oldLine.unit !== newLine.unit
+            || oldLine.quantity !== newLine.quantity
+            || oldLine.price.amount !== newLine.price.amount
+            || oldLine.price.fiat !== newLine.price.fiat
+        ) {
+            const productCategory = await this._ethMaterialService.getProductCategory(newLine.productCategoryId)
+            await tradeService.updateLine(new OrderLine(oldLine.id, oldLine.material, productCategory, newLine.quantity,
+                newLine.unit, new OrderLinePrice(newLine.price.amount, newLine.price.fiat)));
+        }
+    }
+
+    async confirmOrderTrade(id: number): Promise<void> {
+        const tradeService = this._getOrderTradeService(await this._tradeManagerService.getTrade(id));
+        await tradeService.confirmOrder();
     }
 }

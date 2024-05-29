@@ -1,33 +1,50 @@
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {NotificationType, openNotification} from "../../utils/notification";
 import {ColumnsType} from "antd/es/table";
-import {Button, Table, TableProps} from "antd";
+import {Button, Space, Table, TableProps} from "antd";
 import {CardPage} from "../../components/structure/CardPage/CardPage";
-import {OfferPresentable} from "../../api/types/OfferPresentable";
-import {EthOfferService} from "../../api/services/EthOfferService";
 import Search from "../../components/Search/Search";
 import {PlusOutlined} from "@ant-design/icons";
-import {paths} from "../../constants";
+import {credentials, DID_METHOD, paths} from "../../constants";
 import {useNavigate} from "react-router-dom";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
+import {RootState} from "../../redux/store";
+import {EthServicesContext} from "../../providers/EthServicesProvider";
+import {getNameByDID} from "../../utils/utils";
+import {OfferPresentable} from "../../api/types/OfferPresentable";
 
 export const Offers = () => {
+    const {ethOfferService} = useContext(EthServicesContext);
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const userInfo = useSelector((state: RootState) => state.userInfo);
     const [offers, setOffers] = useState<OfferPresentable[]>();
     const [filteredOffers, setFilteredOffers] = useState<OfferPresentable[]>();
     const loadData = async () => {
         try {
             dispatch(showLoading("Retrieving offers..."))
-            const offerService = new EthOfferService();
-            const offers = await offerService.getAllOffers();
-            setOffers(offers);
-            setFilteredOffers(offers.map(t => {
-                // @ts-ignore
-                t['key'] = t.id;
-                return t;
-            }));
+            const offers = await ethOfferService.getAllOffers();
+            const offerPresentables: OfferPresentable[] = [];
+
+            const names: Map<string, string> = new Map<string, string>();
+
+            for (const offer of offers) {
+                let supplierName = names.get(offer.owner);
+                if (!supplierName) {
+                    supplierName = await getNameByDID(DID_METHOD + ':' + offer.owner) || "Unknown";
+                    names.set(offer.owner, supplierName);
+                }
+                offerPresentables.push({
+                    id: offer.id,
+                    supplierName,
+                    supplierAddress: offer.owner,
+                    productCategory: offer.productCategory
+                });
+            }
+
+            setOffers(offerPresentables);
+            setFilteredOffers(offerPresentables);
         } catch (e: any) {
             console.log("error: ", e);
             openNotification("Error", e.message, NotificationType.ERROR);
@@ -45,14 +62,30 @@ export const Offers = () => {
         },
         {
             title: 'Company',
-            dataIndex: 'owner',
-            sorter: (a, b) => (a.owner || '').localeCompare((b.owner || '')),
+            dataIndex: 'supplierName',
+            sorter: (a, b) => (a.supplierName || '').localeCompare((b.supplierName || '')),
             sortDirections: ['descend']
         },
         {
             title: 'Product category',
-            dataIndex: 'productCategory',
-            sorter: (a, b) => (a.productCategory || '').localeCompare((b.productCategory || '')),
+            dataIndex: ['productCategory', 'name'],
+            sorter: (a, b) => (a.productCategory.name || '').localeCompare((b.productCategory.name || '')),
+        },
+        {
+            title: 'Actions',
+            key: 'action',
+            render: (_, record) => {
+                if(userInfo.role === credentials.ROLE_IMPORTER){
+                    return <Space size="middle">
+                        <a onClick={() => navigate(
+                            paths.TRADE_NEW,
+                            {state: {supplierAddress: record.supplierAddress, productCategoryId: record.productCategory.id}}
+                        )}>Start a negotiation →</a>
+                    </Space>
+                } else {
+                    return <></>
+                }
+            },
         }
     ];
 
@@ -61,8 +94,7 @@ export const Offers = () => {
     };
 
     const filterOffers = (productCategory: string) => {
-        console.log('Called')
-        const filtered = offers?.filter(o => o.productCategory.toLowerCase().includes(productCategory.toLowerCase()));
+        const filtered = offers?.filter(o => o.productCategory.name.toLowerCase().includes(productCategory.toLowerCase()));
         setFilteredOffers(filtered);
     }
 
@@ -77,18 +109,21 @@ export const Offers = () => {
         <CardPage title={<div
             style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
             Offers
-            <div>
-                <Button type="primary" icon={<PlusOutlined/>} onClick={() => navigate(paths.OFFERS_SUPPLIER_NEW)}
-                        style={{marginRight: '16px'}}>
-                    New Offer Supplier
-                </Button>
-                <Button type="primary" icon={<PlusOutlined/>} onClick={() => navigate(paths.OFFERS_NEW)}>
-                    New Offer
-                </Button>
-            </div>
+            {
+                userInfo.role === credentials.ROLE_EXPORTER
+                && <div>
+                    <Button type="primary" icon={<PlusOutlined/>} onClick={() => navigate(paths.OFFERS_SUPPLIER_NEW)}
+                            style={{marginRight: '16px'}}>
+                        New Offer Supplier
+                    </Button>
+                    <Button type="primary" icon={<PlusOutlined/>} onClick={() => navigate(paths.OFFERS_NEW)}>
+                        New Offer
+                    </Button>
+                </div>
+            }
         </div>}>
             <Search placeholder="Search by product category" onSearchFn={filterOffers}/>
-            <Table columns={columns} dataSource={filteredOffers} onChange={onChange}/>
+            <Table columns={columns} dataSource={filteredOffers} onChange={onChange} rowKey="id"/>
         </CardPage>
     )
 }

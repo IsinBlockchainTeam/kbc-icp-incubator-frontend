@@ -1,14 +1,10 @@
-import {Service} from "./Service";
-import {BlockchainLibraryUtils} from "../BlockchainLibraryUtils";
 import {Offer, OfferService} from "@kbc-lib/coffee-trading-management-lib";
-import {OfferPresentable} from "../types/OfferPresentable";
 
-export class EthOfferService extends Service {
+export class EthOfferService {
     private readonly _offerService: OfferService;
 
-    constructor() {
-        super();
-        this._offerService = BlockchainLibraryUtils.getOfferService();
+    constructor(offerService: OfferService) {
+        this._offerService = offerService;
     }
 
     async saveSupplier(supplier: string, name: string): Promise<void> {
@@ -19,11 +15,7 @@ export class EthOfferService extends Service {
         return this._offerService.registerOffer(offerorAddress, productCategoryId);
     }
 
-    async getAllOffers(): Promise<OfferPresentable[]> {
-        const offers = await this._offerService.getAllOffers();
-        return offers.map((o: Offer) => new OfferPresentable()
-            .setId(o.id)
-            .setOwner(o.owner)
-            .setProductCategory(o.productCategory.name));
+    async getAllOffers(): Promise<Offer[]> {
+        return this._offerService.getAllOffers();
     }
 }

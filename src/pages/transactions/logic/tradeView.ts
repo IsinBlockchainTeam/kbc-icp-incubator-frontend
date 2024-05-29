@@ -1,39 +1,83 @@
 import useTradeShared from "./tradeShared";
 import {NotificationType, openNotification} from "../../../utils/notification";
-import {TradeType} from "@kbc-lib/coffee-trading-management-lib";
-import {useLocation, useParams} from "react-router-dom";
+import {
+    BasicTrade,
+    DocumentStatus,
+    DocumentType,
+    LineRequest,
+    NegotiationStatus,
+    OrderLine,
+    OrderLinePrice,
+    OrderLineRequest,
+    OrderTrade,
+    TradeType
+} from "@kbc-lib/coffee-trading-management-lib";
+import {useLocation, useNavigate, useParams} from "react-router-dom";
 import {useDispatch} from "react-redux";
-import {useEffect, useState} from "react";
-import {TradePresentable} from "../../../api/types/TradePresentable";
-import {DocumentPresentable} from "../../../api/types/DocumentPresentable";
-import {EthDocumentService} from "../../../api/services/EthDocumentService";
+import {useContext, useEffect, useState} from "react";
+import {DetailedTradePresentable} from "../../../api/types/TradePresentable";
 import {hideLoading, showLoading} from "../../../redux/reducers/loadingSlice";
 import {FormElement, FormElementType} from "../../../components/GenericForm/GenericForm";
 import {regex} from "../../../utils/regex";
 import dayjs from "dayjs";
+import {DID_METHOD, paths} from "../../../constants";
+import {getEnumKeyByValue, getNameByDID} from "../../../utils/utils";
+import {BasicTradeRequest, OrderTradeRequest} from "../../../api/types/TradeRequest";
+import {SignerContext} from "../../../providers/SignerProvider";
 
 export default function useTradeView() {
-    const { tradeService, orderState } = useTradeShared();
+    const {signer} = useContext(SignerContext);
+
+    const { dataLoaded, productCategories, units, fiats, ethTradeService } = useTradeShared();
     const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     const {id} = useParams();
     const location = useLocation();
     const type = parseInt(new URLSearchParams(location.search).get('type')!);
-    // const subjectClaims = useSelector((state: RootState) => state.auth.subjectClaims);
 
-    const [trade, setTrade] = useState<TradePresentable>();
-    const [documents, setDocuments] = useState<DocumentPresentable[]>();
-    const [loadingDocuments, setLoadingDocuments] = useState<boolean>(true);
+    const [trade, setTrade] = useState<DetailedTradePresentable>();
     const [disabled, setDisabled] = useState<boolean>(true);
+    const [negotiationStatus, setNegotiationStatus] = useState<string | undefined>(undefined);
+    const [actorNames, setActorNames] = useState<string[]>([]);
+    const [elements, setElements] = useState<FormElement[]>([]);
+
+    const [orderStatus, setOrderStatus] = useState<number>(-1);
 
     const toggleDisabled = () => {
         setDisabled(!disabled);
     }
 
-    const getTradeInfo = async (id: number, type: number) => {
+    const confirmNegotiation = async () => {
         try {
             dispatch(showLoading("Retrieving trade..."));
-            const resp = await tradeService.getTradeByIdAndType(id, type);
+            await ethTradeService.confirmOrderTrade(parseInt(id!));
+            openNotification("Negotiation confirmed", `The negotiation has been confirmed`, NotificationType.SUCCESS, 1);
+            navigate(paths.TRADES);
+        } catch (e: any) {
+            console.log("error: ", e);
+            openNotification("Error", e.message, NotificationType.ERROR);
+        } finally {
+            dispatch(hideLoading());
+        }
+    }
+
+    useEffect(() => {
+        return () => {
+            dispatch(hideLoading())
+        }
+    }, []);
+
+    useEffect(() => {
+        if(!dataLoaded)
+            return;
+        loadTradeInfo(parseInt(id!));
+    }, [dataLoaded]);
+
+    const loadTradeInfo = async (id: number) => {
+        try {
+            dispatch(showLoading("Retrieving trade..."));
+            const resp = await ethTradeService.getTradeById(id);
             resp && setTrade(resp);
         } catch (e: any) {
             console.log("error: ", e);
@@ -43,20 +87,16 @@ export default function useTradeView() {
         }
     }
 
-    const getTradeDocuments = async (id: number) => {
+    const getActorNames = async () => {
+        if (!trade) {
+            console.error("Trade not found");
+            return;
+        }
         try {
-            dispatch(showLoading("Retrieving documents..."));
-            // const documentService = new EthDocumentService(new BlockchainDocumentStrategy({
-            //     serverUrl: subjectClaims!.podServerUrl!,
-            //     sessionCredentials: {
-            //         podName: subjectClaims!.podName!,
-            //         clientId: subjectClaims!.podClientId!,
-            //         clientSecret: subjectClaims!.podClientSecret!
-            //     }
-            // }));
-            const documentService = new EthDocumentService();
-            const resp = await documentService.getDocumentsByTransactionId(id);
-            resp && setDocuments(resp);
+            dispatch(showLoading("Retrieving actors..."));
+            const supplier = await getNameByDID(DID_METHOD + ':' + trade.trade.supplier);
+            const commissioner = await getNameByDID(DID_METHOD + ':' + trade.trade.commissioner);
+            setActorNames([supplier, commissioner]);
         } catch (e: any) {
             console.log("error: ", e);
             openNotification("Error", e.message, NotificationType.ERROR);
@@ -65,27 +105,13 @@ export default function useTradeView() {
         }
     }
 
-    const [elements, setElements] = useState<FormElement[]>([]);
+    useEffect(() => {
+        if (!trade) return;
+        getActorNames();
+    }, [trade]);
 
     useEffect(() => {
-        // TODO: remove this comment
-        // if (!subjectClaims || !(subjectClaims.podClientSecret && subjectClaims.podClientId && subjectClaims.podServerUrl)) {
-        //     openNotification("Error", "No information about company storage", NotificationType.ERROR);
-        //     return;
-        // }
-        (async () => {
-            await getTradeInfo(parseInt(id!), type);
-            await getTradeDocuments(parseInt(id!));
-            setLoadingDocuments(false);
-        })();
-    }, []);
-
-    useEffect(() => {
-        // if(!documents) return;
-        // if(documents.length === 0) return;
-        if(!trade) return;
-
-        const disabled = true;
+        if(!trade || actorNames.length === 0) return;
 
         const commonElements: FormElement[] = [
             {type: FormElementType.TITLE, span: 24, label: 'Actors'}, {
@@ -94,9 +120,8 @@ export default function useTradeView() {
                 name: 'supplier',
                 label: 'Supplier',
                 required: true,
-                regex: regex.ETHEREUM_ADDRESS,
-                defaultValue: trade.supplier,
-                disabled,
+                defaultValue: actorNames[0],
+                disabled: true,
             },
             {
                 type: FormElementType.INPUT,
@@ -104,9 +129,8 @@ export default function useTradeView() {
                 name: 'customer',
                 label: 'Customer',
                 required: true,
-                regex: regex.ETHEREUM_ADDRESS,
-                defaultValue: trade.customer,
-                disabled,
+                defaultValue: actorNames[1],
+                disabled: true,
             },
             {
                 type: FormElementType.INPUT,
@@ -114,42 +138,53 @@ export default function useTradeView() {
                 name: 'commissioner',
                 label: 'Commissioner',
                 required: true,
-                regex: regex.ETHEREUM_ADDRESS,
-                defaultValue: trade.commissioner,
-                disabled,
+                defaultValue: actorNames[1],
+                disabled: true,
             },
         ]
 
         let documentElement: FormElement;
-        if(documents && documents.length > 0) {
+        const documentHeight = '45vh';
+        if (type === TradeType.BASIC) {
+            const doc = trade.documents.get(DocumentType.DELIVERY_NOTE);
+            documentElement = {
+                type: FormElementType.DOCUMENT,
+                span: 12,
+                name: 'certificate-of-shipping',
+                label: 'Certificate of Shipping',
+                required: false,
+                loading: false,
+                uploadable: !disabled,
+                info: doc,
+                height: documentHeight,
+                evaluable: false
+            }
+        } else if (type === TradeType.ORDER) {
+            const doc = trade.documents.get(DocumentType.PAYMENT_INVOICE);
             documentElement = {
                 type: FormElementType.DOCUMENT,
                 span: 12,
                 name: 'payment-invoice',
-                label: 'Payment Invoice',
+                // TODO: DEMO ONLY!! Remove this Label!!!
+                label: 'Attachments',
+                // label: 'Payment Invoice',
                 required: false,
                 loading: false,
-                uploadable: false,
-                content: new Blob([documents[0].content]),
-                height: '45vh',
+                uploadable: !disabled,
+                info: doc,
+                height: documentHeight,
+                // TODO: DEMO ONLY!! Remove this!!!
+                evaluable: false
+                // evaluable: doc?.status === DocumentStatus.NOT_EVALUATED && trade.trade.commissioner === signer?.address
             }
         } else {
-            documentElement = {
-                type: FormElementType.DOCUMENT,
-                span: 12,
-                name: 'payment-invoice',
-                label: 'Payment Invoice',
-                required: false,
-                loading: false,
-                uploadable: false,
-                height: '45vh',
-            }
+            throw new Error("Invalid trade type");
         }
-        const documentHeight = '45vh';
 
         if (type === TradeType.BASIC) {
-            setElements([
-                ...commonElements,
+            const basicTrade = trade.trade as BasicTrade;
+            const newElements = [...commonElements];
+            newElements.push(
                 {type: FormElementType.TITLE, span: 24, label: 'Data'},
                 {
                     type: FormElementType.INPUT,
@@ -157,35 +192,69 @@ export default function useTradeView() {
                     name: 'name',
                     label: 'Name',
                     required: true,
-                    defaultValue: trade.name,
+                    defaultValue: basicTrade.name,
                     disabled,
                 },
-                {type: FormElementType.TITLE, span: 24, label: 'Line Items'},
-                {
-                    type: FormElementType.INPUT,
-                    span: 8,
-                    name: 'product-category-id-1',
-                    label: 'Product Category Id',
-                    required: true,
-                    regex: regex.ONLY_DIGITS,
-                    defaultValue: trade.lines[0].material?.id.toString(),
-                    disabled,
-                },
-                {type: FormElementType.SPACE, span: 16},
-            ]);
-        }
-        else {
-            setElements([
-                ...commonElements,
+                documentElement,
+                {type: FormElementType.TITLE, span: 24, label: 'Line Item'},
+            );
+            basicTrade.lines.forEach((line, index) => {
+                newElements.push(
+                    {
+                        type: FormElementType.SELECT,
+                        span: 8,
+                        name: `product-category-id-${index + 1}`,
+                        label: 'Product Category Id',
+                        required: true,
+                        options: productCategories.map((productCategory) => ({label: productCategory.name, value: productCategory.id})),
+                        defaultValue: productCategories.find(pc => pc.id === line.productCategory?.id)?.id || -1,
+                        disabled,
+                    },
+                    {
+                        type: FormElementType.INPUT,
+                        span: 6,
+                        name: `quantity-${index + 1}`,
+                        label: 'Quantity',
+                        required: true,
+                        defaultValue: line.quantity?.toString(),
+                        disabled,
+                    },
+                    {
+                        type: FormElementType.SELECT,
+                        span: 4,
+                        name: `unit-${index + 1}`,
+                        label: 'Unit',
+                        required: true,
+                        options: units.map((unit) => ({label: unit, value: unit})),
+                        defaultValue: line.unit!,
+                        disabled,
+                    },
+                    {type: FormElementType.SPACE, span: 6},
+                );
+            });
+            setElements(newElements);
+        } else {
+            const orderTrade = trade.trade as OrderTrade;
+            setNegotiationStatus(getEnumKeyByValue(NegotiationStatus, orderTrade.negotiationStatus));
+
+            // TODO: DEMO ONLY!! Remove this!!!
+            if (orderTrade.negotiationStatus === NegotiationStatus.INITIALIZED || orderTrade.negotiationStatus === NegotiationStatus.PENDING) {
+                setOrderStatus(0);
+            } else if (orderTrade.negotiationStatus === NegotiationStatus.CONFIRMED) {
+                setOrderStatus(1);
+            }
+
+            const newElements = [...commonElements];
+            newElements.push(
                 {type: FormElementType.TITLE, span: 24, label: 'Constraints'},
                 {
                     type: FormElementType.INPUT,
                     span: 12,
                     name: 'incoterms',
                     label: 'Incoterms',
-                    required: false,
-                    defaultValue: trade.incoterms,
-                    disabled: true,
+                    required: true,
+                    defaultValue: orderTrade.metadata?.incoterms,
+                    disabled,
                 },
                 documentElement,
                 {
@@ -194,7 +263,7 @@ export default function useTradeView() {
                     name: 'payment-deadline',
                     label: 'Payment Deadline',
                     required: true,
-                    defaultValue: trade.paymentDeadline ? dayjs(new Date(trade.paymentDeadline).toISOString()) : '',
+                    defaultValue: dayjs.unix(orderTrade.paymentDeadline),
                     disabled,
                 },
                 {
@@ -202,8 +271,8 @@ export default function useTradeView() {
                     span: 12,
                     name: 'document-delivery-deadline',
                     label: 'Document Delivery Deadline',
-                    required: false,
-                    defaultValue: trade.documentDeliveryDeadline ? dayjs(new Date(trade.documentDeliveryDeadline).toISOString()) : '',
+                    required: true,
+                    defaultValue: dayjs.unix(orderTrade.documentDeliveryDeadline),
                     disabled,
                 },
                 {
@@ -211,9 +280,9 @@ export default function useTradeView() {
                     span: 12,
                     name: 'shipper',
                     label: 'Shipper',
-                    required: false,
-                    defaultValue: trade.shipper,
-                    disabled: true,
+                    required: true,
+                    defaultValue: orderTrade.metadata?.shipper,
+                    disabled,
                 },
                 {
                     type: FormElementType.INPUT,
@@ -221,7 +290,7 @@ export default function useTradeView() {
                     name: 'arbiter',
                     label: 'Arbiter',
                     required: true,
-                    defaultValue: trade.arbiter,
+                    defaultValue: orderTrade.arbiter,
                     disabled,
                     regex: regex.ETHEREUM_ADDRESS
                 },
@@ -230,9 +299,9 @@ export default function useTradeView() {
                     span: 12,
                     name: 'shipping-port',
                     label: 'Shipping Port',
-                    required: false,
-                    defaultValue: trade.shippingPort,
-                    disabled: true,
+                    required: true,
+                    defaultValue: orderTrade.metadata?.shippingPort,
+                    disabled,
                 },
                 {
                     type: FormElementType.DATE,
@@ -240,7 +309,7 @@ export default function useTradeView() {
                     name: 'shipping-deadline',
                     label: 'Shipping Deadline',
                     required: true,
-                    defaultValue: trade.shippingDeadline ? dayjs(new Date(trade.shippingDeadline).toISOString()) : '',
+                    defaultValue: dayjs.unix(orderTrade.shippingDeadline),
                     disabled,
                 },
                 {
@@ -248,9 +317,9 @@ export default function useTradeView() {
                     span: 12,
                     name: 'delivery-port',
                     label: 'Delivery Port',
-                    required: false,
-                    defaultValue: trade.deliveryPort,
-                    disabled: true,
+                    required: true,
+                    defaultValue: orderTrade.metadata?.deliveryPort,
+                    disabled,
                 },
                 {
                     type: FormElementType.DATE,
@@ -258,7 +327,7 @@ export default function useTradeView() {
                     name: 'delivery-deadline',
                     label: 'Delivery Deadline',
                     required: true,
-                    defaultValue: trade.deliveryDeadline ? dayjs(new Date(trade.deliveryDeadline).toISOString()) : '',
+                    defaultValue: dayjs.unix(orderTrade.deliveryDeadline),
                     disabled,
                 },
                 {
@@ -268,62 +337,130 @@ export default function useTradeView() {
                     label: 'Agreed Amount',
                     required: true,
                     regex: regex.ONLY_DIGITS,
-                    defaultValue: trade.agreedAmount,
+                    defaultValue: orderTrade.agreedAmount,
                     disabled,
                 },
                 {
                     type: FormElementType.INPUT,
                     span: 12,
-                    name: 'tokenAddress',
+                    name: 'token-address',
                     label: 'Token Address',
                     required: true,
                     regex: regex.ETHEREUM_ADDRESS,
-                    defaultValue: trade.tokenAddress,
+                    defaultValue: orderTrade.tokenAddress,
                     disabled,
                 },
                 {type: FormElementType.TITLE, span: 24, label: 'Line Items'},
-                {
-                    type: FormElementType.INPUT,
-                    span: 6,
-                    name: `product-category-id-1`,
-                    label: 'Product Category Id',
-                    required: true,
-                    defaultValue: trade.lines[0].material?.id.toString(),
-                    disabled,
-                },
-                {
-                    type: FormElementType.INPUT,
-                    span: 6,
-                    name: `quantity-${id}`,
-                    label: 'Quantity',
-                    required: true,
-                    regex: regex.ONLY_DIGITS,
-                    defaultValue: trade.lines[0].quantity?.toString(),
-                    disabled,
-                },
-                {
-                    type: FormElementType.INPUT,
-                    span: 6,
-                    name: `price-${id}`,
-                    label: 'Price',
-                    required: true,
-                    defaultValue: trade.lines[0].price?.amount.toString() + ' ' + trade.lines[0].price?.fiat,
-                    disabled,
-                },
-            ])
+            );
+            orderTrade.lines.forEach((line, index) => {
+                newElements.push(
+                    {
+                        type: FormElementType.SELECT,
+                        span: 6,
+                        name: `product-category-id-${index + 1}`,
+                        label: 'Product Category Id',
+                        required: true,
+                        options: productCategories.map((productCategory) => ({label: productCategory.name, value: productCategory.id})),
+                        defaultValue: productCategories.find(pc => pc.id === line.productCategory?.id)?.id || -1,
+                        disabled,
+                    },
+                    {
+                        type: FormElementType.INPUT,
+                        span: 5,
+                        name: `quantity-${index + 1}`,
+                        label: 'Quantity',
+                        required: true,
+                        regex: regex.ONLY_DIGITS,
+                        defaultValue: line.quantity?.toString(),
+                        disabled,
+                    },
+                    {
+                        type: FormElementType.SELECT,
+                        span: 4,
+                        name: `unit-${index + 1}`,
+                        label: 'Unit',
+                        required: true,
+                        options: units.map((unit) => ({label: unit, value: unit})),
+                        defaultValue: line.unit!,
+                        disabled,
+                    },
+                    {
+                        type: FormElementType.INPUT,
+                        span: 5,
+                        name: `price-${index + 1}`,
+                        label: 'Price',
+                        required: true,
+                        defaultValue: (line as OrderLine).price?.amount.toString(),
+                        disabled,
+                    },
+                    {
+                        type: FormElementType.SELECT,
+                        span: 4,
+                        name: `fiat-${index + 1}`,
+                        label: 'Fiat',
+                        required: true,
+                        options: fiats.map((fiat) => ({label: fiat, value: fiat})),
+                        defaultValue: (line as OrderLine).price!.fiat,
+                        disabled,
+                    },
+                );
+            });
+            setElements(newElements);
         }
-    }, [trade, documents]);
+    }, [trade, actorNames, disabled]);
 
     const onSubmit = async (values: any) => {
+        if (!ethTradeService) {
+            console.error("EthTradeService not found");
+            return;
+        }
         try {
             dispatch(showLoading("Loading..."));
             if (values['delivery-deadline'] <= values['shipping-deadline']) {
-                openNotification("Invalid dates", '', NotificationType.ERROR);
+                openNotification("Delivery deadline cannot be less then shipping one", '', NotificationType.ERROR);
             }
-            if(trade?.type === TradeType.BASIC) {
-                await tradeService.putBasicTrade(trade.id, values);
+
+            const supplier: string = values['supplier'];
+            const customer: string = values['customer'];
+            const commissioner: string = values['commissioner'];
+            const quantity: number = parseInt(values[`quantity-1`]);
+            const unit: string = values[`unit-1`];
+            const productCategoryId: number = parseInt(values['product-category-id-1']);
+
+            if (type === TradeType.BASIC) {
+                const updatedBasicTrade: BasicTradeRequest = {
+                    supplier,
+                    customer,
+                    commissioner,
+                    lines: [new LineRequest(productCategoryId, quantity, unit)],
+                    name: values['name'],
+                };
+                await ethTradeService.putBasicTrade(parseInt(id!), updatedBasicTrade);
+            } else if (type === TradeType.ORDER) {
+                const price: number = parseInt(values[`price-1`]);
+                const fiat: string = values[`fiat-1`];
+
+                const updatedOrderTrade: OrderTradeRequest = {
+                    supplier,
+                    customer,
+                    commissioner,
+                    lines: [new OrderLineRequest(productCategoryId, quantity, unit, new OrderLinePrice(price, fiat))],
+                    paymentDeadline: dayjs(values['payment-deadline']).unix(),
+                    documentDeliveryDeadline: dayjs(values['document-delivery-deadline']).unix(),
+                    arbiter: values['arbiter'],
+                    shippingDeadline: dayjs(values['shipping-deadline']).unix(),
+                    deliveryDeadline: dayjs(values['delivery-deadline']).unix(),
+                    agreedAmount: parseInt(values['agreed-amount']),
+                    tokenAddress: values['token-address'],
+                    incoterms: values['incoterms'],
+                    shipper: values['shipper'],
+                    shippingPort: values['shipping-port'],
+                    deliveryPort: values['delivery-port'],
+                };
+                await ethTradeService.putOrderTrade(parseInt(id!), updatedOrderTrade);
             }
             setDisabled(true);
+            navigate(paths.TRADES);
         } catch (e: any) {
             console.log("error: ", e);
             openNotification("Error", e.message, NotificationType.ERROR);
@@ -334,13 +471,13 @@ export default function useTradeView() {
 
     return {
         type,
-        orderState,
         elements,
         trade,
-        documents,
-        loadingDocuments,
         disabled,
+        negotiationStatus,
+        orderStatus,
         toggleDisabled,
-        onSubmit
+        onSubmit,
+        confirmNegotiation
     }
 }

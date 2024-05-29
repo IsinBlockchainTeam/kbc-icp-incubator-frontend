@@ -1,26 +1,26 @@
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {NotificationType, openNotification} from "../../utils/notification";
-import {EthAssetOperationService} from "../../api/services/EthAssetOperationService";
 import {ColumnsType} from "antd/es/table";
 import {Button, Table, TableProps} from "antd";
 import {CardPage} from "../../components/structure/CardPage/CardPage";
-import {AssetOperationPresentable} from "../../api/types/AssetOperationPresentable";
+import {AssetOperation} from "@kbc-lib/coffee-trading-management-lib";
 import {PlusOutlined} from "@ant-design/icons";
 import {paths} from "../../constants";
 import {useNavigate} from "react-router-dom";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
 import {useDispatch} from "react-redux";
+import {EthServicesContext} from "../../providers/EthServicesProvider";
 
 export const AssetOperations = () => {
+    const {ethAssetOperationService} = useContext(EthServicesContext);
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
-    const [assetOperations, setAssetOperations] = useState<AssetOperationPresentable[]>();
+    const [assetOperations, setAssetOperations] = useState<AssetOperation[]>();
     const loadData = async () => {
         try {
             dispatch(showLoading("Retrieving asset operations..."))
-            const assetOperationService = new EthAssetOperationService();
-            const assetOperations = await assetOperationService.getAssetOperations();
+            const assetOperations = await ethAssetOperationService.getAssetOperations();
             setAssetOperations(assetOperations.map(t => {
                 // @ts-ignore
                 t['key'] = t.id;
@@ -34,7 +34,7 @@ export const AssetOperations = () => {
         }
     }
 
-    const columns: ColumnsType<AssetOperationPresentable> = [
+    const columns: ColumnsType<AssetOperation> = [
         {
             title: 'Id',
             dataIndex: 'id',
@@ -48,15 +48,15 @@ export const AssetOperations = () => {
             sortDirections: ['descend']
         },
         {
-            title: 'Material name',
+            title: 'Product category',
             dataIndex: 'outputMaterial.name',
             render: (_, {outputMaterial}) => {
-                return outputMaterial ? outputMaterial.name : 'No output material';
+                return outputMaterial ? outputMaterial.productCategory.name : 'No output material';
             }
         }
     ];
 
-    const onChange: TableProps<AssetOperationPresentable>['onChange'] = (pagination, filters, sorter, extra) => {
+    const onChange: TableProps<AssetOperation>['onChange'] = (pagination, filters, sorter, extra) => {
         console.log('params', pagination, filters, sorter, extra);
     };
 

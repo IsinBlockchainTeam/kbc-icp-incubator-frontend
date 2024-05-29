@@ -1,17 +1,20 @@
 import {Avatar, Layout, Menu, MenuProps, Spin, theme} from "antd";
 import React, { useState } from "react";
 import {
-  ContainerOutlined, ExperimentOutlined, FormOutlined, GoldOutlined, SettingOutlined, SwapOutlined, TeamOutlined, LogoutOutlined, UserOutlined, AuditOutlined
+  ExperimentOutlined, GoldOutlined, SettingOutlined, SwapOutlined, TeamOutlined, LogoutOutlined, UserOutlined, AuditOutlined
 } from "@ant-design/icons";
 import {Link, Outlet, useLocation, useNavigate} from "react-router-dom";
 import { defaultPictureURL, paths } from "../../../constants";
 import KBCLogo from "../../../assets/logo.png";
 import styles from "./MenuLayout.module.scss";
-import { useAuth0 } from "@auth0/auth0-react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
-import {updateUserInfo} from "../../../redux/reducers/userInfoSlice";
-
+import {resetUserInfo} from "../../../redux/reducers/userInfoSlice";
+import {clearSiweIdentity} from "../../../redux/reducers/siweIdentitySlice";
+import {useSiweIdentity} from "../../icp/SiweIdentityProvider/SiweIdentityProvider";
+import {
+    ICPIdentityDriver
+} from "@blockchain-lib/common";
 const { Content, Footer, Sider } = Layout;
 
 type MenuItem = Required<MenuProps>["items"][number];
@@ -48,7 +51,7 @@ const settingItems: MenuItem[] = [
   ]),
 ];
 
-const getUserItemLoggedIn = (name: string, picture: string, dispatch: any) => [
+const getUserItemLoggedIn = (name: string, picture: string, dispatch: any, clear: any) => [
   getItem(
       `${name}`,
       "profile",
@@ -63,18 +66,10 @@ const getUserItemLoggedIn = (name: string, picture: string, dispatch: any) => [
             undefined,
             undefined,
             () => {
-              const reset = {
-                isLogged: false,
-                id: "",
-                legalName: "",
-                email: "",
-                address: "",
-                nation: "",
-                telephone: "",
-                image: "",
-                privateKey: "",
-              };
-              dispatch(updateUserInfo(reset))
+              dispatch(resetUserInfo());
+              dispatch(clearSiweIdentity());
+              ICPIdentityDriver.getInstance().logout();
+              clear();
             }
         ),
       ],
@@ -90,8 +85,8 @@ export const MenuLayout = () => {
   const {
     token: { colorBgContainer },
   } = theme.useToken();
-  const { user, isAuthenticated } = useAuth0();
   const dispatch = useDispatch();
+  const { clear } = useSiweIdentity();
 
   const userInfo = useSelector((state: RootState) => state.userInfo);
   const loading = useSelector((state: RootState) => state.loading);
@@ -131,7 +126,7 @@ export const MenuLayout = () => {
                   mode="vertical"
                   items={
                     userInfo.isLogged
-                        ? getUserItemLoggedIn(userInfo.legalName, userInfo.image || defaultPictureURL, dispatch)
+                        ? getUserItemLoggedIn(userInfo.legalName, userInfo.image || defaultPictureURL, dispatch, clear)
                         : settingItems
                   }
                   onClick={onMenuClick}

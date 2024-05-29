@@ -1,37 +1,73 @@
-import React from "react";
+import React, {useEffect} from "react";
 import {CardPage} from "../../components/structure/CardPage/CardPage";
 import {GenericForm} from "../../components/GenericForm/GenericForm";
-import {Spin, Tag} from "antd";
-import {EditOutlined} from "@ant-design/icons";
-import {TradeType} from "@kbc-lib/coffee-trading-management-lib";
+import {Tag, Tooltip} from "antd";
+import {EditOutlined, CheckCircleOutlined} from "@ant-design/icons";
+import {NegotiationStatus, TradeType} from "@kbc-lib/coffee-trading-management-lib";
 import {getEnumKeyByValue, isValueInEnum} from "../../utils/utils";
 import useTradeView from "./logic/tradeView";
+import OrderStatusBar from "../../components/OrderStatusBar/OrderStatusBar";
+import ConfirmedTradeView from "./ConfirmedTradeView";
 
 export const TradeView = () => {
-    const { type, orderState, elements, trade, documents, loadingDocuments, disabled, toggleDisabled, onSubmit } = useTradeView();
-    console.log("trade: ", trade)
-    console.log("documents: ", documents)
+    const {
+        type,
+        elements,
+        disabled,
+        negotiationStatus,
+        orderStatus,
+        toggleDisabled,
+        onSubmit,
+        confirmNegotiation
+    } = useTradeView();
 
-    if (!trade)
-        return <Spin style={{width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center'}}/>;
-    if (!isValueInEnum(type, TradeType))
+    const [current, setCurrent] = React.useState(-1);
+
+    useEffect(() => {
+        setCurrent(orderStatus);
+    }, [orderStatus]);
+
+    const onChange = (value: number) => {
+        console.log(value, orderStatus)
+        if(value > orderStatus)
+            return;
+        setCurrent(value);
+    }
+
+    if (!isValueInEnum(type, TradeType)) {
         return <div>Wrong type</div>;
+    }
 
     return (
         <CardPage title={
             <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
                 {getEnumKeyByValue(TradeType, type)}
                 <div style={{display: 'flex', alignItems: 'center'}}>
-                    {trade?.status && (
-                        <Tag color='green' key={trade.status}>
-                            {trade.status?.toUpperCase()}
+                    {negotiationStatus &&
+                        <Tag color='green' key={negotiationStatus}>
+                            {negotiationStatus.toUpperCase()}
                         </Tag>
-                    )}
-                    <EditOutlined style={{marginLeft: '8px'}} onClick={toggleDisabled}/>
+                    }
+                    {negotiationStatus !== getEnumKeyByValue(NegotiationStatus, NegotiationStatus.CONFIRMED) &&
+                        <div>
+                            <EditOutlined style={{marginLeft: '8px'}} onClick={toggleDisabled}/>
+                            <Tooltip title="Confirm the negotiation if everything is OK">
+                                <CheckCircleOutlined style={{marginLeft: '8px'}} onClick={confirmNegotiation}/>
+                            </Tooltip>
+                        </div>
+                    }
                 </div>
             </div>}
         >
-            <GenericForm elements={elements} submittable={!disabled} onSubmit={onSubmit}/>
+            {type === TradeType.ORDER && <OrderStatusBar orderStatus={current} onChange={onChange}/>}
+            {
+                current === 0 &&
+                <GenericForm elements={elements} submittable={!disabled} onSubmit={onSubmit}/>
+            }
+            {
+                current === 1 &&
+                <ConfirmedTradeView/>
+            }
         </CardPage>
     )
 }

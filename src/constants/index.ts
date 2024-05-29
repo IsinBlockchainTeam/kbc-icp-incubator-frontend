@@ -1,7 +1,6 @@
 import { checkAndGetEnvironmentVariable } from "../utils/utils";
 
 export const storage = {
-  SOLID_API_TOKEN: "SOLID_API_TOKEN",
   WALLET_ADDRESS: "WALLET_ADDRESS",
 };
 
@@ -14,6 +13,8 @@ export const RPC_URL = checkAndGetEnvironmentVariable(process.env.REACT_APP_RPC_
 
 export const contractAddresses = {
     PROCESS_TYPE: () => checkAndGetEnvironmentVariable(process.env.REACT_APP_CONTRACT_PROCESS_TYPE, "Process type contract address must be defined"),
+    UNIT: () => checkAndGetEnvironmentVariable(process.env.REACT_APP_CONTRACT_UNIT, "Unit contract address must be defined"),
+    FIAT: () => checkAndGetEnvironmentVariable(process.env.REACT_APP_CONTRACT_FIAT, "Fiat contract address must be defined"),
     ASSESSMENT_STANDARD: () => checkAndGetEnvironmentVariable(process.env.REACT_APP_CONTRACT_ASSESSMENT_STANDARD, "Assessment standard contract address must be defined"),
     PRODUCT_CATEGORY: () => checkAndGetEnvironmentVariable(process.env.REACT_APP_CONTRACT_PRODUCT_CATEGORY, "Product category contract address must be defined"),
     RELATIONSHIP: () => checkAndGetEnvironmentVariable(process.env.REACT_APP_CONTRACT_RELATIONSHIP, "Relationship contract address must be defined"),
@@ -24,10 +25,19 @@ export const contractAddresses = {
     OFFER: () => checkAndGetEnvironmentVariable(process.env.REACT_APP_CONTRACT_OFFER, "Offer contract address must be defined")
 }
 
+export const ICP = {
+    DFX_NETWORK: checkAndGetEnvironmentVariable(process.env.DFX_NETWORK, "DFX network must be defined"),
+    CANISTER_ID_STORAGE: checkAndGetEnvironmentVariable(process.env.REACT_APP_CANISTER_ID_STORAGE, "Storage canister ID must be defined"),
+    CANISTER_ID_PERMISSION: checkAndGetEnvironmentVariable(process.env.REACT_APP_CANISTER_ID_PERMISSION, "Permission canister ID must be defined"),
+    CANISTER_ID_ORGANIZATION: checkAndGetEnvironmentVariable(process.env.REACT_APP_CANISTER_ID_ORGANIZATION, "Organization canister ID must be defined"),
+    CANISTER_ID_IC_SIWE_PROVIDER: checkAndGetEnvironmentVariable(process.env.REACT_APP_CANISTER_ID_IC_SIWE_PROVIDER, "IC SIWE provider canister ID must be defined"),
+}
+
 export const paths = {
     HOME: "/",
     PROFILE: "/profile",
     LOGIN: "/login",
+    ICP_LOGIN: "/icp-login",
     CONTRACTS: "/contracts",
     CONTRACT_VIEW: "/contracts/:id",
     ORDERS: "/orders",
@@ -54,8 +64,10 @@ export const paths = {
 };
 
 export const credentials = {
-  PRESENTATION_TEMPLATE_NAME: "credential_request",
-  TYPE: "Organization",
+    PRESENTATION_TEMPLATE_NAME: "credential_request",
+    TYPE: "Organization",
+    ROLE_EXPORTER: "EXPORTER",
+    ROLE_IMPORTER: "IMPORTER",
 };
 
 export const defaultPictureURL: string =
@@ -64,3 +76,5 @@ export const defaultPictureURL: string =
 export const utils = {
   DATE_FORMAT: "DD/MM/YYYY",
 };
+
+export const DID_METHOD: string = "did:ethr:dev";

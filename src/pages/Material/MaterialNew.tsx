@@ -3,29 +3,29 @@ import {Button} from "antd";
 import {DeleteOutlined} from "@ant-design/icons";
 import {paths} from "../../constants";
 import {FormElement, FormElementType, GenericForm} from "../../components/GenericForm/GenericForm";
-import React, {useEffect} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
-import {EthMaterialService} from "../../api/services/EthMaterialService";
 import {NotificationType, openNotification} from "../../utils/notification";
-import {regex} from "../../utils/regex";
 import {useDispatch} from "react-redux";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
+import {EthServicesContext} from "../../providers/EthServicesProvider";
+import {ProductCategory} from "@kbc-lib/coffee-trading-management-lib";
 
 export const MaterialNew = () => {
+    const {ethMaterialService} = useContext(EthServicesContext);
+    const [productCategories, setProductCategories] = useState<ProductCategory[]>([]);
     const navigate = useNavigate();
     const dispatch = useDispatch();
-
-    const materialService = new EthMaterialService();
 
     const elements: FormElement[] = [
         {type: FormElementType.TITLE, span: 24, label: 'Data'},
         {
-            type: FormElementType.INPUT,
+            type: FormElementType.SELECT,
             span: 8,
             name: 'product-category-id',
             label: 'Product Category ID',
             required: true,
-            regex: regex.ONLY_DIGITS,
+            options: productCategories.map((productCategory) => ({label: productCategory.name, value: productCategory.id})),
             defaultValue: '',
             disabled: false,
         },
@@ -35,7 +35,7 @@ export const MaterialNew = () => {
         try {
             dispatch(showLoading("Creating material..."));
             const productCategoryId: number = parseInt(values['product-category-id']);
-            await materialService.saveMaterial(productCategoryId);
+            await ethMaterialService.saveMaterial(productCategoryId);
             openNotification("Material registered", `Material referencing product category with ID "${productCategoryId}" has been registered correctly!`, NotificationType.SUCCESS, 1);
             navigate(paths.MATERIALS);
         } catch (e: any) {
@@ -47,10 +47,24 @@ export const MaterialNew = () => {
     }
 
     useEffect(() => {
+        loadProductCategories();
         return () => {
             dispatch(hideLoading())
         }
     }, []);
+
+    async function loadProductCategories() {
+        try {
+            dispatch(showLoading("Loading product categories..."));
+            const pC = await ethMaterialService.getProductCategories();
+            setProductCategories(pC);
+        } catch (e: any) {
+            console.log("error: ", e);
+            openNotification("Error", "Error loading product categories", NotificationType.ERROR);
+        } finally {
+            dispatch(hideLoading());
+        }
+    }
 
     return (
         <CardPage title={

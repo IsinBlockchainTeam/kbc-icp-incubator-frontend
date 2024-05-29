@@ -1,208 +1,194 @@
-import {useEffect, useState} from "react";
-import {TradeType} from "@kbc-lib/coffee-trading-management-lib";
-import {v4 as uuid} from "uuid";
-import {EthTradeService} from "../../../api/services/EthTradeService";
+import {useContext, useEffect, useState} from "react";
+import {ProductCategory, TradeType} from "@kbc-lib/coffee-trading-management-lib";
 import {FormElement, FormElementType} from "../../../components/GenericForm/GenericForm";
 import {regex} from "../../../utils/regex";
+import {useLocation} from "react-router-dom";
+import {EthServicesContext} from "../../../providers/EthServicesProvider";
+import {SignerContext} from "../../../providers/SignerProvider";
+import {hideLoading, showLoading} from "../../../redux/reducers/loadingSlice";
+import {useDispatch} from "react-redux";
+import {NotificationType, openNotification} from "../../../utils/notification";
+import {getNameByDID} from "../../../utils/utils";
+import {DID_METHOD} from "../../../constants";
 
 export default function useTradeShared() {
-    const tradeService = new EthTradeService();
+    const {signer} = useContext(SignerContext);
+    const {ethTradeService, ethUnitService, ethFiatService, ethMaterialService} = useContext(EthServicesContext);
+    const location = useLocation();
+    const dispatch = useDispatch();
 
-    const [type, setType] = useState<TradeType>(TradeType.BASIC);
+    const [type, setType] = useState<TradeType>(TradeType.ORDER);
 
     const updateType = (newType: TradeType) => {
         setType(newType);
     }
 
-    const [orderState, setOrderState] = useState<number>(0);
-
-    const [lines, setLines] = useState<FormElement[]>([]);
-
-    const [, setLineOrder] = useState<string[]>([]);
-
-    const basicLine: FormElement[] = [
-        {
-            type: FormElementType.INPUT,
-            span: 8,
-            name: 'product-category-id-1',
-            label: 'Product Category Id',
-            required: true,
-            regex: regex.ONLY_DIGITS,
-            defaultValue: '',
-            disabled: false,
-        },
-        {type: FormElementType.SPACE, span: 16},];
-
-    const orderLine: FormElement[] = [
-        {
-            type: FormElementType.INPUT,
-            span: 6,
-            name: `product-category-id-1`,
-            label: 'Product Category Id',
-            required: true,
-            regex: regex.ONLY_DIGITS,
-            defaultValue: '',
-            disabled: false,
-        },
-        {
-            type: FormElementType.INPUT,
-            span: 6,
-            name: `quantity-1`,
-            label: 'Quantity',
-            required: true,
-            regex: regex.ONLY_DIGITS,
-            defaultValue: '',
-            disabled: false,
-        },
-        {
-            type: FormElementType.INPUT,
-            span: 6,
-            name: `price-1`,
-            label: 'Price',
-            required: true,
-            defaultValue: '',
-            disabled: false,
-        },
-        {type: FormElementType.SPACE, span: 6},];
-
-    const getLineId = (): string => {
-        const id: string = uuid();
-        setLineOrder((prev) => [...prev, id]);
-        return id;
-    }
-
-    const addLine = () => {
-        const id: string = getLineId();
-        if (type === TradeType.BASIC) {
-            setLines((prev) => [...prev,
-                {
-                    type: FormElementType.INPUT,
-                    span: 8,
-                    name: `product-category-id-${id}`,
-                    label: 'Product Category Id',
-                    required: true,
-                    defaultValue: '',
-                    disabled: false,
-                }, {
-                    type: FormElementType.BUTTON,
-                    span: 4,
-                    name: `delete-line-${id}`,
-                    label: 'Delete line',
-                    disabled: false,
-                    onClick: () => deleteLine(id),
-                    buttonType: 'default',
-                    additionalProperties: 'danger'
-                },
-                {type: FormElementType.SPACE, span: 12},]);
-        } else {
-            setLines((prev) => [...prev,
-                {
-                    type: FormElementType.INPUT,
-                    span: 6,
-                    name: `product-category-id-${id}`,
-                    label: 'Product Category Id',
-                    required: true,
-                    defaultValue: '',
-                    disabled: false,
-                },
-                {
-                    type: FormElementType.INPUT,
-                    span: 6,
-                    name: `quantity-${id}`,
-                    label: 'Quantity',
-                    required: true,
-                    regex: regex.ONLY_DIGITS,
-                    defaultValue: '',
-                    disabled: false,
-                },
-                {
-                    type: FormElementType.INPUT,
-                    span: 6,
-                    name: `price-${id}`,
-                    label: 'Price',
-                    required: true,
-                    defaultValue: '',
-                    disabled: false,
-                },
-                {
-                    type: FormElementType.BUTTON,
-                    span: 6,
-                    name: `delete-line-${id}`,
-                    label: 'Delete line',
-                    disabled: false,
-                    onClick: () => deleteLine(id),
-                    buttonType: 'default',
-                    additionalProperties: 'danger'
-                }
-            ]);
-        }
-    }
-
-    const deleteLine = (id: string) => {
-        let index: number;
-        setLineOrder((currentLineOrder) => {
-            index = currentLineOrder.indexOf(id);
-            return currentLineOrder.filter((lineId) => lineId !== id);
-        });
-
-        setLines((currentLines) => {
-            const start: number = type === TradeType.BASIC ? 2 + index * 3 : index * 4;
-            const end: number = type === TradeType.BASIC ? 2 + index * 3 + 3 : index * 4 + 4;
-
-            return currentLines.filter((_, i) => i < start || i >= end);
-        });
-    }
-
-    useEffect(() => {
-        if (type === TradeType.BASIC) {
-            setLines([
-                ...basicLine,
-            ]);
-        } else {
-            setLines([
-                ...orderLine,
-            ]);
-        }
-    }, [type]);
-
+    const [dataLoaded, setDataLoaded] = useState<boolean>(false);
+    const [units, setUnits] = useState<string[]>([]);
+    const [fiats, setFiats] = useState<string[]>([]);
+    const [actorNames, setActorNames] = useState<string[]>([]);
+    const [productCategories, setProductCategories] = useState<ProductCategory[]>([]);
     const [elements, setElements] = useState<FormElement[]>([]);
 
-    const commonElements: FormElement[] = [
-        {type: FormElementType.TITLE, span: 24, label: 'Actors'}, {
-            type: FormElementType.INPUT,
-            span: 8,
-            name: 'supplier',
-            label: 'Supplier',
-            required: true,
-            regex: regex.ETHEREUM_ADDRESS,
-            defaultValue: '',
-            disabled: false,
-        },
-        {
-            type: FormElementType.INPUT,
-            span: 8,
-            name: 'customer',
-            label: 'Customer',
-            required: true,
-            regex: regex.ETHEREUM_ADDRESS,
-            defaultValue: '',
-            disabled: false,
-        },
-        {
-            type: FormElementType.INPUT,
-            span: 8,
-            name: 'commissioner',
-            label: 'Commissioner',
-            required: true,
-            regex: regex.ETHEREUM_ADDRESS,
-            defaultValue: '',
-            disabled: false,
-        },
-    ]
+    useEffect(() => {
+        loadData();
+    }, []);
+
+    async function loadData() {
+        if (!ethUnitService || !ethFiatService || !ethMaterialService) {
+            return;
+        }
+        try {
+            dispatch(showLoading("Retrieving data..."));
+            const units = await ethUnitService.getAll();
+            setUnits(units);
+            const fiats = await ethFiatService.getAll();
+            setFiats(fiats);
+            const productCategories = await ethMaterialService.getProductCategories();
+            setProductCategories(productCategories);
+            await getActorNames();
+            setDataLoaded(true);
+        } catch (e: any) {
+            console.log("error: ", e);
+            openNotification("Error", e.message, NotificationType.ERROR);
+        } finally {
+            dispatch(hideLoading())
+        }
+
+    }
+
 
     const documentHeight = '45vh';
 
+    const getActorNames = async () => {
+        const supplierAddress = location?.state?.supplierAddress;
+        const commissionerAddress = signer?.address;
+
+        try {
+            const supplier = supplierAddress ? await getNameByDID(DID_METHOD + ':' + supplierAddress) : 'Unknown';
+            const commissioner = commissionerAddress ? await getNameByDID(DID_METHOD + ':' + commissionerAddress) : 'Unknown';
+            setActorNames([supplier, commissioner]);
+        } catch (e: any) {
+            console.log("error: ", e);
+            openNotification("Error", e.message, NotificationType.ERROR);
+        }
+    }
+
     useEffect(() => {
+        if (!dataLoaded) {
+            return;
+        }
+        const basicLine: FormElement[] = [
+            {
+                type: FormElementType.SELECT,
+                span: 8,
+                name: 'product-category-id-1',
+                label: 'Product Category',
+                required: false,
+                options: productCategories.map((productCategory) => ({label: productCategory.name, value: productCategory.id})),
+                defaultValue: productCategories.find(pc => pc.id === location?.state?.productCategoryId)?.id || -1,
+                disabled: true,
+            },
+            {
+                type: FormElementType.INPUT,
+                span: 6,
+                name: `quantity-1`,
+                label: 'Quantity',
+                required: true,
+                regex: regex.ONLY_DIGITS,
+                defaultValue: '',
+                disabled: false,
+            },
+            {
+                type: FormElementType.SELECT,
+                span: 4,
+                name: `unit-1`,
+                label: 'Unit',
+                required: true,
+                options: units.map((unit) => ({label: unit, value: unit})),
+                defaultValue: '',
+                disabled: false,
+            },
+            {type: FormElementType.SPACE, span: 6},];
+        const orderLine: FormElement[] = [
+            {
+                type: FormElementType.SELECT,
+                span: 6,
+                name: 'product-category-id-1',
+                label: 'Product Category',
+                required: false,
+                options: productCategories.map((productCategory) => ({label: productCategory.name, value: productCategory.id})),
+                defaultValue: productCategories.find(pc => pc.id === location?.state?.productCategoryId)?.id || -1,
+                disabled: true,
+            },
+            {
+                type: FormElementType.INPUT,
+                span: 5,
+                name: `quantity-1`,
+                label: 'Quantity',
+                required: true,
+                regex: regex.ONLY_DIGITS,
+                defaultValue: '',
+                disabled: false,
+            },
+            {
+                type: FormElementType.SELECT,
+                span: 4,
+                name: `unit-1`,
+                label: 'Unit',
+                required: true,
+                options: units.map((unit) => ({label: unit, value: unit})),
+                defaultValue: '',
+                disabled: false,
+            },
+            {
+                type: FormElementType.INPUT,
+                span: 5,
+                name: `price-1`,
+                label: 'Price',
+                required: true,
+                defaultValue: '',
+                disabled: false,
+            },
+            {
+                type: FormElementType.SELECT,
+                span: 4,
+                name: `fiat-1`,
+                label: 'Fiat',
+                required: true,
+                options: fiats.map((fiat) => ({label: fiat, value: fiat})),
+                defaultValue: '',
+                disabled: false,
+            }];
+        const commonElements: FormElement[] = [
+            {type: FormElementType.TITLE, span: 24, label: 'Actors'}, {
+                type: FormElementType.INPUT,
+                span: 8,
+                name: 'supplier',
+                label: 'Supplier',
+                required: true,
+                defaultValue: actorNames[0],
+                disabled: true,
+            },
+            {
+                type: FormElementType.INPUT,
+                span: 8,
+                name: 'customer',
+                label: 'Customer',
+                required: true,
+                defaultValue: actorNames[1],
+                disabled: true,
+            },
+            {
+                type: FormElementType.INPUT,
+                span: 8,
+                name: 'commissioner',
+                label: 'Commissioner',
+                required: true,
+                defaultValue: actorNames[1],
+                disabled: true,
+            },
+        ];
         if (type === TradeType.BASIC) {
             setElements([
                 ...commonElements,
@@ -211,21 +197,27 @@ export default function useTradeShared() {
                     type: FormElementType.INPUT,
                     span: 12,
                     name: 'name',
+                    // WTF is this?
+                    // label: 'Reference ID',
                     label: 'Name',
                     required: true,
                     defaultValue: '',
                     disabled: false,
                 },
-                {type: FormElementType.TITLE, span: 24, label: 'Line Items'},
-                ...lines,
                 {
-                    type: FormElementType.BUTTON,
-                    span: 24,
-                    name: 'new-line',
-                    label: 'New line',
-                    disabled: false,
-                    onClick: addLine
-                }]);
+                    type: FormElementType.DOCUMENT,
+                    span: 12,
+                    name: 'certificate-of-shipping',
+                    label: 'Shipping Invoice',
+                    required: true,
+                    loading: false,
+                    uploadable: true,
+                    height: documentHeight,
+                    evaluable: false,
+                },
+                {type: FormElementType.TITLE, span: 24, label: 'Line Item'},
+                ...basicLine,
+            ]);
         } else {
             setElements([
                 ...commonElements,
@@ -235,19 +227,22 @@ export default function useTradeShared() {
                     span: 12,
                     name: 'incoterms',
                     label: 'Incoterms',
-                    required: false,
+                    required: true,
                     defaultValue: '',
-                    disabled: true,
+                    disabled: false,
                 },
                 {
                     type: FormElementType.DOCUMENT,
                     span: 12,
                     name: 'payment-invoice',
-                    label: 'Payment Invoice',
-                    required: false,
+                    // TODO: DEMO ONLY!! Remove this Label!!!
+                    label: 'Attachments',
+                    // label: 'Payment Invoice',
+                    required: true,
                     loading: false,
-                    uploadable: false,
-                    height: documentHeight
+                    uploadable: true,
+                    height: documentHeight,
+                    evaluable: false,
                 },
                 {
                     type: FormElementType.DATE,
@@ -263,7 +258,7 @@ export default function useTradeShared() {
                     span: 12,
                     name: 'document-delivery-deadline',
                     label: 'Document Delivery Deadline',
-                    required: false,
+                    required: true,
                     defaultValue: '',
                     disabled: false,
                 },
@@ -272,9 +267,9 @@ export default function useTradeShared() {
                     span: 12,
                     name: 'shipper',
                     label: 'Shipper',
-                    required: false,
+                    required: true,
                     defaultValue: '',
-                    disabled: true,
+                    disabled: false,
                 },
                 {
                     type: FormElementType.INPUT,
@@ -291,9 +286,9 @@ export default function useTradeShared() {
                     span: 12,
                     name: 'shipping-port',
                     label: 'Shipping Port',
-                    required: false,
+                    required: true,
                     defaultValue: '',
-                    disabled: true,
+                    disabled: false,
                 },
                 {
                     type: FormElementType.DATE,
@@ -309,9 +304,9 @@ export default function useTradeShared() {
                     span: 12,
                     name: 'delivery-port',
                     label: 'Delivery Port',
-                    required: false,
+                    required: true,
                     defaultValue: '',
-                    disabled: true,
+                    disabled: false,
                 },
                 {
                     type: FormElementType.DATE,
@@ -342,26 +337,20 @@ export default function useTradeShared() {
                     defaultValue: '',
                     disabled: false,
                 },
-                {type: FormElementType.TITLE, span: 24, label: 'Line Items'},
-                ...lines,
-                {
-                    type: FormElementType.BUTTON,
-                    span: 24,
-                    name: 'new-line',
-                    label: 'New line',
-                    disabled: false,
-                    onClick: addLine,
-                    buttonType: 'default'
-                },
+                {type: FormElementType.TITLE, span: 24, label: 'Line Item'},
+                ...orderLine,
             ])
         }
-    }, [type, lines]);
+    }, [type, productCategories, actorNames, dataLoaded]);
 
     return {
+        dataLoaded,
+        productCategories,
         type,
-        tradeService,
-        orderState,
+        ethTradeService,
         elements,
         updateType,
+        units,
+        fiats,
     }
 }

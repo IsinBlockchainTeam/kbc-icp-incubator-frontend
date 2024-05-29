@@ -1,22 +1,25 @@
-import {useNavigate} from "react-router-dom";
-import {EthOfferService} from "../../api/services/EthOfferService";
+import {Navigate, useNavigate} from "react-router-dom";
 import {FormElement, FormElementType, GenericForm} from "../../components/GenericForm/GenericForm";
 import {NotificationType, openNotification} from "../../utils/notification";
-import {paths} from "../../constants";
+import {credentials, paths} from "../../constants";
 import {CardPage} from "../../components/structure/CardPage/CardPage";
 import {Button} from "antd";
 import {DeleteOutlined} from "@ant-design/icons";
-import React, {useEffect} from "react";
+import React, {useContext, useEffect} from "react";
 import {formatAddress} from "../../utils/utils";
-import {regex} from "../../utils/regex";
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
+import {RootState} from "../../redux/store";
+import {SignerContext} from "../../providers/SignerProvider";
+import {EthServicesContext} from "../../providers/EthServicesProvider";
 
 export const OffersSupplierNew = () => {
+    const {signer} = useContext(SignerContext);
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const userInfo = useSelector((state: RootState) => state.userInfo);
 
-    const offerService = new EthOfferService();
+    const {ethOfferService} = useContext(EthServicesContext);
 
     const elements: FormElement[] = [
         {type: FormElementType.TITLE, span: 24, label: 'Data'},
@@ -25,26 +28,27 @@ export const OffersSupplierNew = () => {
             span: 8,
             name: 'supplier-address',
             label: 'Supplier Address',
-            required: true,
-            regex: regex.ETHEREUM_ADDRESS,
-            defaultValue: '',
-            disabled: false
+            required: false,
+            defaultValue: signer?.address || 'Unknown',
+            disabled: true
         },
         {
             type: FormElementType.INPUT,
             span: 8,
             name: 'supplier-name',
             label: 'Supplier Name',
-            required: true,
-            defaultValue: '',
-            disabled: false
+            required: false,
+            defaultValue: userInfo.legalName || 'Unknown',
+            disabled: true
         },
     ];
 
     const onSubmit = async (values: any) => {
         try {
+            values['supplier-address'] = signer?.address || 'Unknown';
+            values['supplier-name'] = userInfo.legalName || 'Unknown';
             dispatch(showLoading("Inserting offer supplier..."));
-            await offerService.saveSupplier(values['supplier-address'], values['supplier-name']);
+            await ethOfferService.saveSupplier(values['supplier-address'], values['supplier-name']);
             openNotification("Offer supplier registered", `Offer supplier with address ${formatAddress(values['supplier-address'])} has been registered correctly!`, NotificationType.SUCCESS, 1);
             navigate(paths.OFFERS);
         } catch (e: any) {
@@ -60,6 +64,12 @@ export const OffersSupplierNew = () => {
             dispatch(hideLoading());
         }
     }, []);
+
+    if(userInfo.role !== credentials.ROLE_EXPORTER) {
+        return (
+            <Navigate to={paths.HOME} />
+        )
+    }
 
     return (
         <CardPage title={

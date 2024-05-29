@@ -4,7 +4,7 @@ import {renderHook, waitFor} from "@testing-library/react";
 import {useLocation, useParams} from "react-router-dom";
 import {useSelector} from "react-redux";
 import {EthDocumentService} from "../../../../api/services/EthDocumentService";
-import {TradePresentable} from "../../../../api/types/TradePresentable";
+import {TradePreviewPresentable} from "../../../../api/types/TradePresentable";
 import {TradeType} from "../coffee-trading-management-lib/src/index";
 import {NotificationType, openNotification} from "../../../../utils/notification";
 import {DocumentPresentable} from "../../../../api/types/DocumentPresentable";
@@ -72,7 +72,7 @@ describe('tradeView', () => {
     });
 
     it('should get trade info and documents', async () => {
-        mockTradeService.getTradeByIdAndType.mockReturnValue(new TradePresentable(1, [], 'supplier', TradeType.BASIC));
+        mockTradeService.getTradeByIdAndType.mockReturnValue(new TradePreviewPresentable(1, [], 'supplier', TradeType.BASIC));
         const mockGetDocumentsByTransactionIdAndType = jest.fn().mockReturnValue(new DocumentPresentable(1, "test document", "application/pdf"));
         (EthDocumentService as jest.Mock).mockReturnValue({
             getDocumentsByTransactionIdAndType: mockGetDocumentsByTransactionIdAndType
@@ -87,7 +87,7 @@ describe('tradeView', () => {
     });
 
     it('should submit', async () => {
-        mockTradeService.getTradeByIdAndType.mockReturnValue(new TradePresentable(1, [], 'supplier', TradeType.BASIC));
+        mockTradeService.getTradeByIdAndType.mockReturnValue(new TradePreviewPresentable(1, [], 'supplier', TradeType.BASIC));
 
         const { result } = renderHook(() => useTradeView());
         await waitFor(() => expect(result.current.trade).toBeDefined());

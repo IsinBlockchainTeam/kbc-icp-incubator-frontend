@@ -1,16 +1,22 @@
-import {Service} from "./Service";
-import {MaterialService, ProductCategoryService} from "@kbc-lib/coffee-trading-management-lib";
-import {BlockchainLibraryUtils} from "../BlockchainLibraryUtils";
-import {MaterialPresentable} from "../types/MaterialPresentable";
+import {Material, MaterialService, ProductCategory, ProductCategoryService} from "@kbc-lib/coffee-trading-management-lib";
 
-export class EthMaterialService extends Service {
+export class EthMaterialService {
+    private readonly _walletAddress: string;
     private readonly _productCategoryService: ProductCategoryService;
     private readonly _materialService: MaterialService;
 
-    constructor() {
-        super();
-        this._productCategoryService = BlockchainLibraryUtils.getProductCategoryService();
-        this._materialService = BlockchainLibraryUtils.getMaterialService();
+    constructor(walletAddress: string, productCategoryService: ProductCategoryService, materialService: MaterialService) {
+        this._walletAddress = walletAddress;
+        this._productCategoryService = productCategoryService;
+        this._materialService = materialService;
+    }
+
+    async getProductCategories(): Promise<ProductCategory[]> {
+        return this._productCategoryService.getProductCategories();
+    }
+
+    getProductCategory(id: number): Promise<ProductCategory> {
+        return this._productCategoryService.getProductCategory(id);
     }
 
     async saveProductCategory(name: string, quality: number, description: string): Promise<void> {
@@ -25,12 +31,7 @@ export class EthMaterialService extends Service {
         await this._materialService.registerMaterial(productCategoryId);
     }
 
-    async getMaterials(): Promise<MaterialPresentable[]> {
-        const materials = await this._materialService.getMaterialsOfCreator(this._walletAddress);
-        return materials.map(m =>
-            new MaterialPresentable()
-                .setId(m.id)
-                .setName(m.productCategory.name)
-        );
+    async getMaterials(): Promise<Material[]> {
+        return this._materialService.getMaterialsOfCreator(this._walletAddress);
     }
 }

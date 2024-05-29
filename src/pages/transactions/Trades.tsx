@@ -1,28 +1,27 @@
-import React, {useEffect} from "react";
+import React, {useContext, useEffect} from "react";
 import {CardPage} from "../../components/structure/CardPage/CardPage";
-import {Button, Table, TableProps} from "antd";
-import {PlusOutlined} from "@ant-design/icons";
+import {Table, TableProps, Tag, Tooltip} from "antd";
+import {ExclamationCircleOutlined, CheckCircleOutlined, SettingOutlined} from "@ant-design/icons";
 import {ColumnsType} from "antd/es/table";
 import {NotificationType, openNotification} from "../../utils/notification";
 import {getEnumKeyByValue, setParametersPath} from "../../utils/utils";
-import {EthTradeService} from "../../api/services/EthTradeService";
-import {TradePresentable} from "../../api/types/TradePresentable";
-import {Link, useNavigate} from "react-router-dom";
+import {TradePreviewPresentable} from "../../api/types/TradePresentable";
+import {Link} from "react-router-dom";
 import {paths} from "../../constants";
-import {TradeType} from "@kbc-lib/coffee-trading-management-lib";
+import {NegotiationStatus, TradeType} from "@kbc-lib/coffee-trading-management-lib";
 import {useDispatch} from "react-redux";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
+import {EthServicesContext} from "../../providers/EthServicesProvider";
 
 export const Trades = () => {
-    const [trades, setTrades] = React.useState<TradePresentable[]>();
+    const {ethTradeService} = useContext(EthServicesContext);
+    const [trades, setTrades] = React.useState<TradePreviewPresentable[]>();
     const dispatch = useDispatch();
-    const navigate = useNavigate();
 
     const loadData = async () => {
         try {
             dispatch(showLoading("Retrieving trades..."));
-            const tradeService = new EthTradeService();
-            const trades = await tradeService.getGeneralTrades();
+            const trades = await ethTradeService.getGeneralTrades();
 
             setTrades(trades.map(t => {
                 // @ts-ignore
@@ -37,7 +36,7 @@ export const Trades = () => {
         }
     }
 
-    const columns: ColumnsType<TradePresentable> = [
+    const columns: ColumnsType<TradePreviewPresentable> = [
         {
             title: 'Id',
             dataIndex: 'id',
@@ -49,23 +48,15 @@ export const Trades = () => {
                 )
             })
         },
-        // {
-        //     title: 'Name',
-        //     dataIndex: 'name',
-        //     sorter: (a, b) => (a.name|| '').localeCompare(b.name || ''),
-        //     render: (name => {
-        //         return name ? name : '-';
-        //     })
-        // },
         {
             title: 'Supplier',
             dataIndex: 'supplier',
             sorter: (a, b) => a.supplier.localeCompare(b.supplier),
         },
         {
-            title: 'Customer',
-            dataIndex: 'customer',
-            sorter: (a, b) => (a.customer || '').localeCompare((b.customer || '')),
+            title: 'Commissioner',
+            dataIndex: 'commissioner',
+            sorter: (a, b) => (a.commissioner || '').localeCompare((b.commissioner || '')),
             render: (customer => {
                 return customer ? customer : '-'
             })
@@ -76,46 +67,38 @@ export const Trades = () => {
             render: (type => {
                 return getEnumKeyByValue(TradeType, type);
             })
-            // render: (type, trade) => {
-            //     const constraints = [
-            //         {incoterms: trade.incoterms},
-            //         {paymentDeadline: trade.paymentDeadline},
-            //         {documentDeliveryDeadline: trade.documentDeliveryDeadline},
-            //         {shipper: trade.shipper},
-            //         {arbiter: trade.arbiter},
-            //         {shippingPort: trade.shippingPort},
-            //         {shippingDeadline: trade.shippingDeadline},
-            //         {deliveryPort: trade.deliveryPort},
-            //         {deliveryDeadline: trade.deliveryDeadline},
-            //     ];
-            //
-            //     const items: MenuProps['items'] = [];
-            //     constraints.map((c, index) => {
-            //         const item: {key: string, label: string} = {key: '', label: ''};
-            //         for (let key in constraints[index]) {
-            //             // @ts-ignore
-            //             const value = constraints[index][key];
-            //             item.key = key;
-            //             if (!value) item.label = `${toTitleCase(key)}: Not specified`;
-            //             else item.label = `${toTitleCase(key)}: ${(value instanceof Date) ? value.toLocaleDateString() : value}`;
-            //         }
-            //         items.push(item);
-            //     })
-            //     return (
-            //         <Dropdown menu={{ items }} placement="bottom" arrow>
-            //             <p>{type}</p>
-            //         </Dropdown>
-            //     )
-            // }
+        },
+        {
+            title: 'Status',
+            dataIndex: 'negotiationStatus',
+            sorter: (a, b) => (a.negotiationStatus?.toString() || '').localeCompare((b.negotiationStatus?.toString() || '')),
+            render: (_, {negotiationStatus}) => (
+                <Tag color="geekblue" key={negotiationStatus}>
+                    {negotiationStatus ?
+                        (getEnumKeyByValue(NegotiationStatus, negotiationStatus)?.toString().toUpperCase()) :
+                        '-'
+                    }
+                </Tag>
+            )
+        },
+        {
+            title: <SettingOutlined />,
+            dataIndex: 'actionRequired',
+            render: (_, {actionRequired}) => {
+                return actionRequired ?
+                    <Tooltip title={actionRequired}><ExclamationCircleOutlined style={{fontSize: '1.5rem', color: 'orange'}}/></Tooltip> :
+                    <Tooltip title={"There are no operations charged to you at this time"}><CheckCircleOutlined style={{fontSize: '1.5rem', color: 'green'}}/></Tooltip>
+            }
         }
     ];
 
-    const onChange: TableProps<TradePresentable>['onChange'] = (pagination, filters, sorter, extra) => {
+    const onChange: TableProps<TradePreviewPresentable>['onChange'] = (pagination, filters, sorter, extra) => {
         console.log('params', pagination, filters, sorter, extra);
     };
 
     useEffect(() => {
         loadData();
+
         return () => {
             dispatch(hideLoading());
         }
@@ -126,9 +109,6 @@ export const Trades = () => {
             <div
                 style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                 Trades
-                <Button type="primary" icon={<PlusOutlined/>} onClick={() => navigate(paths.TRADE_NEW)}>
-                    New Trade
-                </Button>
             </div>
         }>
             <Table columns={columns} dataSource={trades} onChange={onChange}/>
