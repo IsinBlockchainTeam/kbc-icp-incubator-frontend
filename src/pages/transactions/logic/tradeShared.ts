@@ -59,13 +59,11 @@ export default function useTradeShared() {
     }
 
     const validateDocument = async (tradeId: number, documentId: number, validationStatus: DocumentStatus) => {
-        console.log("document id: ", documentId)
         const documents = await ethDocumentService.getDocumentsByTransactionId(tradeId);
-        console.log("documents: ", documents)
         await ethTradeService.validateDocument(tradeId, documentId, validationStatus);
         if (validationStatus === DocumentStatus.APPROVED) openNotification("Document approved", "The document has been successfully approved", NotificationType.SUCCESS, 1);
         else if (validationStatus === DocumentStatus.NOT_APPROVED) openNotification("Document rejected", "The document has been rejected", NotificationType.SUCCESS, 1);
-        navigate(paths.TRADES);
+        window.location.reload();
     }
 
     const documentHeight = '45vh';

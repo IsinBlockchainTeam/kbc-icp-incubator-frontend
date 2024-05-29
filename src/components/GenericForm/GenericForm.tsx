@@ -1,11 +1,9 @@
-import React, {useContext, useEffect} from "react";
+import React, {useEffect} from "react";
 import {Alert, Button, Col, DatePicker, Divider, Form, Input, Popover, Row, Select} from "antd";
 import PDFViewer from "../PDFViewer/PDFViewer";
 import {DownloadOutlined} from "@ant-design/icons";
 import {createDownloadWindow, showTextWithHtmlLinebreaks} from "../../utils/utils";
-import {EthServicesContext} from "../../providers/EthServicesProvider";
 import {DocumentPresentable} from "../../api/types/DocumentPresentable";
-import {useNavigate} from "react-router-dom";
 
 export enum FormElementType {
     TITLE = 'title',
@@ -28,6 +26,7 @@ type BasicElement = {
 type LabeledElement = Omit<BasicElement, 'type'> & {
     type: FormElementType.TITLE | FormElementType.TIP,
     label: string,
+    marginVertical?: string,
 }
 
 // type DisableableElement = Omit<LabeledElement, 'type'> & {
@@ -96,10 +95,8 @@ type Props = {
 }
 export const GenericForm = (props: Props) => {
     const [form] = Form.useForm();
-    const navigate = useNavigate();
     const documents: Map<string, Blob | undefined> = new Map<string, Blob>();
     const dateFormat = 'DD/MM/YYYY';
-    const { ethDocumentService } = useContext(EthServicesContext)
 
     useEffect(() => {
         props.elements.forEach((element) => {
@@ -136,7 +133,7 @@ export const GenericForm = (props: Props) => {
             element = element as LabeledElement;
             const {span, label} = element;
             return (
-                <Col span={span} key={index}>
+                <Col span={span} key={index} style={{margin: `${element.marginVertical} 0`}}>
                     <Alert style={{textAlign: 'center'}} message={showTextWithHtmlLinebreaks(label)} />
                 </Col>
             )
@@ -276,7 +273,7 @@ export const GenericForm = (props: Props) => {
                                     </Row>
                                 }
                             >
-                                <Button type="default" style={{width: '100%'}}>Check content and validate</Button>
+                                <Button type="default" shape="round" style={{width: '100%', borderColor: 'darkorange', color: 'darkorange'}}>Check content and validate</Button>
                             </Popover>
                         }
                     </Form.Item>

@@ -20,19 +20,6 @@ export const TradeView = () => {
         confirmNegotiation
     } = useTradeView();
 
-    const [current, setCurrent] = React.useState(-1);
-
-    useEffect(() => {
-        setCurrent(orderStatus);
-    }, [orderStatus]);
-
-    const onChange = (value: number) => {
-        console.log(value, orderStatus)
-        if(value > orderStatus)
-            return;
-        setCurrent(value);
-    }
-
     if (!Object.values(TradeType).includes(type)) {
         return <div>Wrong type</div>;
     }

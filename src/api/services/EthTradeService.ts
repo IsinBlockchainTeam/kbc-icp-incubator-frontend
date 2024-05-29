@@ -140,8 +140,6 @@ export class EthTradeService {
         const documents = await this._ethDocumentService.getDocumentsByTransactionId(tradeId);
         const documentMap = new Map<DocumentType, DocumentPresentable>();
         documents?.forEach(doc => documentMap.set(doc.documentType, doc));
-        console.log("documentMap: ", documentMap)
-        console.log("documents: ", documents)
         return documentMap;
     }
 
@@ -318,6 +316,7 @@ export class EthTradeService {
             name: document.filename,
             type: document.content.type,
         }
+        console.log("addDocument - document: ", document)
 
         await tradeService.addDocument(document.documentType, new Uint8Array(await new Response(document.content).arrayBuffer()), externalUrl, resourceSpec, delegatedOrganizationIds);
     }
