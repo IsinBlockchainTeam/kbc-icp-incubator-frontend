@@ -30,10 +30,33 @@ function WalletConnect() {
         }
     }, [isConnected, walletProvider]);
 
+    const sendTransaction = async () => {
+        const ethersProvider = new ethers.providers.Web3Provider(walletProvider!);
+        const signer = ethersProvider.getSigner();
+        console.log("signer:", signer);
+
+        // Create a transaction object
+        const tx = {
+            to: "0xb794f5ea0ba39494ce839613fffba74279579268", // Replace with the recipient's address
+            value: ethers.utils.parseEther("0.1"), // Amount to send
+            gasLimit: ethers.utils.hexlify(21000), // Basic transaction costs 21000 gas
+            gasPrice: ethers.utils.hexlify(ethers.utils.parseUnits("10", "gwei")), // 10 Gwei
+        };
+
+        // Sign the transaction
+        const signedTx = await signer.sendTransaction(tx);
+
+        // Wait for the transaction to be mined
+        const receipt = await signedTx.wait();
+
+        console.log("Transaction receipt:", receipt);
+    }
+
     return (
         <>
             <button onClick={() => open()}>Open Connect Modal</button>
             <button onClick={() => open({ view: 'Networks' })}>Open Network Modal</button>
+            <button onClick={() => sendTransaction()}>Send transaction</button>
         </>
     );
 }
