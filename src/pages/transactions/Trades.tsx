@@ -1,14 +1,14 @@
 import React, {useContext, useEffect} from "react";
 import {CardPage} from "../../components/structure/CardPage/CardPage";
 import {Table, TableProps, Tag, Tooltip} from "antd";
-import {ExclamationCircleOutlined, CheckCircleOutlined, SettingOutlined} from "@ant-design/icons";
+import {CheckCircleOutlined, ExclamationCircleOutlined, SettingOutlined} from "@ant-design/icons";
 import {ColumnsType} from "antd/es/table";
 import {NotificationType, openNotification} from "../../utils/notification";
 import {setParametersPath} from "../../utils/utils";
 import {TradePreviewPresentable} from "../../api/types/TradePresentable";
 import {Link} from "react-router-dom";
 import {paths} from "../../constants";
-import {NegotiationStatus, TradeType} from "@kbc-lib/coffee-trading-management-lib";
+import {NegotiationStatus, OrderStatus, TradeType} from "@kbc-lib/coffee-trading-management-lib";
 import {useDispatch} from "react-redux";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
 import {EthServicesContext} from "../../providers/EthServicesProvider";
@@ -70,12 +70,17 @@ export const Trades = () => {
         },
         {
             title: 'Status',
-            dataIndex: 'negotiationStatus',
-            sorter: (a, b) => (a.negotiationStatus?.toString() || '').localeCompare((b.negotiationStatus?.toString() || '')),
-            render: (_, {negotiationStatus}) => (
+            dataIndex: 'orderStatus',
+            sorter: (a, b) => (a.orderStatus?.toString() || '').localeCompare((b.orderStatus?.toString() || '')),
+            render: (_, {negotiationStatus, orderStatus}) => (
                 <Tag color="geekblue" key={negotiationStatus}>
                     {negotiationStatus ?
-                        (NegotiationStatus[negotiationStatus]?.toString().toUpperCase()) :
+                        (negotiationStatus !== NegotiationStatus.CONFIRMED ?
+                            NegotiationStatus[negotiationStatus]?.toString().toUpperCase()
+                            :
+                            OrderStatus[orderStatus!]?.toString().toUpperCase()
+                        )
+                        :
                         '-'
                     }
                 </Tag>

@@ -21,14 +21,12 @@ export class EthDocumentService {
         const documentsInfo = await tradeService.getAllDocuments();
 
         const documents: DocumentPresentable[] = [];
-        console.log("getDocumentsByTransactionId - documentsInfo: ", documentsInfo)
 
         for(const d of documentsInfo) {
             if(d.externalUrl.endsWith('.json')) continue;
 
             const completeDocument = await this._documentService.getCompleteDocument(d);
             const status = await tradeService.getDocumentStatus(d.id);
-            console.log("getDocumentsByTransactionId - completeDocument: ", completeDocument, " status: ", status);
             const blob = new Blob([completeDocument!.content], { type: getMimeType(completeDocument.filename)});
 
             documents.push({

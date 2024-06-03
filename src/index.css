@@ -18,3 +18,7 @@ code {
   overflow: hidden;
   position: fixed;
 }
+
+.ant-tooltip-inner {
+  text-align: center !important;
+}

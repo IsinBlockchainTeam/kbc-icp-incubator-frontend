@@ -13,6 +13,7 @@ export type TradePreviewPresentable = {
     commissioner: string;
     type: TradeType;
     negotiationStatus?: NegotiationStatus;
+    orderStatus?: OrderStatus;
     actionRequired?: string;
 }
 

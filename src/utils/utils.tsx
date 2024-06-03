@@ -110,6 +110,10 @@ export const getNameByDID = async (did: string): Promise<string> => {
     return verifiablePresentation.legalName;
 }
 
+export const getEnumKeyByValue = <T extends Object>(enumObj: T, value: T[keyof T]): string | undefined => {
+    return Object.keys(enumObj).find(key => enumObj[key as keyof T] === value);
+}
+
 export const showTextWithHtmlLinebreaks = (text: string): ReactNode => {
     return (
         <>

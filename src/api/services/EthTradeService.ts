@@ -1,12 +1,14 @@
 import {
     BasicTrade,
-    BasicTradeService, DocumentStatus,
+    BasicTradeService,
+    DocumentStatus,
     DocumentType,
     IConcreteTradeService,
     Line,
     NegotiationStatus,
     OrderLine,
     OrderLinePrice,
+    OrderStatus,
     OrderTrade,
     OrderTradeMetadata,
     OrderTradeService,
@@ -18,7 +20,7 @@ import {
 import {CustomError} from "../../utils/error/CustomError";
 import {HttpStatusCode} from "../../utils/error/HttpStatusCode";
 import {ICPResourceSpec} from "@blockchain-lib/common";
-import {getICPCanisterURL, getNameByDID} from "../../utils/utils";
+import {getEnumKeyByValue, getICPCanisterURL, getNameByDID} from "../../utils/utils";
 import {DID_METHOD, ICP} from "../../constants";
 import {store} from "../../redux/store";
 import {
@@ -89,32 +91,57 @@ export class EthTradeService {
             const {tradeId, supplier, commissioner} = await tradeInstanceService.getTrade();
             const trade = await tradeInstanceService.getTrade();
 
-            let actionRequired ;
+            let actionRequired;
             if (tradeType === TradeType.ORDER) {
-                const documentsInfo = (await tradeService.getAllDocuments()).filter(doc => !doc.externalUrl.includes("metadata.json"));
-                const order = trade as OrderTrade;
                 const orderService = tradeInstanceService as OrderTradeService;
+                const actionMessage = async (designatedPartyAddress: string, docTypes: DocumentType[]): Promise<string | undefined> => {
+                    const documentsStatusByType = await docTypes.reduce(async (acc, docType) => {
+                        const docIds = await orderService.getDocumentIdsByType(docType);
+                        const documentsStatuses = await Promise.all(docIds.map(async docId => orderService.getDocumentStatus(docId)));
+                        return (await acc).set(docType, documentsStatuses);
+                    }, Promise.resolve(new Map<DocumentType, DocumentStatus[]>()));
+                    if (this._walletAddress === designatedPartyAddress) {
+                        if (docTypes.some(docType => documentsStatusByType.get(docType)?.every(docStatus => docStatus === DocumentStatus.NOT_APPROVED)))
+                            return `You have to upload some documents`;
+                    }
+                    else {
+                        if (docTypes.some(docType => documentsStatusByType.get(docType)?.some(docStatus => docStatus === DocumentStatus.NOT_EVALUATED)))
+                            return `Some documents need to be validated`;
+                    }
+                    return undefined;
+                };
+
+
+                const order = trade as OrderTrade;
+                const orderStatus = await orderService.getOrderStatus();
                 const whoSigned = await orderService.getWhoSigned();
                 if (!whoSigned.includes(this._walletAddress) && order.negotiationStatus === NegotiationStatus.PENDING)
                     actionRequired = "This negotiation needs your sign to proceed";
-
-                // if (documentsInfo.length && documentsInfo.some((doc) => doc.status === DocumentStatus.NOT_EVALUATED)) {
-                // //     TODO: per ora si ipotizza che solo il supplier debba caricare i documenti e quindi che sia il commissioner a validarli
-                // //     nel caso di caricamenti da entrambi i lati, si potrà verificare in base al trade status
-                // //     const status = await orderService.getOrderStatus();
-                //     if (this._walletAddress === commissioner)
-                //         actionRequired = "Some documents need to be evaluated";
-                // }
+                else if (orderStatus === OrderStatus.PRODUCTION)
+                    actionRequired = await actionMessage(order.supplier, [DocumentType.PAYMENT_INVOICE]);
+                else if (orderStatus === OrderStatus.PAYED)
+                    actionRequired = await actionMessage(order.supplier, [
+                        DocumentType.ORIGIN_SWISS_DECODE,
+                        DocumentType.WEIGHT_CERTIFICATE,
+                        DocumentType.FUMIGATION_CERTIFICATE,
+                        DocumentType.PREFERENTIAL_ENTRY_CERTIFICATE,
+                        DocumentType.PHYTOSANITARY_CERTIFICATE,
+                        DocumentType.INSURANCE_CERTIFICATE,
+                    ]);
+                else if (orderStatus === OrderStatus.EXPORTED)
+                    actionRequired = await actionMessage(order.supplier, [DocumentType.BILL_OF_LADING]);
+                else if (orderStatus === OrderStatus.SHIPPED)
+                    actionRequired = await actionMessage(order.commissioner, [DocumentType.COMPARISON_SWISS_DECODE]);
             }
 
 
             let supplierName = names.get(supplier);
-            if(! supplierName) {
+            if(!supplierName) {
                 supplierName = await getNameByDID(DID_METHOD + ':' + supplier) || "Unknown";
                 names.set(supplier, supplierName);
             }
             let commissionerName = names.get(commissioner);
-            if(! commissionerName) {
+            if(!commissionerName) {
                 commissionerName = await getNameByDID(DID_METHOD + ':' + commissioner) || "Unknown";
                 names.set(commissioner, commissionerName);
             }
@@ -129,6 +156,7 @@ export class EthTradeService {
 
             if (tradeType === TradeType.ORDER) {
                 newTradePresentable.negotiationStatus = await (tradeInstanceService as OrderTradeService).getNegotiationStatus();
+                newTradePresentable.orderStatus = await (tradeInstanceService as OrderTradeService).getOrderStatus();
             }
             tradePresentables.push(newTradePresentable)
         }

@@ -57,8 +57,9 @@ export default function OrderTradeStatusForms(props: Props) {
                     documentType: doc.documentType,
                 }
                 await ethTradeService.addDocument(tradeInfo.trade.tradeId, TradeType.ORDER, documentRequest, tradeInfo.trade.externalUrl);
-                navigate(paths.TRADES);
             }));
+            navigate(paths.TRADES);
+
         } catch (e: any) {
             console.log("error: ", e);
             openNotification("Error", e.message, NotificationType.ERROR);
