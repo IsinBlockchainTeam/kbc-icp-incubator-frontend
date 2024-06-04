@@ -20,7 +20,7 @@ import {
 import {CustomError} from "../../utils/error/CustomError";
 import {HttpStatusCode} from "../../utils/error/HttpStatusCode";
 import {ICPResourceSpec} from "@blockchain-lib/common";
-import {getEnumKeyByValue, getICPCanisterURL, getNameByDID} from "../../utils/utils";
+import {getICPCanisterURL, getNameByDID} from "../../utils/utils";
 import {DID_METHOD, ICP} from "../../constants";
 import {store} from "../../redux/store";
 import {
@@ -29,7 +29,7 @@ import {
     OrderTradePresentable,
     TradePreviewPresentable
 } from "../types/TradePresentable";
-import {DocumentPresentable} from "../types/DocumentPresentable";
+import {DocumentInfoPresentable, DocumentPresentable} from "../types/DocumentPresentable";
 import {BasicTradeRequest, OrderTradeRequest} from "../types/TradeRequest";
 import {EthMaterialService} from "./EthMaterialService";
 import {DocumentRequest} from "../types/DocumentRequest";
@@ -91,21 +91,18 @@ export class EthTradeService {
             const {tradeId, supplier, commissioner} = await tradeInstanceService.getTrade();
             const trade = await tradeInstanceService.getTrade();
 
+
             let actionRequired;
             if (tradeType === TradeType.ORDER) {
                 const orderService = tradeInstanceService as OrderTradeService;
-                const actionMessage = async (designatedPartyAddress: string, docTypes: DocumentType[]): Promise<string | undefined> => {
-                    const documentsStatusByType = await docTypes.reduce(async (acc, docType) => {
-                        const docIds = await orderService.getDocumentIdsByType(docType);
-                        const documentsStatuses = await Promise.all(docIds.map(async docId => orderService.getDocumentStatus(docId)));
-                        return (await acc).set(docType, documentsStatuses);
-                    }, Promise.resolve(new Map<DocumentType, DocumentStatus[]>()));
+                const actionMessage = async (designatedPartyAddress: string, docTypes: DocumentType[]): Promise<string | undefined>=> {
+                    const documentsByType = await this.getDocumentsInfoMapByTypes(tradeId, docTypes);
                     if (this._walletAddress === designatedPartyAddress) {
-                        if (docTypes.some(docType => documentsStatusByType.get(docType)?.every(docStatus => docStatus === DocumentStatus.NOT_APPROVED)))
+                        if (docTypes.some(docType => documentsByType.size === 0 ? true : (!documentsByType.get(docType) || documentsByType.get(docType)?.status === DocumentStatus.NOT_APPROVED)))
                             return `You have to upload some documents`;
                     }
                     else {
-                        if (docTypes.some(docType => documentsStatusByType.get(docType)?.some(docStatus => docStatus === DocumentStatus.NOT_EVALUATED)))
+                        if (docTypes.some(docType => documentsByType.get(docType)?.status === DocumentStatus.NOT_EVALUATED))
                             return `Some documents need to be validated`;
                     }
                     return undefined;
@@ -164,10 +161,20 @@ export class EthTradeService {
         return tradePresentables;
     }
 
-    private async getDocumentsMap(tradeId: number): Promise<Map<DocumentType, DocumentPresentable>> {
+    private async getCompleteDocumentsMap(tradeId: number): Promise<Map<DocumentType, DocumentPresentable>> {
         const documents = await this._ethDocumentService.getDocumentsByTransactionId(tradeId);
         const documentMap = new Map<DocumentType, DocumentPresentable>();
         documents?.forEach(doc => documentMap.set(doc.documentType, doc));
+        return documentMap;
+    }
+
+    private async getDocumentsInfoMapByTypes(tradeId: number, types: DocumentType[]): Promise<Map<DocumentType, DocumentInfoPresentable | undefined>> {
+        const documentMap = new Map<DocumentType, DocumentInfoPresentable | undefined>();
+        for (const type of types) {
+            const documents = await this._ethDocumentService.getDocumentsInfoByTransactionIdAndDocumentType(tradeId, type);
+            if (documents?.length > 0) documents?.forEach(doc => documentMap.set(type, doc));
+            else documentMap.set(type, undefined);
+        }
         return documentMap;
     }
 
@@ -184,14 +191,14 @@ export class EthTradeService {
                 const basicTrade = await basicTradeService.getTrade();
                 basicTrade.lines = await basicTradeService.getLines();
 
-                return new BasicTradePresentable(basicTrade, await this.getDocumentsMap(id));
+                return new BasicTradePresentable(basicTrade, await this.getCompleteDocumentsMap(id));
 
             case TradeType.ORDER:
                 const orderTradeService = this._getOrderTradeService(address);
                 const orderTrade = await orderTradeService.getCompleteTrade();
                 orderTrade.lines = await orderTradeService.getLines();
 
-                return new OrderTradePresentable(orderTrade, await orderTradeService.getOrderStatus(), await this.getDocumentsMap(id));
+                return new OrderTradePresentable(orderTrade, await orderTradeService.getOrderStatus(), await this.getCompleteDocumentsMap(id));
 
             default:
                 throw new CustomError(HttpStatusCode.BAD_REQUEST, "Wrong trade type");

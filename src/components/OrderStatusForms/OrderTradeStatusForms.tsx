@@ -35,7 +35,7 @@ export default function OrderTradeStatusForms(props: Props) {
     const navigate = useNavigate();
     const {ethTradeService} = useContext(EthServicesContext);
     const dispatch = useDispatch();
-    const [current, setCurrent] = React.useState<OrderStatus>(status);
+    const [current, setCurrent] = React.useState<OrderStatus>(status === OrderStatus.COMPLETED ? OrderStatus.SHIPPED : status);
     const documentHeight = '45vh';
     const tradeView = useTradeView();
     const tradeNew = useTradeNew();
@@ -219,7 +219,7 @@ export default function OrderTradeStatusForms(props: Props) {
                         {
                             type: FormElementType.TIP,
                             span: 24,
-                            label: 'This is the final stage for this transaction where is important to prove that the goods, reaced by the importer, \n have exactly the same specifications that are claimed by the exporter. The importer has to load the results of the Swiss Decode.',
+                            label: 'This is the final stage for this transaction where is important to prove that the goods, reached by the importer, \n have exactly the same specifications that are claimed by the exporter. The importer has to load the results of the Swiss Decode.',
                             marginVertical: '1rem'
                         },
                         {
@@ -236,7 +236,7 @@ export default function OrderTradeStatusForms(props: Props) {
                         }
                     ],
                     onSubmit: (values: any) => submitDocuments(values, [{valueName: 'comparison-swiss-decode', documentType: DocumentType.COMPARISON_SWISS_DECODE}])
-                });
+                })
         }
         else {
             onSubmit = tradeNew.onSubmit;
@@ -295,7 +295,6 @@ export default function OrderTradeStatusForms(props: Props) {
                     return false;
             }
         };
-
 
         return [
             {

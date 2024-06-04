@@ -1,8 +1,8 @@
 import {
     DocumentService,
-    TradeService, TradeManagerService, DocumentStatus
+    TradeService, TradeManagerService, DocumentStatus, DocumentType
 } from "@kbc-lib/coffee-trading-management-lib";
-import {DocumentPresentable} from "../types/DocumentPresentable";
+import {DocumentInfoPresentable, DocumentPresentable} from "../types/DocumentPresentable";
 import {getMimeType} from "../../utils/utils";
 
 export class EthDocumentService {
@@ -38,6 +38,25 @@ export class EthDocumentService {
                 filename: completeDocument.filename,
                 date: new Date(completeDocument.date),
                 transactionLines: completeDocument.transactionLines,
+                status
+            });
+        }
+
+        return documents;
+    }
+
+    async getDocumentsInfoByTransactionIdAndDocumentType(id: number, type: DocumentType): Promise<DocumentInfoPresentable[]> {
+        const tradeService = this._getTradeService(await this._tradeManagerService.getTrade(id));
+        const documentsInfo = await tradeService.getDocumentsByType(type);
+
+        const documents: DocumentInfoPresentable[] = [];
+
+        for(const d of documentsInfo) {
+            const status = await tradeService.getDocumentStatus(d.id);
+
+            documents.push({
+                id: d.id,
+                uploadedBy: d.uploadedBy,
                 status
             });
         }
