@@ -57,7 +57,7 @@ export function ICPProvider({ children }: { children: ReactNode }) {
 
     if ( !identity ) {
         return <Typography.Text>
-            Identity not initialized
+            Siwe identity not initialized
         </Typography.Text>
     }
 

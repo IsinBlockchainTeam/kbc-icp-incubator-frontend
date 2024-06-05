@@ -9,22 +9,6 @@ import React, {
 } from "react";
 import {type ActorConfig, type HttpAgentOptions} from "@dfinity/agent";
 import {DelegationIdentity, Ed25519KeyIdentity} from "@dfinity/identity";
-import type {SiweIdentityContextType} from "../icp/siwe-identity-utils/context.type";
-import {IDL} from "@dfinity/candid";
-import type {
-    LoginOkResponse,
-    SIWE_IDENTITY_SERVICE,
-    SignedDelegation as ServiceSignedDelegation,
-} from "../icp/siwe-identity-utils/service.interface";
-import {
-    callGetDelegation,
-    callLogin,
-    callPrepareLogin,
-    createAnonymousActor,
-} from "../icp/siwe-identity-utils/siwe-provider";
-import type {State} from "../icp/siwe-identity-utils/state.type";
-import {createDelegationChain} from "../icp/siwe-identity-utils/delegation";
-import {normalizeError} from "../icp/siwe-identity-utils/error";
 import {useDispatch, useSelector} from "react-redux";
 import {clearSiweIdentity, selectSiweIdentity, updateSiweIdentity} from "../redux/reducers/siweIdentitySlice";
 import {SignerContext} from "./SignerProvider";
@@ -32,13 +16,21 @@ import {NotificationType, openNotification} from "../utils/notification";
 import {RootState} from "../redux/store";
 import {Typography} from "antd";
 import ICPLoading from "../components/ICPLoading/ICPLoading";
+import {
+    ICPSiweDriver,
+    type SiweIdentityContextType,
+    type LoginOkResponse,
+    type ISignedDelegation as ServiceSignedDelegation,
+    type State
+} from "@blockchain-lib/common";
+import {ICP} from "../constants";
 
 /**
  * Re-export types
  */
-export * from "../icp/siwe-identity-utils/context.type";
-export * from "../icp/siwe-identity-utils/service.interface";
-export * from "../icp/siwe-identity-utils/storage.type";
+// export * from "../icp/siwe-identity-utils/context.type";
+// export * from "../icp/siwe-identity-utils/service.interface";
+// export * from "../icp/siwe-identity-utils/storage.type";
 
 /**
  * React context for managing SIWE (Sign-In with Ethereum) identity.
@@ -60,55 +52,17 @@ export const useSiweIdentity = (): SiweIdentityContextType => {
     return context;
 };
 
-/**
- * Provider component for the SIWE identity context. Manages identity state and provides authentication-related functionalities.
- *
- * @prop {IDL.InterfaceFactory} idlFactory - Required. The Interface Description Language (IDL) factory for the canister. This factory is used to create an actor interface for the canister.
- * @prop {string} canisterId - Required. The unique identifier of the canister on the Internet Computer network. This ID is used to establish a connection to the canister.
- * @prop {HttpAgentOptions} httpAgentOptions - Optional. Configuration options for the HTTP agent used to communicate with the Internet Computer network.
- * @prop {ActorConfig} actorOptions - Optional. Configuration options for the actor. These options are passed to the actor upon its creation.
- * @prop {ReactNode} children - Required. The child components that the SiweIdentityProvider will wrap. This allows any child component to access the authentication context provided by the SiweIdentityProvider.
- *
- * @example
- * ```tsx
- * import { SiweIdentityProvider } from 'ic-use-siwe-identity';
- * import {canisterId, idlFactory} from "path-to/siwe-enabled-canister/index";
- * import { _SERVICE } from "path-to/siwe-enabled-canister.did";
- *
- * function App() {
- *   return (
- *     <SiweIdentityProvider<_SERVICE>
- *       idlFactory={idlFactory}
- *       canisterId={canisterId}
- *       // ...other props
- *     >
- *       {... your app components}
- *     </App>
- *   );
- * }
- *
- * import { SiweIdentityProvider } from "ic-use-siwe-identity";
- *```
- */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function SiweIdentityProvider<T extends SIWE_IDENTITY_SERVICE>({
-                                                                          httpAgentOptions,
-                                                                          actorOptions,
-                                                                          idlFactory,
-                                                                          canisterId,
-                                                                          children,
-                                                                      }: {
+export function SiweIdentityProvider({
+          httpAgentOptions,
+          actorOptions,
+          children,
+      }: {
     /** Configuration options for the HTTP agent used to communicate with the Internet Computer network. */
     httpAgentOptions?: HttpAgentOptions;
 
     /** Configuration options for the actor. These options are passed to the actor upon its creation. */
     actorOptions?: ActorConfig;
-
-    /** The Interface Description Language (IDL) factory for the canister. This factory is used to create an actor interface for the canister. */
-    idlFactory: IDL.InterfaceFactory;
-
-    /** The unique identifier of the canister on the Internet Computer network. This ID is used to establish a connection to the canister. */
-    canisterId: string;
 
     /** The child components that the SiweIdentityProvider will wrap. This allows any child component to access the authentication context provided by the SiweIdentityProvider. */
     children: ReactNode;
@@ -117,6 +71,7 @@ export function SiweIdentityProvider<T extends SIWE_IDENTITY_SERVICE>({
     const dispatch = useDispatch();
     const {signer} = useContext(SignerContext);
     const userInfo = useSelector((state: RootState) => state.userInfo);
+    const icpSiweDriver = new ICPSiweDriver(ICP.CANISTER_ID_IC_SIWE_PROVIDER);
 
     const [state, setState] = useState<State>({
         isInitializing: true,
@@ -125,6 +80,7 @@ export function SiweIdentityProvider<T extends SIWE_IDENTITY_SERVICE>({
     });
 
     useEffect(() => {
+        console.log(state.anonymousActor, !siweIdentity)
         if (state.anonymousActor && !siweIdentity) {
             console.log("Trying siwe login...");
             tryLogin();
@@ -150,7 +106,7 @@ export function SiweIdentityProvider<T extends SIWE_IDENTITY_SERVICE>({
     }
 
     async function updateState(newState: Partial<State>) {
-        setState((prevState) => ({
+        setState((prevState: State) => ({
             ...prevState,
             ...newState,
         }));
@@ -187,7 +143,7 @@ export function SiweIdentityProvider<T extends SIWE_IDENTITY_SERVICE>({
         });
 
         try {
-            const siweMessage = await callPrepareLogin(
+            const siweMessage = await icpSiweDriver.callPrepareLogin(
                 state.anonymousActor,
                 connectedEthAddress
             );
@@ -197,7 +153,7 @@ export function SiweIdentityProvider<T extends SIWE_IDENTITY_SERVICE>({
             });
             return siweMessage;
         } catch (e) {
-            const error = normalizeError(e);
+            const error = icpSiweDriver.normalizeError(e);
             console.error(error);
             updateState({
                 prepareLoginStatus: "error",
@@ -210,7 +166,7 @@ export function SiweIdentityProvider<T extends SIWE_IDENTITY_SERVICE>({
         error: Error | unknown,
         message?: string
     ) {
-        const e = normalizeError(error);
+        const e = icpSiweDriver.normalizeError(error);
         const errorMessage = message || e.message;
 
         console.error(e);
@@ -259,7 +215,7 @@ export function SiweIdentityProvider<T extends SIWE_IDENTITY_SERVICE>({
 
         let loginOkResponse: LoginOkResponse;
         try {
-            loginOkResponse = await callLogin(
+            loginOkResponse = await icpSiweDriver.callLogin(
                 state.anonymousActor,
                 loginSignature,
                 connectedEthAddress,
@@ -273,7 +229,7 @@ export function SiweIdentityProvider<T extends SIWE_IDENTITY_SERVICE>({
         // Call the backend's siwe_get_delegation method to get the delegation.
         let signedDelegation: ServiceSignedDelegation;
         try {
-            signedDelegation = await callGetDelegation(
+            signedDelegation = await icpSiweDriver.callGetDelegation(
                 state.anonymousActor,
                 connectedEthAddress,
                 sessionPublicKey,
@@ -285,7 +241,7 @@ export function SiweIdentityProvider<T extends SIWE_IDENTITY_SERVICE>({
         }
 
         // Create a new delegation chain from the delegation.
-        const delegationChain = createDelegationChain(
+        const delegationChain = icpSiweDriver.createDelegationChain(
             signedDelegation,
             loginOkResponse.user_canister_pubkey
         );
@@ -438,16 +394,15 @@ export function SiweIdentityProvider<T extends SIWE_IDENTITY_SERVICE>({
      * process.
      */
     useEffect(() => {
-        const a = createAnonymousActor({
-            idlFactory,
-            canisterId,
+        const a = icpSiweDriver.createAnonymousActor({
             httpAgentOptions,
             actorOptions,
         });
+        console.log(a);
         updateState({
             anonymousActor: a,
         });
-    }, [idlFactory, canisterId, httpAgentOptions, actorOptions]);
+    }, [httpAgentOptions, actorOptions]);
 
     if (!signer) {
         return <Typography.Text>

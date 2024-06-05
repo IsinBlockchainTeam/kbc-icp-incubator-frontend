@@ -3,8 +3,6 @@ import { Outlet, Navigate } from 'react-router-dom'
 import {useSelector} from "react-redux";
 import {RootState} from "./redux/store";
 import {paths} from "./constants";
-import {_SERVICE} from "./icp/declarations/ic_siwe_provider/ic_siwe_provider.did";
-import {canisterId, idlFactory} from "./icp/declarations/ic_siwe_provider";
 import {SignerProvider} from "./providers/SignerProvider";
 import {SiweIdentityProvider} from "./providers/SiweIdentityProvider";
 import {ICPProvider} from "./providers/ICPProvider";
@@ -15,10 +13,7 @@ const PrivateRoutes = () => {
     return(
         isLogged
             ? <SignerProvider>
-                <SiweIdentityProvider<_SERVICE>
-                    canisterId={canisterId}
-                    idlFactory={idlFactory}
-                >
+                <SiweIdentityProvider>
                     <ICPProvider>
                         <EthProvider>
                             <Outlet/>
