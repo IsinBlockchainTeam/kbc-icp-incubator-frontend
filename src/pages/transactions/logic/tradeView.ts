@@ -2,7 +2,6 @@ import useTradeShared from "./tradeShared";
 import {NotificationType, openNotification} from "../../../utils/notification";
 import {
     BasicTrade,
-    DocumentStatus,
     DocumentType,
     LineRequest,
     NegotiationStatus,
@@ -21,12 +20,11 @@ import {FormElement, FormElementType} from "../../../components/GenericForm/Gene
 import {regex} from "../../../utils/regex";
 import dayjs from "dayjs";
 import {DID_METHOD, paths} from "../../../constants";
-import {getNameByDID} from "../../../utils/utils";
 import {BasicTradeRequest, OrderTradeRequest} from "../../../api/types/TradeRequest";
-import {SignerContext} from "../../../providers/SignerProvider";
+import {ICPContext} from "../../../providers/ICPProvider";
 
 export default function useTradeView() {
-    const {signer} = useContext(SignerContext);
+    const {getNameByDID} = useContext(ICPContext);
 
     const { dataLoaded, productCategories, units, fiats, ethTradeService } = useTradeShared();
     const dispatch = useDispatch();

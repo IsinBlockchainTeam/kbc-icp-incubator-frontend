@@ -9,10 +9,10 @@ import {paths} from "../../constants";
 import {useNavigate} from "react-router-dom";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
 import {useDispatch} from "react-redux";
-import {EthServicesContext} from "../../providers/EthServicesProvider";
+import {EthContext} from "../../providers/EthProvider";
 
 export const AssetOperations = () => {
-    const {ethAssetOperationService} = useContext(EthServicesContext);
+    const {ethAssetOperationService} = useContext(EthContext);
     const navigate = useNavigate();
     const dispatch = useDispatch();
 

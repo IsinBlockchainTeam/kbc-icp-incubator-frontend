@@ -1,6 +1,6 @@
 import {
     BasicTrade,
-    BasicTradeService, DocumentStatus,
+    BasicTradeService,
     DocumentType,
     IConcreteTradeService,
     Line,
@@ -18,7 +18,7 @@ import {
 import {CustomError} from "../../utils/error/CustomError";
 import {HttpStatusCode} from "../../utils/error/HttpStatusCode";
 import {ICPResourceSpec} from "@blockchain-lib/common";
-import {getICPCanisterURL, getNameByDID} from "../../utils/utils";
+import {getICPCanisterURL} from "../../utils/utils";
 import {DID_METHOD, ICP} from "../../constants";
 import {store} from "../../redux/store";
 import {
@@ -42,6 +42,7 @@ export class EthTradeService {
     private readonly _getBasicTradeService: (address: string) => BasicTradeService;
     private readonly _getOrderTradeService: (address: string) => OrderTradeService;
     private readonly _waitForTransactions: (transactionHash: string, confirmations: number) => Promise<void>;
+    private readonly _getNameByDID: (did: string) => Promise<string>;
 
     constructor(
         walletAddress: string,
@@ -51,7 +52,8 @@ export class EthTradeService {
         getTradeService: (address: string) => TradeService,
         getBasicTradeService: (address: string) => BasicTradeService,
         getOrderTradeService: (address: string) => OrderTradeService,
-        waitForTransactions: (transactionHash: string, confirmations: number) => Promise<void>
+        waitForTransactions: (transactionHash: string, confirmations: number) => Promise<void>,
+        getNameByDID: (did: string) => Promise<string>
     ) {
         this._walletAddress = walletAddress;
         this._ethMaterialService = materialService;
@@ -61,6 +63,7 @@ export class EthTradeService {
         this._getBasicTradeService = getBasicTradeService;
         this._getOrderTradeService = getOrderTradeService;
         this._waitForTransactions = waitForTransactions;
+        this._getNameByDID = getNameByDID;
     }
 
     async getGeneralTrades(): Promise<TradePreviewPresentable[]> {
@@ -91,7 +94,7 @@ export class EthTradeService {
 
             let actionRequired ;
             if (tradeType === TradeType.ORDER) {
-                const documentsInfo = (await tradeService.getAllDocuments()).filter(doc => !doc.externalUrl.includes("metadata.json"));
+                // const documentsInfo = (await tradeService.getAllDocuments()).filter(doc => !doc.externalUrl.includes("metadata.json"));
                 const order = trade as OrderTrade;
                 const orderService = tradeInstanceService as OrderTradeService;
                 const whoSigned = await orderService.getWhoSigned();
@@ -110,12 +113,12 @@ export class EthTradeService {
 
             let supplierName = names.get(supplier);
             if(! supplierName) {
-                supplierName = await getNameByDID(DID_METHOD + ':' + supplier) || "Unknown";
+                supplierName = await this._getNameByDID(DID_METHOD + ':' + supplier) || "Unknown";
                 names.set(supplier, supplierName);
             }
             let commissionerName = names.get(commissioner);
             if(! commissionerName) {
-                commissionerName = await getNameByDID(DID_METHOD + ':' + commissioner) || "Unknown";
+                commissionerName = await this._getNameByDID(DID_METHOD + ':' + commissioner) || "Unknown";
                 names.set(commissioner, commissionerName);
             }
 

@@ -11,10 +11,10 @@ import {paths} from "../../constants";
 import {NegotiationStatus, TradeType} from "@kbc-lib/coffee-trading-management-lib";
 import {useDispatch} from "react-redux";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
-import {EthServicesContext} from "../../providers/EthServicesProvider";
+import {EthContext} from "../../providers/EthProvider";
 
 export const Trades = () => {
-    const {ethTradeService} = useContext(EthServicesContext);
+    const {ethTradeService} = useContext(EthContext);
     const [trades, setTrades] = React.useState<TradePreviewPresentable[]>();
     const dispatch = useDispatch();
 

@@ -1,9 +1,5 @@
-import {request} from "./request";
-import {ICP, requestPath} from "../constants";
-import {TradeType, URL_SEGMENT_INDEXES, URL_SEGMENTS} from "@kbc-lib/coffee-trading-management-lib";
-import {
-    ICPOrganizationDriver
-} from "@blockchain-lib/common";
+import {ICP} from "../constants";
+import {TradeType, URL_SEGMENTS} from "@kbc-lib/coffee-trading-management-lib";
 
 export const setParametersPath = (
     path = "",
@@ -75,36 +71,4 @@ export const getICPCanisterURL = (canisterId: string): string => {
         URL_SEGMENTS.HTTP + canisterId + '.' + URL_SEGMENTS.MAINNET;
 }
 
-export const getNameByDID = async (did: string): Promise<string> => {
-    let serviceUrl;
-    try {
-        const didDocument = await request(`${requestPath.VERIFIER_BACKEND_URL}/identifiers/resolve?did-url=${did}`, {
-            method: 'GET',
-        });
 
-        serviceUrl = didDocument.didDocument.service[0].serviceEndpoint;
-    } catch (e) {
-        console.log("Error getting service URL", e);
-        return "Unknown";
-    }
-
-    const canisterId = serviceUrl.split('/')[URL_SEGMENT_INDEXES.CANISTER_ID]
-        .split('.')[0];
-    if(canisterId != ICP.CANISTER_ID_ORGANIZATION) {
-        console.log("Unknown canister ID");
-        return "Unknown";
-    }
-
-    const organizationId = serviceUrl.split('/')[URL_SEGMENT_INDEXES.ORGANIZATION_ID];
-    const organizationDriver = ICPOrganizationDriver.getInstance();
-
-    let verifiablePresentation;
-    try {
-        verifiablePresentation = await organizationDriver.getVerifiablePresentation(organizationId);
-    } catch (e) {
-        console.log("Error getting verifiable presentation", e);
-        return "Unknown";
-    }
-
-    return verifiablePresentation.legalName;
-}

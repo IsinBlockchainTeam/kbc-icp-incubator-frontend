@@ -10,12 +10,13 @@ import {useNavigate} from "react-router-dom";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
 import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../../redux/store";
-import {EthServicesContext} from "../../providers/EthServicesProvider";
-import {getNameByDID} from "../../utils/utils";
+import {EthContext} from "../../providers/EthProvider";
 import {OfferPresentable} from "../../api/types/OfferPresentable";
+import {ICPContext} from "../../providers/ICPProvider";
 
 export const Offers = () => {
-    const {ethOfferService} = useContext(EthServicesContext);
+    const {ethOfferService} = useContext(EthContext);
+    const {getNameByDID} = useContext(ICPContext);
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const userInfo = useSelector((state: RootState) => state.userInfo);

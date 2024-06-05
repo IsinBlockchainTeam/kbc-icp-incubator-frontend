@@ -4,7 +4,7 @@ import PDFViewer from "../PDFViewer/PDFViewer";
 import {DownloadOutlined} from "@ant-design/icons";
 import {createDownloadWindow} from "../../utils/utils";
 import {DocumentStatus} from "@kbc-lib/coffee-trading-management-lib";
-import {EthServicesContext} from "../../providers/EthServicesProvider";
+import {EthContext} from "../../providers/EthProvider";
 import {DocumentPresentable} from "../../api/types/DocumentPresentable";
 import {NotificationType, openNotification} from "../../utils/notification";
 import {useNavigate} from "react-router-dom";
@@ -98,7 +98,7 @@ export const GenericForm = (props: Props) => {
     const navigate = useNavigate();
     const documents: Map<string, Blob | undefined> = new Map<string, Blob>();
     const dateFormat = 'DD/MM/YYYY';
-    const { ethDocumentService } = useContext(EthServicesContext)
+    const { ethDocumentService } = useContext(EthContext)
 
     useEffect(() => {
         props.elements.forEach((element) => {
