@@ -27,7 +27,7 @@ import {SignerContext} from "../../../providers/SignerProvider";
 import documentService from "../../../../../coffee-trading-management-lib/src/services/DocumentService";
 
 export default function useTradeView() {
-    const { dataLoaded, validateDocument, productCategories, units, fiats, ethTradeService } = useTradeShared();
+    const { dataLoaded, validateDocument, validateDates, productCategories, units, fiats, ethTradeService } = useTradeShared();
     const {signer} = useContext(SignerContext);
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -250,6 +250,7 @@ export default function useTradeView() {
                     required: true,
                     defaultValue: dayjs.unix(orderTrade.paymentDeadline),
                     disabled,
+                    dependencies: ['document-delivery-deadline'],
                 },
                 {
                     type: FormElementType.DATE,
@@ -259,6 +260,8 @@ export default function useTradeView() {
                     required: true,
                     defaultValue: dayjs.unix(orderTrade.documentDeliveryDeadline),
                     disabled,
+                    dependencies: ['payment-deadline'],
+                    validationCallback: validateDates('document-delivery-deadline', 'payment-deadline', 'greater', 'This must be after Payment Deadline')
                 },
                 {
                     type: FormElementType.INPUT,
@@ -286,6 +289,8 @@ export default function useTradeView() {
                     required: true,
                     defaultValue: dayjs.unix(orderTrade.shippingDeadline),
                     disabled,
+                    dependencies: ['document-delivery-deadline'],
+                    validationCallback: validateDates('shipping-deadline', 'document-delivery-deadline', 'greater', 'This must be after Document Delivery Deadline')
                 },
                 {
                     type: FormElementType.INPUT,
@@ -304,6 +309,8 @@ export default function useTradeView() {
                     required: true,
                     defaultValue: dayjs.unix(orderTrade.deliveryDeadline),
                     disabled,
+                    dependencies: ['shipping-deadline'],
+                    validationCallback: validateDates('delivery-deadline', 'shipping-deadline', 'greater', 'This must be after Shipping Deadline')
                 },
                 {
                     type: FormElementType.INPUT,
@@ -365,6 +372,7 @@ export default function useTradeView() {
                         name: `price-${index + 1}`,
                         label: 'Price',
                         required: true,
+                        regex: regex.ONLY_DIGITS,
                         defaultValue: (line as OrderLine).price?.amount.toString(),
                         disabled,
                     },

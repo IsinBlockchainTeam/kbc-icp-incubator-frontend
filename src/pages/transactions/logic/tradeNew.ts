@@ -58,9 +58,9 @@ export default function useTradeNew() {
                     const unit: string = values[`unit-${id}`];
                     const productCategoryId: number = parseInt(values[key]);
 
-                    if (type === TradeType.BASIC)
+                    if (type === TradeType.BASIC) {
                         tradeLines.push(new LineRequest(productCategoryId, quantity, unit));
-
+                    }
                     else {
                         const price: number = parseInt(values[`price-${id}`]);
                         const fiat: string = values[`fiat-${id}`];

@@ -1,9 +1,10 @@
-import React, {useEffect} from "react";
-import {Alert, Button, Col, DatePicker, Divider, Form, Input, Popover, Row, Select} from "antd";
+import React, {ReactNode, useEffect, useState} from "react";
+import {Alert, Button, Col, DatePicker, Divider, Form, FormInstance, Input, Popover, Row, Select} from "antd";
 import PDFViewer from "../PDFViewer/PDFViewer";
 import {DownloadOutlined} from "@ant-design/icons";
 import {createDownloadWindow, showTextWithHtmlLinebreaks} from "../../utils/utils";
 import {DocumentPresentable} from "../../api/types/DocumentPresentable";
+import {FormItemInputProps} from "antd/es/form/FormItemInput";
 
 export enum FormElementType {
     TITLE = 'title',
@@ -71,7 +72,9 @@ type EditableElement = Omit<LabeledElement, 'type'> & {
     required: boolean,
     disabled?: boolean,
     block?: boolean,
-    regex?: string
+    regex?: string,
+    dependencies?: string[],
+    validationCallback?: (form: FormInstance) => Promise<void>,
 }
 
 export type DocumentElement = Omit<LabeledElement, 'type'> & {
@@ -93,6 +96,9 @@ type Props = {
     submittable?: boolean,
     onSubmit?: (values: any) => void
 }
+
+export type ElementStatus = {type: FormItemInputProps['status'], message: ReactNode};
+
 export const GenericForm = (props: Props) => {
     const [form] = Form.useForm();
     const documents: Map<string, Blob | undefined> = new Map<string, Blob>();
@@ -113,12 +119,12 @@ export const GenericForm = (props: Props) => {
         documents.set(name, file);
     }
 
-    const elementComponent = {
+    const elementsComponent = {
         [FormElementType.SPACE]: (element: FormElement, index: number) => {
             element = element as BasicElement;
             const {span} = element;
             return (
-                <Col span={span} key={index}>
+                <Col span={span} key={`space_${index}`}>
                 </Col>
             )
         },
@@ -126,14 +132,14 @@ export const GenericForm = (props: Props) => {
             element = element as LabeledElement;
             const {span, label} = element;
             return (
-                <Col span={span} key={index}><Divider>{label}</Divider></Col>
+                <Col span={span} key={`title_${index}`}><Divider>{label}</Divider></Col>
             )
         },
         [FormElementType.TIP]: (element: FormElement, index: number) => {
             element = element as LabeledElement;
             const {span, label} = element;
             return (
-                <Col span={span} key={index} style={{margin: `${element.marginVertical} 0`}}>
+                <Col span={span} key={`tip_${label}`} style={{margin: `${element.marginVertical} 0`}}>
                     <Alert style={{textAlign: 'center'}} message={showTextWithHtmlLinebreaks(label)} />
                 </Col>
             )
@@ -154,7 +160,7 @@ export const GenericForm = (props: Props) => {
             const additionalProps = additionalProperties ? mapAdditionalPropertiesToButtonProps[additionalProperties] : {};
 
             return (
-                <Col span={span} key={index}>
+                <Col span={span} key={`button_${element.name}`}>
                     <Form.Item
                         labelCol={{span: 24}}
                         label={' '}
@@ -170,7 +176,7 @@ export const GenericForm = (props: Props) => {
             element = element as SelectableElement;
             const { disabled = false } = element;
             return (
-                <Col span={element.span} key={index}>
+                <Col span={element.span} key={`select_${element.name}`}>
                     <Form.Item
                         labelCol={{span: 24}}
                         label={element.label}
@@ -190,22 +196,27 @@ export const GenericForm = (props: Props) => {
         },
         [FormElementType.INPUT]: (element: FormElement, index: number) => {
             element = element as EditableElement;
-            const { disabled = false } = element;
+            const { disabled = false, validationCallback } = element;
             return (
-                <Col span={element.span} key={index}>
+                <Col span={element.span} key={`input_${element.name}`}>
                     <Form.Item
                         labelCol={{span: 24}}
                         label={element.label}
                         name={element.name}
                         initialValue={element.defaultValue}
+                        dependencies={element.dependencies}
                         rules={[
                             {required: element.required, message: `Please insert ${element.label}!`},
                             {
                                 pattern: new RegExp(element.regex || '.*'),
                                 message: `Please enter a valid ${element.label}!`
-                            }
+                            },
+                            ...(validationCallback ? [{
+                                validator: () => validationCallback(form)
+                            }] : []),
                         ]}
-                        >
+                        validateTrigger="onBlur"
+                    >
                         <Input
                             type={element.type}
                             disabled={disabled}
@@ -220,15 +231,22 @@ export const GenericForm = (props: Props) => {
         },
         [FormElementType.DATE]: (element: FormElement, index: number) => {
             element = element as EditableElement;
-            const { disabled = false } = element;
+            const { disabled = false, validationCallback } = element;
             return (
-                <Col span={element.span} key={index}>
+                <Col span={element.span} key={`date_${element.name}`}>
                     <Form.Item
                         labelCol={{span: 24}}
                         label={element.label}
                         name={element.name}
                         initialValue={element.defaultValue}
-                        rules={[{required: element.required, message: `Please insert ${element.label}!`}]}>
+                        dependencies={element.dependencies}
+                        rules={[
+                            {required: element.required, message: `Please insert ${element.label}!`},
+                            ...(validationCallback ? [{
+                                validator: () => validationCallback(form)
+                            }] : []),
+                        ]}
+                    >
                         <DatePicker
                             disabled={disabled}
                             placeholder={`Enter ${element.label}`}
@@ -242,10 +260,9 @@ export const GenericForm = (props: Props) => {
         [FormElementType.DOCUMENT]: (element: FormElement, index: number) => {
             element = element as DocumentElement;
             const docInfo = element.info!;
-            console.log("docInfo: ", docInfo    )
 
             return (
-                <Col span={element.span} key={index}>
+                <Col span={element.span} key={`document_${element.name}`}>
                     <Form.Item
                         labelCol={{span: 24}}
                         label={element.label}
@@ -280,8 +297,7 @@ export const GenericForm = (props: Props) => {
                 </Col>
             )
         },
-    }
-
+    };
 
     return (
         <Form
@@ -302,7 +318,7 @@ export const GenericForm = (props: Props) => {
             <Row gutter={10}>
                 {
                     props.elements.map((element, index) => {
-                        return elementComponent[element.type](element, index);
+                        return elementsComponent[element.type](element, index);
                     })
                 }
                 {

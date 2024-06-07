@@ -1,6 +1,6 @@
 import {useContext, useEffect, useState} from "react";
 import {DocumentStatus, ProductCategory, TradeType} from "@kbc-lib/coffee-trading-management-lib";
-import {FormElement, FormElementType} from "../../../components/GenericForm/GenericForm";
+import {ElementStatus, FormElement, FormElementType} from "../../../components/GenericForm/GenericForm";
 import {regex} from "../../../utils/regex";
 import {useLocation, useNavigate} from "react-router-dom";
 import {EthServicesContext} from "../../../providers/EthServicesProvider";
@@ -9,7 +9,9 @@ import {hideLoading, showLoading} from "../../../redux/reducers/loadingSlice";
 import {useDispatch} from "react-redux";
 import {NotificationType, openNotification} from "../../../utils/notification";
 import {getNameByDID} from "../../../utils/utils";
-import {DID_METHOD, paths} from "../../../constants";
+import {DID_METHOD} from "../../../constants";
+import {FormInstance} from "antd";
+import dayjs from "dayjs";
 
 export default function useTradeShared() {
     const {signer} = useContext(SignerContext);
@@ -66,7 +68,17 @@ export default function useTradeShared() {
         window.location.reload();
     }
 
-    const documentHeight = '45vh';
+    const validateDates = (dataFieldName: string, dateFieldNameToCompare: string, comparison: 'greater' | 'less', errorMessage: string) => {
+        return (form: FormInstance): Promise<void> => {
+            const date = dayjs(form.getFieldValue(dataFieldName));
+            const dateToCompare = dayjs(form.getFieldValue(dateFieldNameToCompare));
+            if (date && dateToCompare)
+                if ((comparison === 'greater' && date.isBefore(dateToCompare)) || (comparison === 'less' && date.isAfter(dateToCompare)))
+                    return Promise.reject(errorMessage);
+
+            return Promise.resolve();
+        }
+    }
 
     const getActorNames = async () => {
         const supplierAddress = location?.state?.supplierAddress;
@@ -86,6 +98,8 @@ export default function useTradeShared() {
         if (!dataLoaded) {
             return;
         }
+        const documentHeight = '45vh';
+
         const basicLine: FormElement[] = [
             {
                 type: FormElementType.SELECT,
@@ -156,6 +170,7 @@ export default function useTradeShared() {
                 label: 'Price',
                 required: true,
                 defaultValue: '',
+                regex: regex.ONLY_DIGITS,
                 disabled: false,
             },
             {
@@ -256,6 +271,7 @@ export default function useTradeShared() {
                     required: true,
                     defaultValue: '',
                     disabled: false,
+                    dependencies: ['document-delivery-deadline'],
                 },
                 {
                     type: FormElementType.DATE,
@@ -265,6 +281,8 @@ export default function useTradeShared() {
                     required: true,
                     defaultValue: '',
                     disabled: false,
+                    dependencies: ['payment-deadline'],
+                    validationCallback: validateDates('document-delivery-deadline', 'payment-deadline', 'greater', 'This must be after Payment Deadline')
                 },
                 {
                     type: FormElementType.INPUT,
@@ -292,6 +310,8 @@ export default function useTradeShared() {
                     required: true,
                     defaultValue: '',
                     disabled: false,
+                    dependencies: ['document-delivery-deadline'],
+                    validationCallback: validateDates('shipping-deadline', 'document-delivery-deadline', 'greater', 'This must be after Document Delivery Deadline')
                 },
                 {
                     type: FormElementType.INPUT,
@@ -310,6 +330,8 @@ export default function useTradeShared() {
                     required: true,
                     defaultValue: '',
                     disabled: false,
+                    dependencies: ['shipping-deadline'],
+                    validationCallback: validateDates('delivery-deadline', 'shipping-deadline', 'greater', 'This must be after Shipping Deadline')
                 },
                 {
                     type: FormElementType.INPUT,
@@ -340,6 +362,7 @@ export default function useTradeShared() {
     return {
         dataLoaded,
         validateDocument,
+        validateDates,
         productCategories,
         type,
         ethTradeService,
