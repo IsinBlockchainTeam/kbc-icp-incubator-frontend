@@ -8,11 +8,11 @@ import {useNavigate} from "react-router-dom";
 import {NotificationType, openNotification} from "../../utils/notification";
 import {useDispatch} from "react-redux";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
-import {EthServicesContext} from "../../providers/EthServicesProvider";
+import {EthContext} from "../../providers/EthProvider";
 import {ProductCategory} from "@kbc-lib/coffee-trading-management-lib";
 
 export const MaterialNew = () => {
-    const {ethMaterialService} = useContext(EthServicesContext);
+    const {ethMaterialService} = useContext(EthContext);
     const [productCategories, setProductCategories] = useState<ProductCategory[]>([]);
     const navigate = useNavigate();
     const dispatch = useDispatch();

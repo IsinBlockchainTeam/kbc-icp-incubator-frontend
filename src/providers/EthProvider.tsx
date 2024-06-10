@@ -11,8 +11,9 @@ import {EthOfferService} from "../api/services/EthOfferService";
 import {EthPartnerService} from "../api/services/EthPartnerService";
 import {EthTradeService} from "../api/services/EthTradeService";
 import {Typography} from "antd";
+import {ICPContext} from "./ICPProvider";
 
-type EthServicesContextState = {
+type EthContextState = {
     ethAssetOperationService: EthAssetOperationService,
     ethDocumentService: EthDocumentService,
     ethProcessTypeService: EthEnumerableTypeService,
@@ -24,8 +25,9 @@ type EthServicesContextState = {
     ethPartnerService: EthPartnerService,
     ethTradeService: EthTradeService
 }
-export const EthServicesContext = createContext<EthServicesContextState>({} as EthServicesContextState);
-export function EthServicesProvider({ children }: { children: ReactNode }) {
+export const EthContext = createContext<EthContextState>({} as EthContextState);
+export function EthProvider({ children }: { children: ReactNode }) {
+    const {fileDriver, getNameByDID} = useContext(ICPContext);
     const {
         waitForTransactions,
         getProductCategoryService,
@@ -40,7 +42,7 @@ export function EthServicesProvider({ children }: { children: ReactNode }) {
         getOfferService,
         getGraphService,
         getEnumerableTypeService
-    } = useBlockchainLibraryUtils();
+    } = useBlockchainLibraryUtils(fileDriver);
     const {signer} = useContext(SignerContext);
 
     const ethAssetOperationService = new EthAssetOperationService(signer.address, getAssetOperationService(), getMaterialService());
@@ -60,16 +62,17 @@ export function EthServicesProvider({ children }: { children: ReactNode }) {
         getTradeService,
         getBasicTradeService,
         getOrderTradeService,
-        waitForTransactions
+        waitForTransactions,
+        getNameByDID
     );
 
     if (!signer) {
-        return (<Typography.Text>
+        return <Typography.Text>
             Signer is not initialized
-        </Typography.Text>)
+        </Typography.Text>
     }
     return (
-        <EthServicesContext.Provider value={{
+        <EthContext.Provider value={{
             ethAssetOperationService,
             ethDocumentService,
             ethProcessTypeService,
@@ -82,6 +85,6 @@ export function EthServicesProvider({ children }: { children: ReactNode }) {
             ethTradeService
         }}>
             {children}
-        </EthServicesContext.Provider>
+        </EthContext.Provider>
     )
 }

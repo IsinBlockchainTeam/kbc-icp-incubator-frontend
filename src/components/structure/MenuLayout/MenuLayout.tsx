@@ -11,9 +11,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
 import {resetUserInfo} from "../../../redux/reducers/userInfoSlice";
 import {clearSiweIdentity} from "../../../redux/reducers/siweIdentitySlice";
-import {
-    ICPIdentityDriver
-} from "@blockchain-lib/common";
 const { Content, Footer, Sider } = Layout;
 
 type MenuItem = Required<MenuProps>["items"][number];
@@ -67,7 +64,6 @@ const getUserItemLoggedIn = (name: string, picture: string, dispatch: any) => [
             () => {
               dispatch(resetUserInfo());
               dispatch(clearSiweIdentity());
-              ICPIdentityDriver.getInstance().logout();
             }
         ),
       ],

@@ -2,20 +2,22 @@ import {useContext, useEffect, useState} from "react";
 import {DocumentStatus, ProductCategory, TradeType} from "@kbc-lib/coffee-trading-management-lib";
 import {ElementStatus, FormElement, FormElementType} from "../../../components/GenericForm/GenericForm";
 import {regex} from "../../../utils/regex";
+import {EthContext} from "../../../providers/EthProvider";
 import {useLocation, useNavigate} from "react-router-dom";
 import {EthServicesContext} from "../../../providers/EthServicesProvider";
 import {SignerContext} from "../../../providers/SignerProvider";
 import {hideLoading, showLoading} from "../../../redux/reducers/loadingSlice";
 import {useDispatch} from "react-redux";
 import {NotificationType, openNotification} from "../../../utils/notification";
-import {getNameByDID} from "../../../utils/utils";
 import {DID_METHOD} from "../../../constants";
 import {FormInstance} from "antd";
 import dayjs from "dayjs";
+import {ICPContext} from "../../../providers/ICPProvider";
 
 export default function useTradeShared() {
     const {signer} = useContext(SignerContext);
-    const {ethTradeService, ethDocumentService, ethUnitService, ethFiatService, ethMaterialService} = useContext(EthServicesContext);
+    const {getNameByDID} = useContext(ICPContext);
+    const {ethTradeService, ethDocumentService, ethUnitService, ethFiatService, ethMaterialService} = useContext(EthContext);
     const location = useLocation();
     const navigate = useNavigate();
     const dispatch = useDispatch();

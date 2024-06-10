@@ -7,10 +7,10 @@ import {PartnershipPresentable} from "../../api/types/PartnershipPresentable";
 import {InviteCompany} from "./InviteCompany";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
 import {useDispatch} from "react-redux";
-import {EthServicesContext} from "../../providers/EthServicesProvider";
+import {EthContext} from "../../providers/EthProvider";
 
 export const Partners = () => {
-    const {ethPartnerService} = useContext(EthServicesContext);
+    const {ethPartnerService} = useContext(EthContext);
     const [partnership, setPartnership] = useState<PartnershipPresentable[]>();
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const dispatch = useDispatch();

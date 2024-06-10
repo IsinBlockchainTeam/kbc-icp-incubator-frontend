@@ -9,10 +9,10 @@ import {NotificationType, openNotification} from "../../utils/notification";
 import {regex} from "../../utils/regex";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
 import {useDispatch} from "react-redux";
-import {EthServicesContext} from "../../providers/EthServicesProvider";
+import {EthContext} from "../../providers/EthProvider";
 
 export const ProductCategoryNew = () => {
-    const {ethMaterialService} = useContext(EthServicesContext);
+    const {ethMaterialService} = useContext(EthContext);
     const navigate = useNavigate();
     const dispatch = useDispatch();
 

@@ -9,14 +9,15 @@ import React, {useContext, useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
 import {RootState} from "../../redux/store";
-import {EthServicesContext} from "../../providers/EthServicesProvider";
+import {EthContext} from "../../providers/EthProvider";
 import {SignerContext} from "../../providers/SignerProvider";
 import {ProductCategory} from "@kbc-lib/coffee-trading-management-lib";
-import {getNameByDID} from "../../utils/utils";
+import {ICPContext} from "../../providers/ICPProvider";
 
 export const OffersNew = () => {
     const {signer} = useContext(SignerContext);
-    const {ethOfferService, ethMaterialService} = useContext(EthServicesContext);
+    const {ethOfferService, ethMaterialService} = useContext(EthContext);
+    const {getNameByDID} = useContext(ICPContext);
     const [productCategories, setProductCategories] = useState<ProductCategory[]>([]);
     const navigate = useNavigate();
     const dispatch = useDispatch();

@@ -11,15 +11,15 @@ import {useDispatch, useSelector} from "react-redux";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
 import {RootState} from "../../redux/store";
 import {SignerContext} from "../../providers/SignerProvider";
-import {EthServicesContext} from "../../providers/EthServicesProvider";
+import {EthContext} from "../../providers/EthProvider";
 
 export const OffersSupplierNew = () => {
     const {signer} = useContext(SignerContext);
+    const {ethOfferService} = useContext(EthContext);
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const userInfo = useSelector((state: RootState) => state.userInfo);
 
-    const {ethOfferService} = useContext(EthServicesContext);
 
     const elements: FormElement[] = [
         {type: FormElementType.TITLE, span: 24, label: 'Data'},

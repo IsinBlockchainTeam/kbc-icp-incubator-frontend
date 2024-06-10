@@ -23,7 +23,7 @@ export enum EnumerableDefinition {
     PROCESS_TYPE, UNIT, FIAT
 }
 
-export function useBlockchainLibraryUtils() {
+export function useBlockchainLibraryUtils(fileDriver: ICPFileDriver) {
     const {signer} = useContext(SignerContext);
 
     async function waitForTransactions(transactionHash: string, confirmations: number): Promise<void> {
@@ -64,7 +64,7 @@ export function useBlockchainLibraryUtils() {
         const tradeManagerDriver = new TradeManagerDriver(signer, contractAddresses.TRADE(), contractAddresses.MATERIAL(), contractAddresses.PRODUCT_CATEGORY());
         return new TradeManagerService({
             tradeManagerDriver: tradeManagerDriver,
-            icpFileDriver: ICPFileDriver.getInstance()
+            icpFileDriver: fileDriver
         });
     }
 
@@ -74,7 +74,7 @@ export function useBlockchainLibraryUtils() {
         }
         const tradeDriver = new TradeDriver(signer, tradeContractAddress);
         const documentDriver = new DocumentDriver(signer, contractAddresses.DOCUMENT());
-        return new TradeService(tradeDriver, documentDriver, ICPFileDriver.getInstance());
+        return new TradeService(tradeDriver, documentDriver, fileDriver);
     }
 
     function getBasicTradeService(address: string): BasicTradeService {
@@ -83,7 +83,7 @@ export function useBlockchainLibraryUtils() {
         }
         const basicTradeDriver = new BasicTradeDriver(signer, address, contractAddresses.MATERIAL(), contractAddresses.PRODUCT_CATEGORY());
         const documentDriver = new DocumentDriver(signer, contractAddresses.DOCUMENT());
-        return new BasicTradeService(basicTradeDriver, documentDriver, ICPFileDriver.getInstance());
+        return new BasicTradeService(basicTradeDriver, documentDriver, fileDriver);
     }
 
     function getOrderTradeService(address: string): OrderTradeService {
@@ -92,7 +92,7 @@ export function useBlockchainLibraryUtils() {
         }
         const orderTradeDriver = new OrderTradeDriver(signer, address, contractAddresses.MATERIAL(), contractAddresses.PRODUCT_CATEGORY());
         const documentDriver = new DocumentDriver(signer, contractAddresses.DOCUMENT());
-        return new OrderTradeService(orderTradeDriver, documentDriver, ICPFileDriver.getInstance())
+        return new OrderTradeService(orderTradeDriver, documentDriver, fileDriver)
     }
 
     function getAssetOperationService(): AssetOperationService {
@@ -108,7 +108,7 @@ export function useBlockchainLibraryUtils() {
             throw new Error("Signer not initialized");
         }
         const documentDriver = new DocumentDriver(signer, contractAddresses.DOCUMENT());
-        return new DocumentService(documentDriver, ICPFileDriver.getInstance());
+        return new DocumentService(documentDriver, fileDriver);
     }
 
     function getOfferService(): OfferService {

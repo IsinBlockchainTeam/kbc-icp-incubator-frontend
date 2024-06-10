@@ -10,11 +10,11 @@ import {regex} from "../../utils/regex";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
 import {useDispatch} from "react-redux";
 import {AssetOperationRequest} from "../../api/types/AssetOperationRequest";
-import {EthServicesContext} from "../../providers/EthServicesProvider";
+import {EthContext} from "../../providers/EthProvider";
 import {Material} from "@kbc-lib/coffee-trading-management-lib";
 
 export const AssetOperationsNew = () => {
-    const {ethAssetOperationService, ethProcessTypeService, ethMaterialService} = useContext(EthServicesContext);
+    const {ethAssetOperationService, ethProcessTypeService, ethMaterialService} = useContext(EthContext);
     const navigate = useNavigate();
     const dispatch = useDispatch();
 

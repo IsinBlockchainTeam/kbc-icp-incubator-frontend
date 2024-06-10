@@ -19,7 +19,7 @@ import {AssetOperationType} from "@kbc-lib/coffee-trading-management-lib";
 import {NotificationType, openNotification} from "../../utils/notification";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
 import {useDispatch} from "react-redux";
-import {EthServicesContext} from "../../providers/EthServicesProvider";
+import {EthContext} from "../../providers/EthProvider";
 
 const MapNode = memo(() => {
     return (
@@ -46,7 +46,7 @@ const nodeWidth = 172;
 const nodeHeight = 36;
 
 export const GraphPage = () => {
-    const {ethGraphService} = useContext(EthServicesContext);
+    const {ethGraphService} = useContext(EthContext);
     const {materialId} = useParams();
     const dispatch = useDispatch();
     const [graphType, setGraphType] = useState('simple');

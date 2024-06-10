@@ -10,7 +10,7 @@ import {
     OrderLinePrice,
     OrderLineRequest,
     OrderTrade,
-    TradeType
+    TradeType,
 } from "@kbc-lib/coffee-trading-management-lib";
 import {useLocation, useNavigate, useParams} from "react-router-dom";
 import {useDispatch} from "react-redux";
@@ -21,14 +21,15 @@ import {FormElement, FormElementType} from "../../../components/GenericForm/Gene
 import {regex} from "../../../utils/regex";
 import dayjs from "dayjs";
 import {DID_METHOD, paths} from "../../../constants";
-import {getNameByDID} from "../../../utils/utils";
 import {BasicTradeRequest, OrderTradeRequest} from "../../../api/types/TradeRequest";
 import {SignerContext} from "../../../providers/SignerProvider";
-import documentService from "../../../../../coffee-trading-management-lib/src/services/DocumentService";
+import {ICPContext} from "../../../providers/ICPProvider";
 
 export default function useTradeView() {
-    const { dataLoaded, validateDocument, validateDates, productCategories, units, fiats, ethTradeService } = useTradeShared();
+    const {getNameByDID} = useContext(ICPContext);
     const {signer} = useContext(SignerContext);
+
+    const { dataLoaded, validateDocument, validateDates, productCategories, units, fiats, ethTradeService } = useTradeShared();
     const dispatch = useDispatch();
     const navigate = useNavigate();
 

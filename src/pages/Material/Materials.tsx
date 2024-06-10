@@ -9,10 +9,10 @@ import {useNavigate} from "react-router-dom";
 import {useDispatch} from "react-redux";
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
 import {Material, ProductCategory} from "@kbc-lib/coffee-trading-management-lib";
-import {EthServicesContext} from "../../providers/EthServicesProvider";
+import {EthContext} from "../../providers/EthProvider";
 
 export const Materials = () => {
-    const {ethMaterialService} = useContext(EthServicesContext);
+    const {ethMaterialService} = useContext(EthContext);
     const navigate = useNavigate();
     const [materials, setMaterials] = useState<Material[]>();
     const [productCategories, setProductCategories] = useState<ProductCategory[]>();

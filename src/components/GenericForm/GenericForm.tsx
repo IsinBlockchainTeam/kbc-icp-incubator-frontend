@@ -3,6 +3,8 @@ import {Alert, Button, Col, DatePicker, Divider, Form, FormInstance, Input, Popo
 import PDFViewer from "../PDFViewer/PDFViewer";
 import {DownloadOutlined} from "@ant-design/icons";
 import {createDownloadWindow, showTextWithHtmlLinebreaks} from "../../utils/utils";
+import {DocumentStatus} from "@kbc-lib/coffee-trading-management-lib";
+import {EthContext} from "../../providers/EthProvider";
 import {DocumentPresentable} from "../../api/types/DocumentPresentable";
 import {FormItemInputProps} from "antd/es/form/FormItemInput";
 

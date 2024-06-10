@@ -6,14 +6,13 @@ import {Navigate} from "react-router-dom";
 import {paths} from "../../constants";
 import {useSiweIdentity} from "../../providers/SiweIdentityProvider";
 import React, {useContext, useEffect, useState} from "react";
-import {
-    ICPOrganizationDriver
-} from "@blockchain-lib/common";
 import {SignerContext} from "../../providers/SignerProvider";
+import {ICPContext} from "../../providers/ICPProvider";
 
 const {Title, Paragraph, Text} = Typography;
 export default function Profile() {
     const {signer} = useContext(SignerContext);
+    const {organizationDriver} = useContext(ICPContext);
     const {identity} = useSiweIdentity();
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const [principal, setPrincipal] = useState<string>("");
@@ -27,7 +26,6 @@ export default function Profile() {
     }, [identity]);
 
     const checkOrganization = async () => {
-        const organizationDriver = ICPOrganizationDriver.getInstance();
         try {
             await organizationDriver.getUserOrganizations();
         } catch (e) {
@@ -36,7 +34,6 @@ export default function Profile() {
     }
 
     const createOrganization = async () => {
-        const organizationDriver = ICPOrganizationDriver.getInstance();
         const organization = await organizationDriver.createOrganization(
             userInfo.legalName,
             `A company based in ${userInfo.nation}`,
