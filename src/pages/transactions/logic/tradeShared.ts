@@ -1,10 +1,9 @@
 import {useContext, useEffect, useState} from "react";
 import {DocumentStatus, ProductCategory, TradeType} from "@kbc-lib/coffee-trading-management-lib";
-import {ElementStatus, FormElement, FormElementType} from "../../../components/GenericForm/GenericForm";
+import {FormElement, FormElementType} from "../../../components/GenericForm/GenericForm";
 import {regex} from "../../../utils/regex";
 import {EthContext} from "../../../providers/EthProvider";
-import {useLocation, useNavigate} from "react-router-dom";
-import {EthServicesContext} from "../../../providers/EthServicesProvider";
+import {useLocation} from "react-router-dom";
 import {SignerContext} from "../../../providers/SignerProvider";
 import {hideLoading, showLoading} from "../../../redux/reducers/loadingSlice";
 import {useDispatch} from "react-redux";
@@ -17,9 +16,8 @@ import {ICPContext} from "../../../providers/ICPProvider";
 export default function useTradeShared() {
     const {signer} = useContext(SignerContext);
     const {getNameByDID} = useContext(ICPContext);
-    const {ethTradeService, ethDocumentService, ethUnitService, ethFiatService, ethMaterialService} = useContext(EthContext);
+    const {ethTradeService, ethUnitService, ethFiatService, ethMaterialService} = useContext(EthContext);
     const location = useLocation();
-    const navigate = useNavigate();
     const dispatch = useDispatch();
 
     const [type, setType] = useState<TradeType>(TradeType.ORDER);
@@ -63,7 +61,6 @@ export default function useTradeShared() {
     }
 
     const validateDocument = async (tradeId: number, documentId: number, validationStatus: DocumentStatus) => {
-        const documents = await ethDocumentService.getDocumentsByTransactionId(tradeId);
         await ethTradeService.validateDocument(tradeId, documentId, validationStatus);
         if (validationStatus === DocumentStatus.APPROVED) openNotification("Document approved", "The document has been successfully approved", NotificationType.SUCCESS, 1);
         else if (validationStatus === DocumentStatus.NOT_APPROVED) openNotification("Document rejected", "The document has been rejected", NotificationType.SUCCESS, 1);

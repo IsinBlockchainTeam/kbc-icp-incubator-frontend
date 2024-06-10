@@ -6,7 +6,6 @@ import {DocumentStatus, DocumentType, OrderStatus, serial, TradeType} from "@kbc
 import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
 import {DocumentRequest} from "../../api/types/DocumentRequest";
 import {NotificationType, openNotification} from "../../utils/notification";
-import {EthServicesContext} from "../../providers/EthServicesProvider";
 import {useDispatch} from "react-redux";
 import {DetailedTradePresentable} from "../../api/types/TradePresentable";
 import useTradeView from "../../pages/transactions/logic/tradeView";
@@ -15,6 +14,7 @@ import {useNavigate} from "react-router-dom";
 import {paths} from "../../constants";
 import {SignerContext} from "../../providers/SignerProvider";
 import TradeDutiesWaiting, {DutiesWaiting} from "../../pages/transactions/TradeDutiesWaiting";
+import {EthContext} from "../../providers/EthProvider";
 
 type Props = {
     status: OrderStatus,
@@ -33,7 +33,7 @@ export default function OrderTradeStatusForms(props: Props) {
     let onSubmit: (values: any) => Promise<void>;
     const {signer} = useContext(SignerContext);
     const navigate = useNavigate();
-    const {ethTradeService} = useContext(EthServicesContext);
+    const {ethTradeService} = useContext(EthContext);
     const dispatch = useDispatch();
     const [current, setCurrent] = React.useState<OrderStatus>(status === OrderStatus.COMPLETED ? OrderStatus.SHIPPED : status);
     const documentHeight = '45vh';

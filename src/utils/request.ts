@@ -3,11 +3,12 @@ type Options = {
     body?: string;
     responseType?: string;
 };
+
 export const request = async (
     url: string,
     options: Options,
     contentType = "application/json",
-): Promise<any> => {
+): Promise<any> => { // eslint-disable-line @typescript-eslint/no-explicit-any
   const headers = {
     "Content-Type": contentType,
     Accept: "application/json",
