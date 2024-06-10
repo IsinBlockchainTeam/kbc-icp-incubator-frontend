@@ -34,7 +34,7 @@ const chain = {
     name: 'Sepolia Infura',
     currency: 'ETH',
     explorerUrl: 'https://etherscan.io',
-    rpcUrl: "https://sepolia.infura.io/v3/14bc392775034b3d80988f5211a95985",
+    rpcUrl: "https://sepolia.infura.io/v3/f34b1619ac084f5280a31c5bcdbfdd9e",
 }
 
 // 3. Create a metadata object

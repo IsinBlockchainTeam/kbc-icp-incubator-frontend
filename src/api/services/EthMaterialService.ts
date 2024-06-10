@@ -19,12 +19,8 @@ export class EthMaterialService {
         return this._productCategoryService.getProductCategory(id);
     }
 
-    async saveProductCategory(name: string, quality: number, description: string): Promise<void> {
-        try {
-            await this._productCategoryService.registerProductCategory(name, quality, description);
-        } catch (e) {
-            console.error(e);
-        }
+    async saveProductCategory(name: string, quality: number, description: string): Promise<number> {
+        return this._productCategoryService.registerProductCategory(name, quality, description);
     }
 
     async saveMaterial(productCategoryId: number): Promise<void> {

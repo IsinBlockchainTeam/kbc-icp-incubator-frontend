@@ -19,15 +19,15 @@ function WalletConnect() {
 
         console.log("ADDRESS:", address);
         const ethersProvider = new ethers.providers.Web3Provider(walletProvider);
-        if(isConnected) {
-            console.log("Updating wallet connect...");
-            dispatch(updateWalletConnect({
-                address,
-                chainId,
-                isConnected,
-                walletProvider: ethersProvider,
-            }))
-        }
+        // if(isConnected) {
+        //     console.log("Updating wallet connect...");
+        //     dispatch(updateWalletConnect({
+        //         address,
+        //         chainId,
+        //         isConnected,
+        //         walletProvider: ethersProvider,
+        //     }))
+        // }
     }, [isConnected, walletProvider]);
 
     const sendTransaction = async () => {
@@ -37,14 +37,15 @@ function WalletConnect() {
 
         // Create a transaction object
         const tx = {
-            to: "0xb794f5ea0ba39494ce839613fffba74279579268", // Replace with the recipient's address
-            value: ethers.utils.parseEther("0.1"), // Amount to send
-            gasLimit: ethers.utils.hexlify(21000), // Basic transaction costs 21000 gas
+            to: "0xFA3e37897a4A59fA43c7dB85D25774F5DDCFC7e9", // Replace with the recipient's address
+            value: ethers.utils.parseEther("0.00001"), // Amount to send
+            gasLimit: 21000, // Basic transaction costs 21000 gas
             gasPrice: ethers.utils.hexlify(ethers.utils.parseUnits("10", "gwei")), // 10 Gwei
         };
 
         // Sign the transaction
         const signedTx = await signer.sendTransaction(tx);
+        console.log("Signed transaction:", signedTx)
 
         // Wait for the transaction to be mined
         const receipt = await signedTx.wait();

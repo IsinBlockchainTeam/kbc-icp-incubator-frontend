@@ -18,6 +18,8 @@ import {
     TradeManagerService,
     TradeService
 } from "@kbc-lib/coffee-trading-management-lib";
+import {ethers} from "ethers";
+import {useWeb3ModalProvider} from "@web3modal/ethers5/react";
 
 export enum EnumerableDefinition {
     PROCESS_TYPE, UNIT, FIAT
@@ -25,6 +27,7 @@ export enum EnumerableDefinition {
 
 export function useBlockchainLibraryUtils() {
     const {signer} = useContext(SignerContext);
+    const { walletProvider } = useWeb3ModalProvider();
 
     async function waitForTransactions(transactionHash: string, confirmations: number): Promise<void> {
         if(!signer) {
@@ -37,7 +40,9 @@ export function useBlockchainLibraryUtils() {
         if(!signer) {
             throw new Error("Signer not initialized");
         }
-        const supplyChainDriver = new ProductCategoryDriver(signer, contractAddresses.PRODUCT_CATEGORY());
+        const ethersProvider = new ethers.providers.Web3Provider(walletProvider!);
+        const etherSigner = ethersProvider.getSigner();
+        const supplyChainDriver = new ProductCategoryDriver(etherSigner, contractAddresses.PRODUCT_CATEGORY());
         return new ProductCategoryService(supplyChainDriver);
     }
 
