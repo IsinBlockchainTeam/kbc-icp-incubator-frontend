@@ -47,8 +47,8 @@
         "coverage": "npm run test -- --coverage .",
         "eject": "react-app-rewired eject",
         "dfx:deploy": "npm run build && dfx deploy",
-        "lint": "eslint src/**/*.ts src/**/*.tsx",
-        "prettier": "npx prettier . --check"
+        "lint": "eslint src/**/*.ts src/**/*.tsx --fix",
+        "prettier": "npx prettier . --write"
     },
     "browserslist": {
         "production": [
