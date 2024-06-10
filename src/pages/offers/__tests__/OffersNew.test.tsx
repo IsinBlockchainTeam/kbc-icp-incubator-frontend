@@ -1,13 +1,13 @@
-import {useNavigate} from "react-router-dom";
-import {EthOfferService} from "../../../api/services/EthOfferService";
-import OffersNew from "../OffersNew";
-import {render, screen, waitFor} from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import {paths} from "../../../constants";
+import { useNavigate } from 'react-router-dom';
+import { EthOfferService } from '../../../api/services/EthOfferService';
+import OffersNew from '../OffersNew';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { paths } from '../../../constants';
 
 jest.mock('react-router-dom', () => ({
     ...jest.requireActual('react-router-dom'),
-    useNavigate: jest.fn(),
+    useNavigate: jest.fn()
 }));
 jest.mock('../../../api/services/EthOfferService');
 jest.mock('../../../api/strategies/offer/BlockchainOfferStrategy');
@@ -30,19 +30,22 @@ describe('Offers New', () => {
         render(<OffersNew />);
 
         expect(screen.getByText('New Offer')).toBeInTheDocument();
-        expect(screen.getByRole('button', {name: 'delete Delete Offer'})).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'delete Delete Offer' })).toBeInTheDocument();
         expect(screen.getByText('Data')).toBeInTheDocument();
         expect(screen.getByText('Offeror Company Address')).toBeInTheDocument();
         expect(screen.getByText('Product Category ID')).toBeInTheDocument();
-        expect(screen.getByRole('button', {name: 'Submit'})).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Submit' })).toBeInTheDocument();
     });
 
     it('should call onSubmit function when clicking on submit button', async () => {
         render(<OffersNew />);
 
-        userEvent.type(screen.getByRole('textbox', {name: 'Offeror Company Address'}), '0x1234567890123456789012345678901234567890');
-        userEvent.type(screen.getByRole('textbox', {name: 'Product Category ID'}), '1');
-        userEvent.click(screen.getByRole('button', {name: 'Submit'}));
+        userEvent.type(
+            screen.getByRole('textbox', { name: 'Offeror Company Address' }),
+            '0x1234567890123456789012345678901234567890'
+        );
+        userEvent.type(screen.getByRole('textbox', { name: 'Product Category ID' }), '1');
+        userEvent.click(screen.getByRole('button', { name: 'Submit' }));
 
         await waitFor(() => {
             expect(mockedSaveOffer).toHaveBeenCalledTimes(1);
@@ -51,10 +54,10 @@ describe('Offers New', () => {
         });
     });
 
-    it('should navigate to \'Offers\' when clicking on \'Delete Offer\' button', async () => {
+    it("should navigate to 'Offers' when clicking on 'Delete Offer' button", async () => {
         render(<OffersNew />);
 
-        userEvent.click(screen.getByRole('button', {name: 'delete Delete Offer'}));
+        userEvent.click(screen.getByRole('button', { name: 'delete Delete Offer' }));
 
         await waitFor(() => {
             expect(navigate).toHaveBeenCalledTimes(1);

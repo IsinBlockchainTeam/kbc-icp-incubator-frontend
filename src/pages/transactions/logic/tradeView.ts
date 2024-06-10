@@ -1,5 +1,5 @@
-import useTradeShared from "./tradeShared";
-import {NotificationType, openNotification} from "@/utils/notification";
+import useTradeShared from './tradeShared';
+import { NotificationType, openNotification } from '@/utils/notification';
 import {
     BasicTrade,
     DocumentStatus,
@@ -10,30 +10,38 @@ import {
     OrderLinePrice,
     OrderLineRequest,
     OrderTrade,
-    TradeType,
-} from "@kbc-lib/coffee-trading-management-lib";
-import {useLocation, useNavigate, useParams} from "react-router-dom";
-import {useDispatch} from "react-redux";
-import {useContext, useEffect, useState} from "react";
-import {DetailedTradePresentable} from "@/api/types/TradePresentable";
-import {hideLoading, showLoading} from "@/redux/reducers/loadingSlice";
-import {FormElement, FormElementType} from "@/components/GenericForm/GenericForm";
-import {regex} from "@/utils/regex";
-import dayjs from "dayjs";
-import {DID_METHOD, paths} from "@/constants/index";
-import {BasicTradeRequest, OrderTradeRequest} from "@/api/types/TradeRequest";
-import {SignerContext} from "@/providers/SignerProvider";
-import {ICPContext} from "@/providers/ICPProvider";
+    TradeType
+} from '@kbc-lib/coffee-trading-management-lib';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { useContext, useEffect, useState } from 'react';
+import { DetailedTradePresentable } from '@/api/types/TradePresentable';
+import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
+import { FormElement, FormElementType } from '@/components/GenericForm/GenericForm';
+import { regex } from '@/utils/regex';
+import dayjs from 'dayjs';
+import { DID_METHOD, paths } from '@/constants/index';
+import { BasicTradeRequest, OrderTradeRequest } from '@/api/types/TradeRequest';
+import { SignerContext } from '@/providers/SignerProvider';
+import { ICPContext } from '@/providers/ICPProvider';
 
 export default function useTradeView() {
-    const {getNameByDID} = useContext(ICPContext);
-    const {signer} = useContext(SignerContext);
+    const { getNameByDID } = useContext(ICPContext);
+    const { signer } = useContext(SignerContext);
 
-    const { dataLoaded, validateDocument, validateDates, productCategories, units, fiats, ethTradeService } = useTradeShared();
+    const {
+        dataLoaded,
+        validateDocument,
+        validateDates,
+        productCategories,
+        units,
+        fiats,
+        ethTradeService
+    } = useTradeShared();
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const {id} = useParams();
+    const { id } = useParams();
     const location = useLocation();
     const type = parseInt(new URLSearchParams(location.search).get('type')!);
 
@@ -45,72 +53,86 @@ export default function useTradeView() {
 
     const toggleDisabled = () => {
         setDisabled(!disabled);
-    }
+    };
 
     const confirmNegotiation = async () => {
         try {
-            dispatch(showLoading("Retrieving trade..."));
+            dispatch(showLoading('Retrieving trade...'));
             await ethTradeService.confirmOrderTrade(parseInt(id!));
-            openNotification("Negotiation confirmed", `The negotiation has been confirmed`, NotificationType.SUCCESS, 1);
+            openNotification(
+                'Negotiation confirmed',
+                `The negotiation has been confirmed`,
+                NotificationType.SUCCESS,
+                1
+            );
             navigate(paths.TRADES);
         } catch (e: any) {
-            console.log("error: ", e);
-            openNotification("Error", e.message, NotificationType.ERROR);
+            console.log('error: ', e);
+            openNotification('Error', e.message, NotificationType.ERROR);
         } finally {
             dispatch(hideLoading());
         }
-    }
+    };
 
     useEffect(() => {
         return () => {
-            dispatch(hideLoading())
-        }
+            dispatch(hideLoading());
+        };
     }, []);
 
     useEffect(() => {
-        if(!dataLoaded) return;
+        if (!dataLoaded) return;
         if (id) loadTradeInfo(parseInt(id));
     }, [dataLoaded]);
 
     const loadTradeInfo = async (id: number) => {
         try {
-            dispatch(showLoading("Retrieving trade..."));
+            dispatch(showLoading('Retrieving trade...'));
             const resp = await ethTradeService.getTradeById(id);
             resp && setTrade(resp);
         } catch (e: any) {
-            console.log("error: ", e);
-            openNotification("Error", e.message, NotificationType.ERROR);
+            console.log('error: ', e);
+            openNotification('Error', e.message, NotificationType.ERROR);
         } finally {
-            dispatch(hideLoading())
+            dispatch(hideLoading());
         }
-    }
+    };
 
     const getActorNames = async () => {
         if (!trade) {
-            console.error("Trade not found");
+            console.error('Trade not found');
             return;
         }
         try {
-            dispatch(showLoading("Retrieving actors..."));
+            dispatch(showLoading('Retrieving actors...'));
             const supplier = await getNameByDID(DID_METHOD + ':' + trade.trade.supplier);
             const commissioner = await getNameByDID(DID_METHOD + ':' + trade.trade.commissioner);
             setActorNames([supplier, commissioner]);
         } catch (e: any) {
-            console.log("error: ", e);
-            openNotification("Error", e.message, NotificationType.ERROR);
+            console.log('error: ', e);
+            openNotification('Error', e.message, NotificationType.ERROR);
         } finally {
-            dispatch(hideLoading())
+            dispatch(hideLoading());
         }
-    }
+    };
 
-    const validationCallback = (tradeInfo: DetailedTradePresentable | undefined, documentType: DocumentType) => {
+    const validationCallback = (
+        tradeInfo: DetailedTradePresentable | undefined,
+        documentType: DocumentType
+    ) => {
         if (!tradeInfo) return undefined;
         const doc = tradeInfo.documents.get(documentType);
-        return doc && doc.status === DocumentStatus.NOT_EVALUATED && doc.uploadedBy !== signer?.address ? {
-            approve: () => validateDocument(tradeInfo.trade.tradeId, doc.id, DocumentStatus.APPROVED),
-            reject: () => validateDocument(tradeInfo.trade.tradeId, doc.id, DocumentStatus.NOT_APPROVED)
-        } : undefined;
-    }
+        return doc &&
+            doc.status === DocumentStatus.NOT_EVALUATED &&
+            doc.uploadedBy !== signer?.address
+            ? {
+                  approve: () =>
+                      validateDocument(tradeInfo.trade.tradeId, doc.id, DocumentStatus.APPROVED),
+                  reject: () =>
+                      validateDocument(tradeInfo.trade.tradeId, doc.id, DocumentStatus.NOT_APPROVED)
+              }
+            : undefined;
+    };
 
     useEffect(() => {
         if (!trade) return;
@@ -118,17 +140,18 @@ export default function useTradeView() {
     }, [trade]);
 
     useEffect(() => {
-        if(!trade || actorNames.length === 0) return;
+        if (!trade || actorNames.length === 0) return;
 
         const commonElements: FormElement[] = [
-            {type: FormElementType.TITLE, span: 24, label: 'Actors'}, {
+            { type: FormElementType.TITLE, span: 24, label: 'Actors' },
+            {
                 type: FormElementType.INPUT,
                 span: 8,
                 name: 'supplier',
                 label: 'Supplier',
                 required: true,
                 defaultValue: actorNames[0],
-                disabled: true,
+                disabled: true
             },
             {
                 type: FormElementType.INPUT,
@@ -137,7 +160,7 @@ export default function useTradeView() {
                 label: 'Customer',
                 required: true,
                 defaultValue: actorNames[1],
-                disabled: true,
+                disabled: true
             },
             {
                 type: FormElementType.INPUT,
@@ -146,9 +169,9 @@ export default function useTradeView() {
                 label: 'Commissioner',
                 required: true,
                 defaultValue: actorNames[1],
-                disabled: true,
-            },
-        ]
+                disabled: true
+            }
+        ];
 
         const documentHeight = '45vh';
         if (type === TradeType.BASIC) {
@@ -163,13 +186,13 @@ export default function useTradeView() {
                 uploadable: !disabled,
                 info: doc,
                 height: documentHeight,
-                validationCallback: validationCallback(trade, DocumentType.DELIVERY_NOTE),
-            }
+                validationCallback: validationCallback(trade, DocumentType.DELIVERY_NOTE)
+            };
 
             const basicTrade = trade.trade as BasicTrade;
             const newElements = [...commonElements];
             newElements.push(
-                {type: FormElementType.TITLE, span: 24, label: 'Data'},
+                { type: FormElementType.TITLE, span: 24, label: 'Data' },
                 {
                     type: FormElementType.INPUT,
                     span: 12,
@@ -177,10 +200,10 @@ export default function useTradeView() {
                     label: 'Name',
                     required: true,
                     defaultValue: basicTrade.name,
-                    disabled,
+                    disabled
                 },
                 documentElement,
-                {type: FormElementType.TITLE, span: 24, label: 'Line Item'},
+                { type: FormElementType.TITLE, span: 24, label: 'Line Item' }
             );
             basicTrade.lines.forEach((line, index) => {
                 newElements.push(
@@ -190,9 +213,14 @@ export default function useTradeView() {
                         name: `product-category-id-${index + 1}`,
                         label: 'Product Category Id',
                         required: true,
-                        options: productCategories.map((productCategory) => ({label: productCategory.name, value: productCategory.id})),
-                        defaultValue: productCategories.find(pc => pc.id === line.productCategory?.id)?.id || -1,
-                        disabled,
+                        options: productCategories.map((productCategory) => ({
+                            label: productCategory.name,
+                            value: productCategory.id
+                        })),
+                        defaultValue:
+                            productCategories.find((pc) => pc.id === line.productCategory?.id)
+                                ?.id || -1,
+                        disabled
                     },
                     {
                         type: FormElementType.INPUT,
@@ -201,7 +229,7 @@ export default function useTradeView() {
                         label: 'Quantity',
                         required: true,
                         defaultValue: line.quantity?.toString(),
-                        disabled,
+                        disabled
                     },
                     {
                         type: FormElementType.SELECT,
@@ -209,11 +237,11 @@ export default function useTradeView() {
                         name: `unit-${index + 1}`,
                         label: 'Unit',
                         required: true,
-                        options: units.map((unit) => ({label: unit, value: unit})),
+                        options: units.map((unit) => ({ label: unit, value: unit })),
                         defaultValue: line.unit!,
-                        disabled,
+                        disabled
                     },
-                    {type: FormElementType.SPACE, span: 6},
+                    { type: FormElementType.SPACE, span: 6 }
                 );
             });
             setElements(newElements);
@@ -223,7 +251,7 @@ export default function useTradeView() {
 
             const newElements = [...commonElements];
             newElements.push(
-                {type: FormElementType.TITLE, span: 24, label: 'Constraints'},
+                { type: FormElementType.TITLE, span: 24, label: 'Constraints' },
                 {
                     type: FormElementType.INPUT,
                     span: 12,
@@ -231,7 +259,7 @@ export default function useTradeView() {
                     label: 'Incoterms',
                     required: true,
                     defaultValue: orderTrade.metadata?.incoterms,
-                    disabled,
+                    disabled
                 },
                 {
                     type: FormElementType.INPUT,
@@ -251,7 +279,7 @@ export default function useTradeView() {
                     required: true,
                     defaultValue: dayjs.unix(orderTrade.paymentDeadline),
                     disabled,
-                    dependencies: ['document-delivery-deadline'],
+                    dependencies: ['document-delivery-deadline']
                 },
                 {
                     type: FormElementType.DATE,
@@ -262,7 +290,12 @@ export default function useTradeView() {
                     defaultValue: dayjs.unix(orderTrade.documentDeliveryDeadline),
                     disabled,
                     dependencies: ['payment-deadline'],
-                    validationCallback: validateDates('document-delivery-deadline', 'payment-deadline', 'greater', 'This must be after Payment Deadline')
+                    validationCallback: validateDates(
+                        'document-delivery-deadline',
+                        'payment-deadline',
+                        'greater',
+                        'This must be after Payment Deadline'
+                    )
                 },
                 {
                     type: FormElementType.INPUT,
@@ -271,7 +304,7 @@ export default function useTradeView() {
                     label: 'Shipper',
                     required: true,
                     defaultValue: orderTrade.metadata?.shipper,
-                    disabled,
+                    disabled
                 },
                 {
                     type: FormElementType.INPUT,
@@ -280,7 +313,7 @@ export default function useTradeView() {
                     label: 'Shipping Port',
                     required: true,
                     defaultValue: orderTrade.metadata?.shippingPort,
-                    disabled,
+                    disabled
                 },
                 {
                     type: FormElementType.DATE,
@@ -291,7 +324,12 @@ export default function useTradeView() {
                     defaultValue: dayjs.unix(orderTrade.shippingDeadline),
                     disabled,
                     dependencies: ['document-delivery-deadline'],
-                    validationCallback: validateDates('shipping-deadline', 'document-delivery-deadline', 'greater', 'This must be after Document Delivery Deadline')
+                    validationCallback: validateDates(
+                        'shipping-deadline',
+                        'document-delivery-deadline',
+                        'greater',
+                        'This must be after Document Delivery Deadline'
+                    )
                 },
                 {
                     type: FormElementType.INPUT,
@@ -300,7 +338,7 @@ export default function useTradeView() {
                     label: 'Delivery Port',
                     required: true,
                     defaultValue: orderTrade.metadata?.deliveryPort,
-                    disabled,
+                    disabled
                 },
                 {
                     type: FormElementType.DATE,
@@ -311,7 +349,12 @@ export default function useTradeView() {
                     defaultValue: dayjs.unix(orderTrade.deliveryDeadline),
                     disabled,
                     dependencies: ['shipping-deadline'],
-                    validationCallback: validateDates('delivery-deadline', 'shipping-deadline', 'greater', 'This must be after Shipping Deadline')
+                    validationCallback: validateDates(
+                        'delivery-deadline',
+                        'shipping-deadline',
+                        'greater',
+                        'This must be after Shipping Deadline'
+                    )
                 },
                 {
                     type: FormElementType.INPUT,
@@ -321,7 +364,7 @@ export default function useTradeView() {
                     required: true,
                     regex: regex.ONLY_DIGITS,
                     defaultValue: orderTrade.agreedAmount,
-                    disabled,
+                    disabled
                 },
                 {
                     type: FormElementType.INPUT,
@@ -331,9 +374,9 @@ export default function useTradeView() {
                     required: true,
                     regex: regex.ETHEREUM_ADDRESS,
                     defaultValue: orderTrade.tokenAddress,
-                    disabled,
+                    disabled
                 },
-                {type: FormElementType.TITLE, span: 24, label: 'Line Items'},
+                { type: FormElementType.TITLE, span: 24, label: 'Line Items' }
             );
             orderTrade.lines.forEach((line, index) => {
                 newElements.push(
@@ -343,9 +386,14 @@ export default function useTradeView() {
                         name: `product-category-id-${index + 1}`,
                         label: 'Product Category Id',
                         required: true,
-                        options: productCategories.map((productCategory) => ({label: productCategory.name, value: productCategory.id})),
-                        defaultValue: productCategories.find(pc => pc.id === line.productCategory?.id)?.id || -1,
-                        disabled,
+                        options: productCategories.map((productCategory) => ({
+                            label: productCategory.name,
+                            value: productCategory.id
+                        })),
+                        defaultValue:
+                            productCategories.find((pc) => pc.id === line.productCategory?.id)
+                                ?.id || -1,
+                        disabled
                     },
                     {
                         type: FormElementType.INPUT,
@@ -355,7 +403,7 @@ export default function useTradeView() {
                         required: true,
                         regex: regex.ONLY_DIGITS,
                         defaultValue: line.quantity?.toString(),
-                        disabled,
+                        disabled
                     },
                     {
                         type: FormElementType.SELECT,
@@ -363,9 +411,9 @@ export default function useTradeView() {
                         name: `unit-${index + 1}`,
                         label: 'Unit',
                         required: true,
-                        options: units.map((unit) => ({label: unit, value: unit})),
+                        options: units.map((unit) => ({ label: unit, value: unit })),
                         defaultValue: line.unit!,
-                        disabled,
+                        disabled
                     },
                     {
                         type: FormElementType.INPUT,
@@ -375,7 +423,7 @@ export default function useTradeView() {
                         required: true,
                         regex: regex.ONLY_DIGITS,
                         defaultValue: (line as OrderLine).price?.amount.toString(),
-                        disabled,
+                        disabled
                     },
                     {
                         type: FormElementType.SELECT,
@@ -383,10 +431,10 @@ export default function useTradeView() {
                         name: `fiat-${index + 1}`,
                         label: 'Fiat',
                         required: true,
-                        options: fiats.map((fiat) => ({label: fiat, value: fiat})),
+                        options: fiats.map((fiat) => ({ label: fiat, value: fiat })),
                         defaultValue: (line as OrderLine).price!.fiat,
-                        disabled,
-                    },
+                        disabled
+                    }
                 );
             });
             setElements(newElements);
@@ -395,13 +443,17 @@ export default function useTradeView() {
 
     const onSubmit = async (values: any) => {
         if (!ethTradeService) {
-            console.error("EthTradeService not found");
+            console.error('EthTradeService not found');
             return;
         }
         try {
-            dispatch(showLoading("Loading..."));
+            dispatch(showLoading('Loading...'));
             if (values['delivery-deadline'] <= values['shipping-deadline']) {
-                openNotification("Delivery deadline cannot be less then shipping one", '', NotificationType.ERROR);
+                openNotification(
+                    'Delivery deadline cannot be less then shipping one',
+                    '',
+                    NotificationType.ERROR
+                );
             }
 
             const supplier: string = values['supplier'];
@@ -417,7 +469,7 @@ export default function useTradeView() {
                     customer,
                     commissioner,
                     lines: [new LineRequest(productCategoryId, quantity, unit)],
-                    name: values['name'],
+                    name: values['name']
                 };
                 await ethTradeService.putBasicTrade(parseInt(id!), updatedBasicTrade);
             } else if (type === TradeType.ORDER) {
@@ -428,7 +480,14 @@ export default function useTradeView() {
                     supplier,
                     customer,
                     commissioner,
-                    lines: [new OrderLineRequest(productCategoryId, quantity, unit, new OrderLinePrice(price, fiat))],
+                    lines: [
+                        new OrderLineRequest(
+                            productCategoryId,
+                            quantity,
+                            unit,
+                            new OrderLinePrice(price, fiat)
+                        )
+                    ],
                     paymentDeadline: dayjs(values['payment-deadline']).unix(),
                     documentDeliveryDeadline: dayjs(values['document-delivery-deadline']).unix(),
                     arbiter: values['arbiter'],
@@ -439,19 +498,19 @@ export default function useTradeView() {
                     incoterms: values['incoterms'],
                     shipper: values['shipper'],
                     shippingPort: values['shipping-port'],
-                    deliveryPort: values['delivery-port'],
+                    deliveryPort: values['delivery-port']
                 };
                 await ethTradeService.putOrderTrade(parseInt(id!), updatedOrderTrade);
             }
             setDisabled(true);
             navigate(paths.TRADES);
         } catch (e: any) {
-            console.log("error: ", e);
-            openNotification("Error", e.message, NotificationType.ERROR);
+            console.log('error: ', e);
+            openNotification('Error', e.message, NotificationType.ERROR);
         } finally {
-            dispatch(hideLoading())
+            dispatch(hideLoading());
         }
-    }
+    };
 
     return {
         type,
@@ -463,5 +522,5 @@ export default function useTradeView() {
         toggleDisabled,
         onSubmit,
         confirmNegotiation
-    }
+    };
 }

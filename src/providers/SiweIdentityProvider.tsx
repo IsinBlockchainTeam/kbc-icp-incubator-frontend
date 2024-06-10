@@ -5,25 +5,29 @@ import React, {
     type ReactNode,
     useEffect,
     useState,
-    useRef,
-} from "react";
-import {type ActorConfig, type HttpAgentOptions} from "@dfinity/agent";
-import {DelegationIdentity, Ed25519KeyIdentity} from "@dfinity/identity";
-import {useDispatch, useSelector} from "react-redux";
-import {clearSiweIdentity, selectSiweIdentity, updateSiweIdentity} from "@/redux/reducers/siweIdentitySlice";
-import {SignerContext} from "./SignerProvider";
-import {NotificationType, openNotification} from "@/utils/notification";
-import {RootState} from "@/redux/store";
-import {Typography} from "antd";
-import ICPLoading from "@/components/ICPLoading/ICPLoading";
+    useRef
+} from 'react';
+import { type ActorConfig, type HttpAgentOptions } from '@dfinity/agent';
+import { DelegationIdentity, Ed25519KeyIdentity } from '@dfinity/identity';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+    clearSiweIdentity,
+    selectSiweIdentity,
+    updateSiweIdentity
+} from '@/redux/reducers/siweIdentitySlice';
+import { SignerContext } from './SignerProvider';
+import { NotificationType, openNotification } from '@/utils/notification';
+import { RootState } from '@/redux/store';
+import { Typography } from 'antd';
+import ICPLoading from '@/components/ICPLoading/ICPLoading';
 import {
     ICPSiweDriver,
     type SiweIdentityContextType,
     type LoginOkResponse,
     type ISignedDelegation as ServiceSignedDelegation,
     type State
-} from "@blockchain-lib/common";
-import {ICP} from "@/constants/index";
+} from '@blockchain-lib/common';
+import { ICP } from '@/constants/index';
 
 /**
  * Re-export types
@@ -35,9 +39,7 @@ import {ICP} from "@/constants/index";
 /**
  * React context for managing SIWE (Sign-In with Ethereum) identity.
  */
-export const SiweIdentityContext = createContext<
-    SiweIdentityContextType | undefined
->(undefined);
+export const SiweIdentityContext = createContext<SiweIdentityContextType | undefined>(undefined);
 
 /**
  * Hook to access the SiweIdentityContext.
@@ -45,18 +47,16 @@ export const SiweIdentityContext = createContext<
 export const useSiweIdentity = (): SiweIdentityContextType => {
     const context = useContext(SiweIdentityContext);
     if (!context) {
-        throw new Error(
-            "useSiweIdentity must be used within an SiweIdentityProvider"
-        );
+        throw new Error('useSiweIdentity must be used within an SiweIdentityProvider');
     }
     return context;
 };
 
 export function SiweIdentityProvider({
-          httpAgentOptions,
-          actorOptions,
-          children,
-      }: {
+    httpAgentOptions,
+    actorOptions,
+    children
+}: {
     /** Configuration options for the HTTP agent used to communicate with the Internet Computer network. */
     httpAgentOptions?: HttpAgentOptions;
 
@@ -68,20 +68,20 @@ export function SiweIdentityProvider({
 }) {
     const siweIdentity = useSelector(selectSiweIdentity);
     const dispatch = useDispatch();
-    const {signer} = useContext(SignerContext);
+    const { signer } = useContext(SignerContext);
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const icpSiweDriver = new ICPSiweDriver(ICP.CANISTER_ID_IC_SIWE_PROVIDER);
 
     const [state, setState] = useState<State>({
         isInitializing: true,
-        prepareLoginStatus: "idle",
-        loginStatus: "idle",
+        prepareLoginStatus: 'idle',
+        loginStatus: 'idle'
     });
 
     useEffect(() => {
-        console.log(state.anonymousActor, !siweIdentity)
+        console.log(state.anonymousActor, !siweIdentity);
         if (state.anonymousActor && !siweIdentity) {
-            console.log("Trying siwe login...");
+            console.log('Trying siwe login...');
             tryLogin();
         }
     }, [siweIdentity, state.anonymousActor]);
@@ -90,32 +90,30 @@ export function SiweIdentityProvider({
         try {
             await login();
             openNotification(
-                "Authenticated",
+                'Authenticated',
                 `Login succeed. Welcome ${userInfo.legalName}!`,
                 NotificationType.SUCCESS
             );
         } catch (e) {
-            console.error("Error in SiweIdentityProvider", e);
-            openNotification("Error", "Error while logging in", NotificationType.ERROR);
+            console.error('Error in SiweIdentityProvider', e);
+            openNotification('Error', 'Error while logging in', NotificationType.ERROR);
         }
     }
 
     const signMessageEthers = async (message: string) => {
         return signer?.signMessage(message);
-    }
+    };
 
     async function updateState(newState: Partial<State>) {
         setState((prevState: State) => ({
             ...prevState,
-            ...newState,
+            ...newState
         }));
     }
 
     // Keep track of the promise handlers for the login method during the async login process.
     const loginPromiseHandlers = useRef<{
-        resolve: (
-            value: DelegationIdentity | PromiseLike<DelegationIdentity>
-        ) => void;
+        resolve: (value: DelegationIdentity | PromiseLike<DelegationIdentity>) => void;
         reject: (error: Error) => void;
     } | null>(null);
 
@@ -127,18 +125,18 @@ export function SiweIdentityProvider({
         const connectedEthAddress = (signer?.address || '0xabc') as `0x${string}`;
         if (!state.anonymousActor) {
             throw new Error(
-                "Hook not initialized properly. Make sure to supply all required props to the SiweIdentityProvider."
+                'Hook not initialized properly. Make sure to supply all required props to the SiweIdentityProvider.'
             );
         }
         if (!connectedEthAddress) {
             throw new Error(
-                "No Ethereum address available. Call prepareLogin after the user has connected their wallet."
+                'No Ethereum address available. Call prepareLogin after the user has connected their wallet.'
             );
         }
 
         updateState({
-            prepareLoginStatus: "preparing",
-            prepareLoginError: undefined,
+            prepareLoginStatus: 'preparing',
+            prepareLoginError: undefined
         });
 
         try {
@@ -148,23 +146,20 @@ export function SiweIdentityProvider({
             );
             updateState({
                 siweMessage,
-                prepareLoginStatus: "success",
+                prepareLoginStatus: 'success'
             });
             return siweMessage;
         } catch (e) {
             const error = icpSiweDriver.normalizeError(e);
             console.error(error);
             updateState({
-                prepareLoginStatus: "error",
-                prepareLoginError: error,
+                prepareLoginStatus: 'error',
+                prepareLoginError: error
             });
         }
     }
 
-    async function rejectLoginWithError(
-        error: Error | unknown,
-        message?: string
-    ) {
+    async function rejectLoginWithError(error: Error | unknown, message?: string) {
         const e = icpSiweDriver.normalizeError(error);
         const errorMessage = message || e.message;
 
@@ -172,8 +167,8 @@ export function SiweIdentityProvider({
 
         updateState({
             siweMessage: undefined,
-            loginStatus: "error",
-            loginError: new Error(errorMessage),
+            loginStatus: 'error',
+            loginError: new Error(errorMessage)
         });
 
         loginPromiseHandlers.current?.reject(new Error(errorMessage));
@@ -189,14 +184,11 @@ export function SiweIdentityProvider({
     ) {
         const connectedEthAddress = (signer?.address || '0xabc') as `0x${string}`;
         if (error) {
-            rejectLoginWithError(
-                error,
-                "An error occurred while signing the login message."
-            );
+            rejectLoginWithError(error, 'An error occurred while signing the login message.');
             return;
         }
         if (!loginSignature) {
-            rejectLoginWithError(new Error("Sign message returned no data."));
+            rejectLoginWithError(new Error('Sign message returned no data.'));
             return;
         }
 
@@ -205,7 +197,7 @@ export function SiweIdentityProvider({
         const sessionPublicKey = sessionIdentity.getPublicKey().toDer();
 
         if (!state.anonymousActor || !connectedEthAddress) {
-            rejectLoginWithError(new Error("Invalid actor or address."));
+            rejectLoginWithError(new Error('Invalid actor or address.'));
             return;
         }
 
@@ -221,7 +213,7 @@ export function SiweIdentityProvider({
                 sessionPublicKey
             );
         } catch (e) {
-            rejectLoginWithError(e, "Unable to login.");
+            rejectLoginWithError(e, 'Unable to login.');
             return;
         }
 
@@ -235,7 +227,7 @@ export function SiweIdentityProvider({
                 loginOkResponse.expiration
             );
         } catch (e) {
-            rejectLoginWithError(e, "Unable to get identity.");
+            rejectLoginWithError(e, 'Unable to get identity.');
             return;
         }
 
@@ -247,24 +239,23 @@ export function SiweIdentityProvider({
 
         // Create a new delegation identity from the session identity and the
         // delegation chain.
-        const identity = DelegationIdentity.fromDelegation(
-            sessionIdentity,
-            delegationChain
-        );
+        const identity = DelegationIdentity.fromDelegation(sessionIdentity, delegationChain);
 
         // Save the identity to local storage.
-        dispatch(updateSiweIdentity({
-            address: connectedEthAddress,
-            sessionIdentity: JSON.stringify(sessionIdentity.toJSON()),
-            delegationChain: JSON.stringify(delegationChain.toJSON()),
-        }));
+        dispatch(
+            updateSiweIdentity({
+                address: connectedEthAddress,
+                sessionIdentity: JSON.stringify(sessionIdentity.toJSON()),
+                delegationChain: JSON.stringify(delegationChain.toJSON())
+            })
+        );
 
         // Set the identity in state.
         await updateState({
-            loginStatus: "success",
+            loginStatus: 'success',
             identityAddress: connectedEthAddress,
             identity,
-            delegationChain,
+            delegationChain
         });
 
         loginPromiseHandlers.current?.resolve(identity);
@@ -284,14 +275,14 @@ export function SiweIdentityProvider({
     async function login() {
         const connectedEthAddress = signer?.address || '';
         const promise = new Promise<DelegationIdentity>((resolve, reject) => {
-            loginPromiseHandlers.current = {resolve, reject};
+            loginPromiseHandlers.current = { resolve, reject };
         });
         // Set the promise handlers immediately to ensure they are available for error handling.
 
         if (!state.anonymousActor) {
             rejectLoginWithError(
                 new Error(
-                    "Hook not initialized properly. Make sure to supply all required props to the SiweIdentityProvider."
+                    'Hook not initialized properly. Make sure to supply all required props to the SiweIdentityProvider.'
                 )
             );
             return promise;
@@ -299,21 +290,19 @@ export function SiweIdentityProvider({
         if (!connectedEthAddress) {
             rejectLoginWithError(
                 new Error(
-                    "No Ethereum address available. Call login after the user has connected their wallet."
+                    'No Ethereum address available. Call login after the user has connected their wallet.'
                 )
             );
             return promise;
         }
-        if (state.prepareLoginStatus === "preparing") {
-            rejectLoginWithError(
-                new Error("Don't call login while prepareLogin is running.")
-            );
+        if (state.prepareLoginStatus === 'preparing') {
+            rejectLoginWithError(new Error("Don't call login while prepareLogin is running."));
             return promise;
         }
 
         updateState({
-            loginStatus: "logging-in",
-            loginError: undefined,
+            loginStatus: 'logging-in',
+            loginError: undefined
         });
 
         try {
@@ -322,9 +311,7 @@ export function SiweIdentityProvider({
             if (!siweMessage) {
                 siweMessage = await prepareLogin();
                 if (!siweMessage) {
-                    throw new Error(
-                        "Prepare login failed did not return a SIWE message."
-                    );
+                    throw new Error('Prepare login failed did not return a SIWE message.');
                 }
             }
             const loginSignature = await signMessageEthers(siweMessage);
@@ -349,14 +336,14 @@ export function SiweIdentityProvider({
     function clear() {
         updateState({
             isInitializing: false,
-            prepareLoginStatus: "idle",
+            prepareLoginStatus: 'idle',
             prepareLoginError: undefined,
             siweMessage: undefined,
-            loginStatus: "idle",
+            loginStatus: 'idle',
             loginError: undefined,
             identity: undefined,
             identityAddress: undefined,
-            delegationChain: undefined,
+            delegationChain: undefined
         });
         dispatch(clearSiweIdentity());
     }
@@ -367,14 +354,14 @@ export function SiweIdentityProvider({
     useEffect(() => {
         if (!siweIdentity) {
             updateState({
-                isInitializing: false,
+                isInitializing: false
             });
         }
         updateState({
             identityAddress: siweIdentity?.address,
             identity: siweIdentity?.sessionIdentity,
             delegationChain: siweIdentity?.delegationChain,
-            isInitializing: false,
+            isInitializing: false
         });
     }, []);
 
@@ -395,40 +382,37 @@ export function SiweIdentityProvider({
     useEffect(() => {
         const a = icpSiweDriver.createAnonymousActor({
             httpAgentOptions,
-            actorOptions,
+            actorOptions
         });
         console.log(a);
         updateState({
-            anonymousActor: a,
+            anonymousActor: a
         });
     }, [httpAgentOptions, actorOptions]);
 
     if (!signer) {
-        return <Typography.Text>
-            Signer not available
-        </Typography.Text>
+        return <Typography.Text>Signer not available</Typography.Text>;
     }
-    const isLoggingIn = state.loginStatus === "logging-in";
+    const isLoggingIn = state.loginStatus === 'logging-in';
     if (isLoggingIn) {
-        return <ICPLoading/>
+        return <ICPLoading />;
     }
     return (
         <SiweIdentityContext.Provider
             value={{
                 ...state,
                 prepareLogin,
-                isPreparingLogin: state.prepareLoginStatus === "preparing",
-                isPrepareLoginError: state.prepareLoginStatus === "error",
-                isPrepareLoginSuccess: state.prepareLoginStatus === "success",
-                isPrepareLoginIdle: state.prepareLoginStatus === "idle",
+                isPreparingLogin: state.prepareLoginStatus === 'preparing',
+                isPrepareLoginError: state.prepareLoginStatus === 'error',
+                isPrepareLoginSuccess: state.prepareLoginStatus === 'success',
+                isPrepareLoginIdle: state.prepareLoginStatus === 'idle',
                 login,
                 isLoggingIn,
-                isLoginError: state.loginStatus === "error",
-                isLoginSuccess: state.loginStatus === "success",
-                isLoginIdle: state.loginStatus === "idle",
-                clear,
-            }}
-        >
+                isLoginError: state.loginStatus === 'error',
+                isLoginSuccess: state.loginStatus === 'success',
+                isLoginIdle: state.loginStatus === 'idle',
+                clear
+            }}>
             {children}
         </SiweIdentityContext.Provider>
     );

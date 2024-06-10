@@ -8,8 +8,8 @@ module.exports = function override(config, env) {
     // Add fallback configuration
     const loaders = config.resolve;
     loaders.fallback = {
-        "stream": require.resolve('stream-browserify'),
-        "buffer": false,
+        stream: require.resolve('stream-browserify'),
+        buffer: false
     };
 
     // Add alias configuration
@@ -22,7 +22,7 @@ module.exports = function override(config, env) {
         '@/pages': path.resolve(__dirname, './src/pages'),
         '@/providers': path.resolve(__dirname, './src/providers'),
         '@/redux': path.resolve(__dirname, './src/redux'),
-        '@/utils': path.resolve(__dirname, './src/utils'),
+        '@/utils': path.resolve(__dirname, './src/utils')
     };
 
     return config;

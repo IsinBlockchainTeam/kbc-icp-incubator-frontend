@@ -1,33 +1,32 @@
-import useTradeNew from "../tradeNew";
-import {renderHook} from "@testing-library/react";
-import {TradeType} from "../coffee-trading-management-lib/src/index";
-import {FormElement} from "../../../../components/GenericForm/GenericForm";
-import {TradeLinePresentable, TradeLinePrice} from "../../../../api/types/TradeLinePresentable";
-import {MaterialPresentable} from "../../../../api/types/MaterialPresentable";
+import useTradeNew from '../tradeNew';
+import { renderHook } from '@testing-library/react';
+import { TradeType } from '../coffee-trading-management-lib/src/index';
+import { FormElement } from '../../../../components/GenericForm/GenericForm';
+import { TradeLinePresentable, TradeLinePrice } from '../../../../api/types/TradeLinePresentable';
+import { MaterialPresentable } from '../../../../api/types/MaterialPresentable';
 
 let mockType: TradeType = TradeType.BASIC;
 let mockUpdateType = jest.fn();
 let mockTradeService = {
     saveBasicTrade: jest.fn(),
-    saveOrderTrade: jest.fn(),
-
+    saveOrderTrade: jest.fn()
 };
 let mockElements: FormElement[] = [];
-jest.mock("../tradeShared", () => ({
+jest.mock('../tradeShared', () => ({
     __esModule: true,
     default: () => ({
         type: mockType,
         updateType: mockUpdateType,
         tradeService: mockTradeService,
         orderState: 0,
-        elements: mockElements,
-    }),
+        elements: mockElements
+    })
 }));
 
 describe('tradeNew', () => {
     beforeAll(() => {
         jest.spyOn(console, 'error').mockImplementation(jest.fn());
-    })
+    });
 
     beforeEach(() => {
         mockType = TradeType.BASIC;
@@ -49,16 +48,15 @@ describe('tradeNew', () => {
         const { result } = renderHook(() => useTradeNew());
         const values = {
             'product-category-id-1': '1',
-            'product-category-id-2': '2',
-        }
+            'product-category-id-2': '2'
+        };
         await result.current.onSubmit(values);
 
         expect(mockTradeService.saveBasicTrade).toHaveBeenCalledTimes(1);
         expect(mockTradeService.saveBasicTrade).toHaveBeenCalledWith({
             lines: [
                 new TradeLinePresentable(0, new MaterialPresentable(1)),
-                new TradeLinePresentable(0, new MaterialPresentable(2)),
-
+                new TradeLinePresentable(0, new MaterialPresentable(2))
             ],
             ...values
         });
@@ -77,21 +75,31 @@ describe('tradeNew', () => {
             'payment-deadline': '2022-01-01',
             'document-delivery-deadline': '2022-02-01',
             'shipping-deadline': '2022-03-01',
-            'delivery-deadline': '2022-04-01',
-        }
+            'delivery-deadline': '2022-04-01'
+        };
         await result.current.onSubmit(values);
 
         expect(mockTradeService.saveOrderTrade).toHaveBeenCalledTimes(1);
         expect(mockTradeService.saveOrderTrade).toHaveBeenCalledWith({
             lines: [
-                new TradeLinePresentable(0, new MaterialPresentable(1), 10, new TradeLinePrice(100, 'CHF')),
-                new TradeLinePresentable(0, new MaterialPresentable(2), 20, new TradeLinePrice(200, 'USD')),
+                new TradeLinePresentable(
+                    0,
+                    new MaterialPresentable(1),
+                    10,
+                    new TradeLinePrice(100, 'CHF')
+                ),
+                new TradeLinePresentable(
+                    0,
+                    new MaterialPresentable(2),
+                    20,
+                    new TradeLinePrice(200, 'USD')
+                )
             ],
             paymentDeadline: new Date('2022-01-01'),
             documentDeliveryDeadline: new Date('2022-02-01'),
             shippingDeadline: new Date('2022-03-01'),
             deliveryDeadline: new Date('2022-04-01'),
-            ...values,
+            ...values
         });
     });
 });

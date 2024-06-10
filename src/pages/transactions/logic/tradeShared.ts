@@ -1,22 +1,23 @@
-import {useContext, useEffect, useState} from "react";
-import {DocumentStatus, ProductCategory, TradeType} from "@kbc-lib/coffee-trading-management-lib";
-import {FormElement, FormElementType} from "@/components/GenericForm/GenericForm";
-import {regex} from "@/utils/regex";
-import {EthContext} from "@/providers/EthProvider";
-import {useLocation} from "react-router-dom";
-import {SignerContext} from "@/providers/SignerProvider";
-import {hideLoading, showLoading} from "@/redux/reducers/loadingSlice";
-import {useDispatch} from "react-redux";
-import {NotificationType, openNotification} from "@/utils/notification";
-import {DID_METHOD} from "@/constants/index";
-import {FormInstance} from "antd";
-import dayjs from "dayjs";
-import {ICPContext} from "@/providers/ICPProvider";
+import { useContext, useEffect, useState } from 'react';
+import { DocumentStatus, ProductCategory, TradeType } from '@kbc-lib/coffee-trading-management-lib';
+import { FormElement, FormElementType } from '@/components/GenericForm/GenericForm';
+import { regex } from '@/utils/regex';
+import { EthContext } from '@/providers/EthProvider';
+import { useLocation } from 'react-router-dom';
+import { SignerContext } from '@/providers/SignerProvider';
+import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
+import { useDispatch } from 'react-redux';
+import { NotificationType, openNotification } from '@/utils/notification';
+import { DID_METHOD } from '@/constants/index';
+import { FormInstance } from 'antd';
+import dayjs from 'dayjs';
+import { ICPContext } from '@/providers/ICPProvider';
 
 export default function useTradeShared() {
-    const {signer} = useContext(SignerContext);
-    const {getNameByDID} = useContext(ICPContext);
-    const {ethTradeService, ethUnitService, ethFiatService, ethMaterialService} = useContext(EthContext);
+    const { signer } = useContext(SignerContext);
+    const { getNameByDID } = useContext(ICPContext);
+    const { ethTradeService, ethUnitService, ethFiatService, ethMaterialService } =
+        useContext(EthContext);
     const location = useLocation();
     const dispatch = useDispatch();
 
@@ -24,7 +25,7 @@ export default function useTradeShared() {
 
     const updateType = (newType: TradeType) => {
         setType(newType);
-    }
+    };
 
     const [dataLoaded, setDataLoaded] = useState<boolean>(false);
     const [units, setUnits] = useState<string[]>([]);
@@ -42,7 +43,7 @@ export default function useTradeShared() {
             return;
         }
         try {
-            dispatch(showLoading("Retrieving data..."));
+            dispatch(showLoading('Retrieving data...'));
             const units = await ethUnitService.getAll();
             setUnits(units);
             const fiats = await ethFiatService.getAll();
@@ -52,46 +53,73 @@ export default function useTradeShared() {
             await getActorNames();
             setDataLoaded(true);
         } catch (e: any) {
-            console.log("error: ", e);
-            openNotification("Error", e.message, NotificationType.ERROR);
+            console.log('error: ', e);
+            openNotification('Error', e.message, NotificationType.ERROR);
         } finally {
-            dispatch(hideLoading())
+            dispatch(hideLoading());
         }
-
     }
 
-    const validateDocument = async (tradeId: number, documentId: number, validationStatus: DocumentStatus) => {
+    const validateDocument = async (
+        tradeId: number,
+        documentId: number,
+        validationStatus: DocumentStatus
+    ) => {
         await ethTradeService.validateDocument(tradeId, documentId, validationStatus);
-        if (validationStatus === DocumentStatus.APPROVED) openNotification("Document approved", "The document has been successfully approved", NotificationType.SUCCESS, 1);
-        else if (validationStatus === DocumentStatus.NOT_APPROVED) openNotification("Document rejected", "The document has been rejected", NotificationType.SUCCESS, 1);
+        if (validationStatus === DocumentStatus.APPROVED)
+            openNotification(
+                'Document approved',
+                'The document has been successfully approved',
+                NotificationType.SUCCESS,
+                1
+            );
+        else if (validationStatus === DocumentStatus.NOT_APPROVED)
+            openNotification(
+                'Document rejected',
+                'The document has been rejected',
+                NotificationType.SUCCESS,
+                1
+            );
         window.location.reload();
-    }
+    };
 
-    const validateDates = (dataFieldName: string, dateFieldNameToCompare: string, comparison: 'greater' | 'less', errorMessage: string) => {
+    const validateDates = (
+        dataFieldName: string,
+        dateFieldNameToCompare: string,
+        comparison: 'greater' | 'less',
+        errorMessage: string
+    ) => {
         return (form: FormInstance): Promise<void> => {
             const date = dayjs(form.getFieldValue(dataFieldName));
             const dateToCompare = dayjs(form.getFieldValue(dateFieldNameToCompare));
             if (date && dateToCompare)
-                if ((comparison === 'greater' && date.isBefore(dateToCompare)) || (comparison === 'less' && date.isAfter(dateToCompare)))
+                if (
+                    (comparison === 'greater' && date.isBefore(dateToCompare)) ||
+                    (comparison === 'less' && date.isAfter(dateToCompare))
+                )
                     return Promise.reject(errorMessage);
 
             return Promise.resolve();
-        }
-    }
+        };
+    };
 
     const getActorNames = async () => {
         const supplierAddress = location?.state?.supplierAddress;
         const commissionerAddress = signer?.address;
 
         try {
-            const supplier = supplierAddress ? await getNameByDID(DID_METHOD + ':' + supplierAddress) : 'Unknown';
-            const commissioner = commissionerAddress ? await getNameByDID(DID_METHOD + ':' + commissionerAddress) : 'Unknown';
+            const supplier = supplierAddress
+                ? await getNameByDID(DID_METHOD + ':' + supplierAddress)
+                : 'Unknown';
+            const commissioner = commissionerAddress
+                ? await getNameByDID(DID_METHOD + ':' + commissionerAddress)
+                : 'Unknown';
             setActorNames([supplier, commissioner]);
         } catch (e: any) {
-            console.log("error: ", e);
-            openNotification("Error", e.message, NotificationType.ERROR);
+            console.log('error: ', e);
+            openNotification('Error', e.message, NotificationType.ERROR);
         }
-    }
+    };
 
     useEffect(() => {
         if (!dataLoaded) {
@@ -106,9 +134,14 @@ export default function useTradeShared() {
                 name: 'product-category-id-1',
                 label: 'Product Category',
                 required: false,
-                options: productCategories.map((productCategory) => ({label: productCategory.name, value: productCategory.id})),
-                defaultValue: productCategories.find(pc => pc.id === location?.state?.productCategoryId)?.id || -1,
-                disabled: true,
+                options: productCategories.map((productCategory) => ({
+                    label: productCategory.name,
+                    value: productCategory.id
+                })),
+                defaultValue:
+                    productCategories.find((pc) => pc.id === location?.state?.productCategoryId)
+                        ?.id || -1,
+                disabled: true
             },
             {
                 type: FormElementType.INPUT,
@@ -118,7 +151,7 @@ export default function useTradeShared() {
                 required: true,
                 regex: regex.ONLY_DIGITS,
                 defaultValue: '',
-                disabled: false,
+                disabled: false
             },
             {
                 type: FormElementType.SELECT,
@@ -126,11 +159,12 @@ export default function useTradeShared() {
                 name: `unit-1`,
                 label: 'Unit',
                 required: true,
-                options: units.map((unit) => ({label: unit, value: unit})),
+                options: units.map((unit) => ({ label: unit, value: unit })),
                 defaultValue: '',
-                disabled: false,
+                disabled: false
             },
-            {type: FormElementType.SPACE, span: 6},];
+            { type: FormElementType.SPACE, span: 6 }
+        ];
         const orderLine: FormElement[] = [
             {
                 type: FormElementType.SELECT,
@@ -138,9 +172,14 @@ export default function useTradeShared() {
                 name: 'product-category-id-1',
                 label: 'Product Category',
                 required: false,
-                options: productCategories.map((productCategory) => ({label: productCategory.name, value: productCategory.id})),
-                defaultValue: productCategories.find(pc => pc.id === location?.state?.productCategoryId)?.id || -1,
-                disabled: true,
+                options: productCategories.map((productCategory) => ({
+                    label: productCategory.name,
+                    value: productCategory.id
+                })),
+                defaultValue:
+                    productCategories.find((pc) => pc.id === location?.state?.productCategoryId)
+                        ?.id || -1,
+                disabled: true
             },
             {
                 type: FormElementType.INPUT,
@@ -150,7 +189,7 @@ export default function useTradeShared() {
                 required: true,
                 regex: regex.ONLY_DIGITS,
                 defaultValue: '',
-                disabled: false,
+                disabled: false
             },
             {
                 type: FormElementType.SELECT,
@@ -158,9 +197,9 @@ export default function useTradeShared() {
                 name: `unit-1`,
                 label: 'Unit',
                 required: true,
-                options: units.map((unit) => ({label: unit, value: unit})),
+                options: units.map((unit) => ({ label: unit, value: unit })),
                 defaultValue: '',
-                disabled: false,
+                disabled: false
             },
             {
                 type: FormElementType.INPUT,
@@ -170,7 +209,7 @@ export default function useTradeShared() {
                 required: true,
                 defaultValue: '',
                 regex: regex.ONLY_DIGITS,
-                disabled: false,
+                disabled: false
             },
             {
                 type: FormElementType.SELECT,
@@ -178,19 +217,21 @@ export default function useTradeShared() {
                 name: `fiat-1`,
                 label: 'Fiat',
                 required: true,
-                options: fiats.map((fiat) => ({label: fiat, value: fiat})),
+                options: fiats.map((fiat) => ({ label: fiat, value: fiat })),
                 defaultValue: '',
-                disabled: false,
-            }];
+                disabled: false
+            }
+        ];
         const commonElements: FormElement[] = [
-            {type: FormElementType.TITLE, span: 24, label: 'Actors'}, {
+            { type: FormElementType.TITLE, span: 24, label: 'Actors' },
+            {
                 type: FormElementType.INPUT,
                 span: 8,
                 name: 'supplier',
                 label: 'Supplier',
                 required: true,
                 defaultValue: actorNames[0],
-                disabled: true,
+                disabled: true
             },
             {
                 type: FormElementType.INPUT,
@@ -199,7 +240,7 @@ export default function useTradeShared() {
                 label: 'Customer',
                 required: true,
                 defaultValue: actorNames[1],
-                disabled: true,
+                disabled: true
             },
             {
                 type: FormElementType.INPUT,
@@ -208,13 +249,13 @@ export default function useTradeShared() {
                 label: 'Commissioner',
                 required: true,
                 defaultValue: actorNames[1],
-                disabled: true,
-            },
+                disabled: true
+            }
         ];
         if (type === TradeType.BASIC) {
             setElements([
                 ...commonElements,
-                {type: FormElementType.TITLE, span: 24, label: 'Data'},
+                { type: FormElementType.TITLE, span: 24, label: 'Data' },
                 {
                     type: FormElementType.INPUT,
                     span: 12,
@@ -224,7 +265,7 @@ export default function useTradeShared() {
                     label: 'Name',
                     required: true,
                     defaultValue: '',
-                    disabled: false,
+                    disabled: false
                 },
                 {
                     type: FormElementType.DOCUMENT,
@@ -234,15 +275,15 @@ export default function useTradeShared() {
                     required: true,
                     loading: false,
                     uploadable: true,
-                    height: documentHeight,
+                    height: documentHeight
                 },
-                {type: FormElementType.TITLE, span: 24, label: 'Line Item'},
-                ...basicLine,
+                { type: FormElementType.TITLE, span: 24, label: 'Line Item' },
+                ...basicLine
             ]);
         } else {
             setElements([
                 ...commonElements,
-                {type: FormElementType.TITLE, span: 24, label: 'Constraints'},
+                { type: FormElementType.TITLE, span: 24, label: 'Constraints' },
                 {
                     type: FormElementType.INPUT,
                     span: 12,
@@ -250,7 +291,7 @@ export default function useTradeShared() {
                     label: 'Incoterms',
                     required: true,
                     defaultValue: '',
-                    disabled: false,
+                    disabled: false
                 },
                 {
                     type: FormElementType.INPUT,
@@ -270,7 +311,7 @@ export default function useTradeShared() {
                     required: true,
                     defaultValue: '',
                     disabled: false,
-                    dependencies: ['document-delivery-deadline'],
+                    dependencies: ['document-delivery-deadline']
                 },
                 {
                     type: FormElementType.DATE,
@@ -281,7 +322,12 @@ export default function useTradeShared() {
                     defaultValue: '',
                     disabled: false,
                     dependencies: ['payment-deadline'],
-                    validationCallback: validateDates('document-delivery-deadline', 'payment-deadline', 'greater', 'This must be after Payment Deadline')
+                    validationCallback: validateDates(
+                        'document-delivery-deadline',
+                        'payment-deadline',
+                        'greater',
+                        'This must be after Payment Deadline'
+                    )
                 },
                 {
                     type: FormElementType.INPUT,
@@ -290,7 +336,7 @@ export default function useTradeShared() {
                     label: 'Shipper',
                     required: true,
                     defaultValue: '',
-                    disabled: false,
+                    disabled: false
                 },
                 {
                     type: FormElementType.INPUT,
@@ -299,7 +345,7 @@ export default function useTradeShared() {
                     label: 'Shipping Port',
                     required: true,
                     defaultValue: '',
-                    disabled: false,
+                    disabled: false
                 },
                 {
                     type: FormElementType.DATE,
@@ -310,7 +356,12 @@ export default function useTradeShared() {
                     defaultValue: '',
                     disabled: false,
                     dependencies: ['document-delivery-deadline'],
-                    validationCallback: validateDates('shipping-deadline', 'document-delivery-deadline', 'greater', 'This must be after Document Delivery Deadline')
+                    validationCallback: validateDates(
+                        'shipping-deadline',
+                        'document-delivery-deadline',
+                        'greater',
+                        'This must be after Document Delivery Deadline'
+                    )
                 },
                 {
                     type: FormElementType.INPUT,
@@ -319,7 +370,7 @@ export default function useTradeShared() {
                     label: 'Delivery Port',
                     required: true,
                     defaultValue: '',
-                    disabled: false,
+                    disabled: false
                 },
                 {
                     type: FormElementType.DATE,
@@ -330,7 +381,12 @@ export default function useTradeShared() {
                     defaultValue: '',
                     disabled: false,
                     dependencies: ['shipping-deadline'],
-                    validationCallback: validateDates('delivery-deadline', 'shipping-deadline', 'greater', 'This must be after Shipping Deadline')
+                    validationCallback: validateDates(
+                        'delivery-deadline',
+                        'shipping-deadline',
+                        'greater',
+                        'This must be after Shipping Deadline'
+                    )
                 },
                 {
                     type: FormElementType.INPUT,
@@ -340,7 +396,7 @@ export default function useTradeShared() {
                     required: true,
                     regex: regex.ONLY_DIGITS,
                     defaultValue: '',
-                    disabled: false,
+                    disabled: false
                 },
                 {
                     type: FormElementType.INPUT,
@@ -350,11 +406,11 @@ export default function useTradeShared() {
                     required: true,
                     regex: regex.ETHEREUM_ADDRESS,
                     defaultValue: '',
-                    disabled: false,
+                    disabled: false
                 },
-                {type: FormElementType.TITLE, span: 24, label: 'Line Item'},
-                ...orderLine,
-            ])
+                { type: FormElementType.TITLE, span: 24, label: 'Line Item' },
+                ...orderLine
+            ]);
         }
     }, [type, productCategories, actorNames, dataLoaded]);
 
@@ -368,6 +424,6 @@ export default function useTradeShared() {
         elements,
         updateType,
         units,
-        fiats,
-    }
+        fiats
+    };
 }

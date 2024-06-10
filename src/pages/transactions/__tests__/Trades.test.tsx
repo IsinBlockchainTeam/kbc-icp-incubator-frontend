@@ -1,50 +1,59 @@
-import {TradePreviewPresentable} from "../../../api/types/TradePresentable";
-import {BrowserRouter, useNavigate} from "react-router-dom";
-import Trades from "../Trades";
-import {render, screen, waitFor} from "@testing-library/react";
-import {EthTradeService} from "../../../api/services/EthTradeService";
-import {TradeType} from "../coffee-trading-management-lib/src/index";
-import {BlockchainTradeStrategy} from "../../../../api/strategies/trade/BlockchainTradeStrategy";
-import userEvent from "@testing-library/user-event";
-import {paths} from "../../../constants";
+import { TradePreviewPresentable } from '../../../api/types/TradePresentable';
+import { BrowserRouter, useNavigate } from 'react-router-dom';
+import Trades from '../Trades';
+import { render, screen, waitFor } from '@testing-library/react';
+import { EthTradeService } from '../../../api/services/EthTradeService';
+import { TradeType } from '../coffee-trading-management-lib/src/index';
+import { BlockchainTradeStrategy } from '../../../../api/strategies/trade/BlockchainTradeStrategy';
+import userEvent from '@testing-library/user-event';
+import { paths } from '../../../constants';
 
 jest.mock('../../../../components/structure/CardPage/CardPage', () => ({
-    CardPage: ({title, children}: any) =>
+    CardPage: ({ title, children }: any) => (
         <div data-testid="card-page">
             <div data-testid="title">{title}</div>
             <div data-testid="body">{children}</div>
-        </div>,
+        </div>
+    )
 }));
 
 jest.mock('antd', () => ({
     ...jest.requireActual('antd'),
-    Button: ({children, ...props}: any) => <div {...props} data-testid="button">{children}</div>,
+    Button: ({ children, ...props }: any) => (
+        <div {...props} data-testid="button">
+            {children}
+        </div>
+    )
 }));
 
 jest.mock('@ant-design/icons', () => ({
     ...jest.requireActual('@ant-design/icons'),
-    PlusOutlined: ({children, ...props}: any) => <div {...props} data-testid="plus-outlined">{children}</div>,
+    PlusOutlined: ({ children, ...props }: any) => (
+        <div {...props} data-testid="plus-outlined">
+            {children}
+        </div>
+    )
 }));
 
 jest.mock('../../../../utils/notification', () => ({
     ...jest.requireActual('../../../../utils/notification'),
-    openNotification: jest.fn(),
+    openNotification: jest.fn()
 }));
 
 jest.mock('../../../../utils/utils', () => ({
     ...jest.requireActual('../../../../utils/utils'),
-    checkAndGetEnvironmentVariable: jest.fn(),
+    checkAndGetEnvironmentVariable: jest.fn()
 }));
 
 jest.mock('../../../../api/services/EthTradeService');
 
 jest.mock('../../../../api/strategies/trade/BlockchainTradeStrategy', () => ({
-    BlockchainTradeStrategy: jest.fn(),
+    BlockchainTradeStrategy: jest.fn()
 }));
 
 jest.mock('react-router-dom', () => ({
     ...jest.requireActual('react-router-dom'),
-    useNavigate: jest.fn(),
+    useNavigate: jest.fn()
 }));
 
 describe('Trades', () => {
@@ -53,13 +62,20 @@ describe('Trades', () => {
     let mockTrades: TradePreviewPresentable[];
 
     beforeAll(() => {
-        jest.spyOn(console, 'error').mockImplementation(jest.fn())
-        jest.spyOn(console, 'log').mockImplementation(jest.fn())
+        jest.spyOn(console, 'error').mockImplementation(jest.fn());
+        jest.spyOn(console, 'log').mockImplementation(jest.fn());
     });
 
     beforeEach(() => {
         (useNavigate as jest.Mock).mockReturnValue(navigate);
-        mockTrades = [new TradePreviewPresentable(1, [], 'supplier1', TradeType.BASIC).setCustomer('customer1'), new TradePreviewPresentable(2, [], 'supplier2', TradeType.ORDER).setCustomer('customer2')];
+        mockTrades = [
+            new TradePreviewPresentable(1, [], 'supplier1', TradeType.BASIC).setCustomer(
+                'customer1'
+            ),
+            new TradePreviewPresentable(2, [], 'supplier2', TradeType.ORDER).setCustomer(
+                'customer2'
+            )
+        ];
     });
 
     afterEach(() => jest.clearAllMocks());
@@ -67,17 +83,17 @@ describe('Trades', () => {
     const _renderTrades = () => {
         mockGetGeneralTrades.mockReturnValue(mockTrades);
         (EthTradeService as jest.Mock).mockImplementation(() => ({
-            getGeneralTrades: mockGetGeneralTrades,
+            getGeneralTrades: mockGetGeneralTrades
         }));
         return render(
             <BrowserRouter>
-                <Trades/>
+                <Trades />
             </BrowserRouter>
         );
-    }
+    };
 
     it('should render correctly', () => {
-        const tree = render(<Trades/>);
+        const tree = render(<Trades />);
 
         const card = tree.getByTestId('card-page');
         expect(card).toBeInTheDocument();
@@ -114,7 +130,7 @@ describe('Trades', () => {
         });
     });
 
-    it('should call navigate function when clicking on \'New Trade\' button', async () => {
+    it("should call navigate function when clicking on 'New Trade' button", async () => {
         _renderTrades();
 
         userEvent.click(screen.getByTestId('button'));
@@ -157,7 +173,13 @@ describe('Trades', () => {
     });
 
     it('should work also with falsy customers', async () => {
-        mockTrades = [new TradePreviewPresentable(1, [], 'supplier1', TradeType.BASIC), new TradePreviewPresentable(2, [], 'supplier2', TradeType.ORDER).setCustomer('customer2'), new TradePreviewPresentable(3, [], 'supplier3', TradeType.BASIC)];
+        mockTrades = [
+            new TradePreviewPresentable(1, [], 'supplier1', TradeType.BASIC),
+            new TradePreviewPresentable(2, [], 'supplier2', TradeType.ORDER).setCustomer(
+                'customer2'
+            ),
+            new TradePreviewPresentable(3, [], 'supplier3', TradeType.BASIC)
+        ];
         _renderTrades();
 
         userEvent.click(screen.getByText('Customer'));

@@ -1,22 +1,22 @@
-import useTradeShared from "../tradeShared";
-import {TradeType} from "../coffee-trading-management-lib/src/index";
-import {useSelector} from "react-redux";
-import {renderHook, waitFor} from "@testing-library/react";
-import {ClickableElement} from "../../../../components/GenericForm/GenericForm";
+import useTradeShared from '../tradeShared';
+import { TradeType } from '../coffee-trading-management-lib/src/index';
+import { useSelector } from 'react-redux';
+import { renderHook, waitFor } from '@testing-library/react';
+import { ClickableElement } from '../../../../components/GenericForm/GenericForm';
 import * as uuid from 'uuid';
 
-jest.mock("../../../../../api/services/EthTradeService", () => ({
+jest.mock('../../../../../api/services/EthTradeService', () => ({
     TradeService: jest.fn()
 }));
-jest.mock("../../../../../api/strategies/trade/BlockchainTradeStrategy", () => ({
+jest.mock('../../../../../api/strategies/trade/BlockchainTradeStrategy', () => ({
     BlockchainTradeStrategy: jest.fn()
 }));
-jest.mock("react-redux", () => ({
-    ...jest.requireActual("react-redux"),
-    useSelector: jest.fn(),
+jest.mock('react-redux', () => ({
+    ...jest.requireActual('react-redux'),
+    useSelector: jest.fn()
 }));
 
-jest.mock("uuid");
+jest.mock('uuid');
 const uuidSpy = jest.spyOn(uuid, 'v4');
 
 const mockInitialState = {
@@ -34,10 +34,11 @@ describe('tradeShared', () => {
 
     beforeAll(() => {
         jest.spyOn(console, 'error').mockImplementation(jest.fn());
-
     });
     beforeEach(() => {
-        (useSelector as jest.Mock).mockImplementation((callback: any) => callback(mockInitialState));
+        (useSelector as jest.Mock).mockImplementation((callback: any) =>
+            callback(mockInitialState)
+        );
         mockId = 1;
         uuidSpy.mockReturnValue(`mocked-${mockId++}`);
     });
@@ -53,7 +54,9 @@ describe('tradeShared', () => {
     it('should add a new line', async () => {
         const { result } = renderHook(() => useTradeShared());
         const elementLength = result.current.elements.length;
-        const addLine = result.current.elements.find((element) => (element as ClickableElement).name === 'new-line');
+        const addLine = result.current.elements.find(
+            (element) => (element as ClickableElement).name === 'new-line'
+        );
         expect(addLine).toBeDefined();
         // @ts-ignore
         (addLine as ClickableElement)?.onClick();

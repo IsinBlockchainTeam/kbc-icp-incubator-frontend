@@ -3,9 +3,11 @@ import {
     TradeType,
     OrderStatus,
     DocumentType,
-    BasicTrade, OrderTrade, Trade
-} from "@kbc-lib/coffee-trading-management-lib";
-import {DocumentPresentable} from "@/api/types/DocumentPresentable";
+    BasicTrade,
+    OrderTrade,
+    Trade
+} from '@kbc-lib/coffee-trading-management-lib';
+import { DocumentPresentable } from '@/api/types/DocumentPresentable';
 
 export type TradePreviewPresentable = {
     id: number;
@@ -15,7 +17,7 @@ export type TradePreviewPresentable = {
     negotiationStatus?: NegotiationStatus;
     orderStatus?: OrderStatus;
     actionRequired?: string;
-}
+};
 
 export abstract class DetailedTradePresentable {
     private _documents: Map<DocumentType, DocumentPresentable>;
@@ -59,7 +61,11 @@ export class OrderTradePresentable extends DetailedTradePresentable {
 
     private _status: OrderStatus;
 
-    constructor(orderTrade: OrderTrade, status: OrderStatus, documents?: Map<DocumentType, DocumentPresentable>) {
+    constructor(
+        orderTrade: OrderTrade,
+        status: OrderStatus,
+        documents?: Map<DocumentType, DocumentPresentable>
+    ) {
         super(documents);
         this._orderTrade = orderTrade;
         this._status = status;

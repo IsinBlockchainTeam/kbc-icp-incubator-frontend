@@ -1,11 +1,11 @@
-import {ICP} from "@/constants/index";
-import {TradeType, URL_SEGMENTS} from "@kbc-lib/coffee-trading-management-lib";
-import React, {ReactNode} from "react";
+import { ICP } from '@/constants/index';
+import { TradeType, URL_SEGMENTS } from '@kbc-lib/coffee-trading-management-lib';
+import React, { ReactNode } from 'react';
 
 export const setParametersPath = (
-    path = "",
+    path = '',
     pathParams: { [key: string]: string },
-    queryParams?: { [key: string]: string | TradeType},
+    queryParams?: { [key: string]: string | TradeType }
 ) => {
     if (!pathParams || !path) return path;
     if (queryParams)
@@ -19,11 +19,15 @@ export const setParametersPath = (
 
 export const getFileExtension = (filename: string) => {
     const ext = /^.+\.([^.]+)$/.exec(filename);
-    return ext == null ? "" : ext[1];
+    return ext == null ? '' : ext[1];
 };
 
-export const checkAndGetEnvironmentVariable = (variable: string | undefined, errorMessage?: string): string => {
-    if (!variable) throw new Error(errorMessage ? errorMessage : `Environment variable is not defined`);
+export const checkAndGetEnvironmentVariable = (
+    variable: string | undefined,
+    errorMessage?: string
+): string => {
+    if (!variable)
+        throw new Error(errorMessage ? errorMessage : `Environment variable is not defined`);
     return variable;
 };
 
@@ -34,27 +38,29 @@ export const formatDid = (did: string): string => {
 };
 
 export const formatClaimName = (claim: string): string => {
-    return claim.split("/")[claim.split("/").length - 1];
+    return claim.split('/')[claim.split('/').length - 1];
 };
 
 export const formatAddress = (address: string): string => {
-    return address.length > 8 ? address.substring(0, 6) + "..." + address.substring(address.length - 4) : address;
-}
+    return address.length > 8
+        ? address.substring(0, 6) + '...' + address.substring(address.length - 4)
+        : address;
+};
 
 export const getMimeType = (filename: string): string => {
     const ext = getFileExtension(filename);
     switch (ext) {
-        case "pdf":
-            return "application/pdf";
-        case "png":
-            return "image/png";
-        case "jpg":
-        case "jpeg":
-            return "image/jpeg";
+        case 'pdf':
+            return 'application/pdf';
+        case 'png':
+            return 'image/png';
+        case 'jpg':
+        case 'jpeg':
+            return 'image/jpeg';
         default:
-            return "";
+            return '';
     }
-}
+};
 
 export const createDownloadWindow = (file: Blob, fileName: string) => {
     const url = window.URL.createObjectURL(file);
@@ -63,21 +69,24 @@ export const createDownloadWindow = (file: Blob, fileName: string) => {
     link.setAttribute('download', fileName);
     document.body.appendChild(link);
     link.click();
-}
-
+};
 
 export const getICPCanisterURL = (canisterId: string): string => {
-    return checkAndGetEnvironmentVariable(ICP.DFX_NETWORK) === "local" ?
-        URL_SEGMENTS.HTTP + canisterId + '.' + URL_SEGMENTS.LOCAL_REPLICA :
-        URL_SEGMENTS.HTTP + canisterId + '.' + URL_SEGMENTS.MAINNET;
-}
+    return checkAndGetEnvironmentVariable(ICP.DFX_NETWORK) === 'local'
+        ? URL_SEGMENTS.HTTP + canisterId + '.' + URL_SEGMENTS.LOCAL_REPLICA
+        : URL_SEGMENTS.HTTP + canisterId + '.' + URL_SEGMENTS.MAINNET;
+};
 
 export const showTextWithHtmlLinebreaks = (text: string): ReactNode => {
     return (
         <>
             {text.split('\n').map((str, index) => (
-                <React.Fragment key={index}> {str}<br/> </React.Fragment>
+                <React.Fragment key={index}>
+                    {' '}
+                    {str}
+                    <br />{' '}
+                </React.Fragment>
             ))}
         </>
     );
-}
+};

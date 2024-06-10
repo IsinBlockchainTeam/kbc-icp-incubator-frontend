@@ -1,11 +1,11 @@
-import {UseBlockchainLibraryUtils} from "../../../hooks/useBlockchainLibraryUtils";
-import {BlockchainMaterialStrategy} from "../../strategies/material/BlockchainMaterialStrategy";
-import {getWalletAddress} from "../../../../utils/storage";
-import {Material, ProductCategory} from "../coffee-trading-management-lib/src/index";
-import {MaterialPresentable} from "../../types/MaterialPresentable";
+import { UseBlockchainLibraryUtils } from '../../../hooks/useBlockchainLibraryUtils';
+import { BlockchainMaterialStrategy } from '../../strategies/material/BlockchainMaterialStrategy';
+import { getWalletAddress } from '../../../../utils/storage';
+import { Material, ProductCategory } from '../coffee-trading-management-lib/src/index';
+import { MaterialPresentable } from '../../types/MaterialPresentable';
 
-jest.mock("../../../../utils/storage");
-jest.mock("../../../BlockchainLibraryUtils");
+jest.mock('../../../../utils/storage');
+jest.mock('../../../BlockchainLibraryUtils');
 
 describe('BlockchainMaterialStrategy', () => {
     const mockedRegisterProductCategory = jest.fn();
@@ -18,11 +18,11 @@ describe('BlockchainMaterialStrategy', () => {
     beforeAll(() => {
         (getWalletAddress as jest.Mock).mockReturnValue(walletAddress);
         UseBlockchainLibraryUtils.getProductCategoryService = jest.fn().mockReturnValue({
-            registerProductCategory: mockedRegisterProductCategory,
+            registerProductCategory: mockedRegisterProductCategory
         });
         UseBlockchainLibraryUtils.getMaterialService = jest.fn().mockReturnValue({
             registerMaterial: mockedRegisterMaterial,
-            getMaterialsOfCreator: mockedGetMaterialsOfCreator,
+            getMaterialsOfCreator: mockedGetMaterialsOfCreator
         });
         blockchainMaterialStrategy = new BlockchainMaterialStrategy();
     });
@@ -46,13 +46,13 @@ describe('BlockchainMaterialStrategy', () => {
     it('should get materials', async () => {
         mockedGetMaterialsOfCreator.mockReturnValueOnce([
             new Material(1, new ProductCategory(1, 'name', 1, 'description')),
-            new Material(2, new ProductCategory(2, 'name2', 2, 'description2')),
+            new Material(2, new ProductCategory(2, 'name2', 2, 'description2'))
         ]);
         const result = await blockchainMaterialStrategy.getMaterials();
 
         expect(result).toEqual([
             new MaterialPresentable(1, 'name'),
-            new MaterialPresentable(2, 'name2'),
+            new MaterialPresentable(2, 'name2')
         ]);
         expect(mockedGetMaterialsOfCreator).toHaveBeenCalledTimes(1);
         expect(mockedGetMaterialsOfCreator).toHaveBeenNthCalledWith(1, walletAddress);

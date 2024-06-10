@@ -1,19 +1,23 @@
 import React from 'react';
-import {InboxOutlined, RollbackOutlined} from '@ant-design/icons';
-import {Button, Upload, UploadProps} from 'antd';
-import {NotificationType, openNotification} from "@/utils/notification";
+import { InboxOutlined, RollbackOutlined } from '@ant-design/icons';
+import { Button, Upload, UploadProps } from 'antd';
+import { NotificationType, openNotification } from '@/utils/notification';
 
-const {Dragger} = Upload;
+const { Dragger } = Upload;
 
 export interface PDFUploaderProps {
     onFileUpload: (file: Blob) => void;
     onRevert: () => void;
 }
 
-export default function PDFUploader({onFileUpload, onRevert}: PDFUploaderProps) {
-    const dummyRequest = ({ onSuccess }: {onSuccess?: (body: any, xhr?: XMLHttpRequest) => void }) => {
+export default function PDFUploader({ onFileUpload, onRevert }: PDFUploaderProps) {
+    const dummyRequest = ({
+        onSuccess
+    }: {
+        onSuccess?: (body: any, xhr?: XMLHttpRequest) => void;
+    }) => {
         setTimeout(() => {
-            onSuccess!("ok");
+            onSuccess!('ok');
         }, 0);
     };
 
@@ -32,13 +36,17 @@ export default function PDFUploader({onFileUpload, onRevert}: PDFUploaderProps) 
             return true;
         },
         onChange(info) {
-            const {status, name} = info.file;
+            const { status, name } = info.file;
             if (status === 'done') {
-                openNotification('File uploaded', `${name} file has been uploaded successfully`, NotificationType.SUCCESS);
+                openNotification(
+                    'File uploaded',
+                    `${name} file has been uploaded successfully`,
+                    NotificationType.SUCCESS
+                );
             } else if (status === 'error') {
                 openNotification('Error', `${name} file upload failed`, NotificationType.ERROR);
             }
-        },
+        }
     };
 
     return (
@@ -52,11 +60,14 @@ export default function PDFUploader({onFileUpload, onRevert}: PDFUploaderProps) 
                 </Dragger>
             </div>
             <div style={{ width: '20%' }}>
-                <Button type={"dashed"} style={{ width: '100%', height: '100%', fontSize: '20px' }} icon={<RollbackOutlined/>} onClick={onRevert}>
+                <Button
+                    type={'dashed'}
+                    style={{ width: '100%', height: '100%', fontSize: '20px' }}
+                    icon={<RollbackOutlined />}
+                    onClick={onRevert}>
                     Revert
                 </Button>
             </div>
         </div>
     );
-
 }

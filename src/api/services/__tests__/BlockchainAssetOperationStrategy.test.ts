@@ -1,12 +1,16 @@
-import {BlockchainAssetOperationStrategy} from "../../strategies/asset_operation/BlockchainAssetOperationStrategy";
-import {getWalletAddress} from "../../../../utils/storage";
-import {UseBlockchainLibraryUtils} from "../../../hooks/useBlockchainLibraryUtils";
-import {AssetOperationPresentable} from "../../types/AssetOperationPresentable";
-import {MaterialPresentable} from "../../types/MaterialPresentable";
-import {AssetOperation, Material, ProductCategory} from "../coffee-trading-management-lib/src/index";
+import { BlockchainAssetOperationStrategy } from '../../strategies/asset_operation/BlockchainAssetOperationStrategy';
+import { getWalletAddress } from '../../../../utils/storage';
+import { UseBlockchainLibraryUtils } from '../../../hooks/useBlockchainLibraryUtils';
+import { AssetOperationPresentable } from '../../types/AssetOperationPresentable';
+import { MaterialPresentable } from '../../types/MaterialPresentable';
+import {
+    AssetOperation,
+    Material,
+    ProductCategory
+} from '../coffee-trading-management-lib/src/index';
 
-jest.mock("../../../../utils/storage");
-jest.mock("../../../BlockchainLibraryUtils");
+jest.mock('../../../../utils/storage');
+jest.mock('../../../BlockchainLibraryUtils');
 
 describe('BlockchainAssetOperationStrategy', () => {
     const mockedRegisterAssetOperation = jest.fn();
@@ -20,10 +24,16 @@ describe('BlockchainAssetOperationStrategy', () => {
         .setOutputMaterial(new MaterialPresentable(2, 'output material'))
         .setLatitude('123')
         .setLongitude('456');
-    const assetOperations = [new AssetOperation(1, 'first asset operation', [
-        new Material(1, new ProductCategory(1, 'input material', 1, 'description'))],
-        new Material(2, new ProductCategory(2, 'output material', 2, 'description')),
-        '123', '456', ['process type 1'])
+    const assetOperations = [
+        new AssetOperation(
+            1,
+            'first asset operation',
+            [new Material(1, new ProductCategory(1, 'input material', 1, 'description'))],
+            new Material(2, new ProductCategory(2, 'output material', 2, 'description')),
+            '123',
+            '456',
+            ['process type 1']
+        )
     ];
 
     const walletAddress = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
@@ -34,10 +44,10 @@ describe('BlockchainAssetOperationStrategy', () => {
         UseBlockchainLibraryUtils.getAssetOperationService = jest.fn().mockReturnValue({
             registerAssetOperation: mockedRegisterAssetOperation,
             getAssetOperationsOfCreator: mockedGetAssetOperationsOfCreator,
-            getAssetOperation: mockedGetAssetOperation,
+            getAssetOperation: mockedGetAssetOperation
         });
         UseBlockchainLibraryUtils.getMaterialService = jest.fn().mockReturnValue({
-            getMaterial: mockedGetMaterial,
+            getMaterial: mockedGetMaterial
         });
         blockchainAssetOperationStrategy = new BlockchainAssetOperationStrategy();
     });
@@ -48,7 +58,14 @@ describe('BlockchainAssetOperationStrategy', () => {
         await blockchainAssetOperationStrategy.saveAssetOperation(newAssetOperation);
 
         expect(mockedRegisterAssetOperation).toHaveBeenCalledTimes(1);
-        expect(mockedRegisterAssetOperation).toHaveBeenNthCalledWith(1, newAssetOperation.name, [newAssetOperation.inputMaterials[0].id], newAssetOperation.outputMaterial.id, newAssetOperation.latitude, newAssetOperation.longitude);
+        expect(mockedRegisterAssetOperation).toHaveBeenNthCalledWith(
+            1,
+            newAssetOperation.name,
+            [newAssetOperation.inputMaterials[0].id],
+            newAssetOperation.outputMaterial.id,
+            newAssetOperation.latitude,
+            newAssetOperation.longitude
+        );
     });
 
     it('should get raw asset operations', async () => {
@@ -68,7 +85,11 @@ describe('BlockchainAssetOperationStrategy', () => {
 
         const result = await blockchainAssetOperationStrategy.getAssetOperations();
 
-        expect(result).toEqual(assetOperations.map(a => new AssetOperationPresentable(a.id, a.name).setOutputMaterial(material)));
+        expect(result).toEqual(
+            assetOperations.map((a) =>
+                new AssetOperationPresentable(a.id, a.name).setOutputMaterial(material)
+            )
+        );
         expect(mockedGetAssetOperationsOfCreator).toHaveBeenCalledTimes(1);
         expect(mockedGetAssetOperationsOfCreator).toHaveBeenNthCalledWith(1, walletAddress);
         expect(mockedGetMaterial).toHaveBeenCalledTimes(1);
@@ -79,8 +100,11 @@ describe('BlockchainAssetOperationStrategy', () => {
         mockedGetAssetOperation.mockReturnValueOnce(assetOperations[0]);
         mockedGetMaterial.mockReturnValueOnce(assetOperations[0].outputMaterial);
         const inputMaterial: MaterialPresentable = new MaterialPresentable(1, 'input material');
-        const outputMaterial: MaterialPresentable= new MaterialPresentable(2, 'output material');
-        const assetOperation: AssetOperationPresentable = new AssetOperationPresentable(1, 'first asset operation')
+        const outputMaterial: MaterialPresentable = new MaterialPresentable(2, 'output material');
+        const assetOperation: AssetOperationPresentable = new AssetOperationPresentable(
+            1,
+            'first asset operation'
+        )
             .setInputMaterials([inputMaterial])
             .setOutputMaterial(outputMaterial);
 

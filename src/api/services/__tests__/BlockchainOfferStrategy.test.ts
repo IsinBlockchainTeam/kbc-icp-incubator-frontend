@@ -1,11 +1,11 @@
-import {UseBlockchainLibraryUtils} from "../../../hooks/useBlockchainLibraryUtils";
-import {getWalletAddress} from "../../../../utils/storage";
-import {BlockchainOfferStrategy} from "../../strategies/offer/BlockchainOfferStrategy";
-import {OfferPresentable} from "../../types/OfferPresentable";
-import {Offer, ProductCategory} from "../coffee-trading-management-lib/src/index";
+import { UseBlockchainLibraryUtils } from '../../../hooks/useBlockchainLibraryUtils';
+import { getWalletAddress } from '../../../../utils/storage';
+import { BlockchainOfferStrategy } from '../../strategies/offer/BlockchainOfferStrategy';
+import { OfferPresentable } from '../../types/OfferPresentable';
+import { Offer, ProductCategory } from '../coffee-trading-management-lib/src/index';
 
-jest.mock("../../../../utils/storage");
-jest.mock("../../../BlockchainLibraryUtils");
+jest.mock('../../../../utils/storage');
+jest.mock('../../../BlockchainLibraryUtils');
 
 describe('BlockchainOfferStrategy', () => {
     const mockedRegisterSupplier = jest.fn();
@@ -20,7 +20,7 @@ describe('BlockchainOfferStrategy', () => {
         UseBlockchainLibraryUtils.getOfferService = jest.fn().mockReturnValue({
             registerSupplier: mockedRegisterSupplier,
             registerOffer: mockedRegisterOffer,
-            getAllOffers: mockedGetAllOffers,
+            getAllOffers: mockedGetAllOffers
         });
         blockchainOfferStrategy = new BlockchainOfferStrategy();
     });
@@ -44,13 +44,13 @@ describe('BlockchainOfferStrategy', () => {
     it('should get all offers', async () => {
         mockedGetAllOffers.mockReturnValueOnce([
             new Offer(1, 'owner', new ProductCategory(1, 'name', 1, 'description')),
-            new Offer(2, 'owner2', new ProductCategory(2, 'name2', 2, 'description2')),
+            new Offer(2, 'owner2', new ProductCategory(2, 'name2', 2, 'description2'))
         ]);
         const result = await blockchainOfferStrategy.getAllOffers();
 
         expect(result).toEqual([
             new OfferPresentable(1, 'owner', 'name'),
-            new OfferPresentable(2, 'owner2', 'name2'),
+            new OfferPresentable(2, 'owner2', 'name2')
         ]);
         expect(mockedGetAllOffers).toHaveBeenCalledTimes(1);
         expect(mockedGetAllOffers).toHaveBeenNthCalledWith(1);

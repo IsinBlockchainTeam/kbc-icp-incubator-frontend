@@ -4,38 +4,38 @@ import {
     LineRequest,
     OrderLineRequest,
     OrderLinePrice
-} from "@kbc-lib/coffee-trading-management-lib";
-import {NotificationType, openNotification} from "@/utils/notification";
-import dayjs from "dayjs";
-import useTradeShared from "./tradeShared";
-import {MenuProps} from "antd";
-import {useDispatch} from "react-redux";
-import {hideLoading, showLoading} from "@/redux/reducers/loadingSlice";
-import {useLocation, useNavigate} from "react-router-dom";
-import {paths} from "@/constants/index";
-import {BasicTradeRequest, OrderTradeRequest} from "@/api/types/TradeRequest";
-import {DocumentRequest} from "@/api/types/DocumentRequest";
-import {useContext} from "react";
-import {SignerContext} from "@/providers/SignerProvider";
+} from '@kbc-lib/coffee-trading-management-lib';
+import { NotificationType, openNotification } from '@/utils/notification';
+import dayjs from 'dayjs';
+import useTradeShared from './tradeShared';
+import { MenuProps } from 'antd';
+import { useDispatch } from 'react-redux';
+import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { paths } from '@/constants/index';
+import { BasicTradeRequest, OrderTradeRequest } from '@/api/types/TradeRequest';
+import { DocumentRequest } from '@/api/types/DocumentRequest';
+import { useContext } from 'react';
+import { SignerContext } from '@/providers/SignerProvider';
 
 export default function useTradeNew() {
-    const {signer} = useContext(SignerContext);
+    const { signer } = useContext(SignerContext);
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const location = useLocation();
     const { type, updateType, ethTradeService, elements } = useTradeShared();
 
     const items: MenuProps['items'] = [
-        {label: 'BASIC', key: '0'},
-        {label: 'ORDER', key: '1'},
+        { label: 'BASIC', key: '0' },
+        { label: 'ORDER', key: '1' }
     ];
 
     const menuProps = {
         items,
-        onClick: ({key}: any) => {
+        onClick: ({ key }: any) => {
             updateType(parseInt(key) as TradeType);
-        },
-    }
+        }
+    };
 
     const onSubmit = async (values: any) => {
         try {
@@ -44,7 +44,7 @@ export default function useTradeNew() {
             values['customer'] = signer?.address || 'Unknown';
             values['commissioner'] = signer?.address || 'Unknown';
             values['product-category-id-1'] = location?.state?.productCategoryId || '0';
-            dispatch(showLoading("Creating trade..."));
+            dispatch(showLoading('Creating trade...'));
             const supplier: string = values['supplier'];
             const customer: string = values['customer'];
             const commissioner: string = values['commissioner'];
@@ -60,11 +60,17 @@ export default function useTradeNew() {
 
                     if (type === TradeType.BASIC) {
                         tradeLines.push(new LineRequest(productCategoryId, quantity, unit));
-                    }
-                    else {
+                    } else {
                         const price: number = parseInt(values[`price-${id}`]);
                         const fiat: string = values[`fiat-${id}`];
-                        tradeLines.push(new OrderLineRequest(productCategoryId, quantity, unit, new OrderLinePrice(price, fiat)));
+                        tradeLines.push(
+                            new OrderLineRequest(
+                                productCategoryId,
+                                quantity,
+                                unit,
+                                new OrderLinePrice(price, fiat)
+                            )
+                        );
                     }
                 }
             }
@@ -74,15 +80,20 @@ export default function useTradeNew() {
                     customer,
                     commissioner,
                     lines: tradeLines as LineRequest[],
-                    name: values['name'],
+                    name: values['name']
                 };
                 const deliveryNote: DocumentRequest = {
                     content: values['certificate-of-shipping'],
                     filename: values['certificate-of-shipping'].name,
-                    documentType: DocumentType.DELIVERY_NOTE,
-                }
+                    documentType: DocumentType.DELIVERY_NOTE
+                };
                 await ethTradeService.saveBasicTrade(basicTrade, [deliveryNote]);
-                openNotification("Basic trade registered", `Basic trade "${values.name}" has been registered correctly!`, NotificationType.SUCCESS, 1);
+                openNotification(
+                    'Basic trade registered',
+                    `Basic trade "${values.name}" has been registered correctly!`,
+                    NotificationType.SUCCESS,
+                    1
+                );
             } else {
                 const orderTrade: OrderTradeRequest = {
                     supplier,
@@ -100,23 +111,28 @@ export default function useTradeNew() {
                     shipper: values['shipper'],
                     shippingPort: values['shipping-port'],
                     deliveryPort: values['delivery-port']
-                }
+                };
                 await ethTradeService.saveOrderTrade(orderTrade);
-                openNotification("Order trade registered", `Order trade has been registered correctly!`, NotificationType.SUCCESS, 1);
+                openNotification(
+                    'Order trade registered',
+                    `Order trade has been registered correctly!`,
+                    NotificationType.SUCCESS,
+                    1
+                );
             }
             navigate(paths.TRADES);
         } catch (e: any) {
-            console.log("error: ", e);
-            openNotification("Error", e.message, NotificationType.ERROR);
+            console.log('error: ', e);
+            openNotification('Error', e.message, NotificationType.ERROR);
         } finally {
             dispatch(hideLoading());
         }
-    }
+    };
 
     return {
         type,
         elements,
         menuProps,
         onSubmit
-    }
+    };
 }

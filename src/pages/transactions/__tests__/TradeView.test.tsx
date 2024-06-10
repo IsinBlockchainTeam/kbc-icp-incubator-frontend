@@ -1,40 +1,53 @@
-import {TradePreviewPresentable} from "../../../api/types/TradePresentable";
-import {OrderStatus, TradeType} from "../coffee-trading-management-lib/src/index";
-import {FormElement} from "../../../components/GenericForm/GenericForm";
-import {render, screen} from "@testing-library/react";
-import TradeView from "../TradeView";
+import { TradePreviewPresentable } from '../../../api/types/TradePresentable';
+import { OrderStatus, TradeType } from '../coffee-trading-management-lib/src/index';
+import { FormElement } from '../../../components/GenericForm/GenericForm';
+import { render, screen } from '@testing-library/react';
+import TradeView from '../TradeView';
 
 jest.mock('../../../../components/structure/CardPage/CardPage', () => ({
-    CardPage: ({title, children}: any) =>
+    CardPage: ({ title, children }: any) => (
         <div data-testid="card-page">
             <div data-testid="title">{title}</div>
             <div data-testid="body">{children}</div>
-        </div>,
+        </div>
+    )
 }));
 
 jest.mock('../../../../components/GenericForm/GenericForm', () => ({
-    GenericForm: ({elements, onSubmit}: any) => <div data-testid="generic-form">{elements}</div>,
+    GenericForm: ({ elements, onSubmit }: any) => <div data-testid="generic-form">{elements}</div>
 }));
 
 jest.mock('antd', () => ({
     ...jest.mock('antd'),
-    Spin: ({children, ...props}: any) => <div {...props} data-testid="spin">{children}</div>,
-    Tag: ({children, ...props}: any) => <div {...props} data-testid="tag">{children}</div>,
+    Spin: ({ children, ...props }: any) => (
+        <div {...props} data-testid="spin">
+            {children}
+        </div>
+    ),
+    Tag: ({ children, ...props }: any) => (
+        <div {...props} data-testid="tag">
+            {children}
+        </div>
+    )
 }));
 jest.mock('@ant-design/icons', () => ({
     ...jest.requireActual('@ant-design/icons'),
-    EditOutlined: ({children, ...props}: any) => <div {...props} data-testid="edit-outlined">{children}</div>,
+    EditOutlined: ({ children, ...props }: any) => (
+        <div {...props} data-testid="edit-outlined">
+            {children}
+        </div>
+    )
 }));
 
 jest.mock('../../../../utils/utils', () => ({
     ...jest.requireActual('../../../../utils/utils'),
     checkAndGetEnvironmentVariable: jest.fn(),
-    isValueInEnum: jest.fn(),
+    isValueInEnum: jest.fn()
 }));
 
 jest.mock('react-router-dom', () => ({
     ...jest.requireActual('react-router-dom'),
-    useNavigate: jest.fn(),
+    useNavigate: jest.fn()
 }));
 
 let mockType: TradeType = TradeType.BASIC;
@@ -55,22 +68,24 @@ jest.mock('../logic/tradeView', () => ({
         loadingDocuments,
         disabled,
         toggleDisabled: mockToggleDisabled,
-        onSubmit: mockOnSubmit,
-    }),
+        onSubmit: mockOnSubmit
+    })
 }));
 
 describe('TradeView', () => {
     beforeAll(() => jest.spyOn(console, 'error').mockImplementation(jest.fn()));
 
     beforeEach(() => {
-        mockTrade = new TradePreviewPresentable(1, [], 'supplier', mockType).setStatus(OrderStatus.ON_BOARD);
+        mockTrade = new TradePreviewPresentable(1, [], 'supplier', mockType).setStatus(
+            OrderStatus.ON_BOARD
+        );
         (isValueInEnum as jest.Mock).mockReturnValue(true);
     });
 
     afterEach(() => jest.clearAllMocks());
 
     it('should render correctly', () => {
-        const tree = render(<TradeView/>);
+        const tree = render(<TradeView />);
 
         const card = tree.getByTestId('card-page');
         expect(card).toBeInTheDocument();
@@ -87,7 +102,7 @@ describe('TradeView', () => {
 
     it('should render loading', () => {
         mockTrade = undefined;
-        const tree = render(<TradeView/>);
+        const tree = render(<TradeView />);
 
         expect(tree.getByTestId('spin')).toBeInTheDocument();
         expect(tree.queryByTestId('card-page')).not.toBeInTheDocument();
@@ -95,14 +110,14 @@ describe('TradeView', () => {
 
     it('should handle wrong type', () => {
         (isValueInEnum as jest.Mock).mockReturnValue(false);
-        const tree = render(<TradeView/>);
+        const tree = render(<TradeView />);
 
         expect(screen.getByText('Wrong type')).toBeInTheDocument();
         expect(tree.queryByTestId('card-page')).not.toBeInTheDocument();
     });
 
     it('should render status', () => {
-        const tree = render(<TradeView/>);
+        const tree = render(<TradeView />);
 
         expect(tree.getByTestId('tag')).toBeInTheDocument();
         expect(tree.getByTestId('tag')).toHaveTextContent('ON_BOARD');

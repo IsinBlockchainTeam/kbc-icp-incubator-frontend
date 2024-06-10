@@ -1,20 +1,21 @@
-import React from "react";
-import {utils} from "@/constants/index";
-import {DatePicker} from "antd";
-const {RangePicker} = DatePicker;
+import React from 'react';
+import { utils } from '@/constants/index';
+import { DatePicker } from 'antd';
+const { RangePicker } = DatePicker;
 
 type Props = {
-    style?: any,
-    defaultValue?: any,
-    value?: any
-}
+    style?: any;
+    defaultValue?: any;
+    value?: any;
+};
 export default (props: Props) => {
-    const {
-        style,
-        ...additionalProps
-    } = props;
+    const { style, ...additionalProps } = props;
 
     return (
-        <RangePicker style={{width: '100%', ...style}} {...additionalProps} format={utils.DATE_FORMAT} />
-    )
-}
+        <RangePicker
+            style={{ width: '100%', ...style }}
+            {...additionalProps}
+            format={utils.DATE_FORMAT}
+        />
+    );
+};

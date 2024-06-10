@@ -1,11 +1,11 @@
-import {formatDid} from "../utils";
+import { formatDid } from '../utils';
 
-jest.mock("../request");
+jest.mock('../request');
 
-describe("UNIT TEST: Utils Module", () => {
-    test("formatDid returns formatted DIDs correctly", () => {
-        expect(formatDid("did:test:1234567890")).toBe("did:test:12...7890");
-        expect(formatDid("did:test:12345678901234567890")).toBe("did:test:12...7890");
-        expect(formatDid("did:test:123")).toBe("did:test:123");
-    })
-})
+describe('UNIT TEST: Utils Module', () => {
+    test('formatDid returns formatted DIDs correctly', () => {
+        expect(formatDid('did:test:1234567890')).toBe('did:test:12...7890');
+        expect(formatDid('did:test:12345678901234567890')).toBe('did:test:12...7890');
+        expect(formatDid('did:test:123')).toBe('did:test:123');
+    });
+});

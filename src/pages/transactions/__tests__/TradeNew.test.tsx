@@ -1,17 +1,17 @@
-import {TradeType} from "../coffee-trading-management-lib/src/index";
-import {FormElement} from "../../../components/GenericForm/GenericForm";
-import {TradeNew} from "../TradeNew";
-import {fireEvent, render} from "@testing-library/react";
-import {useNavigate} from "react-router-dom";
-import {paths} from "../../../constants";
+import { TradeType } from '../coffee-trading-management-lib/src/index';
+import { FormElement } from '../../../components/GenericForm/GenericForm';
+import { TradeNew } from '../TradeNew';
+import { fireEvent, render } from '@testing-library/react';
+import { useNavigate } from 'react-router-dom';
+import { paths } from '../../../constants';
 
 jest.mock('react-router-dom', () => ({
     ...jest.requireActual('react-router-dom'),
-    useNavigate: jest.fn(),
+    useNavigate: jest.fn()
 }));
 jest.mock('../../../../utils/utils', () => ({
     ...jest.requireActual('../../../../utils/utils'),
-    checkAndGetEnvironmentVariable: jest.fn(),
+    checkAndGetEnvironmentVariable: jest.fn()
 }));
 
 let mockType: TradeType = TradeType.BASIC;
@@ -26,45 +26,94 @@ jest.mock('../logic/tradeNew', () => ({
         elements: mockElements,
         menuProps: {
             items: [
-                {label: 'BASIC', key: '0'},
-                {label: 'ORDER', key: '1'}
+                { label: 'BASIC', key: '0' },
+                { label: 'ORDER', key: '1' }
             ],
-            onClick: jest.fn(),
+            onClick: jest.fn()
         },
-        onSubmit: mockOnSubmit,
-    }),
+        onSubmit: mockOnSubmit
+    })
 }));
 
 jest.mock('antd', () => ({
-    Button: ({children, ...props}: any) => <div {...props} data-testid="button" role="button">{children}</div>,
-    Divider: ({children, ...props}: any) => <div {...props} data-testid="divider">{children}</div>,
-    Dropdown: ({children, ...props}: any) => <div {...props} data-testid="dropdown">{children}</div>,
-    Steps: ({children, ...props}: any) => <div {...props} data-testid="steps">{children}</div>,
+    Button: ({ children, ...props }: any) => (
+        <div {...props} data-testid="button" role="button">
+            {children}
+        </div>
+    ),
+    Divider: ({ children, ...props }: any) => (
+        <div {...props} data-testid="divider">
+            {children}
+        </div>
+    ),
+    Dropdown: ({ children, ...props }: any) => (
+        <div {...props} data-testid="dropdown">
+            {children}
+        </div>
+    ),
+    Steps: ({ children, ...props }: any) => (
+        <div {...props} data-testid="steps">
+            {children}
+        </div>
+    ),
     Typography: {
-        Text: ({children, ...props}: any) => <div {...props} data-testid="text">{children}</div>,
-    },
+        Text: ({ children, ...props }: any) => (
+            <div {...props} data-testid="text">
+                {children}
+            </div>
+        )
+    }
 }));
 jest.mock('@ant-design/icons', () => ({
     ...jest.requireActual('@ant-design/icons'),
-    DeleteOutlined: ({children, ...props}: any) => <div {...props} data-testid="delete-outlined">{children}</div>,
-    DownOutlined: ({children, ...props}: any) => <div {...props} data-testid="down-outlined">{children}</div>,
-    EditOutlined: ({children, ...props}: any) => <div {...props} data-testid="edit-outlined">{children}</div>,
-    ImportOutlined: ({children, ...props}: any) => <div {...props} data-testid="import-outlined">{children}</div>,
-    ProductOutlined: ({children, ...props}: any) => <div {...props} data-testid="product-outlined">{children}</div>,
-    SendOutlined: ({children, ...props}: any) => <div {...props} data-testid="send-outlined">{children}</div>,
-    TruckOutlined: ({children, ...props}: any) => <div {...props} data-testid="truck-outlined">{children}</div>,
+    DeleteOutlined: ({ children, ...props }: any) => (
+        <div {...props} data-testid="delete-outlined">
+            {children}
+        </div>
+    ),
+    DownOutlined: ({ children, ...props }: any) => (
+        <div {...props} data-testid="down-outlined">
+            {children}
+        </div>
+    ),
+    EditOutlined: ({ children, ...props }: any) => (
+        <div {...props} data-testid="edit-outlined">
+            {children}
+        </div>
+    ),
+    ImportOutlined: ({ children, ...props }: any) => (
+        <div {...props} data-testid="import-outlined">
+            {children}
+        </div>
+    ),
+    ProductOutlined: ({ children, ...props }: any) => (
+        <div {...props} data-testid="product-outlined">
+            {children}
+        </div>
+    ),
+    SendOutlined: ({ children, ...props }: any) => (
+        <div {...props} data-testid="send-outlined">
+            {children}
+        </div>
+    ),
+    TruckOutlined: ({ children, ...props }: any) => (
+        <div {...props} data-testid="truck-outlined">
+            {children}
+        </div>
+    )
 }));
 
 jest.mock('../../../../components/GenericForm/GenericForm', () => ({
-    GenericForm: ({elements, onSubmit}: any) => <div data-testid="generic-form">{elements}</div>,
+    GenericForm: ({ elements, onSubmit }: any) => <div data-testid="generic-form">{elements}</div>
 }));
 
 jest.mock('../../../../components/structure/CardPage/CardPage', () => ({
-    CardPage: ({title, children}: any) =>
+    CardPage: ({ title, children }: any) => (
         <div data-testid="card-page">
             <div data-testid="title">{title}</div>
             <div data-testid="body">{children}</div>
-        </div>,
+        </div>
+    )
 }));
 
 describe('TradeNew', () => {
@@ -79,7 +128,7 @@ describe('TradeNew', () => {
     afterEach(() => jest.clearAllMocks());
 
     it('should render correctly', () => {
-        const tree = render(<TradeNew/>);
+        const tree = render(<TradeNew />);
 
         const card = tree.getByTestId('card-page');
         expect(card).toBeInTheDocument();
@@ -101,8 +150,8 @@ describe('TradeNew', () => {
     });
 
     it('should navigate to trades page when delete button is clicked', () => {
-        const tree = render(<TradeNew/>);
-        const button = tree.getByRole('button', {name: 'Delete Trade'});
+        const tree = render(<TradeNew />);
+        const button = tree.getByRole('button', { name: 'Delete Trade' });
         fireEvent.click(button);
         expect(mockNavigate).toHaveBeenCalledTimes(1);
         expect(mockNavigate).toHaveBeenCalledWith(paths.TRADES);
@@ -111,9 +160,9 @@ describe('TradeNew', () => {
     it('should render status steps when type is ORDER', () => {
         mockType = TradeType.ORDER;
         mockOrderState = 3;
-        const tree = render(<TradeNew/>);
+        const tree = render(<TradeNew />);
         const steps = tree.getByTestId('steps');
         expect(steps).toBeInTheDocument();
-        expect(steps).toHaveAttribute('current', mockOrderState.toString())
+        expect(steps).toHaveAttribute('current', mockOrderState.toString());
     });
 });

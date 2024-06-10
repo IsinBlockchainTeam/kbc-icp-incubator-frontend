@@ -1,4 +1,8 @@
-import {TransactionLine, DocumentType, DocumentStatus} from "@kbc-lib/coffee-trading-management-lib";
+import {
+    TransactionLine,
+    DocumentType,
+    DocumentStatus
+} from '@kbc-lib/coffee-trading-management-lib';
 
 export type DocumentInfoPresentable = {
     id: number;

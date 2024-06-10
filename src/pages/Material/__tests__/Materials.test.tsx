@@ -1,15 +1,15 @@
-import {render, screen, waitFor} from "@testing-library/react";
-import Materials from "../Materials";
-import {EthMaterialService} from "../../../api/services/EthMaterialService";
-import userEvent from "@testing-library/user-event";
-import {BlockchainMaterialStrategy} from "../../../api/strategies/material/BlockchainMaterialStrategy";
-import {MaterialPresentable} from "../../../api/types/MaterialPresentable";
-import {useNavigate} from "react-router-dom";
-import {paths} from "../../../constants";
+import { render, screen, waitFor } from '@testing-library/react';
+import Materials from '../Materials';
+import { EthMaterialService } from '../../../api/services/EthMaterialService';
+import userEvent from '@testing-library/user-event';
+import { BlockchainMaterialStrategy } from '../../../api/strategies/material/BlockchainMaterialStrategy';
+import { MaterialPresentable } from '../../../api/types/MaterialPresentable';
+import { useNavigate } from 'react-router-dom';
+import { paths } from '../../../constants';
 
 jest.mock('react-router-dom', () => ({
     ...jest.requireActual('react-router-dom'),
-    useNavigate: jest.fn(),
+    useNavigate: jest.fn()
 }));
 jest.mock('../../../api/services/EthMaterialService');
 jest.mock('../../../api/strategies/material/BlockchainMaterialStrategy');
@@ -25,20 +25,25 @@ describe('Materials', () => {
     });
 
     it('should render correctly', () => {
-        render(<Materials/>);
+        render(<Materials />);
 
         expect(screen.getByText('Materials')).toBeInTheDocument();
-        expect(screen.getByRole('button', {name: 'plus New Product Category'})).toBeInTheDocument();
-        expect(screen.getByRole('button', {name: 'plus New Material'})).toBeInTheDocument();
+        expect(
+            screen.getByRole('button', { name: 'plus New Product Category' })
+        ).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'plus New Material' })).toBeInTheDocument();
     });
 
     it('should fetch data', async () => {
-        const mockedMaterials = [new MaterialPresentable(1, 'Material 1'), new MaterialPresentable(2, 'Material 2')];
+        const mockedMaterials = [
+            new MaterialPresentable(1, 'Material 1'),
+            new MaterialPresentable(2, 'Material 2')
+        ];
         const mockedGetMaterials = jest.fn().mockResolvedValueOnce(mockedMaterials);
         (EthMaterialService as jest.Mock).mockImplementation(() => ({
             getMaterials: mockedGetMaterials
         }));
-        render(<Materials/>);
+        render(<Materials />);
 
         await waitFor(() => {
             expect(EthMaterialService).toHaveBeenCalledTimes(1);
@@ -50,7 +55,7 @@ describe('Materials', () => {
     });
 
     it('should call onChange function when clicking on a table header', async () => {
-        render(<Materials/>);
+        render(<Materials />);
 
         await waitFor(() => {
             userEvent.click(screen.getByText('Id'));
@@ -58,29 +63,32 @@ describe('Materials', () => {
         });
     });
 
-    it('should call navigator functions when clicking on \'New\' buttons', async () => {
-        render(<Materials/>);
+    it("should call navigator functions when clicking on 'New' buttons", async () => {
+        render(<Materials />);
 
         await waitFor(() => {
-            userEvent.click(screen.getByRole('button', {name: 'plus New Product Category'}));
+            userEvent.click(screen.getByRole('button', { name: 'plus New Product Category' }));
             expect(navigate).toHaveBeenCalledTimes(1);
             expect(navigate).toHaveBeenCalledWith(paths.PRODUCT_CATEGORY_NEW);
         });
 
         await waitFor(() => {
-            userEvent.click(screen.getByRole('button', {name: 'plus New Material'}));
+            userEvent.click(screen.getByRole('button', { name: 'plus New Material' }));
             expect(navigate).toHaveBeenCalledTimes(2);
             expect(navigate).toHaveBeenCalledWith(paths.MATERIAL_NEW);
         });
     });
 
     it('should call sorter function correctly when clicking on a table header', async () => {
-        const mockMaterials = [new MaterialPresentable(1, 'Material 1'), new MaterialPresentable(2, 'Material 2')];
+        const mockMaterials = [
+            new MaterialPresentable(1, 'Material 1'),
+            new MaterialPresentable(2, 'Material 2')
+        ];
         const mockedGetMaterials = jest.fn().mockResolvedValueOnce(mockMaterials);
         (EthMaterialService as jest.Mock).mockImplementation(() => ({
             getMaterials: mockedGetMaterials
         }));
-        render(<Materials/>);
+        render(<Materials />);
 
         await waitFor(() => {
             const tableRows = screen.getAllByRole('row');
@@ -109,12 +117,15 @@ describe('Materials', () => {
     });
 
     test('should sort also when working with falsy id', async () => {
-        const mockMaterials = [new MaterialPresentable(1, 'Material 1'), new MaterialPresentable(undefined, 'Material 2')];
+        const mockMaterials = [
+            new MaterialPresentable(1, 'Material 1'),
+            new MaterialPresentable(undefined, 'Material 2')
+        ];
         const mockedGetMaterials = jest.fn().mockResolvedValueOnce(mockMaterials);
         (EthMaterialService as jest.Mock).mockImplementation(() => ({
             getMaterials: mockedGetMaterials
         }));
-        render(<Materials/>);
+        render(<Materials />);
 
         userEvent.click(screen.getByText('Id'));
 
@@ -125,5 +136,4 @@ describe('Materials', () => {
             expect(tableRows[2]).toHaveTextContent('Material 2');
         });
     });
-
 });

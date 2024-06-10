@@ -1,15 +1,15 @@
-import {useNavigate} from "react-router-dom";
-import {render, screen, waitFor} from "@testing-library/react";
-import Offers from "../Offers";
-import {OfferPresentable} from "../../../api/types/OfferPresentable";
-import {EthOfferService} from "../../../api/services/EthOfferService";
-import {BlockchainOfferStrategy} from "../../../api/strategies/offer/BlockchainOfferStrategy";
-import userEvent from "@testing-library/user-event";
-import {paths} from "../../../constants";
+import { useNavigate } from 'react-router-dom';
+import { render, screen, waitFor } from '@testing-library/react';
+import Offers from '../Offers';
+import { OfferPresentable } from '../../../api/types/OfferPresentable';
+import { EthOfferService } from '../../../api/services/EthOfferService';
+import { BlockchainOfferStrategy } from '../../../api/strategies/offer/BlockchainOfferStrategy';
+import userEvent from '@testing-library/user-event';
+import { paths } from '../../../constants';
 
 jest.mock('react-router-dom', () => ({
     ...jest.requireActual('react-router-dom'),
-    useNavigate: jest.fn(),
+    useNavigate: jest.fn()
 }));
 jest.mock('../../../api/services/EthOfferService');
 jest.mock('../../../api/strategies/offer/BlockchainOfferStrategy');
@@ -25,20 +25,23 @@ describe('Offers', () => {
     });
 
     it('should render correctly', () => {
-        render(<Offers/>);
+        render(<Offers />);
 
         expect(screen.getByText('Offers')).toBeInTheDocument();
-        expect(screen.getByRole('button', {name: 'plus New Offer Supplier'})).toBeInTheDocument();
-        expect(screen.getByRole('button', {name: 'plus New Offer'})).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'plus New Offer Supplier' })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'plus New Offer' })).toBeInTheDocument();
     });
 
     it('should fetch data', async () => {
-        const mockedOffers: OfferPresentable[] = [new OfferPresentable(1, 'Owner 1', 'Product Category 1'), new OfferPresentable(2, 'Owner 2', 'Product Category 2')];
+        const mockedOffers: OfferPresentable[] = [
+            new OfferPresentable(1, 'Owner 1', 'Product Category 1'),
+            new OfferPresentable(2, 'Owner 2', 'Product Category 2')
+        ];
         const mockedGetAllOffers = jest.fn().mockResolvedValueOnce(mockedOffers);
         (EthOfferService as jest.Mock).mockImplementation(() => ({
             getAllOffers: mockedGetAllOffers
         }));
-        render(<Offers/>);
+        render(<Offers />);
 
         await waitFor(() => {
             expect(EthOfferService).toHaveBeenCalledTimes(1);
@@ -52,7 +55,7 @@ describe('Offers', () => {
     });
 
     it('should call onChange function when clicking on a table header', async () => {
-        render(<Offers/>);
+        render(<Offers />);
 
         await waitFor(() => {
             userEvent.click(screen.getByText('Id'));
@@ -60,29 +63,32 @@ describe('Offers', () => {
         });
     });
 
-    it('should call navigator functions when clicking on \'New\' buttons', async () => {
-        render(<Offers/>);
+    it("should call navigator functions when clicking on 'New' buttons", async () => {
+        render(<Offers />);
 
         await waitFor(() => {
-            userEvent.click(screen.getByRole('button', {name: 'plus New Offer Supplier'}));
+            userEvent.click(screen.getByRole('button', { name: 'plus New Offer Supplier' }));
             expect(navigate).toHaveBeenCalledTimes(1);
             expect(navigate).toHaveBeenCalledWith(paths.OFFERS_SUPPLIER_NEW);
         });
 
         await waitFor(() => {
-            userEvent.click(screen.getByRole('button', {name: 'plus New Offer'}));
+            userEvent.click(screen.getByRole('button', { name: 'plus New Offer' }));
             expect(navigate).toHaveBeenCalledTimes(2);
             expect(navigate).toHaveBeenCalledWith(paths.OFFERS_NEW);
         });
     });
 
     it('should call sorter function correctly when clicking on a table header', async () => {
-        const mockedOffers: OfferPresentable[] = [new OfferPresentable(1, 'Owner 2', 'Product Category 1'), new OfferPresentable(2, 'Owner 1', 'Product Category 2')];
+        const mockedOffers: OfferPresentable[] = [
+            new OfferPresentable(1, 'Owner 2', 'Product Category 1'),
+            new OfferPresentable(2, 'Owner 1', 'Product Category 2')
+        ];
         const mockedGetAllOffers = jest.fn().mockResolvedValueOnce(mockedOffers);
         (EthOfferService as jest.Mock).mockImplementation(() => ({
             getAllOffers: mockedGetAllOffers
         }));
-        render(<Offers/>);
+        render(<Offers />);
 
         await waitFor(() => {
             const tableRows = screen.getAllByRole('row');
@@ -102,12 +108,16 @@ describe('Offers', () => {
     });
 
     it('should sort also when working with falsy names', async () => {
-        const mockedOffers: OfferPresentable[] = [new OfferPresentable(0, undefined, undefined), new OfferPresentable(1, 'Owner 1', 'Product Category 1'), new OfferPresentable(2, undefined, 'Product Category 2')];
+        const mockedOffers: OfferPresentable[] = [
+            new OfferPresentable(0, undefined, undefined),
+            new OfferPresentable(1, 'Owner 1', 'Product Category 1'),
+            new OfferPresentable(2, undefined, 'Product Category 2')
+        ];
         const mockedGetAllOffers = jest.fn().mockResolvedValueOnce(mockedOffers);
         (EthOfferService as jest.Mock).mockImplementation(() => ({
             getAllOffers: mockedGetAllOffers
         }));
-        render(<Offers/>);
+        render(<Offers />);
 
         userEvent.click(screen.getByText('Company'));
 
@@ -121,12 +131,16 @@ describe('Offers', () => {
     });
 
     it('should sort also when working with falsy product categories', async () => {
-        const mockedOffers: OfferPresentable[] = [new OfferPresentable(0, undefined, undefined), new OfferPresentable(1, 'Owner 1', 'Product Category 1'), new OfferPresentable(2, 'Owner 2', undefined)];
+        const mockedOffers: OfferPresentable[] = [
+            new OfferPresentable(0, undefined, undefined),
+            new OfferPresentable(1, 'Owner 1', 'Product Category 1'),
+            new OfferPresentable(2, 'Owner 2', undefined)
+        ];
         const mockedGetAllOffers = jest.fn().mockResolvedValueOnce(mockedOffers);
         (EthOfferService as jest.Mock).mockImplementation(() => ({
             getAllOffers: mockedGetAllOffers
         }));
-        render(<Offers/>);
+        render(<Offers />);
 
         userEvent.click(screen.getByText('Product category'));
 
@@ -140,24 +154,30 @@ describe('Offers', () => {
     });
 
     it('should filter offers', async () => {
-        const mockedOffers: OfferPresentable[] = [new OfferPresentable(1, 'Owner 1', 'Product Category 1'), new OfferPresentable(2, 'Owner 2', 'Product Category 2')];
+        const mockedOffers: OfferPresentable[] = [
+            new OfferPresentable(1, 'Owner 1', 'Product Category 1'),
+            new OfferPresentable(2, 'Owner 2', 'Product Category 2')
+        ];
         const mockedGetAllOffers = jest.fn().mockResolvedValueOnce(mockedOffers);
         (EthOfferService as jest.Mock).mockImplementation(() => ({
             getAllOffers: mockedGetAllOffers
         }));
-        render(<Offers/>);
+        render(<Offers />);
 
         await waitFor(() => {
             const tableRows = screen.getAllByRole('row');
             expect(tableRows).toHaveLength(3);
         });
 
-        userEvent.type(screen.getByPlaceholderText('Search by product category'), 'Product Category 1');
+        userEvent.type(
+            screen.getByPlaceholderText('Search by product category'),
+            'Product Category 1'
+        );
         userEvent.click(screen.getByLabelText('search'));
 
         await waitFor(() => {
             const tableRows = screen.getAllByRole('row');
-            expect(console.log).toHaveBeenCalledWith('Called')
+            expect(console.log).toHaveBeenCalledWith('Called');
             expect(tableRows).toHaveLength(2);
             expect(tableRows[1]).toHaveTextContent('1Owner 1Product Category 1');
         });

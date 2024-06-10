@@ -1,20 +1,18 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import "./index.css";
-import reportWebVitals from "./reportWebVitals";
-import {App} from "./App";
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import reportWebVitals from './reportWebVitals';
+import { App } from './App';
 
-global.Buffer = require("buffer").Buffer;
+global.Buffer = require('buffer').Buffer;
 
-window.Buffer = window.Buffer || require("buffer").Buffer;
+window.Buffer = window.Buffer || require('buffer').Buffer;
 
-const root = ReactDOM.createRoot(
-    document.getElementById("root") as HTMLElement,
-);
+const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(
     <React.Fragment>
         <App />
-    </React.Fragment>,
+    </React.Fragment>
 );
 
 // If you want to start measuring performance in your app, pass a function

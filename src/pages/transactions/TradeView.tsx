@@ -1,12 +1,12 @@
-import React from "react";
-import {CardPage} from "@/components/structure/CardPage/CardPage";
-import {Spin, Tag, Tooltip} from "antd";
-import {EditOutlined, CheckCircleOutlined} from "@ant-design/icons";
-import {NegotiationStatus, TradeType} from "@kbc-lib/coffee-trading-management-lib";
-import useTradeView from "./logic/tradeView";
-import OrderTradeStatusForms from "@/components/OrderStatusForms/OrderTradeStatusForms";
-import {GenericForm} from "@/components/GenericForm/GenericForm";
-import {OrderTradePresentable} from "@/api/types/TradePresentable";
+import React from 'react';
+import { CardPage } from '@/components/structure/CardPage/CardPage';
+import { Spin, Tag, Tooltip } from 'antd';
+import { EditOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import { NegotiationStatus, TradeType } from '@kbc-lib/coffee-trading-management-lib';
+import useTradeView from './logic/tradeView';
+import OrderTradeStatusForms from '@/components/OrderStatusForms/OrderTradeStatusForms';
+import { GenericForm } from '@/components/GenericForm/GenericForm';
+import { OrderTradePresentable } from '@/api/types/TradePresentable';
 
 export const TradeView = () => {
     const {
@@ -27,31 +27,49 @@ export const TradeView = () => {
     if (!trade) return <Spin />;
 
     return (
-        <CardPage title={
-            <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
-                {TradeType[type]}
-                <div style={{display: 'flex', alignItems: 'center'}}>
-                    {negotiationStatus &&
-                        <Tag color='green' key={negotiationStatus}>
-                            {negotiationStatus.toUpperCase()}
-                        </Tag>
-                    }
-                    {negotiationStatus !== NegotiationStatus[NegotiationStatus.CONFIRMED] &&
-                        <div>
-                            <EditOutlined style={{marginLeft: '8px'}} onClick={toggleDisabled}/>
-                            <Tooltip title="Confirm the negotiation if everything is OK">
-                                <CheckCircleOutlined style={{marginLeft: '8px'}} onClick={confirmNegotiation}/>
-                            </Tooltip>
-                        </div>
-                    }
+        <CardPage
+            title={
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                    }}>
+                    {TradeType[type]}
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                        {negotiationStatus && (
+                            <Tag color="green" key={negotiationStatus}>
+                                {negotiationStatus.toUpperCase()}
+                            </Tag>
+                        )}
+                        {negotiationStatus !== NegotiationStatus[NegotiationStatus.CONFIRMED] && (
+                            <div>
+                                <EditOutlined
+                                    style={{ marginLeft: '8px' }}
+                                    onClick={toggleDisabled}
+                                />
+                                <Tooltip title="Confirm the negotiation if everything is OK">
+                                    <CheckCircleOutlined
+                                        style={{ marginLeft: '8px' }}
+                                        onClick={confirmNegotiation}
+                                    />
+                                </Tooltip>
+                            </div>
+                        )}
+                    </div>
                 </div>
-            </div>}
-        >
-            {type === TradeType.ORDER ?
-                <OrderTradeStatusForms status={(trade as OrderTradePresentable).status} tradeInfo={trade} submittable={!disabled} negotiationElements={elements}/>
-                :
-                <GenericForm elements={elements} submittable={!disabled} onSubmit={onSubmit}/>
-            }
+            }>
+            {type === TradeType.ORDER ? (
+                <OrderTradeStatusForms
+                    status={(trade as OrderTradePresentable).status}
+                    tradeInfo={trade}
+                    submittable={!disabled}
+                    negotiationElements={elements}
+                />
+            ) : (
+                <GenericForm elements={elements} submittable={!disabled} onSubmit={onSubmit} />
+            )}
             {/*{*/}
             {/*    current === 0 &&*/}
             {/*    <GenericForm elements={elements} submittable={!disabled} onSubmit={onSubmit}/>*/}
@@ -61,7 +79,7 @@ export const TradeView = () => {
             {/*    <ConfirmedTradeView/>*/}
             {/*}*/}
         </CardPage>
-    )
-}
+    );
+};
 
 export default TradeView;

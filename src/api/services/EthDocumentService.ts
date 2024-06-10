@@ -1,16 +1,23 @@
 import {
     DocumentService,
-    TradeService, TradeManagerService, DocumentStatus, DocumentType
-} from "@kbc-lib/coffee-trading-management-lib";
-import {DocumentInfoPresentable, DocumentPresentable} from "../types/DocumentPresentable";
-import {getMimeType} from "@/utils/utils";
+    TradeService,
+    TradeManagerService,
+    DocumentStatus,
+    DocumentType
+} from '@kbc-lib/coffee-trading-management-lib';
+import { DocumentInfoPresentable, DocumentPresentable } from '../types/DocumentPresentable';
+import { getMimeType } from '@/utils/utils';
 
 export class EthDocumentService {
     private readonly _documentService;
     private readonly _tradeManagerService;
     private readonly _getTradeService;
 
-    constructor(documentService: DocumentService, tradeManagerService: TradeManagerService, getTradeService: (trade: string) => TradeService) {
+    constructor(
+        documentService: DocumentService,
+        tradeManagerService: TradeManagerService,
+        getTradeService: (trade: string) => TradeService
+    ) {
         this._documentService = documentService;
         this._tradeManagerService = tradeManagerService;
         this._getTradeService = getTradeService;
@@ -22,12 +29,14 @@ export class EthDocumentService {
 
         const documents: DocumentPresentable[] = [];
 
-        for(const d of documentsInfo) {
-            if(d.externalUrl.endsWith('.json')) continue;
+        for (const d of documentsInfo) {
+            if (d.externalUrl.endsWith('.json')) continue;
 
             const completeDocument = await this._documentService.getCompleteDocument(d);
             const status = await tradeService.getDocumentStatus(d.id);
-            const blob = new Blob([completeDocument!.content], { type: getMimeType(completeDocument.filename)});
+            const blob = new Blob([completeDocument!.content], {
+                type: getMimeType(completeDocument.filename)
+            });
 
             documents.push({
                 id: completeDocument.id,
@@ -45,13 +54,16 @@ export class EthDocumentService {
         return documents;
     }
 
-    async getDocumentsInfoByTransactionIdAndDocumentType(id: number, type: DocumentType): Promise<DocumentInfoPresentable[]> {
+    async getDocumentsInfoByTransactionIdAndDocumentType(
+        id: number,
+        type: DocumentType
+    ): Promise<DocumentInfoPresentable[]> {
         const tradeService = this._getTradeService(await this._tradeManagerService.getTrade(id));
         const documentsInfo = await tradeService.getDocumentsByType(type);
 
         const documents: DocumentInfoPresentable[] = [];
 
-        for(const d of documentsInfo) {
+        for (const d of documentsInfo) {
             const status = await tradeService.getDocumentStatus(d.id);
 
             documents.push({

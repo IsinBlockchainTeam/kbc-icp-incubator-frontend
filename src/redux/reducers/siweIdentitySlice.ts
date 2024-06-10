@@ -1,29 +1,35 @@
-import {createSlice} from "@reduxjs/toolkit";
-import {DelegationChain, DelegationIdentity, Ed25519KeyIdentity} from "@dfinity/identity";
+import { createSlice } from '@reduxjs/toolkit';
+import { DelegationChain, DelegationIdentity, Ed25519KeyIdentity } from '@dfinity/identity';
 
 export type SiweIdentityState = {
-    isLogged: boolean,
-    address: string,
-    sessionIdentity: string,
-    delegationChain: string,
-}
+    isLogged: boolean;
+    address: string;
+    sessionIdentity: string;
+    delegationChain: string;
+};
 
 const initialState: SiweIdentityState = {
     isLogged: false,
-    address: "",
-    sessionIdentity: "",
-    delegationChain: ""
-}
+    address: '',
+    sessionIdentity: '',
+    delegationChain: ''
+};
 
 const siweIdentitySlice = createSlice({
-    name: "siweIdentity",
+    name: 'siweIdentity',
     initialState,
     reducers: {
-        updateSiweIdentity: (state: SiweIdentityState, action: {payload: {
-                address: string,
-                sessionIdentity: string,
-                delegationChain: string
-            }, type: string}) => {
+        updateSiweIdentity: (
+            state: SiweIdentityState,
+            action: {
+                payload: {
+                    address: string;
+                    sessionIdentity: string;
+                    delegationChain: string;
+                };
+                type: string;
+            }
+        ) => {
             state.isLogged = true;
             state.address = action.payload.address;
             state.sessionIdentity = action.payload.sessionIdentity;
@@ -31,29 +37,26 @@ const siweIdentitySlice = createSlice({
         },
         clearSiweIdentity: (state: SiweIdentityState) => {
             state.isLogged = false;
-            state.address = "";
-            state.sessionIdentity = "";
-            state.delegationChain = "";
-        },
-    },
+            state.address = '';
+            state.sessionIdentity = '';
+            state.delegationChain = '';
+        }
+    }
 });
 
-export const selectSiweIdentity = (state: {siweIdentity: SiweIdentityState}) => {
+export const selectSiweIdentity = (state: { siweIdentity: SiweIdentityState }) => {
     const s = state.siweIdentity;
-    if(!s.isLogged) return null;
+    if (!s.isLogged) return null;
 
     if (!s.address || !s.sessionIdentity || !s.delegationChain) {
-        console.error("Stored state is invalid.");
+        console.error('Stored state is invalid.');
         return null;
     }
 
     const d = DelegationChain.fromJSON(s.delegationChain);
-    const i = DelegationIdentity.fromDelegation(
-        Ed25519KeyIdentity.fromJSON(s.sessionIdentity),
-        d
-    );
+    const i = DelegationIdentity.fromDelegation(Ed25519KeyIdentity.fromJSON(s.sessionIdentity), d);
 
-    return {address: s.address, sessionIdentity: i, delegationChain: d} as const;
+    return { address: s.address, sessionIdentity: i, delegationChain: d } as const;
 };
 
 export const { updateSiweIdentity, clearSiweIdentity } = siweIdentitySlice.actions;

@@ -1,9 +1,9 @@
-import {getWalletAddress} from "../../../utils/storage";
-import {Strategy} from "../Strategy";
-import {ErrorHandler} from "../../../utils/error/ErrorHandler";
+import { getWalletAddress } from '../../../utils/storage';
+import { Strategy } from '../Strategy';
+import { ErrorHandler } from '../../../utils/error/ErrorHandler';
 
-jest.mock("../../../utils/storage");
-const errorSpy = jest.spyOn(ErrorHandler, "manageUndefinedOrEmpty");
+jest.mock('../../../utils/storage');
+const errorSpy = jest.spyOn(ErrorHandler, 'manageUndefinedOrEmpty');
 
 class TestStrategy extends Strategy {
     constructor(isBlockchain: boolean) {
@@ -28,5 +28,5 @@ describe('Strategy', () => {
 
         expect(getWalletAddress).toHaveBeenCalledTimes(1);
         expect(errorSpy).toHaveBeenCalledTimes(2);
-    })
+    });
 });

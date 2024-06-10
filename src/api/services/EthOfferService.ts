@@ -1,4 +1,4 @@
-import {Offer, OfferService} from "@kbc-lib/coffee-trading-management-lib";
+import { Offer, OfferService } from '@kbc-lib/coffee-trading-management-lib';
 
 export class EthOfferService {
     private readonly _offerService: OfferService;

@@ -1,35 +1,50 @@
-import {fireEvent, render} from "@testing-library/react";
-import PDFViewer from "../PDFViewer";
-import {FormElement, FormElementType} from "../../GenericForm/GenericForm";
-import {PDFUploaderProps} from "../../PDFUploader/PDFUploader";
+import { fireEvent, render } from '@testing-library/react';
+import PDFViewer from '../PDFViewer';
+import { FormElement, FormElementType } from '../../GenericForm/GenericForm';
+import { PDFUploaderProps } from '../../PDFUploader/PDFUploader';
 
 jest.mock('antd', () => {
     return {
         ...jest.requireActual('antd'),
-        Spin: ({children, ...props}: any) => <div {...props} data-testid="spin">{children}</div>,
+        Spin: ({ children, ...props }: any) => (
+            <div {...props} data-testid="spin">
+                {children}
+            </div>
+        )
     };
 });
 
 jest.mock('@ant-design/icons', () => {
     return {
         ...jest.requireActual('@ant-design/icons'),
-        ContainerTwoTone: ({children, ...props}: any) => <div {...props} data-testid="container-icon">{children}</div>,
-    }
+        ContainerTwoTone: ({ children, ...props }: any) => (
+            <div {...props} data-testid="container-icon">
+                {children}
+            </div>
+        )
+    };
 });
 
 jest.mock('@react-pdf-viewer/core', () => {
     return {
-        Viewer: ({children, ...props}: any) => <div {...props} data-testid="viewer">{children}</div>,
+        Viewer: ({ children, ...props }: any) => (
+            <div {...props} data-testid="viewer">
+                {children}
+            </div>
+        )
     };
 });
 
 const mockedFile: Blob = new Blob();
-jest.mock('../../PDFUploader/PDFUploader', () => ({
-    onFileUpload, onRevert }: PDFUploaderProps) => (
-        <div data-testid="pdfuploader">
-            <button data-testid="test-onFileUpload" onClick={() => onFileUpload(mockedFile)}>onFileUpload</button>
-            <button data-testid="test-onRevert" onClick={() => onRevert()}>onRevert</button>
-        </div>
+jest.mock('../../PDFUploader/PDFUploader', () => ({ onFileUpload, onRevert }: PDFUploaderProps) => (
+    <div data-testid="pdfuploader">
+        <button data-testid="test-onFileUpload" onClick={() => onFileUpload(mockedFile)}>
+            onFileUpload
+        </button>
+        <button data-testid="test-onRevert" onClick={() => onRevert()}>
+            onRevert
+        </button>
+    </div>
 ));
 
 describe('PDFViewer', () => {
@@ -54,7 +69,7 @@ describe('PDFViewer', () => {
         URL.createObjectURL = actual;
     });
     it('should render correctly', () => {
-        const tree = render(<PDFViewer element={element} onDocumentChange={jest.fn()}/>);
+        const tree = render(<PDFViewer element={element} onDocumentChange={jest.fn()} />);
 
         expect(tree.getByTestId('viewer')).toBeInTheDocument();
         expect(tree.getByTestId('pdfuploader')).toBeInTheDocument();
@@ -62,7 +77,7 @@ describe('PDFViewer', () => {
         expect(mockedURLCreateObjectURL).toHaveBeenCalledWith(element.content);
     });
     it('should call onFileUpload and onRevert', () => {
-        const tree = render(<PDFViewer element={element} onDocumentChange={jest.fn()}/>);
+        const tree = render(<PDFViewer element={element} onDocumentChange={jest.fn()} />);
 
         expect(tree.getByTestId('test-onFileUpload')).toBeInTheDocument();
         fireEvent.click(tree.getByTestId('test-onFileUpload'));
@@ -72,9 +87,9 @@ describe('PDFViewer', () => {
     it('should render correctly with no content', () => {
         const emptyElement: FormElement = {
             ...element,
-            content: undefined,
+            content: undefined
         };
-        const tree = render(<PDFViewer element={emptyElement} onDocumentChange={jest.fn()}/>);
+        const tree = render(<PDFViewer element={emptyElement} onDocumentChange={jest.fn()} />);
 
         expect(tree.getByTestId('container-icon')).toBeInTheDocument();
         expect(tree.getByText('No Data')).toBeInTheDocument();
@@ -82,18 +97,18 @@ describe('PDFViewer', () => {
     it('should render correctly with loading', () => {
         const loadingElement: FormElement = {
             ...element,
-            loading: true,
+            loading: true
         };
-        const tree = render(<PDFViewer element={loadingElement} onDocumentChange={jest.fn()}/>);
+        const tree = render(<PDFViewer element={loadingElement} onDocumentChange={jest.fn()} />);
 
         expect(tree.getByTestId('spin')).toBeInTheDocument();
     });
     it('should render correctly with no uploadable', () => {
         const uploadableElement: FormElement = {
             ...element,
-            uploadable: false,
+            uploadable: false
         };
-        const tree = render(<PDFViewer element={uploadableElement} onDocumentChange={jest.fn()}/>);
+        const tree = render(<PDFViewer element={uploadableElement} onDocumentChange={jest.fn()} />);
 
         expect(tree.queryByTestId('pdfuploader')).not.toBeInTheDocument();
         expect(tree.getByTestId('viewer')).toBeInTheDocument();

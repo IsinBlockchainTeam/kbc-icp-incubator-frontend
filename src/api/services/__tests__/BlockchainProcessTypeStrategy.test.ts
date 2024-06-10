@@ -1,6 +1,6 @@
-import {getWalletAddress} from "../../../../utils/storage";
-import {UseBlockchainLibraryUtils} from "../../../hooks/useBlockchainLibraryUtils";
-import {BlockchainProcessTypeStrategy} from "../../strategies/process_type/BlockchainProcessTypeStrategy";
+import { getWalletAddress } from '../../../../utils/storage';
+import { UseBlockchainLibraryUtils } from '../../../hooks/useBlockchainLibraryUtils';
+import { BlockchainProcessTypeStrategy } from '../../strategies/process_type/BlockchainProcessTypeStrategy';
 
 jest.mock('../../../hooks/useBlockchainLibraryUtils');
 
@@ -12,23 +12,21 @@ describe('BlockchainProcessTypeStrategy', () => {
     const mockedGetTypesList = jest.fn().mockResolvedValue(processTypes);
 
     describe('getProcessTypes', () => {
-
         beforeEach(() => {
             (getWalletAddress as jest.Mock).mockReturnValue(walletAddress);
             UseBlockchainLibraryUtils.getEnumerableTypeService = jest.fn().mockReturnValue({
-                getTypesList: mockedGetTypesList,
+                getTypesList: mockedGetTypesList
             });
 
             blockchainProcessTypeStrategy = new BlockchainProcessTypeStrategy();
         });
-
 
         it('should return an array of process types', async () => {
             const result = await blockchainProcessTypeStrategy.getAllProcessTypes();
 
             expect(result).toEqual(processTypes);
 
-            expect(mockedGetTypesList).toHaveBeenCalled()
+            expect(mockedGetTypesList).toHaveBeenCalled();
         });
     });
 });

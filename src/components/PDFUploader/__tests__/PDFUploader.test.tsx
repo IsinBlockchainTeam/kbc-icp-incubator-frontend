@@ -1,12 +1,20 @@
-import PDFUploader from "../PDFUploader";
-import {fireEvent, render} from "@testing-library/react";
+import PDFUploader from '../PDFUploader';
+import { fireEvent, render } from '@testing-library/react';
 
 jest.mock('antd', () => {
     return {
         ...jest.requireActual('antd'),
-        Button: ({children, ...props}: any) => <div {...props} data-testid="button">{children}</div>,
+        Button: ({ children, ...props }: any) => (
+            <div {...props} data-testid="button">
+                {children}
+            </div>
+        ),
         Upload: {
-            Dragger: ({children, ...props}: any) => <div {...props} data-testid="dragger">{children}</div>
+            Dragger: ({ children, ...props }: any) => (
+                <div {...props} data-testid="dragger">
+                    {children}
+                </div>
+            )
         }
     };
 });
@@ -14,9 +22,16 @@ jest.mock('antd', () => {
 jest.mock('@ant-design/icons', () => {
     return {
         ...jest.requireActual('@ant-design/icons'),
-        InboxOutlined: ({children, ...props}: any) => <div {...props} data-testid="inbox-outlined">{children}</div>,
-        RollbackOutlined: ({children, ...props}: any) => <div {...props}
-                                                              data-testid="rollback-outlined">{children}</div>
+        InboxOutlined: ({ children, ...props }: any) => (
+            <div {...props} data-testid="inbox-outlined">
+                {children}
+            </div>
+        ),
+        RollbackOutlined: ({ children, ...props }: any) => (
+            <div {...props} data-testid="rollback-outlined">
+                {children}
+            </div>
+        )
     };
 });
 
@@ -24,7 +39,7 @@ jest.mock('../../../utils/notification', () => {
     return {
         ...jest.requireActual('../../../utils/notification'),
         openNotification: jest.fn()
-    }
+    };
 });
 
 describe('PDFUploader', () => {
@@ -35,7 +50,7 @@ describe('PDFUploader', () => {
     });
     afterEach(() => jest.clearAllMocks());
     it('should render correctly', () => {
-        const tree = render(<PDFUploader onFileUpload={jest.fn()} onRevert={jest.fn()}/>);
+        const tree = render(<PDFUploader onFileUpload={jest.fn()} onRevert={jest.fn()} />);
         expect(tree.getByTestId('dragger')).toBeInTheDocument();
         expect(tree.getByTestId('inbox-outlined')).toBeInTheDocument();
         expect(tree.getByTestId('button')).toBeInTheDocument();
@@ -48,7 +63,9 @@ describe('PDFUploader', () => {
     //     expect(openNotification).toHaveBeenCalledTimes(1);
     // });
     it('should call onRevert when button is clicked', () => {
-        const tree = render(<PDFUploader onFileUpload={mockOnFileUpload} onRevert={mockOnRevert}/>);
+        const tree = render(
+            <PDFUploader onFileUpload={mockOnFileUpload} onRevert={mockOnRevert} />
+        );
         fireEvent.click(tree.getByTestId('button'));
         expect(mockOnRevert).toHaveBeenCalledTimes(1);
     });
