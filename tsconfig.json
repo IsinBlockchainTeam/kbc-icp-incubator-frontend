@@ -1,5 +1,17 @@
 {
   "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+      "@/api/*": ["./src/api/*"],
+      "@/assets/*": ["./src/assets/*"],
+      "@/components/*": ["./src/components/*"],
+      "@/constants/*": ["./src/constants/*"],
+      "@/hooks/*": ["./src/hooks/*"],
+      "@/pages/*": ["./src/pages/*"],
+      "@/providers/*": ["./src/providers/*"],
+      "@/redux/*": ["./src/redux/*"],
+      "@/utils/*": ["./src/utils/*"],
+    },
     "target": "es6",
     "lib": [
       "dom",

@@ -1,6 +1,6 @@
-import {UserInfoState} from "../reducers/userInfoSlice";
-import {LoadingState} from "../reducers/loadingSlice";
-import {SiweIdentityState} from "../reducers/siweIdentitySlice";
+import {UserInfoState} from "@/redux/reducers/userInfoSlice";
+import {LoadingState} from "@/redux/reducers/loadingSlice";
+import {SiweIdentityState} from "@/redux/reducers/siweIdentitySlice";
 
 export type RootState = {
     userInfo: UserInfoState;

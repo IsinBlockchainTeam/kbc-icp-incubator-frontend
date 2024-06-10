@@ -1,13 +1,13 @@
-import {CardPage} from "../../components/structure/CardPage/CardPage";
+import {CardPage} from "@/components/structure/CardPage/CardPage";
 import React, {useContext, useEffect, useState} from "react";
 import {ColumnsType} from "antd/es/table";
 import {Table, TableProps} from "antd";
-import {NotificationType, openNotification} from "../../utils/notification";
-import {PartnershipPresentable} from "../../api/types/PartnershipPresentable";
+import {NotificationType, openNotification} from "@/utils/notification";
+import {PartnershipPresentable} from "@/api/types/PartnershipPresentable";
 import {InviteCompany} from "./InviteCompany";
-import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
+import {hideLoading, showLoading} from "@/redux/reducers/loadingSlice";
 import {useDispatch} from "react-redux";
-import {EthContext} from "../../providers/EthProvider";
+import {EthContext} from "@/providers/EthProvider";
 
 export const Partners = () => {
     const {ethPartnerService} = useContext(EthContext);

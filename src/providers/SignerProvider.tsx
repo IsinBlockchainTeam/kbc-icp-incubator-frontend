@@ -1,9 +1,9 @@
 import React from "react";
 import {createContext, type ReactNode} from "react";
 import {useSelector} from "react-redux";
-import {RootState} from "../redux/store";
+import {RootState} from "@/redux/store";
 import {ethers} from "ethers";
-import {RPC_URL} from "../constants";
+import {RPC_URL} from "@/constants/index";
 import {Typography} from "antd";
 
 type SignerContextState = {

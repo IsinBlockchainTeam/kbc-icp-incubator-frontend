@@ -1,18 +1,18 @@
 import {Navigate, useNavigate} from "react-router-dom";
-import {FormElement, FormElementType, GenericForm} from "../../components/GenericForm/GenericForm";
-import {NotificationType, openNotification} from "../../utils/notification";
-import {credentials, DID_METHOD, paths} from "../../constants";
-import {CardPage} from "../../components/structure/CardPage/CardPage";
+import {FormElement, FormElementType, GenericForm} from "@/components/GenericForm/GenericForm";
+import {NotificationType, openNotification} from "@/utils/notification";
+import {credentials, DID_METHOD, paths} from "@/constants/index";
+import {CardPage} from "@/components/structure/CardPage/CardPage";
 import {Button} from "antd";
 import {DeleteOutlined} from "@ant-design/icons";
 import React, {useContext, useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
-import {RootState} from "../../redux/store";
-import {EthContext} from "../../providers/EthProvider";
-import {SignerContext} from "../../providers/SignerProvider";
+import {hideLoading, showLoading} from "@/redux/reducers/loadingSlice";
+import {RootState} from "@/redux/store";
+import {EthContext} from "@/providers/EthProvider";
+import {SignerContext} from "@/providers/SignerProvider";
 import {ProductCategory} from "@kbc-lib/coffee-trading-management-lib";
-import {ICPContext} from "../../providers/ICPProvider";
+import {ICPContext} from "@/providers/ICPProvider";
 
 export const OffersNew = () => {
     const {signer} = useContext(SignerContext);

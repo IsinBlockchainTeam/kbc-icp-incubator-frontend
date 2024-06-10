@@ -1,15 +1,15 @@
 import React from "react";
 import {createContext, ReactNode, useContext} from "react";
-import {EthAssetOperationService} from "../api/services/EthAssetOperationService";
-import {EnumerableDefinition, useBlockchainLibraryUtils} from "../hooks/useBlockchainLibraryUtils";
+import {EthAssetOperationService} from "@/api/services/EthAssetOperationService";
+import {EnumerableDefinition, useBlockchainLibraryUtils} from "@/hooks/useBlockchainLibraryUtils";
 import {SignerContext} from "./SignerProvider";
-import {EthDocumentService} from "../api/services/EthDocumentService";
-import {EthEnumerableTypeService} from "../api/services/EthEnumerableTypeService";
-import {EthGraphService} from "../api/services/EthGraphService";
-import {EthMaterialService} from "../api/services/EthMaterialService";
-import {EthOfferService} from "../api/services/EthOfferService";
-import {EthPartnerService} from "../api/services/EthPartnerService";
-import {EthTradeService} from "../api/services/EthTradeService";
+import {EthDocumentService} from "@/api/services/EthDocumentService";
+import {EthEnumerableTypeService} from "@/api/services/EthEnumerableTypeService";
+import {EthGraphService} from "@/api/services/EthGraphService";
+import {EthMaterialService} from "@/api/services/EthMaterialService";
+import {EthOfferService} from "@/api/services/EthOfferService";
+import {EthPartnerService} from "@/api/services/EthPartnerService";
+import {EthTradeService} from "@/api/services/EthTradeService";
 import {Typography} from "antd";
 import {ICPContext} from "./ICPProvider";
 

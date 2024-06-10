@@ -1,17 +1,17 @@
 import React, {useContext, useEffect} from "react";
-import {CardPage} from "../../components/structure/CardPage/CardPage";
+import {CardPage} from "@/components/structure/CardPage/CardPage";
 import {Table, TableProps, Tag, Tooltip} from "antd";
 import {CheckCircleOutlined, ExclamationCircleOutlined, SettingOutlined} from "@ant-design/icons";
 import {ColumnsType} from "antd/es/table";
-import {NotificationType, openNotification} from "../../utils/notification";
-import {setParametersPath} from "../../utils/utils";
-import {TradePreviewPresentable} from "../../api/types/TradePresentable";
+import {NotificationType, openNotification} from "@/utils/notification";
+import {setParametersPath} from "@/utils/utils";
+import {TradePreviewPresentable} from "@/api/types/TradePresentable";
 import {Link} from "react-router-dom";
-import {paths} from "../../constants";
+import {paths} from "@/constants/index";
 import {NegotiationStatus, OrderStatus, TradeType} from "@kbc-lib/coffee-trading-management-lib";
 import {useDispatch} from "react-redux";
-import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
-import {EthContext} from "../../providers/EthProvider";
+import {hideLoading, showLoading} from "@/redux/reducers/loadingSlice";
+import {EthContext} from "@/providers/EthProvider";
 
 export const Trades = () => {
     const {ethTradeService} = useContext(EthContext);

@@ -10,12 +10,12 @@ import React, {
 import {type ActorConfig, type HttpAgentOptions} from "@dfinity/agent";
 import {DelegationIdentity, Ed25519KeyIdentity} from "@dfinity/identity";
 import {useDispatch, useSelector} from "react-redux";
-import {clearSiweIdentity, selectSiweIdentity, updateSiweIdentity} from "../redux/reducers/siweIdentitySlice";
+import {clearSiweIdentity, selectSiweIdentity, updateSiweIdentity} from "@/redux/reducers/siweIdentitySlice";
 import {SignerContext} from "./SignerProvider";
-import {NotificationType, openNotification} from "../utils/notification";
-import {RootState} from "../redux/store";
+import {NotificationType, openNotification} from "@/utils/notification";
+import {RootState} from "@/redux/store";
 import {Typography} from "antd";
-import ICPLoading from "../components/ICPLoading/ICPLoading";
+import ICPLoading from "@/components/ICPLoading/ICPLoading";
 import {
     ICPSiweDriver,
     type SiweIdentityContextType,
@@ -23,7 +23,7 @@ import {
     type ISignedDelegation as ServiceSignedDelegation,
     type State
 } from "@blockchain-lib/common";
-import {ICP} from "../constants";
+import {ICP} from "@/constants/index";
 
 /**
  * Re-export types

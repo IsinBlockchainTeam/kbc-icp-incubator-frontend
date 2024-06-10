@@ -1,11 +1,9 @@
-import React, {ReactNode, useEffect, useState} from "react";
+import React, {ReactNode, useEffect} from "react";
 import {Alert, Button, Col, DatePicker, Divider, Form, FormInstance, Input, Popover, Row, Select} from "antd";
 import PDFViewer from "../PDFViewer/PDFViewer";
 import {DownloadOutlined} from "@ant-design/icons";
-import {createDownloadWindow, showTextWithHtmlLinebreaks} from "../../utils/utils";
-import {DocumentStatus} from "@kbc-lib/coffee-trading-management-lib";
-import {EthContext} from "../../providers/EthProvider";
-import {DocumentPresentable} from "../../api/types/DocumentPresentable";
+import {createDownloadWindow, showTextWithHtmlLinebreaks} from "@/utils/utils";
+import {DocumentPresentable} from "@/api/types/DocumentPresentable";
 import {FormItemInputProps} from "antd/es/form/FormItemInput";
 
 export enum FormElementType {

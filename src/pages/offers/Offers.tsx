@@ -1,18 +1,18 @@
 import React, {useContext, useEffect, useState} from "react";
-import {NotificationType, openNotification} from "../../utils/notification";
+import {NotificationType, openNotification} from "@/utils/notification";
 import {ColumnsType} from "antd/es/table";
 import {Button, Space, Table, TableProps} from "antd";
-import {CardPage} from "../../components/structure/CardPage/CardPage";
-import Search from "../../components/Search/Search";
+import {CardPage} from "@/components/structure/CardPage/CardPage";
+import Search from "@/components/Search/Search";
 import {PlusOutlined} from "@ant-design/icons";
-import {credentials, DID_METHOD, paths} from "../../constants";
+import {credentials, DID_METHOD, paths} from "@/constants/index";
 import {useNavigate} from "react-router-dom";
-import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
+import {hideLoading, showLoading} from "@/redux/reducers/loadingSlice";
 import {useDispatch, useSelector} from "react-redux";
-import {RootState} from "../../redux/store";
-import {EthContext} from "../../providers/EthProvider";
-import {OfferPresentable} from "../../api/types/OfferPresentable";
-import {ICPContext} from "../../providers/ICPProvider";
+import {RootState} from "@/redux/store";
+import {EthContext} from "@/providers/EthProvider";
+import {OfferPresentable} from "@/api/types/OfferPresentable";
+import {ICPContext} from "@/providers/ICPProvider";
 
 export const Offers = () => {
     const {ethOfferService} = useContext(EthContext);

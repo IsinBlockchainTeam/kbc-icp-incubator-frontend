@@ -1,17 +1,17 @@
 import {useContext, useEffect, useState} from "react";
 import {DocumentStatus, ProductCategory, TradeType} from "@kbc-lib/coffee-trading-management-lib";
-import {FormElement, FormElementType} from "../../../components/GenericForm/GenericForm";
-import {regex} from "../../../utils/regex";
-import {EthContext} from "../../../providers/EthProvider";
+import {FormElement, FormElementType} from "@/components/GenericForm/GenericForm";
+import {regex} from "@/utils/regex";
+import {EthContext} from "@/providers/EthProvider";
 import {useLocation} from "react-router-dom";
-import {SignerContext} from "../../../providers/SignerProvider";
-import {hideLoading, showLoading} from "../../../redux/reducers/loadingSlice";
+import {SignerContext} from "@/providers/SignerProvider";
+import {hideLoading, showLoading} from "@/redux/reducers/loadingSlice";
 import {useDispatch} from "react-redux";
-import {NotificationType, openNotification} from "../../../utils/notification";
-import {DID_METHOD} from "../../../constants";
+import {NotificationType, openNotification} from "@/utils/notification";
+import {DID_METHOD} from "@/constants/index";
 import {FormInstance} from "antd";
 import dayjs from "dayjs";
-import {ICPContext} from "../../../providers/ICPProvider";
+import {ICPContext} from "@/providers/ICPProvider";
 
 export default function useTradeShared() {
     const {signer} = useContext(SignerContext);

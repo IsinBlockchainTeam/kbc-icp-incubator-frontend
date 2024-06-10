@@ -17,23 +17,23 @@ import {
     TradeType,
     URLStructure
 } from "@kbc-lib/coffee-trading-management-lib";
-import {CustomError} from "../../utils/error/CustomError";
-import {HttpStatusCode} from "../../utils/error/HttpStatusCode";
+import {CustomError} from "@/utils/error/CustomError";
+import {HttpStatusCode} from "@/utils/error/HttpStatusCode";
 import {ICPResourceSpec} from "@blockchain-lib/common";
-import {getICPCanisterURL} from "../../utils/utils";
-import {DID_METHOD, ICP} from "../../constants";
-import {store} from "../../redux/store";
+import {getICPCanisterURL} from "@/utils/utils";
+import {DID_METHOD, ICP} from "@/constants/index";
+import {store} from "@/redux/store";
 import {
     BasicTradePresentable,
     DetailedTradePresentable,
     OrderTradePresentable,
     TradePreviewPresentable
-} from "../types/TradePresentable";
-import {DocumentInfoPresentable, DocumentPresentable} from "../types/DocumentPresentable";
-import {BasicTradeRequest, OrderTradeRequest} from "../types/TradeRequest";
-import {EthMaterialService} from "./EthMaterialService";
-import {DocumentRequest} from "../types/DocumentRequest";
-import {EthDocumentService} from "./EthDocumentService";
+} from "@/api/types/TradePresentable";
+import {DocumentInfoPresentable, DocumentPresentable} from "@/api/types/DocumentPresentable";
+import {BasicTradeRequest, OrderTradeRequest} from "@/api/types/TradeRequest";
+import {EthMaterialService} from "@/api/services/EthMaterialService";
+import {DocumentRequest} from "@/api/types/DocumentRequest";
+import {EthDocumentService} from "@/api/services/EthDocumentService";
 
 export class EthTradeService {
     private readonly _walletAddress: string;

@@ -1,5 +1,5 @@
 import useTradeShared from "./tradeShared";
-import {NotificationType, openNotification} from "../../../utils/notification";
+import {NotificationType, openNotification} from "@/utils/notification";
 import {
     BasicTrade,
     DocumentStatus,
@@ -15,15 +15,15 @@ import {
 import {useLocation, useNavigate, useParams} from "react-router-dom";
 import {useDispatch} from "react-redux";
 import {useContext, useEffect, useState} from "react";
-import {DetailedTradePresentable} from "../../../api/types/TradePresentable";
-import {hideLoading, showLoading} from "../../../redux/reducers/loadingSlice";
-import {FormElement, FormElementType} from "../../../components/GenericForm/GenericForm";
-import {regex} from "../../../utils/regex";
+import {DetailedTradePresentable} from "@/api/types/TradePresentable";
+import {hideLoading, showLoading} from "@/redux/reducers/loadingSlice";
+import {FormElement, FormElementType} from "@/components/GenericForm/GenericForm";
+import {regex} from "@/utils/regex";
 import dayjs from "dayjs";
-import {DID_METHOD, paths} from "../../../constants";
-import {BasicTradeRequest, OrderTradeRequest} from "../../../api/types/TradeRequest";
-import {SignerContext} from "../../../providers/SignerProvider";
-import {ICPContext} from "../../../providers/ICPProvider";
+import {DID_METHOD, paths} from "@/constants/index";
+import {BasicTradeRequest, OrderTradeRequest} from "@/api/types/TradeRequest";
+import {SignerContext} from "@/providers/SignerProvider";
+import {ICPContext} from "@/providers/ICPProvider";
 
 export default function useTradeView() {
     const {getNameByDID} = useContext(ICPContext);

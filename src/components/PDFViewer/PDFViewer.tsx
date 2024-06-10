@@ -1,8 +1,8 @@
 import {Badge, Empty, Spin} from "antd";
 import React, {useEffect, useState} from "react";
-import {DocumentElement} from "../GenericForm/GenericForm";
+import {DocumentElement} from "@/components/GenericForm/GenericForm";
 import {Viewer} from "@react-pdf-viewer/core";
-import PDFUploader from "../PDFUploader/PDFUploader";
+import PDFUploader from "@/components/PDFUploader/PDFUploader";
 import {DocumentStatus} from "@kbc-lib/coffee-trading-management-lib";
 
 export interface PDFViewerProps {

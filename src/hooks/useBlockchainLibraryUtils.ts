@@ -1,7 +1,6 @@
-
 import {contractAddresses} from "../constants";
 import {EnumerableTypeReadDriver, EnumerableTypeService} from "@blockchain-lib/common";
-import {SignerContext} from "../providers/SignerProvider";
+import {SignerContext} from "@/providers/SignerProvider";
 import { useContext } from "react";
 import {
     AssetOperationDriver,

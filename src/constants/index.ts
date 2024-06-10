@@ -1,4 +1,4 @@
-import { checkAndGetEnvironmentVariable } from "../utils/utils";
+import { checkAndGetEnvironmentVariable } from "@/utils/utils";
 
 export const storage = {
   WALLET_ADDRESS: "WALLET_ADDRESS",

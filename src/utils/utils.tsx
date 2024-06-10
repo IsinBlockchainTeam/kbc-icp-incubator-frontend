@@ -1,4 +1,4 @@
-import {ICP} from "../constants";
+import {ICP} from "@/constants/index";
 import {TradeType, URL_SEGMENTS} from "@kbc-lib/coffee-trading-management-lib";
 import React, {ReactNode} from "react";
 

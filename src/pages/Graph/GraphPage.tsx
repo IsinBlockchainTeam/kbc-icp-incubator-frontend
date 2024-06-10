@@ -9,17 +9,17 @@ import ReactFlow, {
     useEdgesState,
     useNodesState
 } from 'reactflow';
-import {CardPage} from "../../components/structure/CardPage/CardPage";
+import {CardPage} from "@/components/structure/CardPage/CardPage";
 import styles from "./Graph.module.scss";
 import {Radio, RadioChangeEvent} from 'antd';
 import 'reactflow/dist/style.css';
 import {useParams} from "react-router-dom";
-import {BlockchainGraphData} from "../../api/services/EthGraphService";
+import {BlockchainGraphData} from "@/api/services/EthGraphService";
 import {AssetOperationType} from "@kbc-lib/coffee-trading-management-lib";
-import {NotificationType, openNotification} from "../../utils/notification";
-import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
+import {NotificationType, openNotification} from "@/utils/notification";
+import {hideLoading, showLoading} from "@/redux/reducers/loadingSlice";
 import {useDispatch} from "react-redux";
-import {EthContext} from "../../providers/EthProvider";
+import {EthContext} from "@/providers/EthProvider";
 
 const MapNode = memo(() => {
     return (

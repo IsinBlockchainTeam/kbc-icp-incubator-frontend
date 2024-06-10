@@ -1,5 +1,5 @@
 import { RelationshipService } from "@kbc-lib/coffee-trading-management-lib";
-import {PartnershipPresentable} from "../types/PartnershipPresentable";
+import {PartnershipPresentable} from "@/api/types/PartnershipPresentable";
 
 export class EthPartnerService {
     private readonly _walletAddress: string;

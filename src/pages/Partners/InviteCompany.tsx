@@ -1,8 +1,8 @@
 import {Button, Form, FormProps, Input, Modal} from "antd";
-import {NotificationType, openNotification} from "../../utils/notification";
+import {NotificationType, openNotification} from "@/utils/notification";
 import React, {useEffect} from "react";
-import {requestPath} from "../../constants";
-import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
+import {requestPath} from "@/constants/index";
+import {hideLoading, showLoading} from "@/redux/reducers/loadingSlice";
 import {useDispatch} from "react-redux";
 
 type Props = {

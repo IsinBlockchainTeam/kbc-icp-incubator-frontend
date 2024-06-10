@@ -1,12 +1,12 @@
 import React from "react";
-import {CardPage} from "../../components/structure/CardPage/CardPage";
+import {CardPage} from "@/components/structure/CardPage/CardPage";
 import {Spin, Tag, Tooltip} from "antd";
 import {EditOutlined, CheckCircleOutlined} from "@ant-design/icons";
 import {NegotiationStatus, TradeType} from "@kbc-lib/coffee-trading-management-lib";
 import useTradeView from "./logic/tradeView";
-import OrderTradeStatusForms from "../../components/OrderStatusForms/OrderTradeStatusForms";
-import {GenericForm} from "../../components/GenericForm/GenericForm";
-import {OrderTradePresentable} from "../../api/types/TradePresentable";
+import OrderTradeStatusForms from "@/components/OrderStatusForms/OrderTradeStatusForms";
+import {GenericForm} from "@/components/GenericForm/GenericForm";
+import {OrderTradePresentable} from "@/api/types/TradePresentable";
 
 export const TradeView = () => {
     const {

@@ -4,13 +4,13 @@ import {
   ExperimentOutlined, GoldOutlined, SettingOutlined, SwapOutlined, TeamOutlined, LogoutOutlined, UserOutlined, AuditOutlined
 } from "@ant-design/icons";
 import {Link, Outlet, useLocation, useNavigate} from "react-router-dom";
-import { defaultPictureURL, paths } from "../../../constants";
-import KBCLogo from "../../../assets/logo.png";
+import { defaultPictureURL, paths } from "@/constants/index";
+import KBCLogo from "@/assets/logo.png";
 import styles from "./MenuLayout.module.scss";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../../redux/store";
-import {resetUserInfo} from "../../../redux/reducers/userInfoSlice";
-import {clearSiweIdentity} from "../../../redux/reducers/siweIdentitySlice";
+import { RootState } from "@/redux/store";
+import {resetUserInfo} from "@/redux/reducers/userInfoSlice";
+import {clearSiweIdentity} from "@/redux/reducers/siweIdentitySlice";
 const { Content, Footer, Sider } = Layout;
 
 type MenuItem = Required<MenuProps>["items"][number];

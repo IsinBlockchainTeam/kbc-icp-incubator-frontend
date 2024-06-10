@@ -1,14 +1,14 @@
-import {CardPage} from "../../components/structure/CardPage/CardPage";
+import {CardPage} from "@/components/structure/CardPage/CardPage";
 import {Button} from "antd";
 import {DeleteOutlined} from "@ant-design/icons";
-import {paths} from "../../constants";
-import {FormElement, FormElementType, GenericForm} from "../../components/GenericForm/GenericForm";
+import {paths} from "@/constants/index";
+import {FormElement, FormElementType, GenericForm} from "@/components/GenericForm/GenericForm";
 import React, {useContext, useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
-import {NotificationType, openNotification} from "../../utils/notification";
+import {NotificationType, openNotification} from "@/utils/notification";
 import {useDispatch} from "react-redux";
-import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
-import {EthContext} from "../../providers/EthProvider";
+import {hideLoading, showLoading} from "@/redux/reducers/loadingSlice";
+import {EthContext} from "@/providers/EthProvider";
 import {ProductCategory} from "@kbc-lib/coffee-trading-management-lib";
 
 export const MaterialNew = () => {

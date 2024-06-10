@@ -5,7 +5,7 @@ import {
     DocumentType,
     BasicTrade, OrderTrade, Trade
 } from "@kbc-lib/coffee-trading-management-lib";
-import {DocumentPresentable} from "./DocumentPresentable";
+import {DocumentPresentable} from "@/api/types/DocumentPresentable";
 
 export type TradePreviewPresentable = {
     id: number;

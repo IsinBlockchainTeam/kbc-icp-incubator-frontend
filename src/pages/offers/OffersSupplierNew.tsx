@@ -1,17 +1,17 @@
 import {Navigate, useNavigate} from "react-router-dom";
-import {FormElement, FormElementType, GenericForm} from "../../components/GenericForm/GenericForm";
-import {NotificationType, openNotification} from "../../utils/notification";
-import {credentials, paths} from "../../constants";
-import {CardPage} from "../../components/structure/CardPage/CardPage";
+import {FormElement, FormElementType, GenericForm} from "@/components/GenericForm/GenericForm";
+import {NotificationType, openNotification} from "@/utils/notification";
+import {credentials, paths} from "@/constants/index";
+import {CardPage} from "@/components/structure/CardPage/CardPage";
 import {Button} from "antd";
 import {DeleteOutlined} from "@ant-design/icons";
 import React, {useContext, useEffect} from "react";
-import {formatAddress} from "../../utils/utils";
+import {formatAddress} from "@/utils/utils";
 import {useDispatch, useSelector} from "react-redux";
-import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
-import {RootState} from "../../redux/store";
-import {SignerContext} from "../../providers/SignerProvider";
-import {EthContext} from "../../providers/EthProvider";
+import {hideLoading, showLoading} from "@/redux/reducers/loadingSlice";
+import {RootState} from "@/redux/store";
+import {SignerContext} from "@/providers/SignerProvider";
+import {EthContext} from "@/providers/EthProvider";
 
 export const OffersSupplierNew = () => {
     const {signer} = useContext(SignerContext);

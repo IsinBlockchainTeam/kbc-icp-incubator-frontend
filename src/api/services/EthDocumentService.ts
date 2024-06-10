@@ -3,7 +3,7 @@ import {
     TradeService, TradeManagerService, DocumentStatus, DocumentType
 } from "@kbc-lib/coffee-trading-management-lib";
 import {DocumentInfoPresentable, DocumentPresentable} from "../types/DocumentPresentable";
-import {getMimeType} from "../../utils/utils";
+import {getMimeType} from "@/utils/utils";
 
 export class EthDocumentService {
     private readonly _documentService;

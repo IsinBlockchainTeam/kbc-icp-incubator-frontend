@@ -1,5 +1,5 @@
 import {AssetOperation, AssetOperationService, MaterialService} from "@kbc-lib/coffee-trading-management-lib";
-import {AssetOperationRequest} from "../types/AssetOperationRequest";
+import {AssetOperationRequest} from "@/api/types/AssetOperationRequest";
 
 export class EthAssetOperationService {
     private readonly _walletAddress: string;

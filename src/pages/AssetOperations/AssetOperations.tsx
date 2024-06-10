@@ -1,15 +1,15 @@
 import React, {useContext, useEffect, useState} from "react";
-import {NotificationType, openNotification} from "../../utils/notification";
+import {NotificationType, openNotification} from "@/utils/notification";
 import {ColumnsType} from "antd/es/table";
 import {Button, Table, TableProps} from "antd";
-import {CardPage} from "../../components/structure/CardPage/CardPage";
+import {CardPage} from "@/components/structure/CardPage/CardPage";
 import {AssetOperation} from "@kbc-lib/coffee-trading-management-lib";
 import {PlusOutlined} from "@ant-design/icons";
-import {paths} from "../../constants";
+import {paths} from "@/constants/index";
 import {useNavigate} from "react-router-dom";
-import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
+import {hideLoading, showLoading} from "@/redux/reducers/loadingSlice";
 import {useDispatch} from "react-redux";
-import {EthContext} from "../../providers/EthProvider";
+import {EthContext} from "@/providers/EthProvider";
 
 export const AssetOperations = () => {
     const {ethAssetOperationService} = useContext(EthContext);

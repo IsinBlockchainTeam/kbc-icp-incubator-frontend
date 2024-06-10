@@ -1,6 +1,6 @@
 import {Col, Image, Row, Typography} from "antd";
 import React from "react";
-import {showTextWithHtmlLinebreaks} from "../../utils/utils";
+import {showTextWithHtmlLinebreaks} from "@/utils/utils";
 
 export enum DutiesWaiting {
     EXPORTER_PRODUCTION, EXPORTER_EXPORT, EXPORTER_SHIPPING, IMPORTER_IMPORT

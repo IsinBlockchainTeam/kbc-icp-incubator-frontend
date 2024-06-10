@@ -5,18 +5,18 @@ import {
     OrderLineRequest,
     OrderLinePrice
 } from "@kbc-lib/coffee-trading-management-lib";
-import {NotificationType, openNotification} from "../../../utils/notification";
+import {NotificationType, openNotification} from "@/utils/notification";
 import dayjs from "dayjs";
 import useTradeShared from "./tradeShared";
 import {MenuProps} from "antd";
 import {useDispatch} from "react-redux";
-import {hideLoading, showLoading} from "../../../redux/reducers/loadingSlice";
+import {hideLoading, showLoading} from "@/redux/reducers/loadingSlice";
 import {useLocation, useNavigate} from "react-router-dom";
-import {paths} from "../../../constants";
-import {BasicTradeRequest, OrderTradeRequest} from "../../../api/types/TradeRequest";
-import {DocumentRequest} from "../../../api/types/DocumentRequest";
+import {paths} from "@/constants/index";
+import {BasicTradeRequest, OrderTradeRequest} from "@/api/types/TradeRequest";
+import {DocumentRequest} from "@/api/types/DocumentRequest";
 import {useContext} from "react";
-import {SignerContext} from "../../../providers/SignerProvider";
+import {SignerContext} from "@/providers/SignerProvider";
 
 export default function useTradeNew() {
     const {signer} = useContext(SignerContext);

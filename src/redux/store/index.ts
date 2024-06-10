@@ -1,7 +1,7 @@
 import {combineReducers, configureStore} from "@reduxjs/toolkit";
-import userInfoReducer from "../reducers/userInfoSlice";
-import loadingReducer from "../reducers/loadingSlice";
-import siweIdentityReducer from "../reducers/siweIdentitySlice";
+import userInfoReducer from "@/redux/reducers/userInfoSlice";
+import loadingReducer from "@/redux/reducers/loadingSlice";
+import siweIdentityReducer from "@/redux/reducers/siweIdentitySlice";
 import storage from "redux-persist/lib/storage/session";
 import { persistReducer, persistStore } from "redux-persist";
 

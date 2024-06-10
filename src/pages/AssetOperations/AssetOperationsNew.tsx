@@ -1,16 +1,16 @@
 import {useNavigate} from "react-router-dom";
-import {FormElement, FormElementType, GenericForm} from "../../components/GenericForm/GenericForm";
+import {FormElement, FormElementType, GenericForm} from "@/components/GenericForm/GenericForm";
 import {Button} from "antd";
 import {DeleteOutlined} from "@ant-design/icons";
-import {paths} from "../../constants";
-import {CardPage} from "../../components/structure/CardPage/CardPage";
+import {paths} from "@/constants/index";
+import {CardPage} from "@/components/structure/CardPage/CardPage";
 import React, {useContext, useEffect, useState} from "react";
-import {NotificationType, openNotification} from "../../utils/notification";
-import {regex} from "../../utils/regex";
-import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
+import {NotificationType, openNotification} from "@/utils/notification";
+import {regex} from "@/utils/regex";
+import {hideLoading, showLoading} from "@/redux/reducers/loadingSlice";
 import {useDispatch} from "react-redux";
-import {AssetOperationRequest} from "../../api/types/AssetOperationRequest";
-import {EthContext} from "../../providers/EthProvider";
+import {AssetOperationRequest} from "@/api/types/AssetOperationRequest";
+import {EthContext} from "@/providers/EthProvider";
 import {Material} from "@kbc-lib/coffee-trading-management-lib";
 
 export const AssetOperationsNew = () => {

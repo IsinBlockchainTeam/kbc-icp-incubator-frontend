@@ -1,13 +1,13 @@
 import {Button, Card, Typography} from "antd";
 import styles from "./Profile.module.scss";
 import {useSelector} from "react-redux";
-import {RootState} from "../../redux/store";
+import {RootState} from "@/redux/store";
 import {Navigate} from "react-router-dom";
-import {paths} from "../../constants";
-import {useSiweIdentity} from "../../providers/SiweIdentityProvider";
+import {paths} from "@/constants/index";
+import {useSiweIdentity} from "@/providers/SiweIdentityProvider";
 import React, {useContext, useEffect, useState} from "react";
-import {SignerContext} from "../../providers/SignerProvider";
-import {ICPContext} from "../../providers/ICPProvider";
+import {SignerContext} from "@/providers/SignerProvider";
+import {ICPContext} from "@/providers/ICPProvider";
 
 const {Title, Paragraph, Text} = Typography;
 export default function Profile() {

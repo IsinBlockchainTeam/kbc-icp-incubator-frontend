@@ -1,20 +1,20 @@
 import {Divider, Steps} from "antd";
 import {EditOutlined, ImportOutlined, ProductOutlined, SendOutlined, TruckOutlined} from "@ant-design/icons";
 import React, {useContext, useMemo} from "react";
-import {FormElement, FormElementType, GenericForm} from "../GenericForm/GenericForm";
+import {FormElement, FormElementType, GenericForm} from "@/components/GenericForm/GenericForm";
 import {DocumentStatus, DocumentType, OrderStatus, serial, TradeType} from "@kbc-lib/coffee-trading-management-lib";
-import {hideLoading, showLoading} from "../../redux/reducers/loadingSlice";
-import {DocumentRequest} from "../../api/types/DocumentRequest";
-import {NotificationType, openNotification} from "../../utils/notification";
+import {hideLoading, showLoading} from "@/redux/reducers/loadingSlice";
+import {DocumentRequest} from "@/api/types/DocumentRequest";
+import {NotificationType, openNotification} from "@/utils/notification";
 import {useDispatch} from "react-redux";
-import {DetailedTradePresentable} from "../../api/types/TradePresentable";
-import useTradeView from "../../pages/transactions/logic/tradeView";
-import useTradeNew from "../../pages/transactions/logic/tradeNew";
+import {DetailedTradePresentable} from "@/api/types/TradePresentable";
+import useTradeView from "@/pages/transactions/logic/tradeView";
+import useTradeNew from "@/pages/transactions/logic/tradeNew";
 import {useNavigate} from "react-router-dom";
-import {paths} from "../../constants";
-import {SignerContext} from "../../providers/SignerProvider";
-import TradeDutiesWaiting, {DutiesWaiting} from "../../pages/transactions/TradeDutiesWaiting";
-import {EthContext} from "../../providers/EthProvider";
+import {paths} from "@/constants/index";
+import {SignerContext} from "@/providers/SignerProvider";
+import TradeDutiesWaiting, {DutiesWaiting} from "@/pages/transactions/TradeDutiesWaiting";
+import {EthContext} from "@/providers/EthProvider";
 
 type Props = {
     status: OrderStatus,

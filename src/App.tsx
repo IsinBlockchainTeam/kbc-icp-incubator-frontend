@@ -1,27 +1,27 @@
 import React from "react";
 import {Worker} from "@react-pdf-viewer/core";
 import {HashRouter, Navigate, Route, Routes} from 'react-router-dom'
-import {MenuLayout} from "./components/structure/MenuLayout/MenuLayout";
 import PrivateRoutes from "./PrivateRoutes";
-import {paths} from "./constants";
-import Profile from "./pages/Profile/Profile";
-import Partners from "./pages/Partners/Partners";
-import Offers from "./pages/offers/Offers";
-import OffersNew from "./pages/offers/OffersNew";
-import OffersSupplierNew from "./pages/offers/OffersSupplierNew";
-import Materials from "./pages/Material/Materials";
-import MaterialNew from "./pages/Material/MaterialNew";
-import ProductCategoryNew from "./pages/Material/ProductCategoryNew";
-import Trades from "./pages/transactions/Trades";
-import {TradeNew} from "./pages/transactions/TradeNew";
-import TradeView from "./pages/transactions/TradeView";
-import AssetOperations from "./pages/AssetOperations/AssetOperations";
-import AssetOperationsNew from "./pages/AssetOperations/AssetOperationsNew";
-import GraphPage from "./pages/Graph/GraphPage";
-import Login from "./pages/Login/Login";
+import {paths} from "@/constants/index";
+import Profile from "@/pages/Profile/Profile";
+import Partners from "@/pages/Partners/Partners";
+import Offers from "@/pages/offers/Offers";
+import OffersNew from "@/pages/offers/OffersNew";
+import OffersSupplierNew from "@/pages/offers/OffersSupplierNew";
+import Materials from "@/pages/Material/Materials";
+import MaterialNew from "@/pages/Material/MaterialNew";
+import ProductCategoryNew from "@/pages/Material/ProductCategoryNew";
+import Trades from "@/pages/transactions/Trades";
+import {TradeNew} from "@/pages/transactions/TradeNew";
+import TradeView from "@/pages/transactions/TradeView";
+import AssetOperations from "@/pages/AssetOperations/AssetOperations";
+import AssetOperationsNew from "@/pages/AssetOperations/AssetOperationsNew";
+import GraphPage from "@/pages/Graph/GraphPage";
+import Login from "@/pages/Login/Login";
 import {Provider as ReduxProvider} from "react-redux/es/exports";
-import {persistor, store} from "./redux/store";
+import {persistor, store} from "@/redux/store";
 import {PersistGate} from "redux-persist/integration/react";
+import {MenuLayout} from "@/components/structure/MenuLayout/MenuLayout";
 
 export const App = () => {
 
