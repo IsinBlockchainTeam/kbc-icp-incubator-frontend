@@ -8,7 +8,7 @@ export const request = async (
     url: string,
     options: Options,
     contentType = "application/json",
-): Promise<any> => { // eslint-disable-line @typescript-eslint/no-explicit-any
+): Promise<any> => { //eslint-disable-line
   const headers = {
     "Content-Type": contentType,
     Accept: "application/json",
