@@ -92,7 +92,7 @@ export default function useTradeNew() {
                     'Basic trade registered',
                     `Basic trade "${values.name}" has been registered correctly!`,
                     NotificationType.SUCCESS,
-                    1
+                    3
                 );
             } else {
                 const orderTrade: OrderTradeRequest = {
@@ -117,7 +117,7 @@ export default function useTradeNew() {
                     'Order trade registered',
                     `Order trade has been registered correctly!`,
                     NotificationType.SUCCESS,
-                    1
+                    3
                 );
             }
             navigate(paths.TRADES);

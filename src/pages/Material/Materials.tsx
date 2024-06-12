@@ -4,7 +4,7 @@ import { NotificationType, openNotification } from '@/utils/notification';
 import { ColumnsType } from 'antd/es/table';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
 import { PlusOutlined } from '@ant-design/icons';
-import { paths } from '@/constants/index';
+import {notificationDuration, paths} from '@/constants/index';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
@@ -25,7 +25,7 @@ export const Materials = () => {
             setMaterials(await ethMaterialService.getMaterials());
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR);
+            openNotification('Error', e.message, NotificationType.ERROR, notificationDuration);
         } finally {
             dispatch(hideLoading());
         }

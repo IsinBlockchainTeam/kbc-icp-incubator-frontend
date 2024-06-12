@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
 import { Button } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
-import { paths } from '@/constants/index';
+import {notificationDuration, paths} from '@/constants/index';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
 import React, { useContext, useEffect, useState } from 'react';
 import { NotificationType, openNotification } from '@/utils/notification';
@@ -44,7 +44,7 @@ export const AssetOperationsNew = () => {
             setProcessTypes(pT);
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR);
+            openNotification('Error', e.message, NotificationType.ERROR, notificationDuration);
         } finally {
             setLoadingCount((c) => c - 1);
         }
@@ -57,7 +57,7 @@ export const AssetOperationsNew = () => {
             setMaterials(m);
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR);
+            openNotification('Error', e.message, NotificationType.ERROR, notificationDuration);
         } finally {
             setLoadingCount((c) => c - 1);
         }
@@ -94,12 +94,12 @@ export const AssetOperationsNew = () => {
                 'Asset operation registered',
                 `Asset operation "${newAssetOperation.name}" has been registered correctly!`,
                 NotificationType.SUCCESS,
-                1
+                notificationDuration
             );
             navigate(paths.ASSET_OPERATIONS);
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR);
+            openNotification('Error', e.message, NotificationType.ERROR, notificationDuration);
         } finally {
             dispatch(hideLoading());
         }

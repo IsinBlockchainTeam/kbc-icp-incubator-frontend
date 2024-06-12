@@ -8,7 +8,7 @@ import { SignerContext } from '@/providers/SignerProvider';
 import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
 import { useDispatch } from 'react-redux';
 import { NotificationType, openNotification } from '@/utils/notification';
-import { DID_METHOD } from '@/constants/index';
+import {DID_METHOD, notificationDuration} from '@/constants/index';
 import { FormInstance } from 'antd';
 import dayjs from 'dayjs';
 import { ICPContext } from '@/providers/ICPProvider';
@@ -66,20 +66,21 @@ export default function useTradeShared() {
         validationStatus: DocumentStatus
     ) => {
         await ethTradeService.validateDocument(tradeId, documentId, validationStatus);
-        if (validationStatus === DocumentStatus.APPROVED)
-            openNotification(
-                'Document approved',
-                'The document has been successfully approved',
-                NotificationType.SUCCESS,
-                1
-            );
-        else if (validationStatus === DocumentStatus.NOT_APPROVED)
-            openNotification(
-                'Document rejected',
-                'The document has been rejected',
-                NotificationType.SUCCESS,
-                1
-            );
+        // TODO: notification disappear due to reload of the page, understand another way and at the same time if this notification is really needed in this case
+        // if (validationStatus === DocumentStatus.APPROVED)
+        //     openNotification(
+        //         'Document approved',
+        //         'The document has been successfully approved',
+        //         NotificationType.SUCCESS,
+        //         notificationDuration
+        //     );
+        // else if (validationStatus === DocumentStatus.NOT_APPROVED)
+        //     openNotification(
+        //         'Document rejected',
+        //         'The document has been rejected',
+        //         NotificationType.SUCCESS,
+        //         notificationDuration
+        //     );
         window.location.reload();
     };
 

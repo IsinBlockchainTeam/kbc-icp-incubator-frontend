@@ -1,7 +1,7 @@
 import { Navigate, useNavigate } from 'react-router-dom';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
 import { NotificationType, openNotification } from '@/utils/notification';
-import { credentials, DID_METHOD, paths } from '@/constants/index';
+import {credentials, DID_METHOD, notificationDuration, paths} from '@/constants/index';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
 import { Button } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
@@ -42,7 +42,7 @@ export const OffersNew = () => {
             setProductCategories(pC);
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', 'Error loading product categories', NotificationType.ERROR);
+            openNotification('Error', 'Error loading product categories', NotificationType.ERROR, notificationDuration);
         } finally {
             dispatch(hideLoading());
         }
@@ -80,7 +80,7 @@ export const OffersNew = () => {
             ]);
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', 'Error loading elements', NotificationType.ERROR);
+            openNotification('Error', 'Error loading elements', NotificationType.ERROR, notificationDuration);
         } finally {
             dispatch(hideLoading());
         }
@@ -95,12 +95,12 @@ export const OffersNew = () => {
                 'Offer registered',
                 `Offer for product category with ID "${values['product-category-id']}" has been registered correctly!`,
                 NotificationType.SUCCESS,
-                1
+                notificationDuration
             );
             navigate(paths.OFFERS);
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', 'Supplier not register', NotificationType.ERROR);
+            openNotification('Error', 'Supplier not register', NotificationType.ERROR, notificationDuration);
         } finally {
             dispatch(hideLoading());
         }

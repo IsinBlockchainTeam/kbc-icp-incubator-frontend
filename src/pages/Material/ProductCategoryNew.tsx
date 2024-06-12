@@ -1,7 +1,7 @@
 import { CardPage } from '@/components/structure/CardPage/CardPage';
 import { Button } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
-import { paths } from '@/constants/index';
+import {notificationDuration, paths} from '@/constants/index';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
 import React, { useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -60,12 +60,12 @@ export const ProductCategoryNew = () => {
                 'Product category registered',
                 `Product category "${values.name}" has been registered correctly!`,
                 NotificationType.SUCCESS,
-                1
+                notificationDuration
             );
             navigate(paths.MATERIALS);
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR);
+            openNotification('Error', e.message, NotificationType.ERROR, notificationDuration);
         } finally {
             dispatch(hideLoading());
         }

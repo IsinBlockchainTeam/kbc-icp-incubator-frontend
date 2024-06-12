@@ -1,4 +1,4 @@
-import { Divider, Steps } from 'antd';
+import {Divider, List, Steps} from 'antd';
 import {
     EditOutlined,
     ImportOutlined,
@@ -23,10 +23,11 @@ import { DetailedTradePresentable } from '@/api/types/TradePresentable';
 import useTradeView from '@/pages/transactions/logic/tradeView';
 import useTradeNew from '@/pages/transactions/logic/tradeNew';
 import { useNavigate } from 'react-router-dom';
-import { paths } from '@/constants/index';
+import {notificationDuration, paths} from '@/constants/index';
 import { SignerContext } from '@/providers/SignerProvider';
 import TradeDutiesWaiting, { DutiesWaiting } from '@/pages/transactions/TradeDutiesWaiting';
 import { EthContext } from '@/providers/EthProvider';
+import {showTextWithHtmlLinebreaks} from "@/utils/utils";
 
 type Props = {
     status: OrderStatus;
@@ -48,6 +49,16 @@ export default function OrderTradeStatusForms(props: Props) {
     const documentHeight = '45vh';
     const tradeView = useTradeView();
     const tradeNew = useTradeNew();
+    const documentTypesLabel = new Map<DocumentType, string>()
+        .set(DocumentType.PAYMENT_INVOICE, 'Payment Invoice')
+        .set(DocumentType.ORIGIN_SWISS_DECODE, 'Swiss Decode')
+        .set(DocumentType.WEIGHT_CERTIFICATE, 'Weight Certificate')
+        .set(DocumentType.FUMIGATION_CERTIFICATE, 'Fumigation Certificate')
+        .set(DocumentType.PREFERENTIAL_ENTRY_CERTIFICATE, 'Preferential Entry Certificate')
+        .set(DocumentType.PHYTOSANITARY_CERTIFICATE, 'Phytosanitary Certificate')
+        .set(DocumentType.INSURANCE_CERTIFICATE, 'Insurance Certificate')
+        .set(DocumentType.BILL_OF_LADING, 'Bill Of Lading')
+        .set(DocumentType.COMPARISON_SWISS_DECODE, 'Comparison Swiss Decode');
 
     const onChange = (value: number) => {
         if (value > status) return;
@@ -77,10 +88,29 @@ export default function OrderTradeStatusForms(props: Props) {
                     );
                 })
             );
+            openNotification(
+                'Documents uploaded',
+                <div>
+                    Documents successfully uploaded:
+                    <List
+                        dataSource={documents.filter((doc) => values[doc.valueName].name).map((doc) => ({
+                            title: documentTypesLabel.get(doc.documentType),
+                            description: values[doc.valueName].name
+                        }))}
+                        renderItem={(item) => (
+                            <List.Item>
+                                <List.Item.Meta title={item.title} description={item.description} />
+                            </List.Item>
+                        )}
+                    />
+                </div>,
+                NotificationType.SUCCESS,
+                notificationDuration + 2
+            );
             navigate(paths.TRADES);
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR);
+            openNotification('Error', e.message, NotificationType.ERROR, notificationDuration);
         } finally {
             dispatch(hideLoading());
         }
@@ -123,7 +153,7 @@ export default function OrderTradeStatusForms(props: Props) {
                             type: FormElementType.DOCUMENT,
                             span: 12,
                             name: 'payment-invoice',
-                            label: 'Payment Invoice',
+                            label: documentTypesLabel.get(DocumentType.PAYMENT_INVOICE)!,
                             required: true,
                             loading: false,
                             uploadable: isDocumentUploadable(
@@ -159,7 +189,7 @@ export default function OrderTradeStatusForms(props: Props) {
                             type: FormElementType.DOCUMENT,
                             span: 12,
                             name: 'swiss-decode',
-                            label: 'Swiss Decode',
+                            label: documentTypesLabel.get(DocumentType.ORIGIN_SWISS_DECODE)!,
                             required: true,
                             loading: false,
                             uploadable: isDocumentUploadable(
@@ -178,7 +208,7 @@ export default function OrderTradeStatusForms(props: Props) {
                             type: FormElementType.DOCUMENT,
                             span: 12,
                             name: 'weight-certificate',
-                            label: 'Weight Certificate',
+                            label: documentTypesLabel.get(DocumentType.WEIGHT_CERTIFICATE)!,
                             required: true,
                             loading: false,
                             uploadable: isDocumentUploadable(
@@ -197,7 +227,7 @@ export default function OrderTradeStatusForms(props: Props) {
                             type: FormElementType.DOCUMENT,
                             span: 12,
                             name: 'fumigation-certificate',
-                            label: 'Fumigation Certificate',
+                            label: documentTypesLabel.get(DocumentType.FUMIGATION_CERTIFICATE)!,
                             required: true,
                             loading: false,
                             uploadable: isDocumentUploadable(
@@ -216,7 +246,7 @@ export default function OrderTradeStatusForms(props: Props) {
                             type: FormElementType.DOCUMENT,
                             span: 12,
                             name: 'preferential-entry-certificate',
-                            label: 'Preferential Entry Certificate',
+                            label: documentTypesLabel.get(DocumentType.PREFERENTIAL_ENTRY_CERTIFICATE)!,
                             required: true,
                             loading: false,
                             uploadable: isDocumentUploadable(
@@ -237,7 +267,7 @@ export default function OrderTradeStatusForms(props: Props) {
                             type: FormElementType.DOCUMENT,
                             span: 12,
                             name: 'phytosanitary-certificate',
-                            label: 'Phytosanitary Certificate',
+                            label: documentTypesLabel.get(DocumentType.PHYTOSANITARY_CERTIFICATE)!,
                             required: true,
                             loading: false,
                             uploadable: isDocumentUploadable(
@@ -256,7 +286,7 @@ export default function OrderTradeStatusForms(props: Props) {
                             type: FormElementType.DOCUMENT,
                             span: 12,
                             name: 'insurance-certificate',
-                            label: 'Insurance Certificate',
+                            label: documentTypesLabel.get(DocumentType.INSURANCE_CERTIFICATE)!,
                             required: true,
                             loading: false,
                             uploadable: isDocumentUploadable(
@@ -312,7 +342,7 @@ export default function OrderTradeStatusForms(props: Props) {
                             type: FormElementType.DOCUMENT,
                             span: 12,
                             name: 'bill-of-lading',
-                            label: 'Bill Of Lading',
+                            label: documentTypesLabel.get(DocumentType.BILL_OF_LADING)!,
                             required: true,
                             loading: false,
                             uploadable: isDocumentUploadable(
@@ -348,7 +378,7 @@ export default function OrderTradeStatusForms(props: Props) {
                             type: FormElementType.DOCUMENT,
                             span: 12,
                             name: 'comparison-swiss-decode',
-                            label: 'Comparison Swiss Decode',
+                            label: documentTypesLabel.get(DocumentType.COMPARISON_SWISS_DECODE)!,
                             required: true,
                             loading: false,
                             uploadable: isDocumentUploadable(

@@ -139,3 +139,5 @@ export const utils = {
 };
 
 export const DID_METHOD: string = 'did:ethr:dev';
+
+export const notificationDuration = 3;

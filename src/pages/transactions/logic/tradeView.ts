@@ -63,7 +63,7 @@ export default function useTradeView() {
                 'Negotiation confirmed',
                 `The negotiation has been confirmed`,
                 NotificationType.SUCCESS,
-                1
+                2
             );
             navigate(paths.TRADES);
         } catch (e: any) {
@@ -448,14 +448,6 @@ export default function useTradeView() {
         }
         try {
             dispatch(showLoading('Loading...'));
-            if (values['delivery-deadline'] <= values['shipping-deadline']) {
-                openNotification(
-                    'Delivery deadline cannot be less then shipping one',
-                    '',
-                    NotificationType.ERROR
-                );
-            }
-
             const supplier: string = values['supplier'];
             const customer: string = values['customer'];
             const commissioner: string = values['commissioner'];
@@ -502,6 +494,12 @@ export default function useTradeView() {
                 };
                 await ethTradeService.putOrderTrade(parseInt(id!), updatedOrderTrade);
             }
+            openNotification(
+                'Trade updated',
+                `This trade has been updated correctly!`,
+                NotificationType.SUCCESS,
+                2
+            );
             setDisabled(true);
             navigate(paths.TRADES);
         } catch (e: any) {

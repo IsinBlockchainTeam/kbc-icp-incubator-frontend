@@ -5,7 +5,7 @@ import { Button, Table, TableProps } from 'antd';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
 import { AssetOperation } from '@kbc-lib/coffee-trading-management-lib';
 import { PlusOutlined } from '@ant-design/icons';
-import { paths } from '@/constants/index';
+import {notificationDuration, paths} from '@/constants/index';
 import { useNavigate } from 'react-router-dom';
 import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
 import { useDispatch } from 'react-redux';
@@ -30,7 +30,7 @@ export const AssetOperations = () => {
             );
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR);
+            openNotification('Error', e.message, NotificationType.ERROR, notificationDuration);
         } finally {
             dispatch(hideLoading());
         }

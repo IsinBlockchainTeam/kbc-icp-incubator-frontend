@@ -1,7 +1,7 @@
 import { Timeline, Space, QRCode } from 'antd';
 import styles from './Login.module.scss';
 import React, { useEffect, useState } from 'react';
-import { paths, requestPath } from '../../constants';
+import {notificationDuration, paths, requestPath} from '../../constants';
 import { request } from '@/utils/request';
 import { v4 as uuid } from 'uuid';
 import { openNotification, NotificationType } from '@/utils/notification';
@@ -36,7 +36,7 @@ export default function VeramoLogin() {
             setChallengeId(id);
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR);
+            openNotification('Error', e.message, NotificationType.ERROR, notificationDuration);
         } finally {
             dispatch(hideLoading());
         }
@@ -70,7 +70,7 @@ export default function VeramoLogin() {
                 setChallengeId('');
                 const subjectDid = message.body.holder;
                 if (!subjectDid) {
-                    openNotification('Error', 'No subject DID found', NotificationType.ERROR);
+                    openNotification('Error', 'No subject DID found', NotificationType.ERROR, notificationDuration);
                     return;
                 }
                 const userInfo = message.body.verifiableCredential[0].credentialSubject;
@@ -94,7 +94,7 @@ export default function VeramoLogin() {
             }
         } catch (error: any) {
             console.log('error: ', error);
-            openNotification('Error', 'Error while processing VC', NotificationType.ERROR);
+            openNotification('Error', 'Error while processing VC', NotificationType.ERROR, notificationDuration);
         }
     };
 

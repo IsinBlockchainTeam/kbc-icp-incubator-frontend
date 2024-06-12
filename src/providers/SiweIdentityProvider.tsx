@@ -27,7 +27,7 @@ import {
     type ISignedDelegation as ServiceSignedDelegation,
     type State
 } from '@blockchain-lib/common';
-import { ICP } from '@/constants/index';
+import {ICP, notificationDuration} from '@/constants/index';
 
 /**
  * Re-export types
@@ -92,11 +92,12 @@ export function SiweIdentityProvider({
             openNotification(
                 'Authenticated',
                 `Login succeed. Welcome ${userInfo.legalName}!`,
-                NotificationType.SUCCESS
+                NotificationType.SUCCESS,
+                notificationDuration
             );
         } catch (e) {
             console.error('Error in SiweIdentityProvider', e);
-            openNotification('Error', 'Error while logging in', NotificationType.ERROR);
+            openNotification('Error', 'Error while logging in', NotificationType.ERROR, notificationDuration);
         }
     }
 

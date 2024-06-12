@@ -1,7 +1,7 @@
 import { Button, Form, FormProps, Input, Modal } from 'antd';
 import { NotificationType, openNotification } from '@/utils/notification';
 import React, { useEffect } from 'react';
-import { requestPath } from '@/constants/index';
+import {notificationDuration, requestPath} from '@/constants/index';
 import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
 import { useDispatch } from 'react-redux';
 
@@ -29,14 +29,15 @@ export const InviteCompany = (props: Props) => {
                 openNotification(
                     'Success',
                     'Company invited successfully',
-                    NotificationType.SUCCESS
+                    NotificationType.SUCCESS,
+                    notificationDuration
                 );
                 props.onClose();
             } else {
-                openNotification('Error', 'Failed to invite company', NotificationType.ERROR);
+                openNotification('Error', 'Failed to invite company', NotificationType.ERROR, notificationDuration);
             }
         } catch (e: any) {
-            openNotification('Error', e.message, NotificationType.ERROR);
+            openNotification('Error', e.message, NotificationType.ERROR, notificationDuration);
         } finally {
             dispatch(hideLoading());
         }
@@ -44,7 +45,7 @@ export const InviteCompany = (props: Props) => {
 
     const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
         errorInfo.errorFields.forEach((field) => {
-            openNotification('Error', field.errors[0], NotificationType.ERROR);
+            openNotification('Error', field.errors[0], NotificationType.ERROR, notificationDuration);
         });
     };
 

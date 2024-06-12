@@ -7,7 +7,7 @@ import { NotificationType, openNotification } from '@/utils/notification';
 import { setParametersPath } from '@/utils/utils';
 import { TradePreviewPresentable } from '@/api/types/TradePresentable';
 import { Link } from 'react-router-dom';
-import { paths } from '@/constants/index';
+import {notificationDuration, paths} from '@/constants/index';
 import { NegotiationStatus, OrderStatus, TradeType } from '@kbc-lib/coffee-trading-management-lib';
 import { useDispatch } from 'react-redux';
 import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
@@ -32,7 +32,7 @@ export const Trades = () => {
             );
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR);
+            openNotification('Error', e.message, NotificationType.ERROR, notificationDuration);
         } finally {
             dispatch(hideLoading());
         }

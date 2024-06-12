@@ -1,7 +1,7 @@
 import { Navigate, useNavigate } from 'react-router-dom';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
 import { NotificationType, openNotification } from '@/utils/notification';
-import { credentials, paths } from '@/constants/index';
+import {credentials, notificationDuration, paths} from '@/constants/index';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
 import { Button } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
@@ -52,12 +52,12 @@ export const OffersSupplierNew = () => {
                 'Offer supplier registered',
                 `Offer supplier with address ${formatAddress(values['supplier-address'])} has been registered correctly!`,
                 NotificationType.SUCCESS,
-                1
+                notificationDuration
             );
             navigate(paths.OFFERS);
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR);
+            openNotification('Error', e.message, NotificationType.ERROR, notificationDuration);
         } finally {
             dispatch(hideLoading());
         }

@@ -1,4 +1,5 @@
 import { notification } from 'antd';
+import {ReactNode} from "react";
 
 export enum NotificationType {
     SUCCESS = 'success',
@@ -8,7 +9,7 @@ export enum NotificationType {
 }
 export const openNotification = (
     title: string,
-    message: string,
+    message: ReactNode,
     type: NotificationType,
     duration?: number
 ) => {

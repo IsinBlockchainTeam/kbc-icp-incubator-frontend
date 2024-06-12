@@ -5,7 +5,7 @@ import { Button, Space, Table, TableProps } from 'antd';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
 import Search from '@/components/Search/Search';
 import { PlusOutlined } from '@ant-design/icons';
-import { credentials, DID_METHOD, paths } from '@/constants/index';
+import {credentials, DID_METHOD, notificationDuration, paths} from '@/constants/index';
 import { useNavigate } from 'react-router-dom';
 import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
 import { useDispatch, useSelector } from 'react-redux';
@@ -49,7 +49,7 @@ export const Offers = () => {
             setFilteredOffers(offerPresentables);
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR);
+            openNotification('Error', e.message, NotificationType.ERROR, notificationDuration);
         } finally {
             dispatch(hideLoading());
         }
