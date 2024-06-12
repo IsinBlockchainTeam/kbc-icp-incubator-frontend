@@ -14,9 +14,10 @@ import {
 } from 'antd';
 import PDFViewer from '../PDFViewer/PDFViewer';
 import { DownloadOutlined } from '@ant-design/icons';
-import { createDownloadWindow, showTextWithHtmlLinebreaks } from '@/utils/utils';
 import { DocumentPresentable } from '@/api/types/DocumentPresentable';
 import { FormItemInputProps } from 'antd/es/form/FormItemInput';
+
+import { createDownloadWindow } from '@/utils/page';
 
 export enum FormElementType {
     TITLE = 'title',
@@ -116,6 +117,20 @@ type Props = {
     elements: FormElement[];
     submittable?: boolean;
     onSubmit?: (values: any) => void;
+};
+
+const showTextWithHtmlLinebreaks = (text: string): ReactNode => {
+    return (
+        <>
+            {text.split('\n').map((str, index) => (
+                <React.Fragment key={index}>
+                    {' '}
+                    {str}
+                    <br />{' '}
+                </React.Fragment>
+            ))}
+        </>
+    );
 };
 
 export type ElementStatus = { type: FormItemInputProps['status']; message: ReactNode };

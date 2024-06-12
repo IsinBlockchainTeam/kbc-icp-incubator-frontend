@@ -20,9 +20,7 @@ import {
 import { CustomError } from '@/utils/error/CustomError';
 import { HttpStatusCode } from '@/utils/error/HttpStatusCode';
 import { ICPResourceSpec } from '@blockchain-lib/common';
-import { getICPCanisterURL } from '@/utils/utils';
 import { DID_METHOD, ICP } from '@/constants/index';
-import { store } from '@/redux/store';
 import {
     BasicTradePresentable,
     DetailedTradePresentable,
@@ -34,9 +32,11 @@ import { BasicTradeRequest, OrderTradeRequest } from '@/api/types/TradeRequest';
 import { EthMaterialService } from '@/api/services/EthMaterialService';
 import { DocumentRequest } from '@/api/types/DocumentRequest';
 import { EthDocumentService } from '@/api/services/EthDocumentService';
+import { getICPCanisterURL } from '@/utils/icp';
 
 export class EthTradeService {
     private readonly _walletAddress: string;
+    private readonly _organizationId: number;
     private readonly _ethMaterialService: EthMaterialService;
     private readonly _tradeManagerService: TradeManagerService;
     private readonly _ethDocumentService: EthDocumentService;
@@ -51,6 +51,7 @@ export class EthTradeService {
 
     constructor(
         walletAddress: string,
+        organizationId: number,
         materialService: EthMaterialService,
         tradeManagerService: TradeManagerService,
         ethDocumentService: EthDocumentService,
@@ -61,6 +62,7 @@ export class EthTradeService {
         getNameByDID: (did: string) => Promise<string>
     ) {
         this._walletAddress = walletAddress;
+        this._organizationId = organizationId;
         this._ethMaterialService = materialService;
         this._tradeManagerService = tradeManagerService;
         this._ethDocumentService = ethDocumentService;
@@ -70,152 +72,60 @@ export class EthTradeService {
         this._waitForTransactions = waitForTransactions;
         this._getNameByDID = getNameByDID;
     }
-
-    async getGeneralTrades(): Promise<TradePreviewPresentable[]> {
-        const names: Map<string, string> = new Map<string, string>();
-
-        const tradeIds: number[] = await this._tradeManagerService.getTradeIdsOfSupplier(
-            this._walletAddress
-        );
-        tradeIds.push(
-            ...(await this._tradeManagerService.getTradeIdsOfCommissioner(this._walletAddress))
-        );
-        let tradePresentables: TradePreviewPresentable[] = [];
-
-        if (!tradeIds.length) return tradePresentables;
-
-        const tradeContractAddresses = await Promise.all(
-            tradeIds.map(async (id) => this._tradeManagerService.getTrade(id))
-        );
-        for (const tradeAddress of tradeContractAddresses) {
-            const tradeService = this._getTradeService(tradeAddress);
-            let tradeInstanceService: IConcreteTradeService;
-            const tradeType = await tradeService.getTradeType();
-
-            if (tradeType === TradeType.BASIC) {
-                tradeInstanceService = this._getBasicTradeService(tradeAddress);
-            } else if (tradeType === TradeType.ORDER) {
-                tradeInstanceService = this._getOrderTradeService(tradeAddress);
-            } else {
-                throw new CustomError(
-                    HttpStatusCode.INTERNAL_SERVER,
-                    'Received an invalid trade type'
-                );
-            }
-
-            const { tradeId, supplier, commissioner } = await tradeInstanceService.getTrade();
-            const trade = await tradeInstanceService.getTrade();
-
-            let actionRequired;
-            if (tradeType === TradeType.ORDER) {
-                const orderService = tradeInstanceService as OrderTradeService;
-                const actionMessage = async (
-                    designatedPartyAddress: string,
-                    docTypes: DocumentType[]
-                ): Promise<string | undefined> => {
-                    const documentsByType = await this.getDocumentsInfoMapByTypes(
-                        tradeId,
-                        docTypes
-                    );
-                    if (this._walletAddress === designatedPartyAddress) {
-                        if (
-                            docTypes.some((docType) =>
-                                documentsByType.size === 0
-                                    ? true
-                                    : !documentsByType.get(docType) ||
-                                      documentsByType.get(docType)?.status ===
-                                          DocumentStatus.NOT_APPROVED
-                            )
-                        )
-                            return `You have to upload some documents`;
-                    } else {
-                        if (
-                            docTypes.some(
-                                (docType) =>
-                                    documentsByType.get(docType)?.status ===
-                                    DocumentStatus.NOT_EVALUATED
-                            )
-                        )
-                            return `Some documents need to be validated`;
-                    }
-                    return undefined;
-                };
-
-                const order = trade as OrderTrade;
-                const orderStatus = await orderService.getOrderStatus();
-                const whoSigned = await orderService.getWhoSigned();
-                if (
-                    !whoSigned.includes(this._walletAddress) &&
-                    order.negotiationStatus === NegotiationStatus.PENDING
-                )
-                    actionRequired = 'This negotiation needs your sign to proceed';
-                else if (orderStatus === OrderStatus.PRODUCTION)
-                    actionRequired = await actionMessage(order.supplier, [
-                        DocumentType.PAYMENT_INVOICE
-                    ]);
-                else if (orderStatus === OrderStatus.PAYED)
-                    actionRequired = await actionMessage(order.supplier, [
-                        DocumentType.ORIGIN_SWISS_DECODE,
-                        DocumentType.WEIGHT_CERTIFICATE,
-                        DocumentType.FUMIGATION_CERTIFICATE,
-                        DocumentType.PREFERENTIAL_ENTRY_CERTIFICATE,
-                        DocumentType.PHYTOSANITARY_CERTIFICATE,
-                        DocumentType.INSURANCE_CERTIFICATE
-                    ]);
-                else if (orderStatus === OrderStatus.EXPORTED)
-                    actionRequired = await actionMessage(order.supplier, [
-                        DocumentType.BILL_OF_LADING
-                    ]);
-                else if (orderStatus === OrderStatus.SHIPPED)
-                    actionRequired = await actionMessage(order.commissioner, [
-                        DocumentType.COMPARISON_SWISS_DECODE
-                    ]);
-            }
-
-            let supplierName = names.get(supplier);
-            if (!supplierName) {
-                supplierName = (await this._getNameByDID(DID_METHOD + ':' + supplier)) || 'Unknown';
-                names.set(supplier, supplierName);
-            }
-            let commissionerName = names.get(commissioner);
-            if (!commissionerName) {
-                commissionerName =
-                    (await this._getNameByDID(DID_METHOD + ':' + commissioner)) || 'Unknown';
-                names.set(commissioner, commissionerName);
-            }
-
-            const newTradePresentable: TradePreviewPresentable = {
-                id: tradeId,
-                supplier: supplierName,
-                commissioner: commissionerName,
-                type: tradeType,
-                actionRequired
-            };
-
-            if (tradeType === TradeType.ORDER) {
-                newTradePresentable.negotiationStatus = await (
-                    tradeInstanceService as OrderTradeService
-                ).getNegotiationStatus();
-                newTradePresentable.orderStatus = await (
-                    tradeInstanceService as OrderTradeService
-                ).getOrderStatus();
-            }
-            tradePresentables.push(newTradePresentable);
+    private _getRequiredDocumentsTypes = (orderStatus: OrderStatus): DocumentType[] => {
+        switch (orderStatus) {
+            case OrderStatus.PRODUCTION:
+                return [DocumentType.PAYMENT_INVOICE];
+            case OrderStatus.PAYED:
+                return [
+                    DocumentType.ORIGIN_SWISS_DECODE,
+                    DocumentType.WEIGHT_CERTIFICATE,
+                    DocumentType.FUMIGATION_CERTIFICATE,
+                    DocumentType.PREFERENTIAL_ENTRY_CERTIFICATE,
+                    DocumentType.PHYTOSANITARY_CERTIFICATE,
+                    DocumentType.INSURANCE_CERTIFICATE
+                ];
+            case OrderStatus.EXPORTED:
+                return [DocumentType.BILL_OF_LADING];
+            case OrderStatus.SHIPPED:
+                return [DocumentType.COMPARISON_SWISS_DECODE];
+            default:
+                return [];
         }
+    };
 
-        return tradePresentables;
+    private _getDesignatedPartyAddress = async (
+        orderStatus: OrderStatus,
+        orderTrade: OrderTrade
+    ): Promise<string> => {
+        switch (orderStatus) {
+            case OrderStatus.PRODUCTION:
+            case OrderStatus.PAYED:
+            case OrderStatus.EXPORTED:
+                return orderTrade.supplier;
+            case OrderStatus.SHIPPED:
+                return orderTrade.commissioner;
+            default:
+                return orderTrade.supplier;
+        }
+    };
+
+    private async _getTradeIds(): Promise<number[]> {
+        return [
+            ...(await this._tradeManagerService.getTradeIdsOfSupplier(this._walletAddress)),
+            ...(await this._tradeManagerService.getTradeIdsOfCommissioner(this._walletAddress))
+        ];
     }
 
-    private async getCompleteDocumentsMap(
-        tradeId: number
-    ): Promise<Map<DocumentType, DocumentPresentable>> {
-        const documents = await this._ethDocumentService.getDocumentsByTransactionId(tradeId);
-        const documentMap = new Map<DocumentType, DocumentPresentable>();
-        documents?.forEach((doc) => documentMap.set(doc.documentType, doc));
-        return documentMap;
+    private _getConcreteTradeService(
+        tradeType: TradeType,
+        tradeAddress: string
+    ): IConcreteTradeService {
+        if (tradeType === TradeType.BASIC) return this._getBasicTradeService(tradeAddress);
+        return this._getOrderTradeService(tradeAddress);
     }
 
-    private async getDocumentsInfoMapByTypes(
+    private async _getDocumentsInfoMapByTypes(
         tradeId: number,
         types: DocumentType[]
     ): Promise<Map<DocumentType, DocumentInfoPresentable | undefined>> {
@@ -226,9 +136,116 @@ export class EthTradeService {
                     tradeId,
                     type
                 );
-            if (documents?.length > 0) documents?.forEach((doc) => documentMap.set(type, doc));
-            else documentMap.set(type, undefined);
+            documentMap.set(type, documents[documents.length - 1]);
         }
+        return documentMap;
+    }
+
+    private _getActionMessage = async (
+        orderTradeService: OrderTradeService
+    ): Promise<string | undefined> => {
+        const orderTrade = await orderTradeService.getTrade();
+        const tradeId = orderTrade.tradeId;
+        const orderStatus = await orderTradeService.getOrderStatus();
+        const signatures = await orderTradeService.getWhoSigned();
+
+        if (
+            !signatures.includes(this._walletAddress) &&
+            orderTrade.negotiationStatus === NegotiationStatus.PENDING
+        )
+            return 'This negotiation needs your sign to proceed';
+
+        const requiredDocumentsTypes = this._getRequiredDocumentsTypes(orderStatus);
+        if (requiredDocumentsTypes.length === 0) return undefined;
+
+        const designatedPartyAddress = await this._getDesignatedPartyAddress(
+            orderStatus,
+            orderTrade
+        );
+        const documentsInfoMapByType = await this._getDocumentsInfoMapByTypes(
+            tradeId,
+            requiredDocumentsTypes
+        );
+        if (this._walletAddress === designatedPartyAddress) {
+            const isUploadRequired =
+                documentsInfoMapByType.size === 0 ||
+                requiredDocumentsTypes.some((docType) => {
+                    const documentInfo = documentsInfoMapByType.get(docType);
+                    return !documentInfo || documentInfo.status === DocumentStatus.NOT_APPROVED;
+                });
+
+            if (isUploadRequired) return `You have to upload some documents`;
+        } else {
+            const isValidationRequired = requiredDocumentsTypes.some(
+                (docType) =>
+                    documentsInfoMapByType.get(docType)?.status === DocumentStatus.NOT_EVALUATED
+            );
+
+            if (isValidationRequired) return `Some documents need to be validated`;
+        }
+        return undefined;
+    };
+
+    async getGeneralTrades(): Promise<TradePreviewPresentable[]> {
+        const names: Map<string, string> = new Map<string, string>();
+
+        const tradeIds = await this._getTradeIds();
+        let tradePresentables: TradePreviewPresentable[] = [];
+
+        if (!tradeIds.length) return tradePresentables;
+
+        const tradeContractAddresses = await Promise.all(
+            tradeIds.map(async (id) => this._tradeManagerService.getTrade(id))
+        );
+        for (const tradeAddress of tradeContractAddresses) {
+            const tradeService = this._getTradeService(tradeAddress);
+            const tradeType = await tradeService.getTradeType();
+            let tradeInstanceService = this._getConcreteTradeService(tradeType, tradeAddress);
+
+            const { tradeId, supplier, commissioner } = await tradeInstanceService.getTrade();
+
+            if (!names.has(supplier))
+                names.set(
+                    supplier,
+                    (await this._getNameByDID(DID_METHOD + ':' + supplier)) || 'Unknown'
+                );
+            if (!names.has(commissioner))
+                names.set(
+                    commissioner,
+                    (await this._getNameByDID(DID_METHOD + ':' + commissioner)) || 'Unknown'
+                );
+
+            const newTradePresentable: TradePreviewPresentable = {
+                id: tradeId,
+                supplier: names.get(supplier)!,
+                commissioner: names.get(commissioner)!,
+                type: tradeType,
+                actionRequired:
+                    tradeType === TradeType.ORDER
+                        ? await this._getActionMessage(tradeInstanceService as OrderTradeService)
+                        : undefined,
+                negotiationStatus:
+                    tradeType === TradeType.ORDER
+                        ? await (tradeInstanceService as OrderTradeService).getNegotiationStatus()
+                        : undefined,
+                orderStatus:
+                    tradeType === TradeType.ORDER
+                        ? await (tradeInstanceService as OrderTradeService).getOrderStatus()
+                        : undefined
+            };
+
+            tradePresentables.push(newTradePresentable);
+        }
+
+        return tradePresentables;
+    }
+
+    private async _getCompleteDocumentsMap(
+        tradeId: number
+    ): Promise<Map<DocumentType, DocumentPresentable>> {
+        const documents = await this._ethDocumentService.getDocumentsByTransactionId(tradeId);
+        const documentMap = new Map<DocumentType, DocumentPresentable>();
+        documents?.forEach((doc) => documentMap.set(doc.documentType, doc));
         return documentMap;
     }
 
@@ -246,7 +263,7 @@ export class EthTradeService {
 
                 return new BasicTradePresentable(
                     basicTrade,
-                    await this.getCompleteDocumentsMap(id)
+                    await this._getCompleteDocumentsMap(id)
                 );
 
             case TradeType.ORDER:
@@ -257,7 +274,7 @@ export class EthTradeService {
                 return new OrderTradePresentable(
                     orderTrade,
                     await orderTradeService.getOrderStatus(),
-                    await this.getCompleteDocumentsMap(id)
+                    await this._getCompleteDocumentsMap(id)
                 );
 
             default:
@@ -266,13 +283,12 @@ export class EthTradeService {
     }
 
     async saveBasicTrade(trade: BasicTradeRequest, documents?: DocumentRequest[]): Promise<void> {
-        const organizationId = parseInt(store.getState().userInfo.organizationId);
         // TODO: remove this harcoded value
-        const delegatedOrganizationIds: number[] = organizationId === 0 ? [1] : [0];
+        const delegatedOrganizationIds: number[] = this._organizationId === 0 ? [1] : [0];
 
         const urlStructure: URLStructure = {
             prefix: getICPCanisterURL(ICP.CANISTER_ID_ORGANIZATION),
-            organizationId
+            organizationId: this._organizationId
         };
         const metadata = {
             date: new Date()
@@ -355,13 +371,12 @@ export class EthTradeService {
     }
 
     async saveOrderTrade(trade: OrderTradeRequest, documents?: DocumentRequest[]): Promise<void> {
-        const organizationId = parseInt(store.getState().userInfo.organizationId);
         // TODO: remove this harcoded value
-        const delegatedOrganizationIds: number[] = organizationId === 0 ? [1] : [0];
+        const delegatedOrganizationIds: number[] = this._organizationId === 0 ? [1] : [0];
 
         const urlStructure: URLStructure = {
             prefix: getICPCanisterURL(ICP.CANISTER_ID_ORGANIZATION),
-            organizationId
+            organizationId: this._organizationId
         };
         const metadata: OrderTradeMetadata = {
             incoterms: trade.incoterms,
@@ -475,9 +490,8 @@ export class EthTradeService {
         externalUrl: string
     ): Promise<void> {
         const tradeAddress = await this._tradeManagerService.getTrade(tradeId);
-        const organizationId = parseInt(store.getState().userInfo.organizationId);
         // TODO: remove this harcoded value
-        const delegatedOrganizationIds: number[] = organizationId === 0 ? [1] : [0];
+        const delegatedOrganizationIds: number[] = this._organizationId === 0 ? [1] : [0];
         let tradeService: TradeService;
         if (tradeType === TradeType.BASIC) tradeService = this._getBasicTradeService(tradeAddress);
         else tradeService = this._getOrderTradeService(tradeAddress);

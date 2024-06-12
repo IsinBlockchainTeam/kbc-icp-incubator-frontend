@@ -12,6 +12,8 @@ import { EthPartnerService } from '@/api/services/EthPartnerService';
 import { EthTradeService } from '@/api/services/EthTradeService';
 import { Typography } from 'antd';
 import { ICPContext } from './ICPProvider';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/redux/store';
 
 type EthContextState = {
     ethAssetOperationService: EthAssetOperationService;
@@ -28,6 +30,7 @@ type EthContextState = {
 export const EthContext = createContext<EthContextState>({} as EthContextState);
 export function EthProvider({ children }: { children: ReactNode }) {
     const { fileDriver, getNameByDID } = useContext(ICPContext);
+    const userInfo = useSelector((state: RootState) => state.userInfo);
     const {
         waitForTransactions,
         getProductCategoryService,
@@ -74,6 +77,7 @@ export function EthProvider({ children }: { children: ReactNode }) {
     const ethPartnerService = new EthPartnerService(signer.address, getRelationshipService());
     const ethTradeService = new EthTradeService(
         signer.address,
+        parseInt(userInfo.organizationId),
         ethMaterialService,
         getTradeManagerService(),
         ethDocumentService,

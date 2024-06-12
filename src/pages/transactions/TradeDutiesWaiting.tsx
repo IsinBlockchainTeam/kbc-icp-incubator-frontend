@@ -1,6 +1,5 @@
 import { Col, Image, Row, Typography } from 'antd';
-import React from 'react';
-import { showTextWithHtmlLinebreaks } from '@/utils/utils';
+import React, { ReactNode } from 'react';
 
 export enum DutiesWaiting {
     EXPORTER_PRODUCTION,
@@ -13,6 +12,20 @@ type Props = {
     waitingType: DutiesWaiting;
     message: string;
     marginVertical?: string;
+};
+
+const showTextWithHtmlLinebreaks = (text: string): ReactNode => {
+    return (
+        <>
+            {text.split('\n').map((str, index) => (
+                <React.Fragment key={index}>
+                    {' '}
+                    {str}
+                    <br />{' '}
+                </React.Fragment>
+            ))}
+        </>
+    );
 };
 
 export default function TradeDutiesWaiting(props: Props) {

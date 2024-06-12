@@ -6,12 +6,12 @@ import { CardPage } from '@/components/structure/CardPage/CardPage';
 import { Button } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import React, { useContext, useEffect } from 'react';
-import { formatAddress } from '@/utils/utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
 import { RootState } from '@/redux/store';
 import { SignerContext } from '@/providers/SignerProvider';
 import { EthContext } from '@/providers/EthProvider';
+import { formatAddress } from '@/utils/format';
 
 export const OffersSupplierNew = () => {
     const { signer } = useContext(SignerContext);

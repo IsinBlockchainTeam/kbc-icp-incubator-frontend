@@ -1,4 +1,4 @@
-import { formatDid } from '../utils';
+import { formatDid } from '@/utils/format';
 
 jest.mock('../request');
 

@@ -20,7 +20,7 @@ export class EthMaterialService {
         this._materialService = materialService;
     }
 
-    async getProductCategories(): Promise<ProductCategory[]> {
+    getProductCategories(): Promise<ProductCategory[]> {
         return this._productCategoryService.getProductCategories();
     }
 

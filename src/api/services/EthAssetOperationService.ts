@@ -35,10 +35,6 @@ export class EthAssetOperationService {
         return this._assetOperationService.getAssetOperationsOfCreator(this._walletAddress);
     }
 
-    async getRawAssetOperations(): Promise<AssetOperation[]> {
-        return this._assetOperationService.getAssetOperationsOfCreator(this._walletAddress);
-    }
-
     async getAssetOperationById(id: number): Promise<AssetOperation> {
         return this._assetOperationService.getAssetOperation(id);
     }
