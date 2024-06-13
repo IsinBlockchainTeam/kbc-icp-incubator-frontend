@@ -37,6 +37,7 @@ const userInfoSlice = createSlice({
             state: UserInfoState,
             action: { payload: UpdatableUserInfoState; type: string }
         ) => {
+            state.isLogged = true;
             state.id = action.payload.id;
             state.legalName = action.payload.legalName;
             state.email = action.payload.email;
@@ -60,12 +61,9 @@ const userInfoSlice = createSlice({
             state.role = '';
             state.organizationId = '';
             state.privateKey = '';
-        },
-        setLogged: (state: UserInfoState, action: { payload: boolean; type: string }) => {
-            state.isLogged = action.payload;
         }
     }
 });
-export const { updateUserInfo, resetUserInfo, setLogged } = userInfoSlice.actions;
+export const { updateUserInfo, resetUserInfo } = userInfoSlice.actions;
 
 export default userInfoSlice.reducer;

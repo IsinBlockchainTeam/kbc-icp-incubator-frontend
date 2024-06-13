@@ -6,7 +6,7 @@ import { request } from '@/utils/request';
 import { v4 as uuid } from 'uuid';
 import { openNotification, NotificationType } from '@/utils/notification';
 import { useDispatch, useSelector } from 'react-redux';
-import { setLogged, updateUserInfo } from '@/redux/reducers/userInfoSlice';
+import { updateUserInfo } from '@/redux/reducers/userInfoSlice';
 import { RootState } from '@/redux/store';
 import { Navigate } from 'react-router-dom';
 import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
@@ -88,7 +88,6 @@ export default function VeramoLogin() {
                         privateKey: userInfo.privateKey || ''
                     })
                 );
-                dispatch(setLogged(true));
             } else {
                 console.log('NO MESSAGE');
             }

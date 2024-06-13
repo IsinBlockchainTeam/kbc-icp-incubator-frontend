@@ -4,7 +4,7 @@ import { MenuLayout } from '../MenuLayout';
 import { Provider } from 'react-redux';
 import { store } from '@/redux/store';
 import { MemoryRouter } from 'react-router-dom';
-import { setLogged, updateUserInfo, UserInfoState } from '@/redux/reducers/userInfoSlice';
+import { updateUserInfo, UserInfoState } from '@/redux/reducers/userInfoSlice';
 import { Menu } from 'antd';
 import { paths } from '@/constants/index';
 
@@ -40,7 +40,6 @@ describe('MenuLayout', () => {
         expect(secondaryMenuItems[0].children[0].key).toBe(paths.LOGIN);
     });
     it('should render menu when user is logged in', () => {
-        store.dispatch(setLogged(true));
         store.dispatch(
             updateUserInfo({
                 id: '1',

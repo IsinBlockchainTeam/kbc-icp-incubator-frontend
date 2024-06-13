@@ -3,7 +3,11 @@ const path = require('path');
 
 module.exports = function override(config, env) {
     // Add Dotenv plugin
-    config.plugins.push(new Dotenv());
+    config.plugins.push(
+        new Dotenv({
+            ignoreStub: true
+        })
+    );
 
     // Add fallback configuration
     const loaders = config.resolve;
