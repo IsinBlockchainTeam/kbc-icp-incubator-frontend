@@ -30,7 +30,6 @@ export default function PDFViewer(props: PDFViewerProps) {
         onDocumentChange(name, info?.content);
     };
 
-    console.log('validationStatus: ', validationStatus);
     return (
         <Badge.Ribbon
             text={

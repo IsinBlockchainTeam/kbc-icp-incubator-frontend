@@ -12,6 +12,7 @@ export default (props: Props) => {
 
     return (
         <DatePicker
+            role="date-picker"
             style={{ width: '100%', ...style }}
             {...additionalProps}
             format={utils.DATE_FORMAT}

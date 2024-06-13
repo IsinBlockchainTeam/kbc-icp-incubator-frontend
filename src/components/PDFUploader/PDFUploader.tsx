@@ -11,29 +11,14 @@ export interface PDFUploaderProps {
 }
 
 export default function PDFUploader({ onFileUpload, onRevert }: PDFUploaderProps) {
-    const dummyRequest = ({
-        onSuccess
-    }: {
-        onSuccess?: (body: any, xhr?: XMLHttpRequest) => void;
-    }) => {
-        setTimeout(() => {
-            onSuccess!('ok');
-        }, 0);
-    };
-
     const props: UploadProps = {
         name: 'file',
         multiple: false,
-        customRequest: dummyRequest,
         maxCount: 1,
         showUploadList: false,
         beforeUpload: (file) => {
-            // if (file.type !== 'application/pdf') {
-            //     openNotification('Unsupported format', 'You can only upload PDF files', NotificationType.ERROR);
-            //     return Upload.LIST_IGNORE;
-            // }
             onFileUpload(file);
-            return true;
+            return false;
         },
         onChange(info) {
             const { status, name } = info.file;

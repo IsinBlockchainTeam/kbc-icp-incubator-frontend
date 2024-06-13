@@ -3,7 +3,16 @@ import userInfoReducer from '@/redux/reducers/userInfoSlice';
 import loadingReducer from '@/redux/reducers/loadingSlice';
 import siweIdentityReducer from '@/redux/reducers/siweIdentitySlice';
 import storage from 'redux-persist/lib/storage/session';
-import { persistReducer, persistStore } from 'redux-persist';
+import {
+    persistReducer,
+    persistStore,
+    FLUSH,
+    REHYDRATE,
+    PAUSE,
+    PERSIST,
+    PURGE,
+    REGISTER
+} from 'redux-persist';
 
 const persistConfig = {
     key: 'root',
@@ -17,7 +26,13 @@ const rootReducer = combineReducers({
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 export const store = configureStore({
-    reducer: persistedReducer
+    reducer: persistedReducer,
+    middleware: (getDefaultMiddleware) =>
+        getDefaultMiddleware({
+            serializableCheck: {
+                ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER]
+            }
+        })
 });
 
 export const persistor = persistStore(store);

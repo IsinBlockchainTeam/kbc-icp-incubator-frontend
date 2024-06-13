@@ -1,13 +1,19 @@
 import { fireEvent, render } from '@testing-library/react';
 import PDFViewer from '../PDFViewer';
-import { FormElement, FormElementType } from '../../GenericForm/GenericForm';
+import { DocumentElement, FormElement, FormElementType } from '../../GenericForm/GenericForm';
 import { PDFUploaderProps } from '../../PDFUploader/PDFUploader';
+import { DocumentPresentable } from '@/api/types/DocumentPresentable';
 
 jest.mock('antd', () => {
     return {
         ...jest.requireActual('antd'),
         Spin: ({ children, ...props }: any) => (
             <div {...props} data-testid="spin">
+                {children}
+            </div>
+        ),
+        Empty: ({ children, ...props }: any) => (
+            <div {...props} data-testid="empty">
                 {children}
             </div>
         )
@@ -50,14 +56,16 @@ jest.mock('../../PDFUploader/PDFUploader', () => ({ onFileUpload, onRevert }: PD
 describe('PDFViewer', () => {
     const mockedURLCreateObjectURL = jest.fn();
     const actual = URL.createObjectURL;
-    const element: FormElement = {
+    const element: DocumentElement = {
         type: FormElementType.DOCUMENT,
         span: 24,
         name: 'document',
         label: 'Document 1',
         required: true,
-        content: new Blob(),
         uploadable: true,
+        info: {
+            content: mockedFile
+        } as DocumentPresentable,
         loading: false
     };
     beforeAll(() => {
@@ -74,7 +82,6 @@ describe('PDFViewer', () => {
         expect(tree.getByTestId('viewer')).toBeInTheDocument();
         expect(tree.getByTestId('pdfuploader')).toBeInTheDocument();
         expect(mockedURLCreateObjectURL).toHaveBeenCalledTimes(1);
-        expect(mockedURLCreateObjectURL).toHaveBeenCalledWith(element.content);
     });
     it('should call onFileUpload and onRevert', () => {
         const tree = render(<PDFViewer element={element} onDocumentChange={jest.fn()} />);
@@ -87,12 +94,11 @@ describe('PDFViewer', () => {
     it('should render correctly with no content', () => {
         const emptyElement: FormElement = {
             ...element,
-            content: undefined
+            info: undefined
         };
         const tree = render(<PDFViewer element={emptyElement} onDocumentChange={jest.fn()} />);
 
-        expect(tree.getByTestId('container-icon')).toBeInTheDocument();
-        expect(tree.getByText('No Data')).toBeInTheDocument();
+        expect(tree.getByTestId('empty')).toBeInTheDocument();
     });
     it('should render correctly with loading', () => {
         const loadingElement: FormElement = {

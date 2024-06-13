@@ -13,6 +13,7 @@ export default (props: Props) => {
 
     return (
         <RangePicker
+            role="range-picker"
             style={{ width: '100%', ...style }}
             {...additionalProps}
             format={utils.DATE_FORMAT}
