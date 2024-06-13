@@ -79,11 +79,11 @@ export class OrderTradePresentable extends DetailedTradePresentable {
         this._status = value;
     }
 
-    get trade(): Trade {
+    get trade(): OrderTrade {
         return this._orderTrade;
     }
 
-    set trade(value: Trade) {
-        this._orderTrade = value as OrderTrade;
+    set trade(value: OrderTrade) {
+        this._orderTrade = value;
     }
 }

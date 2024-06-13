@@ -44,7 +44,7 @@ type BasicElement = {
 
 type LabeledElement = Omit<BasicElement, 'type'> & {
     type: FormElementType.TITLE | FormElementType.TIP;
-    label: string;
+    label: ReactNode;
     marginVertical?: string;
 };
 
@@ -165,7 +165,7 @@ export const GenericForm = (props: Props) => {
                     style={{ margin: `${element.marginVertical} 0` }}>
                     <Alert
                         style={{ textAlign: 'center' }}
-                        message={showTextWithHtmlLinebreaks(label)}
+                        message={element.label}
                     />
                 </Col>
             );

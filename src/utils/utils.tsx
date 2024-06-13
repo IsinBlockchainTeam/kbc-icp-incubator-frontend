@@ -77,6 +77,17 @@ export const getICPCanisterURL = (canisterId: string): string => {
         : URL_SEGMENTS.HTTP + canisterId + '.' + URL_SEGMENTS.MAINNET;
 };
 
+export const fromTimestampToDate = (timestamp: number): Date => {
+    return new Date(timestamp * 1000);
+};
+
+export const differenceInDaysFromToday = (date: number | Date): number => {
+    const today = new Date();
+    const date1 = typeof date === 'number' ? fromTimestampToDate(date) : date;
+    console.log('difference: ', (date1.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    return Math.ceil((date1.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+};
+
 export const showTextWithHtmlLinebreaks = (text: string): ReactNode => {
     return (
         <>
