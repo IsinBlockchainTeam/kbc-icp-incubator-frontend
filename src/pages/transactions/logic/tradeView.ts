@@ -24,6 +24,7 @@ import { DID_METHOD, paths } from '@/constants/index';
 import { BasicTradeRequest, OrderTradeRequest } from '@/api/types/TradeRequest';
 import { SignerContext } from '@/providers/SignerProvider';
 import { ICPContext } from '@/providers/ICPProvider';
+import { showTextWithHtmlLinebreaks } from '@/utils/utils';
 
 export default function useTradeView() {
     const { getNameByDID } = useContext(ICPContext);
@@ -249,7 +250,17 @@ export default function useTradeView() {
             const orderTrade = trade.trade as OrderTrade;
             setNegotiationStatus(NegotiationStatus[orderTrade.negotiationStatus]);
 
-            const newElements = [...commonElements];
+            const newElements: FormElement[] = [
+                {
+                    type: FormElementType.TIP,
+                    span: 24,
+                    label: showTextWithHtmlLinebreaks(
+                        'This is the first stage, where the involved parties can negotiate the terms of the trade. \nOnce the negotiation is confirmed by both parties, the implementation phase will begin in which all the necessary documents must be uploaded in order to successfully complete the transaction.'
+                    ),
+                    marginVertical: '1rem'
+                },
+                ...commonElements
+            ];
             newElements.push(
                 { type: FormElementType.TITLE, span: 24, label: 'Constraints' },
                 {

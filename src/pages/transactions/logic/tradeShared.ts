@@ -8,10 +8,11 @@ import { SignerContext } from '@/providers/SignerProvider';
 import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
 import { useDispatch } from 'react-redux';
 import { NotificationType, openNotification } from '@/utils/notification';
-import {DID_METHOD, notificationDuration} from '@/constants/index';
+import { DID_METHOD, notificationDuration } from '@/constants/index';
 import { FormInstance } from 'antd';
 import dayjs from 'dayjs';
 import { ICPContext } from '@/providers/ICPProvider';
+import { RangePickerProps } from 'antd/es/date-picker';
 
 export default function useTradeShared() {
     const { signer } = useContext(SignerContext);
@@ -120,6 +121,11 @@ export default function useTradeShared() {
             console.log('error: ', e);
             openNotification('Error', e.message, NotificationType.ERROR);
         }
+    };
+
+    const disabledDate = (current: dayjs.Dayjs): boolean => {
+        // Can not select days before today
+        return current && current <= dayjs().endOf('day');
     };
 
     useEffect(() => {
@@ -312,6 +318,7 @@ export default function useTradeShared() {
                     required: true,
                     defaultValue: '',
                     disabled: false,
+                    disableValues: disabledDate,
                     dependencies: ['document-delivery-deadline']
                 },
                 {

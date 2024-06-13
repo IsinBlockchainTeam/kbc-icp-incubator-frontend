@@ -1,4 +1,4 @@
-import { Descriptions, Divider, Flex, List, Space, Steps, Typography } from 'antd';
+import { Divider, List, Space, Steps, Typography } from 'antd';
 import {
     CalendarFilled,
     EditOutlined,
@@ -134,7 +134,7 @@ export default function OrderTradeStatusForms(props: Props) {
         );
     };
 
-    const stageLabelTip = (message: string, deadline: number): ReactNode => {
+    const stepLabelTip = (message: string, deadline: number, status: OrderStatus): ReactNode => {
         return (
             <div style={{ padding: '0.5rem' }}>
                 <div>{showTextWithHtmlLinebreaks(message)}</div>
@@ -146,13 +146,19 @@ export default function OrderTradeStatusForms(props: Props) {
                     <Typography.Text style={{ fontSize: 'large' }}>
                         {fromTimestampToDate(deadline).toLocaleDateString()}
                     </Typography.Text>
-                    {differenceInDaysFromToday(deadline) > 0 ? (
-                        <Typography.Text style={{ fontSize: 'medium', color: 'orange' }}>
-                            {`--> Left ${differenceInDaysFromToday(deadline)} days`}
-                        </Typography.Text>
+                    {orderInfo?.status === status ? (
+                        differenceInDaysFromToday(deadline) > 0 ? (
+                            <Typography.Text style={{ fontSize: 'medium', color: 'orange' }}>
+                                {`--> Left ${differenceInDaysFromToday(deadline)} days`}
+                            </Typography.Text>
+                        ) : (
+                            <Typography.Text style={{ fontSize: 'medium', color: 'red' }}>
+                                --{'>'} EXPIRED
+                            </Typography.Text>
+                        )
                     ) : (
-                        <Typography.Text style={{ fontSize: 'medium', color: 'red' }}>
-                            --{'>'} EXPIRED
+                        <Typography.Text style={{ fontSize: 'medium', color: 'green' }}>
+                            --{'>'} Uploaded on time
                         </Typography.Text>
                     )}
                 </Space>
@@ -179,9 +185,10 @@ export default function OrderTradeStatusForms(props: Props) {
                         {
                             type: FormElementType.TIP,
                             span: 24,
-                            label: stageLabelTip(
-                                'At this stage, the exporter has to load a payment invoice for the goods that have been negotiated. This operation allows coffee production to be started and planned only against a guarantee deposit from the importer',
-                                orderInfo.trade.paymentDeadline
+                            label: stepLabelTip(
+                                'At this stage, the exporter has to load a payment invoice for the goods that have been negotiated. \nThis operation allows coffee production to be started and planned only against a guarantee deposit from the importer',
+                                orderInfo.trade.paymentDeadline,
+                                OrderStatus.PRODUCTION
                             ),
                             marginVertical: '1rem'
                         },
@@ -218,9 +225,10 @@ export default function OrderTradeStatusForms(props: Props) {
                         {
                             type: FormElementType.TIP,
                             span: 24,
-                            label: stageLabelTip(
+                            label: stepLabelTip(
                                 'This is the export phase, the exporter has to load the following documents to proceed with the export, in order to prove the quality of the goods and the intrinsic characteristics of the coffee.',
-                                orderInfo.trade.documentDeliveryDeadline
+                                orderInfo.trade.documentDeliveryDeadline,
+                                OrderStatus.PAYED
                             ),
                             marginVertical: '1rem'
                         },
@@ -376,9 +384,10 @@ export default function OrderTradeStatusForms(props: Props) {
                         {
                             type: FormElementType.TIP,
                             span: 24,
-                            label: stageLabelTip(
-                                'This is the last step for the exporter, in which is important to prove that the goods are ready to be shipped. The exporter has to load the Bill of Lading to proceed with the shipment.',
-                                orderInfo.trade.shippingDeadline
+                            label: stepLabelTip(
+                                'This is the last step for the exporter, in which is important to prove that the goods are ready to be shipped. \nThe exporter has to load the Bill of Lading to proceed with the shipment.',
+                                orderInfo.trade.shippingDeadline,
+                                OrderStatus.EXPORTED
                             ),
                             marginVertical: '1rem'
                         },
@@ -415,9 +424,10 @@ export default function OrderTradeStatusForms(props: Props) {
                         {
                             type: FormElementType.TIP,
                             span: 24,
-                            label: stageLabelTip(
-                                'This is the final stage for this transaction where is important to prove that the goods, reached by the importer, have exactly the same specifications that are claimed by the exporter. The importer has to load the results of the Swiss Decode.',
-                                orderInfo.trade.deliveryDeadline
+                            label: stepLabelTip(
+                                'This is the final stage for this transaction where is important to prove that the goods, reached by the importer, have exactly the same specifications that are claimed by the exporter. \nThe importer has to load the results of the Swiss Decode.',
+                                orderInfo.trade.deliveryDeadline,
+                                OrderStatus.SHIPPED
                             ),
                             marginVertical: '1rem'
                         },

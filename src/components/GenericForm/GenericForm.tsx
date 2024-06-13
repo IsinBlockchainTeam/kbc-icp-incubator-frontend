@@ -17,6 +17,7 @@ import { DownloadOutlined } from '@ant-design/icons';
 import { createDownloadWindow, showTextWithHtmlLinebreaks } from '@/utils/utils';
 import { DocumentPresentable } from '@/api/types/DocumentPresentable';
 import { FormItemInputProps } from 'antd/es/form/FormItemInput';
+import dayjs from 'dayjs';
 
 export enum FormElementType {
     TITLE = 'title',
@@ -92,6 +93,7 @@ type EditableElement = Omit<LabeledElement, 'type'> & {
     defaultValue: any;
     required: boolean;
     disabled?: boolean;
+    disableValues?: (...args: any[]) => boolean;
     block?: boolean;
     regex?: string;
     dependencies?: string[];
@@ -117,8 +119,6 @@ type Props = {
     submittable?: boolean;
     onSubmit?: (values: any) => void;
 };
-
-export type ElementStatus = { type: FormItemInputProps['status']; message: ReactNode };
 
 export const GenericForm = (props: Props) => {
     const [form] = Form.useForm();
@@ -163,10 +163,7 @@ export const GenericForm = (props: Props) => {
                     span={span}
                     key={`tip_${label}`}
                     style={{ margin: `${element.marginVertical} 0` }}>
-                    <Alert
-                        style={{ textAlign: 'center' }}
-                        message={element.label}
-                    />
+                    <Alert style={{ textAlign: 'center' }} message={element.label} />
                 </Col>
             );
         },
@@ -273,7 +270,7 @@ export const GenericForm = (props: Props) => {
         },
         [FormElementType.DATE]: (element: FormElement, index: number) => {
             element = element as EditableElement;
-            const { disabled = false, validationCallback } = element;
+            const { disabled = false, validationCallback, disableValues } = element;
             return (
                 <Col span={element.span} key={`date_${element.name}`}>
                     <Form.Item
@@ -300,6 +297,7 @@ export const GenericForm = (props: Props) => {
                             placeholder={`Enter ${element.label}`}
                             format={dateFormat}
                             className="ant-input"
+                            disabledDate={disableValues}
                         />
                     </Form.Item>
                 </Col>

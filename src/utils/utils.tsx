@@ -84,7 +84,6 @@ export const fromTimestampToDate = (timestamp: number): Date => {
 export const differenceInDaysFromToday = (date: number | Date): number => {
     const today = new Date();
     const date1 = typeof date === 'number' ? fromTimestampToDate(date) : date;
-    console.log('difference: ', (date1.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
     return Math.ceil((date1.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 };
 
