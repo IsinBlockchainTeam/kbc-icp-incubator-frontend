@@ -15,7 +15,9 @@ export class EthPartnerService {
             this._walletAddress
         );
         const relationships = await Promise.all(
-            relationshipIds.map(async (id) => this._relationshipService.getRelationshipInfo(id))
+            relationshipIds.map(
+                async (id) => await this._relationshipService.getRelationshipInfo(id)
+            )
         );
 
         return relationships

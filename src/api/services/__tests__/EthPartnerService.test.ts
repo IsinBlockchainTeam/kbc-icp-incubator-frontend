@@ -1,9 +1,5 @@
 import { EthPartnerService } from '@/api/services/EthPartnerService';
-import {
-    Relationship,
-    RelationshipDriver,
-    RelationshipService
-} from '@kbc-lib/coffee-trading-management-lib';
+import { RelationshipDriver, RelationshipService } from '@kbc-lib/coffee-trading-management-lib';
 
 jest.mock('@kbc-lib/coffee-trading-management-lib');
 
@@ -16,17 +12,38 @@ describe('EthPartnerService', () => {
         ethPartnerService = new EthPartnerService('walletAddress', relationService);
     });
 
-    it('should successfully fetch partners', async () => {
-        const relationship = new Relationship(1, 'company1', 'company2', new Date(), new Date());
+    it('should successfully fetch partners - companyA', async () => {
         relationService.getRelationshipIdsByCompany = jest.fn().mockResolvedValue([1]);
-        relationService.getRelationshipInfo = jest.fn().mockResolvedValue(relationship);
+        relationService.getRelationshipInfo = jest.fn().mockResolvedValue({
+            id: 1,
+            companyA: 'walletAddress',
+            companyB: 'company2',
+            validFrom: new Date(),
+            validUntil: new Date()
+        });
 
         const partners = await ethPartnerService.getPartners();
         expect(partners).toBeDefined();
         expect(partners.length).toBe(1);
-        expect(partners[0].id).toEqual(relationship.id);
-        expect(partners[0].validFrom).toEqual(relationship.validFrom);
-        expect(partners[0].validUntil).toEqual(relationship.validUntil);
+        expect(partners[0].id).toEqual(1);
+
+        expect(relationService.getRelationshipIdsByCompany).toHaveBeenCalled();
+        expect(relationService.getRelationshipInfo).toHaveBeenCalled();
+    });
+    it('should successfully fetch partners - companyB', async () => {
+        relationService.getRelationshipIdsByCompany = jest.fn().mockResolvedValue([1]);
+        relationService.getRelationshipInfo = jest.fn().mockResolvedValue({
+            id: 1,
+            companyA: 'company1',
+            companyB: 'walletAddress',
+            validFrom: new Date(),
+            validUntil: new Date()
+        });
+
+        const partners = await ethPartnerService.getPartners();
+        expect(partners).toBeDefined();
+        expect(partners.length).toBe(1);
+        expect(partners[0].id).toEqual(1);
 
         expect(relationService.getRelationshipIdsByCompany).toHaveBeenCalled();
         expect(relationService.getRelationshipInfo).toHaveBeenCalled();

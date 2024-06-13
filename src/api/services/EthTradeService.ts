@@ -17,8 +17,6 @@ import {
     TradeType,
     URLStructure
 } from '@kbc-lib/coffee-trading-management-lib';
-import { CustomError } from '@/utils/error/CustomError';
-import { HttpStatusCode } from '@/utils/error/HttpStatusCode';
 import { ICPResourceSpec } from '@blockchain-lib/common';
 import { DID_METHOD, ICP } from '@/constants/index';
 import {
@@ -104,9 +102,8 @@ export class EthTradeService {
             case OrderStatus.EXPORTED:
                 return orderTrade.supplier;
             case OrderStatus.SHIPPED:
-                return orderTrade.commissioner;
             default:
-                return orderTrade.supplier;
+                return orderTrade.commissioner;
         }
     };
 
@@ -276,9 +273,6 @@ export class EthTradeService {
                     await orderTradeService.getOrderStatus(),
                     await this._getCompleteDocumentsMap(id)
                 );
-
-            default:
-                throw new CustomError(HttpStatusCode.BAD_REQUEST, 'Wrong trade type');
         }
     }
 
@@ -500,7 +494,6 @@ export class EthTradeService {
             name: document.filename,
             type: document.content.type
         };
-        console.log('addDocument - document: ', document);
 
         await tradeService.addDocument(
             document.documentType,
