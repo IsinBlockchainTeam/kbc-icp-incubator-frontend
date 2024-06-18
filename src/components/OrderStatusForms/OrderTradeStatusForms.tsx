@@ -37,6 +37,7 @@ type Props = {
 
 export default function OrderTradeStatusForms(props: Props) {
     const { status, submittable, negotiationElements, tradeInfo } = props;
+    let onSubmit: (values: any) => Promise<void>;
     const { signer } = useContext(SignerContext);
     const navigate = useNavigate();
     const { ethTradeService } = useContext(EthContext);
