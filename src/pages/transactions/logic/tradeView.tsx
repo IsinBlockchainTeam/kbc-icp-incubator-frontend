@@ -450,22 +450,26 @@ export default function useTradeView() {
                     }
                 );
             });
-            if (negotiationStatus !== NegotiationStatus[NegotiationStatus.CONFIRMED])
-                newElements.push(
-                    {
-                        type: FormElementType.BUTTON,
-                        span: 12,
-                        name: 'edit',
-                        label: (
-                            <div>
-                                {disabled ? 'Edit ' : 'Editing.. '}
-                                <EditOutlined style={{ fontSize: 'large' }} />
-                            </div>
-                        ),
-                        buttonType: 'primary',
-                        onClick: toggleDisabled
-                    },
-                    {
+            if (negotiationStatus !== NegotiationStatus[NegotiationStatus.CONFIRMED]) {
+                newElements.push({
+                    type: FormElementType.BUTTON,
+                    span: 12,
+                    name: 'edit',
+                    label: (
+                        <div>
+                            {disabled ? 'Edit ' : 'Editing.. '}
+                            <EditOutlined style={{ fontSize: 'large' }} />
+                        </div>
+                    ),
+                    buttonType: 'primary',
+                    onClick: toggleDisabled
+                });
+                if (
+                    (orderTrade.hasSupplierSigned && orderTrade.supplier !== signer?.address) ||
+                    (orderTrade.hasCommissionerSigned &&
+                        orderTrade.commissioner !== signer?.address)
+                ) {
+                    newElements.push({
                         type: FormElementType.BUTTON,
                         span: 12,
                         name: 'confirm',
@@ -477,8 +481,9 @@ export default function useTradeView() {
                         ),
                         buttonType: 'primary',
                         onClick: confirmNegotiation
-                    }
-                );
+                    });
+                }
+            }
             setElements(newElements);
         }
     }, [trade, actorNames, disabled]);
