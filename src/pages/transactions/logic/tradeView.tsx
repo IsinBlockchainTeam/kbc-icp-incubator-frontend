@@ -14,7 +14,7 @@ import {
 } from '@kbc-lib/coffee-trading-management-lib';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { DetailedTradePresentable } from '@/api/types/TradePresentable';
 import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
 import { FormElement, FormElementType } from '@/components/GenericForm/GenericForm';
@@ -25,6 +25,8 @@ import { BasicTradeRequest, OrderTradeRequest } from '@/api/types/TradeRequest';
 import { SignerContext } from '@/providers/SignerProvider';
 import { ICPContext } from '@/providers/ICPProvider';
 import { showTextWithHtmlLinebreaks } from '@/utils/utils';
+import { CheckCircleOutlined, EditOutlined } from '@ant-design/icons';
+import { Tooltip } from 'antd';
 
 export default function useTradeView() {
     const { getNameByDID } = useContext(ICPContext);
@@ -448,6 +450,35 @@ export default function useTradeView() {
                     }
                 );
             });
+            if (negotiationStatus !== NegotiationStatus[NegotiationStatus.CONFIRMED])
+                newElements.push(
+                    {
+                        type: FormElementType.BUTTON,
+                        span: 12,
+                        name: 'edit',
+                        label: (
+                            <div>
+                                {disabled ? 'Edit ' : 'Editing.. '}
+                                <EditOutlined style={{ fontSize: 'large' }} />
+                            </div>
+                        ),
+                        buttonType: 'primary',
+                        onClick: toggleDisabled
+                    },
+                    {
+                        type: FormElementType.BUTTON,
+                        span: 12,
+                        name: 'confirm',
+                        label: (
+                            <Tooltip title="Confirm the negotiation if everything is OK">
+                                Confirm Negotiation{' '}
+                                <CheckCircleOutlined style={{ fontSize: 'large' }} />
+                            </Tooltip>
+                        ),
+                        buttonType: 'primary',
+                        onClick: confirmNegotiation
+                    }
+                );
             setElements(newElements);
         }
     }, [trade, actorNames, disabled]);

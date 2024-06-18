@@ -43,20 +43,6 @@ export const TradeView = () => {
                                 {negotiationStatus.toUpperCase()}
                             </Tag>
                         )}
-                        {negotiationStatus !== NegotiationStatus[NegotiationStatus.CONFIRMED] && (
-                            <div>
-                                <EditOutlined
-                                    style={{ marginLeft: '8px' }}
-                                    onClick={toggleDisabled}
-                                />
-                                <Tooltip title="Confirm the negotiation if everything is OK">
-                                    <CheckCircleOutlined
-                                        style={{ marginLeft: '8px' }}
-                                        onClick={confirmNegotiation}
-                                    />
-                                </Tooltip>
-                            </div>
-                        )}
                     </div>
                 </div>
             }>
