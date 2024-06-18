@@ -1,7 +1,6 @@
 import { Timeline, Space, QRCode } from 'antd';
 import styles from './Login.module.scss';
 import React, { useEffect, useState } from 'react';
-import { paths, requestPath } from '../../constants';
 import { request } from '@/utils/request';
 import { v4 as uuid } from 'uuid';
 import { openNotification, NotificationType } from '@/utils/notification';
@@ -10,6 +9,8 @@ import { updateUserInfo } from '@/redux/reducers/userInfoSlice';
 import { RootState } from '@/redux/store';
 import { Navigate } from 'react-router-dom';
 import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
+import { requestPath } from '@/constants/url';
+import { paths } from '@/constants/paths';
 
 export default function VeramoLogin() {
     const [qrCodeURL, setQrCodeURL] = useState<string>('');

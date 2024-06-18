@@ -8,10 +8,10 @@ import { SignerContext } from '@/providers/SignerProvider';
 import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
 import { useDispatch } from 'react-redux';
 import { NotificationType, openNotification } from '@/utils/notification';
-import { DID_METHOD } from '@/constants/index';
 import { FormInstance } from 'antd';
 import dayjs from 'dayjs';
 import { ICPContext } from '@/providers/ICPProvider';
+import { DID_METHOD } from '@/constants/ssi';
 
 export default function useTradeShared() {
     const { signer } = useContext(SignerContext);

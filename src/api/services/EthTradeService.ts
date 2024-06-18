@@ -18,7 +18,6 @@ import {
     URLStructure
 } from '@kbc-lib/coffee-trading-management-lib';
 import { ICPResourceSpec } from '@blockchain-lib/common';
-import { DID_METHOD, ICP } from '@/constants/index';
 import {
     BasicTradePresentable,
     DetailedTradePresentable,
@@ -31,6 +30,8 @@ import { EthMaterialService } from '@/api/services/EthMaterialService';
 import { DocumentRequest } from '@/api/types/DocumentRequest';
 import { EthDocumentService } from '@/api/services/EthDocumentService';
 import { getICPCanisterURL } from '@/utils/icp';
+import { ICP } from '@/constants/icp';
+import { DID_METHOD } from '@/constants/ssi';
 
 export class EthTradeService {
     private readonly _walletAddress: string;

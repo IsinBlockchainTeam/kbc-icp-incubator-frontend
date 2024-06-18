@@ -1,6 +1,6 @@
 import React from 'react';
 import { DatePicker } from 'antd';
-import { utils } from '@/constants/index';
+import { utils } from '@/constants/misc';
 
 type Props = {
     style?: any;

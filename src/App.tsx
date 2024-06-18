@@ -2,7 +2,6 @@ import React from 'react';
 import { Worker } from '@react-pdf-viewer/core';
 import { HashRouter, Navigate, Route, Routes } from 'react-router-dom';
 import PrivateRoutes from './PrivateRoutes';
-import { paths } from '@/constants/index';
 import Profile from '@/pages/Profile/Profile';
 import Partners from '@/pages/Partners/Partners';
 import Offers from '@/pages/offers/Offers';
@@ -22,6 +21,7 @@ import { Provider as ReduxProvider } from 'react-redux/es/exports';
 import { persistor, store } from '@/redux/store';
 import { PersistGate } from 'redux-persist/integration/react';
 import { MenuLayout } from '@/components/structure/MenuLayout/MenuLayout';
+import { paths } from '@/constants/paths';
 
 export const App = () => {
     return (

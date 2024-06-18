@@ -1,8 +1,8 @@
 import useTradeShared from '../tradeShared';
-import { TradeType } from '../coffee-trading-management-lib/src/index';
+import { TradeType } from '@kbc-lib/coffee-trading-management-lib';
 import { useSelector } from 'react-redux';
 import { renderHook, waitFor } from '@testing-library/react';
-import { ClickableElement } from '../../../../components/GenericForm/GenericForm';
+import { ClickableElement } from '@/components/GenericForm/GenericForm';
 import * as uuid from 'uuid';
 
 jest.mock('../../../../../api/services/EthTradeService', () => ({

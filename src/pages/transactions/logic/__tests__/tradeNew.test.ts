@@ -1,7 +1,7 @@
 import useTradeNew from '../tradeNew';
 import { renderHook } from '@testing-library/react';
-import { TradeType } from '../coffee-trading-management-lib/src/index';
-import { FormElement } from '../../../../components/GenericForm/GenericForm';
+import { TradeType } from '@kbc-lib/coffee-trading-management-lib';
+import { FormElement } from '@/components/GenericForm/GenericForm';
 import { TradeLinePresentable, TradeLinePrice } from '../../../../api/types/TradeLinePresentable';
 import { MaterialPresentable } from '../../../../api/types/MaterialPresentable';
 

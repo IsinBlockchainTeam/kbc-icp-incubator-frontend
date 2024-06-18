@@ -1,11 +1,12 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import Materials from '../Materials';
-import { EthMaterialService } from '../../../api/services/EthMaterialService';
+import { EthMaterialService } from '@/api/services/EthMaterialService';
 import userEvent from '@testing-library/user-event';
-import { BlockchainMaterialStrategy } from '../../../api/strategies/material/BlockchainMaterialStrategy';
-import { MaterialPresentable } from '../../../api/types/MaterialPresentable';
+import { BlockchainMaterialStrategy } from '@/api/strategies/material/BlockchainMaterialStrategy';
+import { MaterialPresentable } from '@/api/types/MaterialPresentable';
 import { useNavigate } from 'react-router-dom';
-import { paths } from '../../../constants';
+
+import { paths } from '@/constants/paths';
 
 jest.mock('react-router-dom', () => ({
     ...jest.requireActual('react-router-dom'),

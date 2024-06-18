@@ -1,6 +1,6 @@
 import { checkAndGetEnvironmentVariable } from '@/utils/env';
-import { ICP } from '@/constants/index';
 import { URL_SEGMENTS } from '@kbc-lib/coffee-trading-management-lib';
+import { ICP } from '@/constants/icp';
 
 export const getICPCanisterURL = (canisterId: string): string => {
     return checkAndGetEnvironmentVariable(ICP.DFX_NETWORK) === 'local'

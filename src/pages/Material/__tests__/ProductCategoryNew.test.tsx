@@ -2,8 +2,9 @@ import { useNavigate } from 'react-router-dom';
 import ProductCategoryNew from '../ProductCategoryNew';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { EthMaterialService } from '../../../api/services/EthMaterialService';
-import { paths } from '../../../constants';
+import { EthMaterialService } from '@/api/services/EthMaterialService';
+
+import { paths } from '@/constants/paths';
 
 jest.mock('react-router-dom', () => ({
     ...jest.requireActual('react-router-dom'),

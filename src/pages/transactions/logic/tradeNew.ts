@@ -12,11 +12,11 @@ import { MenuProps } from 'antd';
 import { useDispatch } from 'react-redux';
 import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { paths } from '@/constants/index';
 import { BasicTradeRequest, OrderTradeRequest } from '@/api/types/TradeRequest';
 import { DocumentRequest } from '@/api/types/DocumentRequest';
 import { useContext } from 'react';
 import { SignerContext } from '@/providers/SignerProvider';
+import { paths } from '@/constants/paths';
 
 export default function useTradeNew() {
     const { signer } = useContext(SignerContext);

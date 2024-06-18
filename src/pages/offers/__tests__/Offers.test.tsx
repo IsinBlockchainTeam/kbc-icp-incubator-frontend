@@ -1,11 +1,12 @@
 import { useNavigate } from 'react-router-dom';
 import { render, screen, waitFor } from '@testing-library/react';
 import Offers from '../Offers';
-import { OfferPresentable } from '../../../api/types/OfferPresentable';
-import { EthOfferService } from '../../../api/services/EthOfferService';
-import { BlockchainOfferStrategy } from '../../../api/strategies/offer/BlockchainOfferStrategy';
+import { OfferPresentable } from '@/api/types/OfferPresentable';
+import { EthOfferService } from '@/api/services/EthOfferService';
+import { BlockchainOfferStrategy } from '@/api/strategies/offer/BlockchainOfferStrategy';
 import userEvent from '@testing-library/user-event';
-import { paths } from '../../../constants';
+
+import { paths } from '@/constants/paths';
 
 jest.mock('react-router-dom', () => ({
     ...jest.requireActual('react-router-dom'),

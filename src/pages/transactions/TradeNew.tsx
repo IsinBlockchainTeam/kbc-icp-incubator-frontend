@@ -4,10 +4,10 @@ import { Button } from 'antd';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
 import React from 'react';
 import { DeleteOutlined } from '@ant-design/icons';
-import { paths } from '@/constants/index';
 import { useLocation, useNavigate } from 'react-router-dom';
 import useTradeNew from './logic/tradeNew';
 import OrderTradeStatusForms from '@/components/OrderStatusForms/OrderTradeStatusForms';
+import { paths } from '@/constants/paths';
 
 export const TradeNew = () => {
     const navigate = useNavigate();

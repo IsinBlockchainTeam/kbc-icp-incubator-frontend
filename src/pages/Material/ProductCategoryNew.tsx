@@ -1,7 +1,6 @@
 import { CardPage } from '@/components/structure/CardPage/CardPage';
 import { Button } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
-import { paths } from '@/constants/index';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
 import React, { useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -10,6 +9,7 @@ import { regex } from '@/utils/regex';
 import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
 import { useDispatch } from 'react-redux';
 import { EthContext } from '@/providers/EthProvider';
+import { paths } from '@/constants/paths';
 
 export const ProductCategoryNew = () => {
     const { ethMaterialService } = useContext(EthContext);

@@ -1,9 +1,10 @@
-import { TradeType } from '../coffee-trading-management-lib/src/index';
-import { FormElement } from '../../../components/GenericForm/GenericForm';
+import { TradeType } from '@kbc-lib/coffee-trading-management-lib';
 import { TradeNew } from '../TradeNew';
 import { fireEvent, render } from '@testing-library/react';
 import { useNavigate } from 'react-router-dom';
-import { paths } from '../../../constants';
+import { FormElement } from '@/components/GenericForm/GenericForm';
+
+import { paths } from '@/constants/paths';
 
 jest.mock('react-router-dom', () => ({
     ...jest.requireActual('react-router-dom'),

@@ -1,12 +1,13 @@
 import React, { createContext, type ReactNode } from 'react';
 import { useSiweIdentity } from './SiweIdentityProvider';
-import { ICP, requestPath } from '@/constants/index';
 import { ICPIdentityDriver, ICPOrganizationDriver, ICPStorageDriver } from '@blockchain-lib/common';
 import { ICPFileDriver, URL_SEGMENT_INDEXES } from '@kbc-lib/coffee-trading-management-lib';
 import { Typography } from 'antd';
 import { request } from '@/utils/request';
 
 import { checkAndGetEnvironmentVariable } from '@/utils/env';
+import { requestPath } from '@/constants/url';
+import { ICP } from '@/constants/icp';
 
 type ICPContextState = {
     organizationDriver: ICPOrganizationDriver;

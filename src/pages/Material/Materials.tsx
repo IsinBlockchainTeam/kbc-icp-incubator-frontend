@@ -4,12 +4,12 @@ import { NotificationType, openNotification } from '@/utils/notification';
 import { ColumnsType } from 'antd/es/table';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
 import { PlusOutlined } from '@ant-design/icons';
-import { paths } from '@/constants/index';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
 import { Material, ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
 import { EthContext } from '@/providers/EthProvider';
+import { paths } from '@/constants/paths';
 
 export const Materials = () => {
     const { ethMaterialService } = useContext(EthContext);

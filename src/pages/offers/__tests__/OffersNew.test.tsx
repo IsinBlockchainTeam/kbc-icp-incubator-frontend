@@ -1,9 +1,10 @@
 import { useNavigate } from 'react-router-dom';
-import { EthOfferService } from '../../../api/services/EthOfferService';
+import { EthOfferService } from '@/api/services/EthOfferService';
 import OffersNew from '../OffersNew';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { paths } from '../../../constants';
+
+import { paths } from '@/constants/paths';
 
 jest.mock('react-router-dom', () => ({
     ...jest.requireActual('react-router-dom'),

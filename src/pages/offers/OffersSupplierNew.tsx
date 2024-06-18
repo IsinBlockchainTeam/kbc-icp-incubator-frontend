@@ -1,7 +1,6 @@
 import { Navigate, useNavigate } from 'react-router-dom';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
 import { NotificationType, openNotification } from '@/utils/notification';
-import { credentials, paths } from '@/constants/index';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
 import { Button } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
@@ -12,6 +11,8 @@ import { RootState } from '@/redux/store';
 import { SignerContext } from '@/providers/SignerProvider';
 import { EthContext } from '@/providers/EthProvider';
 import { formatAddress } from '@/utils/format';
+import { paths } from '@/constants/paths';
+import { credentials } from '@/constants/ssi';
 
 export const OffersSupplierNew = () => {
     const { signer } = useContext(SignerContext);

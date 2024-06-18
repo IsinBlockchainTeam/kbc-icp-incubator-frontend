@@ -1,6 +1,6 @@
-import { TradePreviewPresentable } from '../../../api/types/TradePresentable';
-import { OrderStatus, TradeType } from '../coffee-trading-management-lib/src/index';
-import { FormElement } from '../../../components/GenericForm/GenericForm';
+import { TradePreviewPresentable } from '@/api/types/TradePresentable';
+import { OrderStatus, TradeType } from '@kbc-lib/coffee-trading-management-lib';
+import { FormElement } from '@/components/GenericForm/GenericForm';
 import { render, screen } from '@testing-library/react';
 import TradeView from '../TradeView';
 

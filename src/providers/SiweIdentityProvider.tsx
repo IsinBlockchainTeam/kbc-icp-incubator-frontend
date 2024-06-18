@@ -27,7 +27,8 @@ import {
     type ISignedDelegation as ServiceSignedDelegation,
     type State
 } from '@blockchain-lib/common';
-import { ICP } from '@/constants/index';
+
+import { ICP } from '@/constants/icp';
 
 /**
  * Re-export types

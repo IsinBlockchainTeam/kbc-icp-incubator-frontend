@@ -2,12 +2,13 @@ import { useNavigate } from 'react-router-dom';
 import { render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 import AssetOperations from '../AssetOperations';
-import { AssetOperationPresentable } from '../../../api/types/AssetOperationPresentable';
-import { EthAssetOperationService } from '../../../api/services/EthAssetOperationService';
-import { MaterialPresentable } from '../../../api/types/MaterialPresentable';
-import { BlockchainAssetOperationStrategy } from '../../../../api/strategies/asset_operation/BlockchainAssetOperationStrategy';
+import { AssetOperationPresentable } from '@/api/types/AssetOperationPresentable';
+import { EthAssetOperationService } from '@/api/services/EthAssetOperationService';
+import { MaterialPresentable } from '@/api/types/MaterialPresentable';
+import { BlockchainAssetOperationStrategy } from '@/api/strategies/asset_operation/BlockchainAssetOperationStrategy';
 import userEvent from '@testing-library/user-event';
-import { paths } from '../../../constants';
+
+import { paths } from '@/constants/paths';
 
 jest.mock('react-router-dom', () => ({
     ...jest.requireActual('react-router-dom'),

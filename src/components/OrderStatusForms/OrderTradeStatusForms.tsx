@@ -23,10 +23,10 @@ import { DetailedTradePresentable } from '@/api/types/TradePresentable';
 import useTradeView from '@/pages/transactions/logic/tradeView';
 import useTradeNew from '@/pages/transactions/logic/tradeNew';
 import { useNavigate } from 'react-router-dom';
-import { paths } from '@/constants/index';
 import { SignerContext } from '@/providers/SignerProvider';
 import TradeDutiesWaiting, { DutiesWaiting } from '@/pages/transactions/TradeDutiesWaiting';
 import { EthContext } from '@/providers/EthProvider';
+import { paths } from '@/constants/paths';
 
 type Props = {
     status: OrderStatus;
@@ -37,7 +37,6 @@ type Props = {
 
 export default function OrderTradeStatusForms(props: Props) {
     const { status, submittable, negotiationElements, tradeInfo } = props;
-    let onSubmit: (values: any) => Promise<void>;
     const { signer } = useContext(SignerContext);
     const navigate = useNavigate();
     const { ethTradeService } = useContext(EthContext);

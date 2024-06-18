@@ -1,12 +1,11 @@
-import { TradePreviewPresentable } from '../../../api/types/TradePresentable';
 import { BrowserRouter, useNavigate } from 'react-router-dom';
 import Trades from '../Trades';
 import { render, screen, waitFor } from '@testing-library/react';
-import { EthTradeService } from '../../../api/services/EthTradeService';
-import { TradeType } from '../coffee-trading-management-lib/src/index';
-import { BlockchainTradeStrategy } from '../../../../api/strategies/trade/BlockchainTradeStrategy';
+import { TradeType } from '@kbc-lib/coffee-trading-management-lib';
 import userEvent from '@testing-library/user-event';
-import { paths } from '../../../constants';
+import { TradePreviewPresentable } from '@/api/types/TradePresentable';
+import { EthTradeService } from '@/api/services/EthTradeService';
+import { paths } from '@/constants/paths';
 
 jest.mock('../../../../components/structure/CardPage/CardPage', () => ({
     CardPage: ({ title, children }: any) => (

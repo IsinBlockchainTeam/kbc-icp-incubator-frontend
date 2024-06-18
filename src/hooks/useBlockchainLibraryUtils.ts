@@ -1,4 +1,3 @@
-import { contractAddresses } from '../constants';
 import { EnumerableTypeReadDriver, EnumerableTypeService } from '@blockchain-lib/common';
 import { SignerContext } from '@/providers/SignerProvider';
 import { useContext } from 'react';
@@ -26,6 +25,7 @@ import {
     TradeManagerService,
     TradeService
 } from '@kbc-lib/coffee-trading-management-lib';
+import { contractAddresses } from '@/constants/evm';
 
 export enum EnumerableDefinition {
     PROCESS_TYPE,

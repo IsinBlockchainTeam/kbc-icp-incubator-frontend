@@ -1,9 +1,10 @@
 import { useNavigate } from 'react-router-dom';
-import { EthAssetOperationService } from '../../../api/services/EthAssetOperationService';
+import { EthAssetOperationService } from '@/api/services/EthAssetOperationService';
 import { render, screen, waitFor } from '@testing-library/react';
 import AssetOperationsNew from '../AssetOperationsNew';
 import userEvent from '@testing-library/user-event';
-import { paths } from '../../../constants';
+
+import { paths } from '@/constants/paths';
 
 jest.mock('react-router-dom', () => ({
     ...jest.requireActual('react-router-dom'),

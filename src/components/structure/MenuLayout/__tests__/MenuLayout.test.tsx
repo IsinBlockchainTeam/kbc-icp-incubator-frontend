@@ -6,7 +6,8 @@ import { store } from '@/redux/store';
 import { MemoryRouter } from 'react-router-dom';
 import { updateUserInfo, UserInfoState } from '@/redux/reducers/userInfoSlice';
 import { Menu } from 'antd';
-import { paths } from '@/constants/index';
+
+import { paths } from '@/constants/paths';
 
 jest.mock('antd', () => ({
     ...jest.requireActual('antd'),

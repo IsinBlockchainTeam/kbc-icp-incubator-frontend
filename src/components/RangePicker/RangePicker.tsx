@@ -1,5 +1,5 @@
 import React from 'react';
-import { utils } from '@/constants/index';
+import { utils } from '@/constants/misc';
 import { DatePicker } from 'antd';
 const { RangePicker } = DatePicker;
 

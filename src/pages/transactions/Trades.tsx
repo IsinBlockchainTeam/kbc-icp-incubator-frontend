@@ -6,13 +6,13 @@ import { ColumnsType } from 'antd/es/table';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { TradePreviewPresentable } from '@/api/types/TradePresentable';
 import { Link } from 'react-router-dom';
-import { paths } from '@/constants/index';
 import { NegotiationStatus, OrderStatus, TradeType } from '@kbc-lib/coffee-trading-management-lib';
 import { useDispatch } from 'react-redux';
 import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
 import { EthContext } from '@/providers/EthProvider';
 
 import { setParametersPath } from '@/utils/page';
+import { paths } from '@/constants/paths';
 
 export const Trades = () => {
     const { ethTradeService } = useContext(EthContext);

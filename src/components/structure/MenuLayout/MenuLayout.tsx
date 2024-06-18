@@ -11,13 +11,14 @@ import {
     AuditOutlined
 } from '@ant-design/icons';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { defaultPictureURL, paths } from '@/constants/index';
+import { defaultPictureURL } from '@/constants/misc';
 import KBCLogo from '@/assets/logo.png';
 import styles from './MenuLayout.module.scss';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { resetUserInfo } from '@/redux/reducers/userInfoSlice';
 import { clearSiweIdentity } from '@/redux/reducers/siweIdentitySlice';
+import { paths } from '@/constants/paths';
 const { Content, Footer, Sider } = Layout;
 
 type MenuItem = Required<MenuProps>['items'][number];

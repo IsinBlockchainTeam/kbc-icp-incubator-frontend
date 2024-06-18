@@ -1,13 +1,11 @@
-import { FormElement } from '../../../../components/GenericForm/GenericForm';
+import { FormElement } from '@/components/GenericForm/GenericForm';
 import useTradeView from '../tradeView';
 import { renderHook, waitFor } from '@testing-library/react';
 import { useLocation, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { EthDocumentService } from '../../../../api/services/EthDocumentService';
-import { TradePreviewPresentable } from '../../../../api/types/TradePresentable';
-import { TradeType } from '../coffee-trading-management-lib/src/index';
-import { NotificationType, openNotification } from '../../../../utils/notification';
-import { DocumentPresentable } from '../../../../api/types/DocumentPresentable';
+import { EthDocumentService } from '@/api/services/EthDocumentService';
+import { TradeType } from '@kbc-lib/coffee-trading-management-lib';
+import { NotificationType, openNotification } from '@/utils/notification';
 
 let mockTradeService = {
     getTradeByIdAndType: jest.fn(),
