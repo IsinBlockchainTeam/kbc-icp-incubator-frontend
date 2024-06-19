@@ -6,7 +6,7 @@ import { ethers } from 'ethers';
 import { Typography } from 'antd';
 import { RPC_URL } from '@/constants/evm';
 
-type SignerContextState = {
+export type SignerContextState = {
     signer: ethers.Wallet;
 };
 export const SignerContext = createContext<SignerContextState>({} as SignerContextState);

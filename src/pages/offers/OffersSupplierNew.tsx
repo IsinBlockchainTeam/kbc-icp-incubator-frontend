@@ -17,9 +17,9 @@ import { credentials } from '@/constants/ssi';
 export const OffersSupplierNew = () => {
     const { signer } = useContext(SignerContext);
     const { ethOfferService } = useContext(EthContext);
+    const userInfo = useSelector((state: RootState) => state.userInfo);
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const userInfo = useSelector((state: RootState) => state.userInfo);
 
     const elements: FormElement[] = [
         { type: FormElementType.TITLE, span: 24, label: 'Data' },

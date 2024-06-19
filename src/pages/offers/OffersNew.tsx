@@ -101,7 +101,7 @@ export const OffersNew = () => {
             navigate(paths.OFFERS);
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', 'Supplier not register', NotificationType.ERROR);
+            openNotification('Error', 'Error saving offer', NotificationType.ERROR);
         } finally {
             dispatch(hideLoading());
         }

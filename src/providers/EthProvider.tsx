@@ -11,7 +11,7 @@ import { EthOfferService } from '@/api/services/EthOfferService';
 import { EthPartnerService } from '@/api/services/EthPartnerService';
 import { EthTradeService } from '@/api/services/EthTradeService';
 
-type EthContextState = {
+export type EthContextState = {
     ethAssetOperationService: EthAssetOperationService;
     ethDocumentService: EthDocumentService;
     ethProcessTypeService: EthEnumerableTypeService;
@@ -25,7 +25,6 @@ type EthContextState = {
 };
 export const EthContext = createContext<EthContextState>({} as EthContextState);
 export function EthProvider({ children }: { children: ReactNode }) {
-    const { signer } = useContext(SignerContext);
     const {
         ethAssetOperationService,
         ethDocumentService,

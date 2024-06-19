@@ -58,15 +58,6 @@ export const AssetOperations = () => {
         }
     ];
 
-    const onChange: TableProps<AssetOperation>['onChange'] = (
-        pagination,
-        filters,
-        sorter,
-        extra
-    ) => {
-        console.log('params', pagination, filters, sorter, extra);
-    };
-
     useEffect(() => {
         loadData();
         return () => {
@@ -93,7 +84,7 @@ export const AssetOperations = () => {
                     </Button>
                 </div>
             }>
-            <Table columns={columns} dataSource={assetOperations} onChange={onChange} />
+            <Table columns={columns} dataSource={assetOperations} />
         </CardPage>
     );
 };

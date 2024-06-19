@@ -46,7 +46,7 @@ export const Materials = () => {
         {
             title: 'Quality',
             dataIndex: 'quality',
-            sorter: (a, b) => a.name.localeCompare(b.name)
+            sorter: (a, b) => (a.quality && b.quality ? a.quality - b.quality : 0)
         }
     ];
 

@@ -18,9 +18,9 @@ import { credentials, DID_METHOD } from '@/constants/ssi';
 export const Offers = () => {
     const { ethOfferService } = useContext(EthContext);
     const { getNameByDID } = useContext(ICPContext);
+    const userInfo = useSelector((state: RootState) => state.userInfo);
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const userInfo = useSelector((state: RootState) => state.userInfo);
     const [offers, setOffers] = useState<OfferPresentable[]>();
     const [filteredOffers, setFilteredOffers] = useState<OfferPresentable[]>();
     const loadData = async () => {
@@ -83,6 +83,7 @@ export const Offers = () => {
                     return (
                         <Space size="middle">
                             <a
+                                role="start-negotiation"
                                 onClick={() =>
                                     navigate(paths.TRADE_NEW, {
                                         state: {
@@ -101,15 +102,6 @@ export const Offers = () => {
             }
         }
     ];
-
-    const onChange: TableProps<OfferPresentable>['onChange'] = (
-        pagination,
-        filters,
-        sorter,
-        extra
-    ) => {
-        console.log('params', pagination, filters, sorter, extra);
-    };
 
     const filterOffers = (productCategory: string) => {
         const filtered = offers?.filter((o) =>
@@ -155,7 +147,7 @@ export const Offers = () => {
                 </div>
             }>
             <Search placeholder="Search by product category" onSearchFn={filterOffers} />
-            <Table columns={columns} dataSource={filteredOffers} onChange={onChange} rowKey="id" />
+            <Table columns={columns} dataSource={filteredOffers} rowKey="id" />
         </CardPage>
     );
 };

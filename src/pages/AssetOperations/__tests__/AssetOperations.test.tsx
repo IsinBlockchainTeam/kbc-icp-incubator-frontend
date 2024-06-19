@@ -2,33 +2,42 @@ import { useNavigate } from 'react-router-dom';
 import { render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 import AssetOperations from '../AssetOperations';
-import { AssetOperationPresentable } from '@/api/types/AssetOperationPresentable';
 import { EthAssetOperationService } from '@/api/services/EthAssetOperationService';
-import { MaterialPresentable } from '@/api/types/MaterialPresentable';
-import { BlockchainAssetOperationStrategy } from '@/api/strategies/asset_operation/BlockchainAssetOperationStrategy';
 import userEvent from '@testing-library/user-event';
 
 import { paths } from '@/constants/paths';
+import { EthContext, EthContextState } from '@/providers/EthProvider';
+import configureStore from 'redux-mock-store';
+import { Provider } from 'react-redux';
+import { AssetOperation } from '@kbc-lib/coffee-trading-management-lib';
+import { openNotification } from '@/utils/notification';
 
-jest.mock('react-router-dom', () => ({
-    ...jest.requireActual('react-router-dom'),
-    useNavigate: jest.fn()
-}));
-jest.mock('../../../../api/services/AssetOperationService');
-jest.mock('../../../../api/strategies/asset_operation/BlockchainAssetOperationStrategy');
+jest.mock('react-router-dom');
+jest.mock('@/providers/EthProvider');
+jest.mock('@/utils/notification');
+
+const mockStore = configureStore([]);
 
 describe('Asset Operations', () => {
-    const navigate = jest.fn();
+    const ethAssetOperationService = {
+        getAssetOperations: jest.fn()
+    } as unknown as EthAssetOperationService;
+    const store = mockStore({});
 
     beforeEach(() => {
-        (useNavigate as jest.Mock).mockReturnValue(navigate);
         jest.spyOn(console, 'log').mockImplementation(jest.fn());
         jest.spyOn(console, 'error').mockImplementation(jest.fn());
         jest.clearAllMocks();
     });
 
     it('should render correctly', () => {
-        render(<AssetOperations />);
+        render(
+            <Provider store={store}>
+                <EthContext.Provider value={{ ethAssetOperationService } as EthContextState}>
+                    <AssetOperations />
+                </EthContext.Provider>
+            </Provider>
+        );
 
         expect(screen.getByText('Asset Operations')).toBeInTheDocument();
         expect(
@@ -37,46 +46,59 @@ describe('Asset Operations', () => {
     });
 
     it('should fetch data', async () => {
-        const mockedAssetOperations: AssetOperationPresentable[] = [
-            new AssetOperationPresentable(
-                1,
-                'Asset Operation 1',
-                [],
-                new MaterialPresentable(1, 'Material 1')
-            ),
-            new AssetOperationPresentable(
-                2,
-                'Asset Operation 2',
-                [],
-                new MaterialPresentable(2, 'Material 2')
-            )
+        const mockedAssetOperations: AssetOperation[] = [
+            {
+                id: 1,
+                name: 'Asset Operation 1',
+                outputMaterial: { productCategory: { name: 'Product Category 1' } }
+            } as AssetOperation
         ];
-        const mockedGetTransformations = jest.fn().mockResolvedValueOnce(mockedAssetOperations);
-        (EthAssetOperationService as jest.Mock).mockImplementation(() => ({
-            getTransformations: mockedGetTransformations
-        }));
-        render(<AssetOperations />);
+        (ethAssetOperationService.getAssetOperations as jest.Mock).mockResolvedValueOnce(
+            mockedAssetOperations
+        );
+        render(
+            <Provider store={store}>
+                <EthContext.Provider value={{ ethAssetOperationService } as EthContextState}>
+                    <AssetOperations />
+                </EthContext.Provider>
+            </Provider>
+        );
 
         await waitFor(() => {
-            expect(EthAssetOperationService).toHaveBeenCalledTimes(1);
-            expect(BlockchainAssetOperationStrategy).toHaveBeenCalledTimes(1);
-            expect(mockedGetTransformations).toHaveBeenCalledTimes(1);
+            expect(ethAssetOperationService.getAssetOperations).toHaveBeenCalledTimes(1);
             expect(screen.getByText('Asset Operation 1')).toBeInTheDocument();
-            expect(screen.getByText('Asset Operation 2')).toBeInTheDocument();
+            expect(screen.getByText('Product Category 1')).toBeInTheDocument();
         });
     });
 
-    it('should call onChange function when clicking on a table header', async () => {
-        render(<AssetOperations />);
+    it('should show notification when loadData fails', async () => {
+        (ethAssetOperationService.getAssetOperations as jest.Mock).mockRejectedValue(
+            new Error('Error')
+        );
+        render(
+            <Provider store={store}>
+                <EthContext.Provider value={{ ethAssetOperationService } as EthContextState}>
+                    <AssetOperations />
+                </EthContext.Provider>
+            </Provider>
+        );
 
         await waitFor(() => {
-            userEvent.click(screen.getByText('Id'));
-            expect(console.log).toHaveBeenCalledTimes(1);
+            expect(ethAssetOperationService.getAssetOperations).toHaveBeenCalledTimes(1);
+            expect(openNotification).toHaveBeenCalledTimes(1);
         });
     });
 
     it("should call navigate when clicking on 'New Asset Operation' button", async () => {
-        render(<AssetOperations />);
+        const navigate = jest.fn();
+        (useNavigate as jest.Mock).mockReturnValue(navigate);
+        render(
+            <Provider store={store}>
+                <EthContext.Provider value={{ ethAssetOperationService } as EthContextState}>
+                    <AssetOperations />
+                </EthContext.Provider>
+            </Provider>
+        );
 
         await waitFor(() => {
             userEvent.click(screen.getByRole('button', { name: 'plus New Asset Operation' }));
@@ -85,47 +107,35 @@ describe('Asset Operations', () => {
         });
     });
 
-    it("should render 'No output material' when there is no output material", async () => {
-        const mockedAssetOperations: AssetOperationPresentable[] = [
-            new AssetOperationPresentable(1, 'Asset Operation 1', [], undefined)
-        ];
-        const mockedGetTransformations = jest.fn().mockResolvedValueOnce(mockedAssetOperations);
-        (EthAssetOperationService as jest.Mock).mockImplementation(() => ({
-            getTransformations: mockedGetTransformations
-        }));
-        render(<AssetOperations />);
-
-        await waitFor(() => {
-            expect(screen.getByText('No output material')).toBeInTheDocument();
-        });
-    });
-
     it('should call sorter function correctly when clicking on a table header', async () => {
-        const mockedAssetOperations: AssetOperationPresentable[] = [
-            new AssetOperationPresentable(
-                1,
-                '2. Asset Operation 1',
-                [],
-                new MaterialPresentable(1, 'Material 1')
-            ),
-            new AssetOperationPresentable(
-                2,
-                '1. Asset Operation 2',
-                [],
-                new MaterialPresentable(2, 'Material 2')
-            )
+        const mockedAssetOperations: AssetOperation[] = [
+            {
+                id: 1,
+                name: 'Asset Operation 1',
+                outputMaterial: { productCategory: { name: 'Product Category 1' } }
+            } as AssetOperation,
+            {
+                id: 2,
+                name: 'Asset Operation 2',
+                outputMaterial: { productCategory: { name: 'Product Category 2' } }
+            } as AssetOperation
         ];
-        const mockedGetTransformations = jest.fn().mockResolvedValueOnce(mockedAssetOperations);
-        (EthAssetOperationService as jest.Mock).mockImplementation(() => ({
-            getTransformations: mockedGetTransformations
-        }));
-        render(<AssetOperations />);
+        (ethAssetOperationService.getAssetOperations as jest.Mock).mockResolvedValueOnce(
+            mockedAssetOperations
+        );
+        render(
+            <Provider store={store}>
+                <EthContext.Provider value={{ ethAssetOperationService } as EthContextState}>
+                    <AssetOperations />
+                </EthContext.Provider>
+            </Provider>
+        );
 
         await waitFor(() => {
             const tableRows = screen.getAllByRole('row');
             expect(tableRows).toHaveLength(3);
-            expect(tableRows[1]).toHaveTextContent('12. Asset Operation 1Material 1');
-            expect(tableRows[2]).toHaveTextContent('21. Asset Operation 2Material 2');
+            expect(tableRows[1]).toHaveTextContent('1Asset Operation 1Product Category 1');
+            expect(tableRows[2]).toHaveTextContent('2Asset Operation 2Product Category 2');
         });
 
         userEvent.click(screen.getByText('Id'));
@@ -133,8 +143,8 @@ describe('Asset Operations', () => {
         await waitFor(() => {
             const tableRows = screen.getAllByRole('row');
             expect(tableRows).toHaveLength(3);
-            expect(tableRows[1]).toHaveTextContent('21. Asset Operation 2Material 2');
-            expect(tableRows[2]).toHaveTextContent('12. Asset Operation 1Material 1');
+            expect(tableRows[1]).toHaveTextContent('2Asset Operation 2Product Category 2');
+            expect(tableRows[2]).toHaveTextContent('1Asset Operation 1Product Category 1');
         });
 
         userEvent.click(screen.getByText('Name'));
@@ -142,41 +152,8 @@ describe('Asset Operations', () => {
         await waitFor(() => {
             const tableRows = screen.getAllByRole('row');
             expect(tableRows).toHaveLength(3);
-            expect(tableRows[1]).toHaveTextContent('12. Asset Operation 1Material 1');
-            expect(tableRows[2]).toHaveTextContent('21. Asset Operation 2Material 2');
-        });
-    });
-
-    it('should sort also when working with falsy names', async () => {
-        const mockedAssetOperations: AssetOperationPresentable[] = [
-            new AssetOperationPresentable(
-                0,
-                undefined,
-                [],
-                new MaterialPresentable(0, 'Zero material')
-            ),
-            new AssetOperationPresentable(1, 'Valid', [], new MaterialPresentable(1, 'Material 1')),
-            new AssetOperationPresentable(
-                2,
-                undefined,
-                [],
-                new MaterialPresentable(2, 'Material 2')
-            )
-        ];
-        const mockedGetTransformations = jest.fn().mockResolvedValueOnce(mockedAssetOperations);
-        (EthAssetOperationService as jest.Mock).mockImplementation(() => ({
-            getTransformations: mockedGetTransformations
-        }));
-        render(<AssetOperations />);
-
-        userEvent.click(screen.getByText('Name'));
-
-        await waitFor(() => {
-            const tableRows = screen.getAllByRole('row');
-            expect(tableRows).toHaveLength(4);
-            expect(tableRows[1]).toHaveTextContent('1ValidMaterial 1');
-            expect(tableRows[2]).toHaveTextContent('0Zero material');
-            expect(tableRows[3]).toHaveTextContent('2Material 2');
+            expect(tableRows[1]).toHaveTextContent('2Asset Operation 2Product Category 2');
+            expect(tableRows[2]).toHaveTextContent('1Asset Operation 1Product Category 1');
         });
     });
 });
