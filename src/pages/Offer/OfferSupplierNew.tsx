@@ -14,7 +14,7 @@ import { formatAddress } from '@/utils/format';
 import { paths } from '@/constants/paths';
 import { credentials } from '@/constants/ssi';
 
-export const OffersSupplierNew = () => {
+export const OfferSupplierNew = () => {
     const { signer } = useContext(SignerContext);
     const { ethOfferService } = useContext(EthContext);
     const userInfo = useSelector((state: RootState) => state.userInfo);
@@ -98,4 +98,4 @@ export const OffersSupplierNew = () => {
     );
 };
 
-export default OffersSupplierNew;
+export default OfferSupplierNew;

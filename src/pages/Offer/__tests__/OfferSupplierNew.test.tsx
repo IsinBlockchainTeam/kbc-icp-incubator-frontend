@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { EthOfferService } from '@/api/services/EthOfferService';
-import OffersSupplierNew from '../OffersSupplierNew';
+import OfferSupplierNew from '../OfferSupplierNew';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
@@ -51,7 +51,7 @@ describe('Offers Supplier New', () => {
                 <Provider store={store}>
                     <SignerContext.Provider value={signerContextValue}>
                         <EthContext.Provider value={ethContextValue}>
-                            <OffersSupplierNew />
+                            <OfferSupplierNew />
                         </EthContext.Provider>
                     </SignerContext.Provider>
                 </Provider>
@@ -89,7 +89,7 @@ describe('Offers Supplier New', () => {
                 <Provider store={store}>
                     <SignerContext.Provider value={signerContextValue}>
                         <EthContext.Provider value={ethContextValue}>
-                            <OffersSupplierNew />
+                            <OfferSupplierNew />
                         </EthContext.Provider>
                     </SignerContext.Provider>
                 </Provider>
@@ -106,7 +106,7 @@ describe('Offers Supplier New', () => {
                 <Provider store={store}>
                     <SignerContext.Provider value={signerContextValue}>
                         <EthContext.Provider value={ethContextValue}>
-                            <OffersSupplierNew />
+                            <OfferSupplierNew />
                         </EthContext.Provider>
                     </SignerContext.Provider>
                 </Provider>
@@ -139,7 +139,7 @@ describe('Offers Supplier New', () => {
                 <Provider store={store}>
                     <SignerContext.Provider value={signerContextValue}>
                         <EthContext.Provider value={ethContextValue}>
-                            <OffersSupplierNew />
+                            <OfferSupplierNew />
                         </EthContext.Provider>
                     </SignerContext.Provider>
                 </Provider>
@@ -170,7 +170,7 @@ describe('Offers Supplier New', () => {
                 <Provider store={store}>
                     <SignerContext.Provider value={signerContextValue}>
                         <EthContext.Provider value={ethContextValue}>
-                            <OffersSupplierNew />
+                            <OfferSupplierNew />
                         </EthContext.Provider>
                     </SignerContext.Provider>
                 </Provider>

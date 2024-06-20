@@ -80,9 +80,7 @@ export function SiweIdentityProvider({
     });
 
     useEffect(() => {
-        console.log(state.anonymousActor, !siweIdentity);
         if (state.anonymousActor && !siweIdentity) {
-            console.log('Trying siwe login...');
             tryLogin();
         }
     }, [siweIdentity, state.anonymousActor]);

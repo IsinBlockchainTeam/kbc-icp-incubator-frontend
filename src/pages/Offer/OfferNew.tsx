@@ -15,7 +15,7 @@ import { ICPContext } from '@/providers/ICPProvider';
 import { paths } from '@/constants/paths';
 import { credentials, DID_METHOD } from '@/constants/ssi';
 
-export const OffersNew = () => {
+export const OfferNew = () => {
     const { signer } = useContext(SignerContext);
     const { ethOfferService, ethMaterialService } = useContext(EthContext);
     const { getNameByDID } = useContext(ICPContext);
@@ -135,4 +135,4 @@ export const OffersNew = () => {
     );
 };
 
-export default OffersNew;
+export default OfferNew;

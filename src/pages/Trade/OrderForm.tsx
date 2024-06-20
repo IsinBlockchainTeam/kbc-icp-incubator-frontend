@@ -20,11 +20,9 @@ import { DocumentRequest } from '@/api/types/DocumentRequest';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { useDispatch } from 'react-redux';
 import { DetailedTradePresentable } from '@/api/types/TradePresentable';
-import useTradeView from '@/pages/transactions/logic/tradeView';
-import useTradeNew from '@/pages/transactions/logic/tradeNew';
 import { useNavigate } from 'react-router-dom';
 import { SignerContext } from '@/providers/SignerProvider';
-import TradeDutiesWaiting, { DutiesWaiting } from '@/pages/transactions/TradeDutiesWaiting';
+import TradeDutiesWaiting, { DutiesWaiting } from '@/pages/Trade/TradeDutiesWaiting';
 import { EthContext } from '@/providers/EthProvider';
 import { paths } from '@/constants/paths';
 
@@ -33,11 +31,16 @@ type Props = {
     submittable: boolean;
     negotiationElements: FormElement[];
     tradeInfo?: DetailedTradePresentable;
+    validationCallback: (
+        tradeInfo: DetailedTradePresentable | undefined,
+        documentType: DocumentType
+    ) => undefined | { approve: () => Promise<void>; reject: () => Promise<void> };
+    onSubmitView: (values: any) => Promise<void>;
+    onSubmitNew: (values: any) => Promise<void>;
 };
 
-export default function OrderTradeStatusForms(props: Props) {
+export default function OrderForm(props: Props) {
     const { status, submittable, negotiationElements, tradeInfo } = props;
-    let onSubmit: (values: any) => Promise<void>;
     const { signer } = useContext(SignerContext);
     const navigate = useNavigate();
     const { ethTradeService } = useContext(EthContext);
@@ -46,8 +49,7 @@ export default function OrderTradeStatusForms(props: Props) {
         status === OrderStatus.COMPLETED ? OrderStatus.SHIPPED : status
     );
     const documentHeight = '45vh';
-    const tradeView = useTradeView();
-    const tradeNew = useTradeNew();
+    let onSubmit: (values: any) => Promise<void>;
 
     const onChange = (value: number) => {
         if (value > status) return;
@@ -105,7 +107,7 @@ export default function OrderTradeStatusForms(props: Props) {
               >
             | undefined;
         if (tradeInfo) {
-            onSubmit = tradeView.onSubmit;
+            onSubmit = props.onSubmitView;
 
             elementsAfterNegotiation = new Map<
                 OrderStatus,
@@ -133,7 +135,7 @@ export default function OrderTradeStatusForms(props: Props) {
                             ),
                             info: tradeInfo.documents.get(DocumentType.PAYMENT_INVOICE),
                             height: documentHeight,
-                            validationCallback: tradeView.validationCallback(
+                            validationCallback: props.validationCallback(
                                 tradeInfo,
                                 DocumentType.PAYMENT_INVOICE
                             )
@@ -169,7 +171,7 @@ export default function OrderTradeStatusForms(props: Props) {
                             ),
                             info: tradeInfo.documents.get(DocumentType.ORIGIN_SWISS_DECODE),
                             height: documentHeight,
-                            validationCallback: tradeView.validationCallback(
+                            validationCallback: props.validationCallback(
                                 tradeInfo,
                                 DocumentType.ORIGIN_SWISS_DECODE
                             )
@@ -188,7 +190,7 @@ export default function OrderTradeStatusForms(props: Props) {
                             ),
                             info: tradeInfo.documents.get(DocumentType.WEIGHT_CERTIFICATE),
                             height: documentHeight,
-                            validationCallback: tradeView.validationCallback(
+                            validationCallback: props.validationCallback(
                                 tradeInfo,
                                 DocumentType.WEIGHT_CERTIFICATE
                             )
@@ -207,7 +209,7 @@ export default function OrderTradeStatusForms(props: Props) {
                             ),
                             info: tradeInfo.documents.get(DocumentType.FUMIGATION_CERTIFICATE),
                             height: documentHeight,
-                            validationCallback: tradeView.validationCallback(
+                            validationCallback: props.validationCallback(
                                 tradeInfo,
                                 DocumentType.FUMIGATION_CERTIFICATE
                             )
@@ -228,7 +230,7 @@ export default function OrderTradeStatusForms(props: Props) {
                                 DocumentType.PREFERENTIAL_ENTRY_CERTIFICATE
                             ),
                             height: documentHeight,
-                            validationCallback: tradeView.validationCallback(
+                            validationCallback: props.validationCallback(
                                 tradeInfo,
                                 DocumentType.PREFERENTIAL_ENTRY_CERTIFICATE
                             )
@@ -247,7 +249,7 @@ export default function OrderTradeStatusForms(props: Props) {
                             ),
                             info: tradeInfo.documents.get(DocumentType.PHYTOSANITARY_CERTIFICATE),
                             height: documentHeight,
-                            validationCallback: tradeView.validationCallback(
+                            validationCallback: props.validationCallback(
                                 tradeInfo,
                                 DocumentType.PHYTOSANITARY_CERTIFICATE
                             )
@@ -266,7 +268,7 @@ export default function OrderTradeStatusForms(props: Props) {
                             ),
                             info: tradeInfo.documents.get(DocumentType.INSURANCE_CERTIFICATE),
                             height: documentHeight,
-                            validationCallback: tradeView.validationCallback(
+                            validationCallback: props.validationCallback(
                                 tradeInfo,
                                 DocumentType.INSURANCE_CERTIFICATE
                             )
@@ -322,7 +324,7 @@ export default function OrderTradeStatusForms(props: Props) {
                             ),
                             info: tradeInfo.documents.get(DocumentType.BILL_OF_LADING),
                             height: documentHeight,
-                            validationCallback: tradeView.validationCallback(
+                            validationCallback: props.validationCallback(
                                 tradeInfo,
                                 DocumentType.BILL_OF_LADING
                             )
@@ -358,7 +360,7 @@ export default function OrderTradeStatusForms(props: Props) {
                             ),
                             info: tradeInfo.documents.get(DocumentType.COMPARISON_SWISS_DECODE),
                             height: documentHeight,
-                            validationCallback: tradeView.validationCallback(
+                            validationCallback: props.validationCallback(
                                 tradeInfo,
                                 DocumentType.COMPARISON_SWISS_DECODE
                             )
@@ -373,7 +375,7 @@ export default function OrderTradeStatusForms(props: Props) {
                         ])
                 });
         } else {
-            onSubmit = tradeNew.onSubmit;
+            onSubmit = props.onSubmitNew;
         }
 
         const hasStartingDuties = (

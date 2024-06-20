@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { EthOfferService } from '@/api/services/EthOfferService';
-import OffersNew from '../OffersNew';
+import OfferNew from '../OfferNew';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { paths } from '@/constants/paths';
@@ -66,7 +66,7 @@ describe('Offers New', () => {
                     <SignerContext.Provider value={signerContextValue}>
                         <ICPContext.Provider value={icpContextValue}>
                             <EthContext.Provider value={ethContextValue}>
-                                <OffersNew />
+                                <OfferNew />
                             </EthContext.Provider>
                         </ICPContext.Provider>
                     </SignerContext.Provider>
@@ -101,7 +101,7 @@ describe('Offers New', () => {
                     <SignerContext.Provider value={signerContextValue}>
                         <ICPContext.Provider value={icpContextValue}>
                             <EthContext.Provider value={ethContextValue}>
-                                <OffersNew />
+                                <OfferNew />
                             </EthContext.Provider>
                         </ICPContext.Provider>
                     </SignerContext.Provider>
@@ -129,7 +129,7 @@ describe('Offers New', () => {
                     <SignerContext.Provider value={signerContextValue}>
                         <ICPContext.Provider value={icpContextValue}>
                             <EthContext.Provider value={ethContextValue}>
-                                <OffersNew />
+                                <OfferNew />
                             </EthContext.Provider>
                         </ICPContext.Provider>
                     </SignerContext.Provider>
@@ -157,7 +157,7 @@ describe('Offers New', () => {
                     <SignerContext.Provider value={signerContextValue}>
                         <ICPContext.Provider value={icpContextValue}>
                             <EthContext.Provider value={ethContextValue}>
-                                <OffersNew />
+                                <OfferNew />
                             </EthContext.Provider>
                         </ICPContext.Provider>
                     </SignerContext.Provider>
@@ -191,7 +191,7 @@ describe('Offers New', () => {
                     <SignerContext.Provider value={signerContextValue}>
                         <ICPContext.Provider value={icpContextValue}>
                             <EthContext.Provider value={ethContextValue}>
-                                <OffersNew />
+                                <OfferNew />
                             </EthContext.Provider>
                         </ICPContext.Provider>
                     </SignerContext.Provider>
@@ -226,7 +226,7 @@ describe('Offers New', () => {
                     <SignerContext.Provider value={signerContextValue}>
                         <ICPContext.Provider value={icpContextValue}>
                             <EthContext.Provider value={ethContextValue}>
-                                <OffersNew />
+                                <OfferNew />
                             </EthContext.Provider>
                         </ICPContext.Provider>
                     </SignerContext.Provider>
@@ -256,7 +256,7 @@ describe('Offers New', () => {
                     <SignerContext.Provider value={signerContextValue}>
                         <ICPContext.Provider value={icpContextValue}>
                             <EthContext.Provider value={ethContextValue}>
-                                <OffersNew />
+                                <OfferNew />
                             </EthContext.Provider>
                         </ICPContext.Provider>
                     </SignerContext.Provider>

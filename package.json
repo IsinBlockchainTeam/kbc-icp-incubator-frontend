@@ -93,6 +93,16 @@
         },
         "setupFiles": [
             "<rootDir>/setup.jest.ts"
+        ],
+        "coveragePathIgnorePatterns": [
+            "/node_modules/",
+            "/src/index.tsx",
+            "/src/serviceWorker.ts",
+            "/src/setupTests.ts",
+            "/src/setupProxy.js",
+            "/src/reportWebVitals.ts",
+            "/src/App.tsx",
+            "/src/providers/SiweIdentityProvider.tsx"
         ]
     }
 }

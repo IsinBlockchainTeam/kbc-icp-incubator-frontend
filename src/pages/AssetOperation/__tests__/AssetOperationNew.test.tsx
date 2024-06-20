@@ -1,6 +1,6 @@
 import { EthAssetOperationService } from '@/api/services/EthAssetOperationService';
 import { act, render, screen, waitFor } from '@testing-library/react';
-import AssetOperationsNew from '../AssetOperationsNew';
+import AssetOperationNew from '../AssetOperationNew';
 import userEvent from '@testing-library/user-event';
 
 import { paths } from '@/constants/paths';
@@ -54,7 +54,7 @@ describe('Asset Operations New', () => {
             render(
                 <Provider store={store}>
                     <EthContext.Provider value={contextValue}>
-                        <AssetOperationsNew />
+                        <AssetOperationNew />
                     </EthContext.Provider>
                 </Provider>
             );
@@ -90,7 +90,7 @@ describe('Asset Operations New', () => {
             render(
                 <Provider store={store}>
                     <EthContext.Provider value={contextValue}>
-                        <AssetOperationsNew />
+                        <AssetOperationNew />
                     </EthContext.Provider>
                 </Provider>
             );
@@ -119,7 +119,7 @@ describe('Asset Operations New', () => {
             render(
                 <Provider store={store}>
                     <EthContext.Provider value={contextValue}>
-                        <AssetOperationsNew />
+                        <AssetOperationNew />
                     </EthContext.Provider>
                 </Provider>
             );
@@ -161,7 +161,7 @@ describe('Asset Operations New', () => {
             render(
                 <Provider store={store}>
                     <EthContext.Provider value={contextValue}>
-                        <AssetOperationsNew />
+                        <AssetOperationNew />
                     </EthContext.Provider>
                 </Provider>
             );
@@ -190,7 +190,7 @@ describe('Asset Operations New', () => {
             render(
                 <Provider store={store}>
                     <EthContext.Provider value={contextValue}>
-                        <AssetOperationsNew />
+                        <AssetOperationNew />
                     </EthContext.Provider>
                 </Provider>
             );
@@ -210,7 +210,7 @@ describe('Asset Operations New', () => {
             render(
                 <Provider store={store}>
                     <EthContext.Provider value={contextValue}>
-                        <AssetOperationsNew />
+                        <AssetOperationNew />
                     </EthContext.Provider>
                 </Provider>
             );

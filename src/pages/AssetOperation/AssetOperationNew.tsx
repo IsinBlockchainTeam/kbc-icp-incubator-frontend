@@ -13,7 +13,7 @@ import { EthContext } from '@/providers/EthProvider';
 import { Material } from '@kbc-lib/coffee-trading-management-lib';
 import { paths } from '@/constants/paths';
 
-export const AssetOperationsNew = () => {
+export const AssetOperationNew = () => {
     const { ethAssetOperationService, ethProcessTypeService, ethMaterialService } =
         useContext(EthContext);
     const navigate = useNavigate();
@@ -224,4 +224,4 @@ export const AssetOperationsNew = () => {
     );
 };
 
-export default AssetOperationsNew;
+export default AssetOperationNew;
