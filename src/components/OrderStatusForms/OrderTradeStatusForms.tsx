@@ -1,10 +1,22 @@
-import { Divider, List, Space, Steps, Typography } from 'antd';
+import {
+    Button,
+    Divider,
+    Form,
+    FormProps,
+    Input,
+    List,
+    Popover,
+    Space,
+    Steps,
+    Typography
+} from 'antd';
 import {
     CalendarFilled,
     EditOutlined,
     ImportOutlined,
     ProductOutlined,
     SendOutlined,
+    MailOutlined,
     TruckOutlined
 } from '@ant-design/icons';
 import React, { ReactNode, useContext, useMemo } from 'react';
@@ -19,12 +31,12 @@ import {
 import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
 import { DocumentRequest } from '@/api/types/DocumentRequest';
 import { NotificationType, openNotification } from '@/utils/notification';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { DetailedTradePresentable, OrderTradePresentable } from '@/api/types/TradePresentable';
 import useTradeView from '@/pages/transactions/logic/tradeView';
 import useTradeNew from '@/pages/transactions/logic/tradeNew';
 import { useNavigate } from 'react-router-dom';
-import { notificationDuration, paths } from '@/constants/index';
+import { DID_METHOD, notificationDuration, paths, requestPath } from '@/constants/index';
 import { SignerContext } from '@/providers/SignerProvider';
 import TradeDutiesWaiting, { DutiesWaiting } from '@/pages/transactions/TradeDutiesWaiting';
 import { EthContext } from '@/providers/EthProvider';
@@ -33,6 +45,8 @@ import {
     fromTimestampToDate,
     showTextWithHtmlLinebreaks
 } from '@/utils/utils';
+import { ICPContext } from '@/providers/ICPProvider';
+import { RootState } from '@/redux/store';
 
 type Props = {
     status: OrderStatus;
@@ -44,9 +58,11 @@ type Props = {
 export default function OrderTradeStatusForms(props: Props) {
     const { status, submittable, negotiationElements, orderInfo } = props;
     let onSubmit: (values: any) => Promise<void>;
+    const { getNameByDID } = useContext(ICPContext);
     const { signer } = useContext(SignerContext);
     const navigate = useNavigate();
     const { ethTradeService } = useContext(EthContext);
+    const userInfo = useSelector((state: RootState) => state.userInfo);
     const dispatch = useDispatch();
     const [current, setCurrent] = React.useState<OrderStatus>(
         status === OrderStatus.COMPLETED ? OrderStatus.SHIPPED : status
@@ -99,7 +115,7 @@ export default function OrderTradeStatusForms(props: Props) {
                     Documents successfully uploaded:
                     <List
                         dataSource={documents
-                            .filter((doc) => values[doc.valueName].name)
+                            .filter((doc) => values[doc.valueName]?.name)
                             .map((doc) => ({
                                 title: documentTypesLabel.get(doc.documentType),
                                 description: values[doc.valueName].name
@@ -134,6 +150,40 @@ export default function OrderTradeStatusForms(props: Props) {
         );
     };
 
+    const deadlineExpiredEmailSend: FormProps['onFinish'] = async (values) => {
+        try {
+            const recipientCompanyName =
+                orderInfo?.trade.supplier === signer?.address
+                    ? await getNameByDID(`${DID_METHOD}:${orderInfo?.trade.commissioner}`)
+                    : await getNameByDID(`${DID_METHOD}:${orderInfo?.trade.supplier}`);
+            const response = await fetch(`${requestPath.EMAIL_SENDER_URL}/email/deadline-expired`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: values['emailAddress'],
+                    recipientCompanyName,
+                    senderCompanyName: userInfo.legalName,
+                    senderEmailAddress: userInfo.email,
+                    message: values['message'],
+                    transactionUrl: window.location.href
+                })
+            });
+            if (response.ok)
+                openNotification(
+                    'Success',
+                    `Email sent successfully to ${recipientCompanyName}`,
+                    NotificationType.SUCCESS
+                );
+        } catch (e: any) {
+            openNotification('Error', e.message, NotificationType.ERROR, notificationDuration);
+        } finally {
+            dispatch(hideLoading());
+            navigate(paths.TRADES);
+        }
+    };
+
     const stepLabelTip = (message: string, deadline: number, status: OrderStatus): ReactNode => {
         return (
             <div style={{ padding: '0.5rem' }}>
@@ -153,7 +203,61 @@ export default function OrderTradeStatusForms(props: Props) {
                             </Typography.Text>
                         ) : (
                             <Typography.Text style={{ fontSize: 'medium', color: 'red' }}>
-                                --{'>'} EXPIRED
+                                --{'> '}
+                                <Popover
+                                    title="Please contact the other party"
+                                    trigger="click"
+                                    placement="right"
+                                    content={
+                                        <Form
+                                            labelCol={{ span: 10 }}
+                                            wrapperCol={{ span: 14 }}
+                                            style={{ padding: 20 }}
+                                            onFinish={deadlineExpiredEmailSend}>
+                                            <Form.Item
+                                                name="emailAddress"
+                                                label="E-mail address"
+                                                rules={[
+                                                    {
+                                                        type: 'email',
+                                                        message:
+                                                            'The input is not valid E-mail address.'
+                                                    },
+                                                    {
+                                                        required: true,
+                                                        message: 'Please input the E-mail address.'
+                                                    }
+                                                ]}>
+                                                <Input />
+                                            </Form.Item>
+                                            <Form.Item
+                                                name="message"
+                                                label="Message"
+                                                rules={[
+                                                    {
+                                                        required: true,
+                                                        message:
+                                                            'Please input a message for the company.',
+                                                        whitespace: true
+                                                    }
+                                                ]}>
+                                                <Input.TextArea />
+                                            </Form.Item>
+                                            <Form.Item wrapperCol={{ span: 24 }}>
+                                                <Button
+                                                    type="primary"
+                                                    htmlType="submit"
+                                                    style={{ width: '100%' }}>
+                                                    <MailOutlined style={{ fontSize: 'large' }} />{' '}
+                                                    Send
+                                                </Button>
+                                            </Form.Item>
+                                        </Form>
+                                    }>
+                                    <Button type="dashed" danger ghost>
+                                        <span style={{ fontSize: 'large' }}>EXPIRED</span>
+                                    </Button>
+                                </Popover>
                             </Typography.Text>
                         )
                     ) : (

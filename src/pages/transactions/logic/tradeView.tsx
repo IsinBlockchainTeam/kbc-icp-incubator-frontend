@@ -15,7 +15,7 @@ import {
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import React, { useContext, useEffect, useState } from 'react';
-import { DetailedTradePresentable } from '@/api/types/TradePresentable';
+import { DetailedTradePresentable, OrderTradePresentable } from '@/api/types/TradePresentable';
 import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
 import { FormElement, FormElementType } from '@/components/GenericForm/GenericForm';
 import { regex } from '@/utils/regex';
@@ -25,7 +25,7 @@ import { BasicTradeRequest, OrderTradeRequest } from '@/api/types/TradeRequest';
 import { SignerContext } from '@/providers/SignerProvider';
 import { ICPContext } from '@/providers/ICPProvider';
 import { showTextWithHtmlLinebreaks } from '@/utils/utils';
-import { CheckCircleOutlined, EditOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, EditOutlined, RollbackOutlined } from '@ant-design/icons';
 import { Tooltip } from 'antd';
 
 export default function useTradeView() {
@@ -49,13 +49,15 @@ export default function useTradeView() {
     const type = parseInt(new URLSearchParams(location.search).get('type')!);
 
     const [trade, setTrade] = useState<DetailedTradePresentable>();
+    const [isEditing, setIsEditing] = useState<boolean>(false);
     const [disabled, setDisabled] = useState<boolean>(true);
     const [negotiationStatus, setNegotiationStatus] = useState<string | undefined>(undefined);
     const [actorNames, setActorNames] = useState<string[]>([]);
     const [elements, setElements] = useState<FormElement[]>([]);
 
-    const toggleDisabled = () => {
+    const toggleEditing = () => {
         setDisabled(!disabled);
+        setIsEditing(!isEditing);
     };
 
     const confirmNegotiation = async () => {
@@ -451,19 +453,36 @@ export default function useTradeView() {
                 );
             });
             if (negotiationStatus !== NegotiationStatus[NegotiationStatus.CONFIRMED]) {
-                newElements.push({
-                    type: FormElementType.BUTTON,
-                    span: 12,
-                    name: 'edit',
-                    label: (
-                        <div>
-                            {disabled ? 'Edit ' : 'Editing.. '}
-                            <EditOutlined style={{ fontSize: 'large' }} />
-                        </div>
-                    ),
-                    buttonType: 'primary',
-                    onClick: toggleDisabled
-                });
+                newElements.push(
+                    {
+                        type: FormElementType.BUTTON,
+                        span: 24,
+                        name: 'back',
+                        label: (
+                            <div>
+                                Back <RollbackOutlined />
+                            </div>
+                        ),
+                        buttonType: 'primary',
+                        hidden: !isEditing,
+                        onClick: toggleEditing,
+                        resetFormValues: true
+                    },
+                    {
+                        type: FormElementType.BUTTON,
+                        span: 12,
+                        name: 'edit',
+                        label: (
+                            <div>
+                                {disabled ? 'Edit ' : 'Editing.. '}
+                                <EditOutlined style={{ fontSize: 'large' }} />
+                            </div>
+                        ),
+                        buttonType: 'primary',
+                        hidden: isEditing,
+                        onClick: toggleEditing
+                    }
+                );
                 if (
                     (orderTrade.hasSupplierSigned && orderTrade.supplier !== signer?.address) ||
                     (orderTrade.hasCommissionerSigned &&
@@ -480,6 +499,7 @@ export default function useTradeView() {
                             </Tooltip>
                         ),
                         buttonType: 'primary',
+                        hidden: isEditing,
                         onClick: confirmNegotiation
                     });
                 }
@@ -564,7 +584,6 @@ export default function useTradeView() {
         disabled,
         negotiationStatus,
         validationCallback,
-        toggleDisabled,
         onSubmit,
         confirmNegotiation
     };

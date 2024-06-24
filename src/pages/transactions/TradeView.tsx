@@ -1,24 +1,14 @@
 import React from 'react';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
-import { Spin, Tag, Tooltip } from 'antd';
-import { EditOutlined, CheckCircleOutlined } from '@ant-design/icons';
-import { NegotiationStatus, OrderTrade, TradeType } from '@kbc-lib/coffee-trading-management-lib';
+import { Spin, Tag } from 'antd';
+import { NegotiationStatus, OrderStatus, TradeType } from '@kbc-lib/coffee-trading-management-lib';
 import useTradeView from './logic/tradeView';
 import OrderTradeStatusForms from '@/components/OrderStatusForms/OrderTradeStatusForms';
 import { GenericForm } from '@/components/GenericForm/GenericForm';
 import { OrderTradePresentable } from '@/api/types/TradePresentable';
 
 export const TradeView = () => {
-    const {
-        trade,
-        type,
-        elements,
-        negotiationStatus,
-        disabled,
-        toggleDisabled,
-        onSubmit,
-        confirmNegotiation
-    } = useTradeView();
+    const { trade, type, elements, negotiationStatus, disabled, onSubmit } = useTradeView();
 
     if (!Object.values(TradeType).includes(type)) {
         return <div>Wrong type</div>;
@@ -39,8 +29,13 @@ export const TradeView = () => {
                     {TradeType[type]}
                     <div style={{ display: 'flex', alignItems: 'center' }}>
                         {negotiationStatus && (
-                            <Tag color="green" key={negotiationStatus}>
-                                {negotiationStatus.toUpperCase()}
+                            <Tag color="green">
+                                {negotiationStatus !==
+                                NegotiationStatus[NegotiationStatus.CONFIRMED]
+                                    ? negotiationStatus.toUpperCase()
+                                    : OrderStatus[(trade as OrderTradePresentable).status]
+                                          .toString()
+                                          .toUpperCase()}
                             </Tag>
                         )}
                     </div>
