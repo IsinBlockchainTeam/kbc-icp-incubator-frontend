@@ -16,6 +16,7 @@ import { NotificationType, openNotification } from '@/utils/notification';
 import { useDispatch } from 'react-redux';
 import { SignerContext } from '@/providers/SignerProvider';
 import { EthContext } from '@/providers/EthProvider';
+import { notificationDuration } from '@/constants/notification';
 
 type BasicTradeNewProps = {
     commonElements: FormElement[];
@@ -38,7 +39,7 @@ export const BasicTradeNew = ({ commonElements }: BasicTradeNewProps) => {
     const onSubmit = async (values: any) => {
         try {
             //FIXME: This is a workaround to get data instead of the form
-            values['supplier'] = location?.state?.supplierName || 'Unknown';
+            values['supplier'] = location?.state?.supplierAddress || 'Unknown';
             values['customer'] = signer?.address || 'Unknown';
             values['commissioner'] = signer?.address || 'Unknown';
             values['product-category-id-1'] = location?.state?.productCategoryId || '0';
@@ -75,12 +76,12 @@ export const BasicTradeNew = ({ commonElements }: BasicTradeNewProps) => {
                 'Basic trade registered',
                 `Basic trade "${values.name}" has been registered correctly!`,
                 NotificationType.SUCCESS,
-                1
+                notificationDuration
             );
             navigate(paths.TRADES);
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR);
+            openNotification('Error', e.message, NotificationType.ERROR, notificationDuration);
         } finally {
             dispatch(hideLoading());
         }

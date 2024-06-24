@@ -20,7 +20,7 @@ import { NotificationType, openNotification } from '@/utils/notification';
 import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
 import { useDispatch } from 'react-redux';
 import { EthContext } from '@/providers/EthProvider';
-import {notificationDuration} from "@/constants/index";
+import { notificationDuration } from '@/constants/notification';
 
 const MapNode = memo(() => {
     return (

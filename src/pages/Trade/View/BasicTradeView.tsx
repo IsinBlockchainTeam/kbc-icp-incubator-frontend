@@ -14,6 +14,7 @@ import { paths } from '@/constants/paths';
 import { useNavigate } from 'react-router-dom';
 import { EthContext } from '@/providers/EthProvider';
 import { useDispatch } from 'react-redux';
+import { notificationDuration } from '@/constants/notification';
 
 type BasicTradeViewProps = {
     basicTradePresentable: BasicTradePresentable;
@@ -44,35 +45,27 @@ export const BasicTradeView = ({
     const onSubmit = async (values: any) => {
         try {
             dispatch(showLoading('Loading...'));
-            if (values['delivery-deadline'] <= values['shipping-deadline']) {
-                openNotification(
-                    'Delivery deadline cannot be less then shipping one',
-                    '',
-                    NotificationType.ERROR
-                );
-            } else {
-                const supplier: string = values['supplier'];
-                const customer: string = values['customer'];
-                const commissioner: string = values['commissioner'];
-                const quantity: number = parseInt(values[`quantity-1`]);
-                const unit: string = values[`unit-1`];
-                const productCategoryId: number = parseInt(values['product-category-id-1']);
+            const supplier: string = values['supplier'];
+            const customer: string = values['customer'];
+            const commissioner: string = values['commissioner'];
+            const quantity: number = parseInt(values[`quantity-1`]);
+            const unit: string = values[`unit-1`];
+            const productCategoryId: number = parseInt(values['product-category-id-1']);
 
-                const updatedBasicTrade: BasicTradeRequest = {
-                    supplier,
-                    customer,
-                    commissioner,
-                    lines: [new LineRequest(productCategoryId, quantity, unit)],
-                    name: values['name']
-                };
-                await ethTradeService.putBasicTrade(basicTrade.tradeId, updatedBasicTrade);
+            const updatedBasicTrade: BasicTradeRequest = {
+                supplier,
+                customer,
+                commissioner,
+                lines: [new LineRequest(productCategoryId, quantity, unit)],
+                name: values['name']
+            };
+            await ethTradeService.putBasicTrade(basicTrade.tradeId, updatedBasicTrade);
 
-                toggleDisabled();
-                navigate(paths.TRADES);
-            }
+            toggleDisabled();
+            navigate(paths.TRADES);
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR);
+            openNotification('Error', e.message, NotificationType.ERROR, notificationDuration);
         } finally {
             dispatch(hideLoading());
         }

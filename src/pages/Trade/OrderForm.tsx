@@ -37,15 +37,13 @@ import { useNavigate } from 'react-router-dom';
 import { SignerContext } from '@/providers/SignerProvider';
 import TradeDutiesWaiting, { DutiesWaiting } from '@/pages/Trade/TradeDutiesWaiting';
 import { EthContext } from '@/providers/EthProvider';
-import { paths, requestPath } from '@/constants/paths';
+import { paths } from '@/constants/paths';
 import { notificationDuration } from '@/constants/notification';
-import {
-    differenceInDaysFromToday,
-    fromTimestampToDate,
-    showTextWithHtmlLinebreaks
-} from '@/utils/utils';
+import { differenceInDaysFromToday, fromTimestampToDate } from '@/utils/date';
 import { ICPContext } from '@/providers/ICPProvider';
 import { RootState } from '@/redux/store';
+import { DID_METHOD } from '@/constants/ssi';
+import { requestPath } from '@/constants/url';
 
 type Props = {
     status: OrderStatus;
@@ -177,7 +175,8 @@ export default function OrderForm(props: Props) {
                 openNotification(
                     'Success',
                     `Email sent successfully to ${recipientCompanyName}`,
-                    NotificationType.SUCCESS
+                    NotificationType.SUCCESS,
+                    notificationDuration
                 );
         } catch (e: any) {
             openNotification('Error', e.message, NotificationType.ERROR, notificationDuration);
@@ -187,10 +186,10 @@ export default function OrderForm(props: Props) {
         }
     };
 
-    const stepLabelTip = (message: string, deadline: number, status: OrderStatus): ReactNode => {
+    const stepLabelTip = (message: ReactNode, deadline: number, status: OrderStatus): ReactNode => {
         return (
             <div style={{ padding: '0.5rem' }}>
-                <div>{showTextWithHtmlLinebreaks(message)}</div>
+                {message}
                 <Space align="center" style={{ width: '100%' }}>
                     <Typography.Text strong style={{ fontSize: 'x-large' }}>
                         Deadline:{' '}
@@ -293,7 +292,12 @@ export default function OrderForm(props: Props) {
                             type: FormElementType.TIP,
                             span: 24,
                             label: stepLabelTip(
-                                'At this stage, the exporter has to load a payment invoice for the goods that have been negotiated. \nThis operation allows coffee production to be started and planned only against a guarantee deposit from the importer',
+                                <p>
+                                    At this stage, the exporter has to load a payment invoice for
+                                    the goods that have been negotiated. <br />
+                                    This operation allows coffee production to be started and
+                                    planned only against a guarantee deposit from the importer
+                                </p>,
                                 orderInfo.trade.paymentDeadline,
                                 OrderStatus.PRODUCTION
                             ),
@@ -333,7 +337,12 @@ export default function OrderForm(props: Props) {
                             type: FormElementType.TIP,
                             span: 24,
                             label: stepLabelTip(
-                                'This is the export phase, the exporter has to load the following documents to proceed with the export, in order to prove the quality of the goods and the intrinsic characteristics of the coffee.',
+                                <p>
+                                    This is the export phase, the exporter has to load the following
+                                    documents to proceed with the export, in order to prove the
+                                    quality of the goods and the intrinsic characteristics of the
+                                    coffee.
+                                </p>,
                                 orderInfo.trade.documentDeliveryDeadline,
                                 OrderStatus.PAYED
                             ),
@@ -492,7 +501,12 @@ export default function OrderForm(props: Props) {
                             type: FormElementType.TIP,
                             span: 24,
                             label: stepLabelTip(
-                                'This is the last step for the exporter, in which is important to prove that the goods are ready to be shipped. \nThe exporter has to load the Bill of Lading to proceed with the shipment.',
+                                <p>
+                                    This is the last step for the exporter, in which is important to
+                                    prove that the goods are ready to be shipped. <br />
+                                    The exporter has to load the Bill of Lading to proceed with the
+                                    shipment.
+                                </p>,
                                 orderInfo.trade.shippingDeadline,
                                 OrderStatus.EXPORTED
                             ),
@@ -532,7 +546,12 @@ export default function OrderForm(props: Props) {
                             type: FormElementType.TIP,
                             span: 24,
                             label: stepLabelTip(
-                                'This is the final stage for this transaction where is important to prove that the goods, reached by the importer, have exactly the same specifications that are claimed by the exporter. \nThe importer has to load the results of the Swiss Decode.',
+                                <p>
+                                    This is the final stage for this transaction where is important
+                                    to prove that the goods, reached by the importer, have exactly
+                                    the same specifications that are claimed by the exporter. <br />
+                                    The importer has to load the results of the Swiss Decode.
+                                </p>,
                                 orderInfo.trade.deliveryDeadline,
                                 OrderStatus.SHIPPED
                             ),
