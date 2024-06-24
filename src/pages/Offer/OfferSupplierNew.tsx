@@ -12,6 +12,7 @@ import { SignerContext } from '@/providers/SignerProvider';
 import { EthContext } from '@/providers/EthProvider';
 import { formatAddress } from '@/utils/format';
 import { paths } from '@/constants/paths';
+import { notificationDuration } from '@/constants/notification';
 import { credentials } from '@/constants/ssi';
 
 export const OfferSupplierNew = () => {
@@ -53,12 +54,12 @@ export const OfferSupplierNew = () => {
                 'Offer supplier registered',
                 `Offer supplier with address ${formatAddress(values['supplier-address'])} has been registered correctly!`,
                 NotificationType.SUCCESS,
-                1
+                notificationDuration
             );
             navigate(paths.OFFERS);
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR);
+            openNotification('Error', e.message, NotificationType.ERROR, notificationDuration);
         } finally {
             dispatch(hideLoading());
         }

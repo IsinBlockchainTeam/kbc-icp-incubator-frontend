@@ -12,6 +12,7 @@ import { AssetOperationRequest } from '@/api/types/AssetOperationRequest';
 import { EthContext } from '@/providers/EthProvider';
 import { Material } from '@kbc-lib/coffee-trading-management-lib';
 import { paths } from '@/constants/paths';
+import {notificationDuration } from '@/constants/notification';
 
 export const AssetOperationNew = () => {
     const { ethAssetOperationService, ethProcessTypeService, ethMaterialService } =
@@ -44,7 +45,7 @@ export const AssetOperationNew = () => {
             setProcessTypes(pT);
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR);
+            openNotification('Error', e.message, NotificationType.ERROR, notificationDuration);
         } finally {
             setLoadingCount((c) => c - 1);
         }
@@ -57,7 +58,7 @@ export const AssetOperationNew = () => {
             setMaterials(m);
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR);
+            openNotification('Error', e.message, NotificationType.ERROR, notificationDuration);
         } finally {
             setLoadingCount((c) => c - 1);
         }
@@ -94,12 +95,12 @@ export const AssetOperationNew = () => {
                 'Asset operation registered',
                 `Asset operation "${newAssetOperation.name}" has been registered correctly!`,
                 NotificationType.SUCCESS,
-                1
+                notificationDuration
             );
             navigate(paths.ASSET_OPERATIONS);
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR);
+            openNotification('Error', e.message, NotificationType.ERROR, notificationDuration);
         } finally {
             dispatch(hideLoading());
         }

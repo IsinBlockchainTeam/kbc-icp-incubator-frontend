@@ -13,6 +13,7 @@ import { EthContext } from '@/providers/EthProvider';
 import { OfferPresentable } from '@/api/types/OfferPresentable';
 import { ICPContext } from '@/providers/ICPProvider';
 import { paths } from '@/constants/paths';
+import { notificationDuration } from '@/constants/notification';
 import { credentials, DID_METHOD } from '@/constants/ssi';
 
 export const Offers = () => {
@@ -50,7 +51,7 @@ export const Offers = () => {
             setFilteredOffers(offerPresentables);
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR);
+            openNotification('Error', e.message, NotificationType.ERROR, notificationDuration);
         } finally {
             dispatch(hideLoading());
         }

@@ -10,6 +10,7 @@ import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
 import { useDispatch } from 'react-redux';
 import { EthContext } from '@/providers/EthProvider';
 import { paths } from '@/constants/paths';
+import { notificationDuration } from '@/constants/notification';
 
 export const AssetOperations = () => {
     const { ethAssetOperationService } = useContext(EthContext);
@@ -30,7 +31,7 @@ export const AssetOperations = () => {
             );
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR);
+            openNotification('Error', e.message, NotificationType.ERROR, notificationDuration);
         } finally {
             dispatch(hideLoading());
         }

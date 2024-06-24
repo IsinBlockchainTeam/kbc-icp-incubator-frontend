@@ -10,9 +10,9 @@ import { NegotiationStatus, OrderStatus, TradeType } from '@kbc-lib/coffee-tradi
 import { useDispatch } from 'react-redux';
 import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
 import { EthContext } from '@/providers/EthProvider';
-
 import { setParametersPath } from '@/utils/page';
 import { paths } from '@/constants/paths';
+import { notificationDuration } from '@/constants/notification';
 
 export const Trades = () => {
     const { ethTradeService } = useContext(EthContext);
@@ -33,7 +33,7 @@ export const Trades = () => {
             );
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR);
+            openNotification('Error', e.message, NotificationType.ERROR, notificationDuration);
         } finally {
             dispatch(hideLoading());
         }

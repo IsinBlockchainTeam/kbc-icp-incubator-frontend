@@ -1,12 +1,25 @@
-import { Divider, Steps } from 'antd';
 import {
+    Button,
+    Divider,
+    Form,
+    FormProps,
+    Input,
+    List,
+    Popover,
+    Space,
+    Steps,
+    Typography
+} from 'antd';
+import {
+    CalendarFilled,
     EditOutlined,
     ImportOutlined,
     ProductOutlined,
     SendOutlined,
+    MailOutlined,
     TruckOutlined
 } from '@ant-design/icons';
-import React, { useContext, useMemo } from 'react';
+import React, { ReactNode, useContext, useMemo } from 'react';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
 import {
     DocumentStatus,
@@ -18,19 +31,27 @@ import {
 import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
 import { DocumentRequest } from '@/api/types/DocumentRequest';
 import { NotificationType, openNotification } from '@/utils/notification';
-import { useDispatch } from 'react-redux';
-import { DetailedTradePresentable } from '@/api/types/TradePresentable';
+import { useDispatch, useSelector } from 'react-redux';
+import { DetailedTradePresentable, OrderTradePresentable } from '@/api/types/TradePresentable';
 import { useNavigate } from 'react-router-dom';
 import { SignerContext } from '@/providers/SignerProvider';
 import TradeDutiesWaiting, { DutiesWaiting } from '@/pages/Trade/TradeDutiesWaiting';
 import { EthContext } from '@/providers/EthProvider';
-import { paths } from '@/constants/paths';
+import { paths, requestPath } from '@/constants/paths';
+import { notificationDuration } from '@/constants/notification';
+import {
+    differenceInDaysFromToday,
+    fromTimestampToDate,
+    showTextWithHtmlLinebreaks
+} from '@/utils/utils';
+import { ICPContext } from '@/providers/ICPProvider';
+import { RootState } from '@/redux/store';
 
 type Props = {
     status: OrderStatus;
     submittable: boolean;
     negotiationElements: FormElement[];
-    tradeInfo?: DetailedTradePresentable;
+    orderInfo?: OrderTradePresentable;
     validationCallback: (
         tradeInfo: DetailedTradePresentable | undefined,
         documentType: DocumentType
@@ -40,16 +61,28 @@ type Props = {
 };
 
 export default function OrderForm(props: Props) {
-    const { status, submittable, negotiationElements, tradeInfo } = props;
+    const { status, submittable, negotiationElements, orderInfo } = props;
+    let onSubmit: (values: any) => Promise<void>;
+    const { getNameByDID } = useContext(ICPContext);
     const { signer } = useContext(SignerContext);
     const navigate = useNavigate();
     const { ethTradeService } = useContext(EthContext);
+    const userInfo = useSelector((state: RootState) => state.userInfo);
     const dispatch = useDispatch();
     const [current, setCurrent] = React.useState<OrderStatus>(
         status === OrderStatus.COMPLETED ? OrderStatus.SHIPPED : status
     );
     const documentHeight = '45vh';
-    let onSubmit: (values: any) => Promise<void>;
+    const documentTypesLabel = new Map<DocumentType, string>()
+        .set(DocumentType.PAYMENT_INVOICE, 'Payment Invoice')
+        .set(DocumentType.ORIGIN_SWISS_DECODE, 'Swiss Decode')
+        .set(DocumentType.WEIGHT_CERTIFICATE, 'Weight Certificate')
+        .set(DocumentType.FUMIGATION_CERTIFICATE, 'Fumigation Certificate')
+        .set(DocumentType.PREFERENTIAL_ENTRY_CERTIFICATE, 'Preferential Entry Certificate')
+        .set(DocumentType.PHYTOSANITARY_CERTIFICATE, 'Phytosanitary Certificate')
+        .set(DocumentType.INSURANCE_CERTIFICATE, 'Insurance Certificate')
+        .set(DocumentType.BILL_OF_LADING, 'Bill Of Lading')
+        .set(DocumentType.COMPARISON_SWISS_DECODE, 'Comparison Swiss Decode');
 
     const onChange = (value: number) => {
         if (value > status) return;
@@ -61,7 +94,7 @@ export default function OrderForm(props: Props) {
         documents: { valueName: string; documentType: DocumentType }[]
     ): Promise<void> => {
         try {
-            if (!tradeInfo) return;
+            if (!orderInfo) return;
             dispatch(showLoading('Documents uploading...'));
             await serial(
                 documents.map((doc) => async () => {
@@ -72,17 +105,38 @@ export default function OrderForm(props: Props) {
                         documentType: doc.documentType
                     };
                     await ethTradeService.addDocument(
-                        tradeInfo.trade.tradeId,
+                        orderInfo.trade.tradeId,
                         TradeType.ORDER,
                         documentRequest,
-                        tradeInfo.trade.externalUrl
+                        orderInfo.trade.externalUrl
                     );
                 })
+            );
+            openNotification(
+                'Documents uploaded',
+                <div>
+                    Documents successfully uploaded:
+                    <List
+                        dataSource={documents
+                            .filter((doc) => values[doc.valueName]?.name)
+                            .map((doc) => ({
+                                title: documentTypesLabel.get(doc.documentType),
+                                description: values[doc.valueName].name
+                            }))}
+                        renderItem={(item) => (
+                            <List.Item>
+                                <List.Item.Meta title={item.title} description={item.description} />
+                            </List.Item>
+                        )}
+                    />
+                </div>,
+                NotificationType.SUCCESS,
+                notificationDuration + 2
             );
             navigate(paths.TRADES);
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR);
+            openNotification('Error', e.message, NotificationType.ERROR, notificationDuration);
         } finally {
             dispatch(hideLoading());
         }
@@ -99,6 +153,126 @@ export default function OrderForm(props: Props) {
         );
     };
 
+    const deadlineExpiredEmailSend: FormProps['onFinish'] = async (values) => {
+        try {
+            const recipientCompanyName =
+                orderInfo?.trade.supplier === signer?.address
+                    ? await getNameByDID(`${DID_METHOD}:${orderInfo?.trade.commissioner}`)
+                    : await getNameByDID(`${DID_METHOD}:${orderInfo?.trade.supplier}`);
+            const response = await fetch(`${requestPath.EMAIL_SENDER_URL}/email/deadline-expired`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: values['emailAddress'],
+                    recipientCompanyName,
+                    senderCompanyName: userInfo.legalName,
+                    senderEmailAddress: userInfo.email,
+                    message: values['message'],
+                    transactionUrl: window.location.href
+                })
+            });
+            if (response.ok)
+                openNotification(
+                    'Success',
+                    `Email sent successfully to ${recipientCompanyName}`,
+                    NotificationType.SUCCESS
+                );
+        } catch (e: any) {
+            openNotification('Error', e.message, NotificationType.ERROR, notificationDuration);
+        } finally {
+            dispatch(hideLoading());
+            navigate(paths.TRADES);
+        }
+    };
+
+    const stepLabelTip = (message: string, deadline: number, status: OrderStatus): ReactNode => {
+        return (
+            <div style={{ padding: '0.5rem' }}>
+                <div>{showTextWithHtmlLinebreaks(message)}</div>
+                <Space align="center" style={{ width: '100%' }}>
+                    <Typography.Text strong style={{ fontSize: 'x-large' }}>
+                        Deadline:{' '}
+                    </Typography.Text>
+                    <CalendarFilled style={{ fontSize: 'large' }} />
+                    <Typography.Text style={{ fontSize: 'large' }}>
+                        {fromTimestampToDate(deadline).toLocaleDateString()}
+                    </Typography.Text>
+                    {orderInfo?.status === status ? (
+                        differenceInDaysFromToday(deadline) > 0 ? (
+                            <Typography.Text style={{ fontSize: 'medium', color: 'orange' }}>
+                                {`--> Left ${differenceInDaysFromToday(deadline)} days`}
+                            </Typography.Text>
+                        ) : (
+                            <Typography.Text style={{ fontSize: 'medium', color: 'red' }}>
+                                --{'> '}
+                                <Popover
+                                    title="Please contact the other party"
+                                    trigger="click"
+                                    placement="right"
+                                    content={
+                                        <Form
+                                            labelCol={{ span: 10 }}
+                                            wrapperCol={{ span: 14 }}
+                                            style={{ padding: 20 }}
+                                            onFinish={deadlineExpiredEmailSend}>
+                                            <Form.Item
+                                                name="emailAddress"
+                                                label="E-mail address"
+                                                rules={[
+                                                    {
+                                                        type: 'email',
+                                                        message:
+                                                            'The input is not valid E-mail address.'
+                                                    },
+                                                    {
+                                                        required: true,
+                                                        message: 'Please input the E-mail address.'
+                                                    }
+                                                ]}>
+                                                <Input />
+                                            </Form.Item>
+                                            <Form.Item
+                                                name="message"
+                                                label="Message"
+                                                rules={[
+                                                    {
+                                                        required: true,
+                                                        message:
+                                                            'Please input a message for the company.',
+                                                        whitespace: true
+                                                    }
+                                                ]}>
+                                                <Input.TextArea />
+                                            </Form.Item>
+                                            <Form.Item wrapperCol={{ span: 24 }}>
+                                                <Button
+                                                    type="primary"
+                                                    htmlType="submit"
+                                                    style={{ width: '100%' }}>
+                                                    <MailOutlined style={{ fontSize: 'large' }} />{' '}
+                                                    Send
+                                                </Button>
+                                            </Form.Item>
+                                        </Form>
+                                    }>
+                                    <Button type="dashed" danger ghost>
+                                        <span style={{ fontSize: 'large' }}>EXPIRED</span>
+                                    </Button>
+                                </Popover>
+                            </Typography.Text>
+                        )
+                    ) : (
+                        <Typography.Text style={{ fontSize: 'medium', color: 'green' }}>
+                            --{'>'} Uploaded on time
+                        </Typography.Text>
+                    )}
+                </Space>
+            </div>
+        );
+    };
+
     const steps = useMemo(() => {
         let elementsAfterNegotiation:
             | Map<
@@ -106,7 +280,7 @@ export default function OrderForm(props: Props) {
                   { elements: FormElement[]; onSubmit: (values: any) => Promise<void> }
               >
             | undefined;
-        if (tradeInfo) {
+        if (orderInfo) {
             onSubmit = props.onSubmitView;
 
             elementsAfterNegotiation = new Map<
@@ -118,25 +292,29 @@ export default function OrderForm(props: Props) {
                         {
                             type: FormElementType.TIP,
                             span: 24,
-                            label: 'At this stage, the exporter has to load a payment invoice for the goods that have been negotiated. \n This operation allows coffee production to be started and planned only against a guarantee deposit from the importer',
+                            label: stepLabelTip(
+                                'At this stage, the exporter has to load a payment invoice for the goods that have been negotiated. \nThis operation allows coffee production to be started and planned only against a guarantee deposit from the importer',
+                                orderInfo.trade.paymentDeadline,
+                                OrderStatus.PRODUCTION
+                            ),
                             marginVertical: '1rem'
                         },
                         {
                             type: FormElementType.DOCUMENT,
                             span: 12,
                             name: 'payment-invoice',
-                            label: 'Payment Invoice',
+                            label: documentTypesLabel.get(DocumentType.PAYMENT_INVOICE)!,
                             required: true,
                             loading: false,
                             uploadable: isDocumentUploadable(
-                                tradeInfo.trade.supplier,
-                                tradeInfo,
+                                orderInfo.trade.supplier,
+                                orderInfo,
                                 DocumentType.PAYMENT_INVOICE
                             ),
-                            info: tradeInfo.documents.get(DocumentType.PAYMENT_INVOICE),
+                            info: orderInfo.documents.get(DocumentType.PAYMENT_INVOICE),
                             height: documentHeight,
                             validationCallback: props.validationCallback(
-                                tradeInfo,
+                                orderInfo,
                                 DocumentType.PAYMENT_INVOICE
                             )
                         }
@@ -154,25 +332,29 @@ export default function OrderForm(props: Props) {
                         {
                             type: FormElementType.TIP,
                             span: 24,
-                            label: 'This is the export phase, the exporter has to load the following documents to proceed with the export, \n in order to prove the quality of the goods and the intrinsic characteristics of the coffee.',
+                            label: stepLabelTip(
+                                'This is the export phase, the exporter has to load the following documents to proceed with the export, in order to prove the quality of the goods and the intrinsic characteristics of the coffee.',
+                                orderInfo.trade.documentDeliveryDeadline,
+                                OrderStatus.PAYED
+                            ),
                             marginVertical: '1rem'
                         },
                         {
                             type: FormElementType.DOCUMENT,
                             span: 12,
                             name: 'swiss-decode',
-                            label: 'Swiss Decode',
+                            label: documentTypesLabel.get(DocumentType.ORIGIN_SWISS_DECODE)!,
                             required: true,
                             loading: false,
                             uploadable: isDocumentUploadable(
-                                tradeInfo.trade.supplier,
-                                tradeInfo,
+                                orderInfo.trade.supplier,
+                                orderInfo,
                                 DocumentType.ORIGIN_SWISS_DECODE
                             ),
-                            info: tradeInfo.documents.get(DocumentType.ORIGIN_SWISS_DECODE),
+                            info: orderInfo.documents.get(DocumentType.ORIGIN_SWISS_DECODE),
                             height: documentHeight,
                             validationCallback: props.validationCallback(
-                                tradeInfo,
+                                orderInfo,
                                 DocumentType.ORIGIN_SWISS_DECODE
                             )
                         },
@@ -180,18 +362,18 @@ export default function OrderForm(props: Props) {
                             type: FormElementType.DOCUMENT,
                             span: 12,
                             name: 'weight-certificate',
-                            label: 'Weight Certificate',
+                            label: documentTypesLabel.get(DocumentType.WEIGHT_CERTIFICATE)!,
                             required: true,
                             loading: false,
                             uploadable: isDocumentUploadable(
-                                tradeInfo.trade.supplier,
-                                tradeInfo,
+                                orderInfo.trade.supplier,
+                                orderInfo,
                                 DocumentType.WEIGHT_CERTIFICATE
                             ),
-                            info: tradeInfo.documents.get(DocumentType.WEIGHT_CERTIFICATE),
+                            info: orderInfo.documents.get(DocumentType.WEIGHT_CERTIFICATE),
                             height: documentHeight,
                             validationCallback: props.validationCallback(
-                                tradeInfo,
+                                orderInfo,
                                 DocumentType.WEIGHT_CERTIFICATE
                             )
                         },
@@ -199,18 +381,18 @@ export default function OrderForm(props: Props) {
                             type: FormElementType.DOCUMENT,
                             span: 12,
                             name: 'fumigation-certificate',
-                            label: 'Fumigation Certificate',
+                            label: documentTypesLabel.get(DocumentType.FUMIGATION_CERTIFICATE)!,
                             required: true,
                             loading: false,
                             uploadable: isDocumentUploadable(
-                                tradeInfo.trade.supplier,
-                                tradeInfo,
+                                orderInfo.trade.supplier,
+                                orderInfo,
                                 DocumentType.FUMIGATION_CERTIFICATE
                             ),
-                            info: tradeInfo.documents.get(DocumentType.FUMIGATION_CERTIFICATE),
+                            info: orderInfo.documents.get(DocumentType.FUMIGATION_CERTIFICATE),
                             height: documentHeight,
                             validationCallback: props.validationCallback(
-                                tradeInfo,
+                                orderInfo,
                                 DocumentType.FUMIGATION_CERTIFICATE
                             )
                         },
@@ -218,20 +400,22 @@ export default function OrderForm(props: Props) {
                             type: FormElementType.DOCUMENT,
                             span: 12,
                             name: 'preferential-entry-certificate',
-                            label: 'Preferential Entry Certificate',
+                            label: documentTypesLabel.get(
+                                DocumentType.PREFERENTIAL_ENTRY_CERTIFICATE
+                            )!,
                             required: true,
                             loading: false,
                             uploadable: isDocumentUploadable(
-                                tradeInfo.trade.supplier,
-                                tradeInfo,
+                                orderInfo.trade.supplier,
+                                orderInfo,
                                 DocumentType.PREFERENTIAL_ENTRY_CERTIFICATE
                             ),
-                            info: tradeInfo.documents.get(
+                            info: orderInfo.documents.get(
                                 DocumentType.PREFERENTIAL_ENTRY_CERTIFICATE
                             ),
                             height: documentHeight,
                             validationCallback: props.validationCallback(
-                                tradeInfo,
+                                orderInfo,
                                 DocumentType.PREFERENTIAL_ENTRY_CERTIFICATE
                             )
                         },
@@ -239,18 +423,18 @@ export default function OrderForm(props: Props) {
                             type: FormElementType.DOCUMENT,
                             span: 12,
                             name: 'phytosanitary-certificate',
-                            label: 'Phytosanitary Certificate',
+                            label: documentTypesLabel.get(DocumentType.PHYTOSANITARY_CERTIFICATE)!,
                             required: true,
                             loading: false,
                             uploadable: isDocumentUploadable(
-                                tradeInfo.trade.supplier,
-                                tradeInfo,
+                                orderInfo.trade.supplier,
+                                orderInfo,
                                 DocumentType.PHYTOSANITARY_CERTIFICATE
                             ),
-                            info: tradeInfo.documents.get(DocumentType.PHYTOSANITARY_CERTIFICATE),
+                            info: orderInfo.documents.get(DocumentType.PHYTOSANITARY_CERTIFICATE),
                             height: documentHeight,
                             validationCallback: props.validationCallback(
-                                tradeInfo,
+                                orderInfo,
                                 DocumentType.PHYTOSANITARY_CERTIFICATE
                             )
                         },
@@ -258,18 +442,18 @@ export default function OrderForm(props: Props) {
                             type: FormElementType.DOCUMENT,
                             span: 12,
                             name: 'insurance-certificate',
-                            label: 'Insurance Certificate',
+                            label: documentTypesLabel.get(DocumentType.INSURANCE_CERTIFICATE)!,
                             required: true,
                             loading: false,
                             uploadable: isDocumentUploadable(
-                                tradeInfo.trade.supplier,
-                                tradeInfo,
+                                orderInfo.trade.supplier,
+                                orderInfo,
                                 DocumentType.INSURANCE_CERTIFICATE
                             ),
-                            info: tradeInfo.documents.get(DocumentType.INSURANCE_CERTIFICATE),
+                            info: orderInfo.documents.get(DocumentType.INSURANCE_CERTIFICATE),
                             height: documentHeight,
                             validationCallback: props.validationCallback(
-                                tradeInfo,
+                                orderInfo,
                                 DocumentType.INSURANCE_CERTIFICATE
                             )
                         }
@@ -307,25 +491,29 @@ export default function OrderForm(props: Props) {
                         {
                             type: FormElementType.TIP,
                             span: 24,
-                            label: 'This is the last step for the exporter, in which is important to prove that the goods are ready to be shipped. \n The exporter has to load the Bill of Lading to proceed with the shipment.',
+                            label: stepLabelTip(
+                                'This is the last step for the exporter, in which is important to prove that the goods are ready to be shipped. \nThe exporter has to load the Bill of Lading to proceed with the shipment.',
+                                orderInfo.trade.shippingDeadline,
+                                OrderStatus.EXPORTED
+                            ),
                             marginVertical: '1rem'
                         },
                         {
                             type: FormElementType.DOCUMENT,
                             span: 12,
                             name: 'bill-of-lading',
-                            label: 'Bill Of Lading',
+                            label: documentTypesLabel.get(DocumentType.BILL_OF_LADING)!,
                             required: true,
                             loading: false,
                             uploadable: isDocumentUploadable(
-                                tradeInfo.trade.supplier,
-                                tradeInfo,
+                                orderInfo.trade.supplier,
+                                orderInfo,
                                 DocumentType.BILL_OF_LADING
                             ),
-                            info: tradeInfo.documents.get(DocumentType.BILL_OF_LADING),
+                            info: orderInfo.documents.get(DocumentType.BILL_OF_LADING),
                             height: documentHeight,
                             validationCallback: props.validationCallback(
-                                tradeInfo,
+                                orderInfo,
                                 DocumentType.BILL_OF_LADING
                             )
                         }
@@ -343,25 +531,29 @@ export default function OrderForm(props: Props) {
                         {
                             type: FormElementType.TIP,
                             span: 24,
-                            label: 'This is the final stage for this transaction where is important to prove that the goods, reached by the importer, \n have exactly the same specifications that are claimed by the exporter. The importer has to load the results of the Swiss Decode.',
+                            label: stepLabelTip(
+                                'This is the final stage for this transaction where is important to prove that the goods, reached by the importer, have exactly the same specifications that are claimed by the exporter. \nThe importer has to load the results of the Swiss Decode.',
+                                orderInfo.trade.deliveryDeadline,
+                                OrderStatus.SHIPPED
+                            ),
                             marginVertical: '1rem'
                         },
                         {
                             type: FormElementType.DOCUMENT,
                             span: 12,
                             name: 'comparison-swiss-decode',
-                            label: 'Comparison Swiss Decode',
+                            label: documentTypesLabel.get(DocumentType.COMPARISON_SWISS_DECODE)!,
                             required: true,
                             loading: false,
                             uploadable: isDocumentUploadable(
-                                tradeInfo.trade.commissioner,
-                                tradeInfo,
+                                orderInfo.trade.commissioner,
+                                orderInfo,
                                 DocumentType.COMPARISON_SWISS_DECODE
                             ),
-                            info: tradeInfo.documents.get(DocumentType.COMPARISON_SWISS_DECODE),
+                            info: orderInfo.documents.get(DocumentType.COMPARISON_SWISS_DECODE),
                             height: documentHeight,
                             validationCallback: props.validationCallback(
-                                tradeInfo,
+                                orderInfo,
                                 DocumentType.COMPARISON_SWISS_DECODE
                             )
                         }
@@ -390,8 +582,8 @@ export default function OrderForm(props: Props) {
             OrderStatus,
             { elements: FormElement[]; onSubmit: (values: any) => Promise<void> }
         > => {
-            const trade = tradeInfo?.trade,
-                documents = tradeInfo?.documents;
+            const trade = orderInfo?.trade,
+                documents = orderInfo?.documents;
             if (!trade || !documents) return false;
 
             const hasDocuments = (
@@ -424,8 +616,8 @@ export default function OrderForm(props: Props) {
         };
 
         const hasPendingDuties = (orderStatus: OrderStatus): boolean => {
-            const trade = tradeInfo?.trade,
-                documents = tradeInfo?.documents;
+            const trade = orderInfo?.trade,
+                documents = orderInfo?.documents;
             if (!trade || !documents) return false;
 
             const checkDocumentStatuses = (

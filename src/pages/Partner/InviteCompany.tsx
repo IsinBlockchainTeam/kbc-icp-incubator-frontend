@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
 import { useDispatch } from 'react-redux';
 import { requestPath } from '@/constants/url';
+import { notificationDuration } from '@/constants/notification';
 
 type Props = {
     open: boolean;
@@ -29,14 +30,20 @@ export const InviteCompany = (props: Props) => {
                 openNotification(
                     'Success',
                     'Company invited successfully',
-                    NotificationType.SUCCESS
+                    NotificationType.SUCCESS,
+                    notificationDuration
                 );
                 props.onClose();
             } else {
-                openNotification('Error', 'Failed to invite company', NotificationType.ERROR);
+                openNotification(
+                    'Error',
+                    'Failed to invite company',
+                    NotificationType.ERROR,
+                    notificationDuration
+                );
             }
         } catch (e: any) {
-            openNotification('Error', e.message, NotificationType.ERROR);
+            openNotification('Error', e.message, NotificationType.ERROR, notificationDuration);
         } finally {
             dispatch(hideLoading());
         }
@@ -44,7 +51,12 @@ export const InviteCompany = (props: Props) => {
 
     const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
         errorInfo.errorFields.forEach((field) => {
-            openNotification('Error', field.errors[0], NotificationType.ERROR);
+            openNotification(
+                'Error',
+                field.errors[0],
+                NotificationType.ERROR,
+                notificationDuration
+            );
         });
     };
 
@@ -82,11 +94,11 @@ export const InviteCompany = (props: Props) => {
                     rules={[
                         {
                             type: 'email',
-                            message: 'The input is not valid E-mail.'
+                            message: 'The input is not valid E-mail address.'
                         },
                         {
                             required: true,
-                            message: 'Please input the E-mail.'
+                            message: 'Please input the E-mail address.'
                         }
                     ]}>
                     <Input />

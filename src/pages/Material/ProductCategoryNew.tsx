@@ -10,6 +10,7 @@ import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
 import { useDispatch } from 'react-redux';
 import { EthContext } from '@/providers/EthProvider';
 import { paths } from '@/constants/paths';
+import { notificationDuration } from '@/constants/notification';
 
 export const ProductCategoryNew = () => {
     const { ethMaterialService } = useContext(EthContext);
@@ -60,12 +61,12 @@ export const ProductCategoryNew = () => {
                 'Product category registered',
                 `Product category "${values.name}" has been registered correctly!`,
                 NotificationType.SUCCESS,
-                1
+                notificationDuration
             );
             navigate(paths.MATERIALS);
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR);
+            openNotification('Error', e.message, NotificationType.ERROR, notificationDuration);
         } finally {
             dispatch(hideLoading());
         }

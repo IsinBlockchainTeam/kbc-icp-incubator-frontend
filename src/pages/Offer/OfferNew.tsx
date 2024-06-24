@@ -13,6 +13,7 @@ import { SignerContext } from '@/providers/SignerProvider';
 import { ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
 import { ICPContext } from '@/providers/ICPProvider';
 import { paths } from '@/constants/paths';
+import { notificationDuration } from '@/constants/notification';
 import { credentials, DID_METHOD } from '@/constants/ssi';
 
 export const OfferNew = () => {
@@ -43,7 +44,7 @@ export const OfferNew = () => {
             setProductCategories(pC);
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', 'Error loading product categories', NotificationType.ERROR);
+            openNotification('Error', 'Error loading product categories', NotificationType.ERROR, notificationDuration);
         } finally {
             dispatch(hideLoading());
         }
@@ -81,7 +82,7 @@ export const OfferNew = () => {
             ]);
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', 'Error loading elements', NotificationType.ERROR);
+            openNotification('Error', 'Error loading elements', NotificationType.ERROR, notificationDuration);
         } finally {
             dispatch(hideLoading());
         }
@@ -96,12 +97,12 @@ export const OfferNew = () => {
                 'Offer registered',
                 `Offer for product category with ID "${values['product-category-id']}" has been registered correctly!`,
                 NotificationType.SUCCESS,
-                1
+                notificationDuration
             );
             navigate(paths.OFFERS);
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', 'Error saving offer', NotificationType.ERROR);
+            openNotification('Error', 'Error saving offer', NotificationType.ERROR, notificationDuration);
         } finally {
             dispatch(hideLoading());
         }

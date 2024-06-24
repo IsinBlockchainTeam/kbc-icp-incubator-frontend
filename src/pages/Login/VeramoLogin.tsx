@@ -11,6 +11,7 @@ import { Navigate } from 'react-router-dom';
 import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
 import { requestPath } from '@/constants/url';
 import { paths } from '@/constants/paths';
+import { notificationDuration } from '@/constants/notification';
 
 export default function VeramoLogin() {
     const [qrCodeURL, setQrCodeURL] = useState<string>('');
@@ -37,7 +38,7 @@ export default function VeramoLogin() {
             setChallengeId(id);
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR);
+            openNotification('Error', e.message, NotificationType.ERROR, notificationDuration);
         } finally {
             dispatch(hideLoading());
         }
@@ -71,7 +72,7 @@ export default function VeramoLogin() {
                 setChallengeId('');
                 const subjectDid = message.body.holder;
                 if (!subjectDid) {
-                    openNotification('Error', 'No subject DID found', NotificationType.ERROR);
+                    openNotification('Error', 'No subject DID found', NotificationType.ERROR, notificationDuration);
                     return;
                 }
                 const userInfo = message.body.verifiableCredential[0].credentialSubject;
@@ -94,7 +95,7 @@ export default function VeramoLogin() {
             }
         } catch (error: any) {
             console.log('error: ', error);
-            openNotification('Error', 'Error while processing VC', NotificationType.ERROR);
+            openNotification('Error', 'Error while processing VC', NotificationType.ERROR, notificationDuration);
         }
     };
 

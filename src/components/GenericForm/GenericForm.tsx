@@ -16,7 +16,7 @@ import PDFViewer from '../PDFViewer/PDFViewer';
 import { DownloadOutlined } from '@ant-design/icons';
 import { DocumentPresentable } from '@/api/types/DocumentPresentable';
 import { FormItemInputProps } from 'antd/es/form/FormItemInput';
-
+import dayjs from 'dayjs';
 import { createDownloadWindow } from '@/utils/page';
 
 export enum FormElementType {
@@ -41,11 +41,12 @@ export type FormElement =
 type BasicElement = {
     type: FormElementType.SPACE;
     span: number;
+    hidden?: boolean;
 };
 
 type LabeledElement = Omit<BasicElement, 'type'> & {
     type: FormElementType.TITLE | FormElementType.TIP;
-    label: string;
+    label: ReactNode;
     marginVertical?: string;
 };
 
@@ -58,13 +59,14 @@ type LabeledElement = Omit<BasicElement, 'type'> & {
 
 export type ClickableElement = Omit<LabeledElement, 'type'> & {
     type: FormElementType.BUTTON;
-    onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+    onClick: (event: React.MouseEvent<HTMLElement>) => void;
     name: string;
     disabled?: boolean;
     block?: boolean;
     buttonType?: 'primary' | 'default' | 'dashed' | 'text' | 'link';
     icon?: React.ReactNode;
     additionalProperties?: AdditionalButtonProperties;
+    resetFormValues?: boolean;
 };
 type AdditionalButtonProperties = 'danger' | 'ghost' | 'loading';
 const mapAdditionalPropertiesToButtonProps: Record<
@@ -93,6 +95,7 @@ type EditableElement = Omit<LabeledElement, 'type'> & {
     defaultValue: any;
     required: boolean;
     disabled?: boolean;
+    disableValues?: (...args: any[]) => boolean;
     block?: boolean;
     regex?: string;
     dependencies?: string[];
@@ -165,7 +168,10 @@ export const GenericForm = (props: Props) => {
             element = element as LabeledElement;
             const { span, label } = element;
             return (
-                <Col span={span} key={`title_${index}`}>
+                <Col
+                    span={span}
+                    key={`title_${index}`}
+                    style={{ display: `${element.hidden ? 'none' : 'block'}` }}>
                     <Divider>{label}</Divider>
                 </Col>
             );
@@ -177,11 +183,11 @@ export const GenericForm = (props: Props) => {
                 <Col
                     span={span}
                     key={`tip_${label}`}
-                    style={{ margin: `${element.marginVertical} 0` }}>
-                    <Alert
-                        style={{ textAlign: 'center' }}
-                        message={showTextWithHtmlLinebreaks(label)}
-                    />
+                    style={{
+                        margin: `${element.marginVertical} 0`,
+                        display: `${element.hidden ? 'none' : 'block'}`
+                    }}>
+                    <Alert style={{ textAlign: 'center' }} message={element.label} />
                 </Col>
             );
         },
@@ -196,20 +202,27 @@ export const GenericForm = (props: Props) => {
                 buttonType = 'default',
                 icon = undefined,
                 block = true,
-                additionalProperties = undefined
+                additionalProperties = undefined,
+                resetFormValues
             } = element;
             const additionalProps = additionalProperties
                 ? mapAdditionalPropertiesToButtonProps[additionalProperties]
                 : {};
 
             return (
-                <Col span={span} key={`button_${element.name}`}>
+                <Col
+                    span={span}
+                    key={`button_${element.name}`}
+                    style={{ display: `${element.hidden ? 'none' : 'block'}` }}>
                     <Form.Item labelCol={{ span: 24 }} label={' '} name={name}>
                         <Button
                             type={buttonType}
                             block={block}
                             disabled={disabled}
-                            onClick={onClick}
+                            onClick={(e) => {
+                                onClick(e);
+                                if (resetFormValues) form.resetFields();
+                            }}
                             icon={icon}
                             {...additionalProps}>
                             {label}
@@ -222,7 +235,10 @@ export const GenericForm = (props: Props) => {
             element = element as SelectableElement;
             const { disabled = false } = element;
             return (
-                <Col span={element.span} key={`select_${element.name}`}>
+                <Col
+                    span={element.span}
+                    key={`select_${element.name}`}
+                    style={{ display: `${element.hidden ? 'none' : 'block'}` }}>
                     <Form.Item
                         labelCol={{ span: 24 }}
                         label={element.label}
@@ -249,7 +265,10 @@ export const GenericForm = (props: Props) => {
             element = element as EditableElement;
             const { disabled = false, validationCallback } = element;
             return (
-                <Col span={element.span} key={`input_${element.name}`}>
+                <Col
+                    span={element.span}
+                    key={`input_${element.name}`}
+                    style={{ display: `${element.hidden ? 'none' : 'block'}` }}>
                     <Form.Item
                         labelCol={{ span: 24 }}
                         label={element.label}
@@ -288,9 +307,12 @@ export const GenericForm = (props: Props) => {
         },
         [FormElementType.DATE]: (element: FormElement, index: number) => {
             element = element as EditableElement;
-            const { disabled = false, validationCallback } = element;
+            const { disabled = false, validationCallback, disableValues } = element;
             return (
-                <Col span={element.span} key={`date_${element.name}`}>
+                <Col
+                    span={element.span}
+                    key={`date_${element.name}`}
+                    style={{ display: `${element.hidden ? 'none' : 'block'}` }}>
                     <Form.Item
                         labelCol={{ span: 24 }}
                         label={element.label}
@@ -315,6 +337,7 @@ export const GenericForm = (props: Props) => {
                             placeholder={`Enter ${element.label}`}
                             format={dateFormat}
                             className="ant-input"
+                            disabledDate={disableValues}
                         />
                     </Form.Item>
                 </Col>
@@ -325,7 +348,10 @@ export const GenericForm = (props: Props) => {
             const docInfo = element.info!;
 
             return (
-                <Col span={element.span} key={`document_${element.name}`}>
+                <Col
+                    span={element.span}
+                    key={`document_${element.name}`}
+                    style={{ display: `${element.hidden ? 'none' : 'block'}` }}>
                     <Form.Item
                         labelCol={{ span: 24 }}
                         label={element.label}

@@ -10,6 +10,7 @@ import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
 import { EthContext } from '@/providers/EthProvider';
 import { ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
 import { paths } from '@/constants/paths';
+import { notificationDuration } from '@/constants/notification';
 
 export const MaterialNew = () => {
     const { ethMaterialService } = useContext(EthContext);
@@ -43,12 +44,12 @@ export const MaterialNew = () => {
                 'Material registered',
                 `Material referencing product category with ID "${productCategoryId}" has been registered correctly!`,
                 NotificationType.SUCCESS,
-                1
+                notificationDuration
             );
             navigate(paths.MATERIALS);
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR);
+            openNotification('Error', e.message, NotificationType.ERROR, notificationDuration);
         } finally {
             dispatch(hideLoading());
         }
@@ -68,7 +69,7 @@ export const MaterialNew = () => {
             setProductCategories(pC);
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', 'Error loading product categories', NotificationType.ERROR);
+            openNotification('Error', 'Error loading product categories', NotificationType.ERROR, notificationDuration);
         } finally {
             dispatch(hideLoading());
         }
