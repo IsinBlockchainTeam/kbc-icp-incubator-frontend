@@ -4,7 +4,7 @@ import { CardPage } from '@/components/structure/CardPage/CardPage';
 import { BasicTrade, DocumentType, LineRequest } from '@kbc-lib/coffee-trading-management-lib';
 import { Tooltip } from 'antd';
 import { CheckCircleOutlined, EditOutlined } from '@ant-design/icons';
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import useMaterial from '@/hooks/useMaterial';
 import useMeasure from '@/hooks/useMeasure';
 import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
@@ -30,12 +30,16 @@ export const BasicTradeView = ({
     commonElements
 }: BasicTradeViewProps) => {
     const { ethTradeService } = useContext(EthContext);
-    const { productCategories } = useMaterial();
+    const { loadData, dataLoaded, productCategories } = useMaterial();
     const { units } = useMeasure();
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const documentHeight = '45vh';
     const basicTrade = basicTradePresentable.trade as BasicTrade;
+
+    useEffect(() => {
+        if (!dataLoaded) loadData();
+    }, [dataLoaded]);
 
     const onSubmit = async (values: any) => {
         try {
@@ -73,6 +77,8 @@ export const BasicTradeView = ({
             dispatch(hideLoading());
         }
     };
+
+    if (!dataLoaded) return <></>;
 
     const elements: FormElement[] = [
         ...commonElements,

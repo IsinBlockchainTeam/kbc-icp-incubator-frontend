@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
 import { EthContext } from '@/providers/EthProvider';
@@ -12,12 +12,6 @@ export default function useMaterial() {
     const [dataLoaded, setDataLoaded] = useState<boolean>(false);
     const [materials, setMaterials] = useState<Material[]>([]);
     const [productCategories, setProductCategories] = useState<ProductCategory[]>([]);
-
-    useEffect(() => {
-        if (!dataLoaded) {
-            loadData();
-        }
-    }, [dataLoaded]);
 
     const loadData = async () => {
         try {
@@ -33,9 +27,9 @@ export default function useMaterial() {
     };
 
     return {
+        loadData,
         dataLoaded,
         materials,
-        productCategories,
-        loadData
+        productCategories
     };
 }

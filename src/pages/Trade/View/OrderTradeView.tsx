@@ -12,7 +12,7 @@ import { CheckCircleOutlined, EditOutlined } from '@ant-design/icons';
 import OrderForm from '@/pages/Trade/OrderForm';
 import { DetailedTradePresentable, OrderTradePresentable } from '@/api/types/TradePresentable';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { FormElement, FormElementType } from '@/components/GenericForm/GenericForm';
 import { regex } from '@/utils/regex';
 import dayjs from 'dayjs';
@@ -47,13 +47,17 @@ export const OrderTradeView = ({
 }: OrderTradeViewProps) => {
     const { signer } = useContext(SignerContext);
     const { ethTradeService } = useContext(EthContext);
-    const { productCategories } = useMaterial();
+    const { loadData, dataLoaded, productCategories } = useMaterial();
     const { units, fiats } = useMeasure();
     const { validateDocument } = useDocument();
     const dispatch = useDispatch();
     const orderTrade = orderTradePresentable.trade as OrderTrade;
     const negotiationStatus = NegotiationStatus[orderTrade.negotiationStatus];
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!dataLoaded) loadData();
+    }, [dataLoaded]);
 
     const validationCallback = (
         tradeInfo: DetailedTradePresentable | undefined,
@@ -128,6 +132,8 @@ export const OrderTradeView = ({
             dispatch(hideLoading());
         }
     };
+
+    if (!dataLoaded) return <></>;
 
     const elements: FormElement[] = [
         ...commonElements,

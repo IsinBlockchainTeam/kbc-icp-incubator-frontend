@@ -53,7 +53,7 @@ export const TradeNew = () => {
     const { ethTradeService } = useContext(EthContext);
     const dispatch = useDispatch();
     const { getActorName } = useActorName();
-    const { productCategories } = useMaterial();
+    const { loadData, dataLoaded, productCategories } = useMaterial();
     const { units, fiats } = useMeasure();
 
     const navigate = useNavigate();
@@ -69,6 +69,7 @@ export const TradeNew = () => {
 
     useEffect(() => {
         fetchNames();
+        loadData();
     }, []);
 
     const fetchNames = async () => {
@@ -77,7 +78,7 @@ export const TradeNew = () => {
         setAreNamesReady(true);
     };
 
-    if (!areNamesReady) {
+    if (!areNamesReady || !dataLoaded) {
         return <></>;
     }
 
