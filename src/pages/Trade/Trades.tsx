@@ -12,7 +12,7 @@ import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
 import { EthContext } from '@/providers/EthProvider';
 import { setParametersPath } from '@/utils/page';
 import { paths } from '@/constants/paths';
-import { notificationDuration } from '@/constants/notification';
+import { NOTIFICATION_DURATION } from '@/constants/notification';
 
 export const Trades = () => {
     const { ethTradeService } = useContext(EthContext);
@@ -33,7 +33,7 @@ export const Trades = () => {
             );
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR, notificationDuration);
+            openNotification('Error', e.message, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
             dispatch(hideLoading());
         }

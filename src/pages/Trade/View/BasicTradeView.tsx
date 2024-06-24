@@ -14,7 +14,7 @@ import { paths } from '@/constants/paths';
 import { useNavigate } from 'react-router-dom';
 import { EthContext } from '@/providers/EthProvider';
 import { useDispatch } from 'react-redux';
-import { notificationDuration } from '@/constants/notification';
+import { NOTIFICATION_DURATION } from '@/constants/notification';
 
 type BasicTradeViewProps = {
     basicTradePresentable: BasicTradePresentable;
@@ -65,7 +65,7 @@ export const BasicTradeView = ({
             navigate(paths.TRADES);
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR, notificationDuration);
+            openNotification('Error', e.message, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
             dispatch(hideLoading());
         }

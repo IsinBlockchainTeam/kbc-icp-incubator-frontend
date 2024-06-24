@@ -13,7 +13,7 @@ import { SignerContext } from '@/providers/SignerProvider';
 import { ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
 import { ICPContext } from '@/providers/ICPProvider';
 import { paths } from '@/constants/paths';
-import { notificationDuration } from '@/constants/notification';
+import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { credentials, DID_METHOD } from '@/constants/ssi';
 
 export const OfferNew = () => {
@@ -44,7 +44,12 @@ export const OfferNew = () => {
             setProductCategories(pC);
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', 'Error loading product categories', NotificationType.ERROR, notificationDuration);
+            openNotification(
+                'Error',
+                'Error loading product categories',
+                NotificationType.ERROR,
+                NOTIFICATION_DURATION
+            );
         } finally {
             dispatch(hideLoading());
         }
@@ -82,7 +87,12 @@ export const OfferNew = () => {
             ]);
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', 'Error loading elements', NotificationType.ERROR, notificationDuration);
+            openNotification(
+                'Error',
+                'Error loading elements',
+                NotificationType.ERROR,
+                NOTIFICATION_DURATION
+            );
         } finally {
             dispatch(hideLoading());
         }
@@ -97,12 +107,17 @@ export const OfferNew = () => {
                 'Offer registered',
                 `Offer for product category with ID "${values['product-category-id']}" has been registered correctly!`,
                 NotificationType.SUCCESS,
-                notificationDuration
+                NOTIFICATION_DURATION
             );
             navigate(paths.OFFERS);
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', 'Error saving offer', NotificationType.ERROR, notificationDuration);
+            openNotification(
+                'Error',
+                'Error saving offer',
+                NotificationType.ERROR,
+                NOTIFICATION_DURATION
+            );
         } finally {
             dispatch(hideLoading());
         }

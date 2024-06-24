@@ -25,7 +25,7 @@ import dayjs from 'dayjs';
 import { useDispatch } from 'react-redux';
 import { SignerContext } from '@/providers/SignerProvider';
 import { EthContext } from '@/providers/EthProvider';
-import { notificationDuration } from '@/constants/notification';
+import { NOTIFICATION_DURATION } from '@/constants/notification';
 
 type OrderTradeNewProps = {
     commonElements: FormElement[];
@@ -104,12 +104,12 @@ export const OrderTradeNew = ({ commonElements, validateDates }: OrderTradeNewPr
                 'Order trade registered',
                 `Order trade has been registered correctly!`,
                 NotificationType.SUCCESS,
-                notificationDuration
+                NOTIFICATION_DURATION
             );
             navigate(paths.TRADES);
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR, notificationDuration);
+            openNotification('Error', e.message, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
             dispatch(hideLoading());
         }

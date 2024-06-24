@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
 import { useDispatch } from 'react-redux';
 import { requestPath } from '@/constants/url';
-import { notificationDuration } from '@/constants/notification';
+import { NOTIFICATION_DURATION } from '@/constants/notification';
 
 type Props = {
     open: boolean;
@@ -31,7 +31,7 @@ export const InviteCompany = (props: Props) => {
                     'Success',
                     'Company invited successfully',
                     NotificationType.SUCCESS,
-                    notificationDuration
+                    NOTIFICATION_DURATION
                 );
                 props.onClose();
             } else {
@@ -39,11 +39,11 @@ export const InviteCompany = (props: Props) => {
                     'Error',
                     'Failed to invite company',
                     NotificationType.ERROR,
-                    notificationDuration
+                    NOTIFICATION_DURATION
                 );
             }
         } catch (e: any) {
-            openNotification('Error', e.message, NotificationType.ERROR, notificationDuration);
+            openNotification('Error', e.message, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
             dispatch(hideLoading());
         }
@@ -55,7 +55,7 @@ export const InviteCompany = (props: Props) => {
                 'Error',
                 field.errors[0],
                 NotificationType.ERROR,
-                notificationDuration
+                NOTIFICATION_DURATION
             );
         });
     };

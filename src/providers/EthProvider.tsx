@@ -1,8 +1,7 @@
 import React from 'react';
-import { createContext, ReactNode, useContext } from 'react';
+import { createContext, ReactNode } from 'react';
 import { EthAssetOperationService } from '@/api/services/EthAssetOperationService';
 import { useEthServices } from '@/providers/hooks/useEthServices';
-import { SignerContext } from './SignerProvider';
 import { EthDocumentService } from '@/api/services/EthDocumentService';
 import { EthEnumerableTypeService } from '@/api/services/EthEnumerableTypeService';
 import { EthGraphService } from '@/api/services/EthGraphService';

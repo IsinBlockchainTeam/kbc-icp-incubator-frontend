@@ -8,7 +8,7 @@ import { InviteCompany } from './InviteCompany';
 import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
 import { useDispatch } from 'react-redux';
 import { EthContext } from '@/providers/EthProvider';
-import { notificationDuration } from '@/constants/notification';
+import { NOTIFICATION_DURATION } from '@/constants/notification';
 
 export const Partners = () => {
     const { ethPartnerService } = useContext(EthContext);
@@ -30,7 +30,7 @@ export const Partners = () => {
             );
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR, notificationDuration);
+            openNotification('Error', e.message, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
             dispatch(hideLoading());
         }

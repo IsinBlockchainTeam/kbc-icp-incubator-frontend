@@ -28,7 +28,7 @@ import { EthContext } from '@/providers/EthProvider';
 import { useNavigate } from 'react-router-dom';
 import useMaterial from '@/hooks/useMaterial';
 import useMeasure from '@/hooks/useMeasure';
-import { notificationDuration } from '@/constants/notification';
+import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { CheckCircleOutlined, EditOutlined, RollbackOutlined } from '@ant-design/icons';
 
 type OrderTradeViewProps = {
@@ -132,13 +132,13 @@ export const OrderTradeView = ({
                 'Trade updated',
                 `This trade has been updated correctly!`,
                 NotificationType.SUCCESS,
-                notificationDuration
+                NOTIFICATION_DURATION
             );
             toggleDisabled();
             navigate(paths.TRADES);
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR, notificationDuration);
+            openNotification('Error', e.message, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
             dispatch(hideLoading());
         }

@@ -16,7 +16,7 @@ import { NotificationType, openNotification } from '@/utils/notification';
 import { useDispatch } from 'react-redux';
 import { SignerContext } from '@/providers/SignerProvider';
 import { EthContext } from '@/providers/EthProvider';
-import { notificationDuration } from '@/constants/notification';
+import { NOTIFICATION_DURATION } from '@/constants/notification';
 
 type BasicTradeNewProps = {
     commonElements: FormElement[];
@@ -76,12 +76,12 @@ export const BasicTradeNew = ({ commonElements }: BasicTradeNewProps) => {
                 'Basic trade registered',
                 `Basic trade "${values.name}" has been registered correctly!`,
                 NotificationType.SUCCESS,
-                notificationDuration
+                NOTIFICATION_DURATION
             );
             navigate(paths.TRADES);
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR, notificationDuration);
+            openNotification('Error', e.message, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
             dispatch(hideLoading());
         }

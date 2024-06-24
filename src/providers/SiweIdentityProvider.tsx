@@ -28,7 +28,7 @@ import {
     type State
 } from '@blockchain-lib/common';
 import { ICP } from '@/constants/icp';
-import { notificationDuration } from '@/constants/notification';
+import { NOTIFICATION_DURATION } from '@/constants/notification';
 
 /**
  * Re-export types
@@ -92,11 +92,16 @@ export function SiweIdentityProvider({
                 'Authenticated',
                 `Login succeed. Welcome ${userInfo.legalName}!`,
                 NotificationType.SUCCESS,
-                notificationDuration
+                NOTIFICATION_DURATION
             );
         } catch (e) {
             console.error('Error in SiweIdentityProvider', e);
-            openNotification('Error', 'Error while logging in', NotificationType.ERROR, notificationDuration);
+            openNotification(
+                'Error',
+                'Error while logging in',
+                NotificationType.ERROR,
+                NOTIFICATION_DURATION
+            );
         }
     }
 

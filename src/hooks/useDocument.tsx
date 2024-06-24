@@ -4,6 +4,7 @@ import { useContext } from 'react';
 import { EthContext } from '@/providers/EthProvider';
 import { hideLoading } from '@/redux/reducers/loadingSlice';
 import { useDispatch } from 'react-redux';
+import { NOTIFICATION_DURATION } from '@/constants/notification';
 
 export default function useDocument() {
     const { ethTradeService } = useContext(EthContext);
@@ -22,19 +23,24 @@ export default function useDocument() {
                     'Document approved',
                     'The document has been successfully approved',
                     NotificationType.SUCCESS,
-                    1
+                    NOTIFICATION_DURATION
                 );
             else if (validationStatus === DocumentStatus.NOT_APPROVED)
                 openNotification(
                     'Document rejected',
                     'The document has been rejected',
                     NotificationType.SUCCESS,
-                    1
+                    NOTIFICATION_DURATION
                 );
             // TODO: Necessary?
             window.location.reload();
         } catch (e: any) {
-            openNotification('Error', 'Error while validating document', NotificationType.ERROR);
+            openNotification(
+                'Error',
+                'Error while validating document',
+                NotificationType.ERROR,
+                NOTIFICATION_DURATION
+            );
         } finally {
             dispatch(hideLoading());
         }

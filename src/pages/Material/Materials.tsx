@@ -10,7 +10,7 @@ import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
 import { Material, ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
 import { EthContext } from '@/providers/EthProvider';
 import { paths } from '@/constants/paths';
-import { notificationDuration } from '@/constants/notification';
+import { NOTIFICATION_DURATION } from '@/constants/notification';
 
 export const Materials = () => {
     const { ethMaterialService } = useContext(EthContext);
@@ -26,7 +26,7 @@ export const Materials = () => {
             setMaterials(await ethMaterialService.getMaterials());
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR, notificationDuration);
+            openNotification('Error', e.message, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
             dispatch(hideLoading());
         }

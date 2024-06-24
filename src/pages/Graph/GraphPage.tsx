@@ -20,7 +20,7 @@ import { NotificationType, openNotification } from '@/utils/notification';
 import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
 import { useDispatch } from 'react-redux';
 import { EthContext } from '@/providers/EthProvider';
-import { notificationDuration } from '@/constants/notification';
+import { NOTIFICATION_DURATION } from '@/constants/notification';
 
 const MapNode = memo(() => {
     return (
@@ -115,7 +115,7 @@ export const GraphPage = () => {
                 );
             } catch (e: any) {
                 console.log('error: ', e);
-                openNotification('Error', e.message, NotificationType.ERROR, notificationDuration);
+                openNotification('Error', e.message, NotificationType.ERROR, NOTIFICATION_DURATION);
             } finally {
                 dispatch(hideLoading());
             }

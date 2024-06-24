@@ -1,1 +1,1 @@
-export const notificationDuration = 3;
+export const NOTIFICATION_DURATION = 3;

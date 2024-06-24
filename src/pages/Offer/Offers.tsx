@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { ColumnsType } from 'antd/es/table';
-import { Button, Space, Table, TableProps } from 'antd';
+import { Button, Space, Table } from 'antd';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
 import Search from '@/components/Search/Search';
 import { PlusOutlined } from '@ant-design/icons';
@@ -13,7 +13,7 @@ import { EthContext } from '@/providers/EthProvider';
 import { OfferPresentable } from '@/api/types/OfferPresentable';
 import { ICPContext } from '@/providers/ICPProvider';
 import { paths } from '@/constants/paths';
-import { notificationDuration } from '@/constants/notification';
+import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { credentials, DID_METHOD } from '@/constants/ssi';
 
 export const Offers = () => {
@@ -51,7 +51,7 @@ export const Offers = () => {
             setFilteredOffers(offerPresentables);
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR, notificationDuration);
+            openNotification('Error', e.message, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
             dispatch(hideLoading());
         }

@@ -38,7 +38,7 @@ import { SignerContext } from '@/providers/SignerProvider';
 import TradeDutiesWaiting, { DutiesWaiting } from '@/pages/Trade/TradeDutiesWaiting';
 import { EthContext } from '@/providers/EthProvider';
 import { paths } from '@/constants/paths';
-import { notificationDuration } from '@/constants/notification';
+import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { differenceInDaysFromToday, fromTimestampToDate } from '@/utils/date';
 import { ICPContext } from '@/providers/ICPProvider';
 import { RootState } from '@/redux/store';
@@ -129,12 +129,12 @@ export default function OrderForm(props: Props) {
                     />
                 </div>,
                 NotificationType.SUCCESS,
-                notificationDuration + 2
+                NOTIFICATION_DURATION + 2
             );
             navigate(paths.TRADES);
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR, notificationDuration);
+            openNotification('Error', e.message, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
             dispatch(hideLoading());
         }
@@ -176,10 +176,10 @@ export default function OrderForm(props: Props) {
                     'Success',
                     `Email sent successfully to ${recipientCompanyName}`,
                     NotificationType.SUCCESS,
-                    notificationDuration
+                    NOTIFICATION_DURATION
                 );
         } catch (e: any) {
-            openNotification('Error', e.message, NotificationType.ERROR, notificationDuration);
+            openNotification('Error', e.message, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
             dispatch(hideLoading());
             navigate(paths.TRADES);
