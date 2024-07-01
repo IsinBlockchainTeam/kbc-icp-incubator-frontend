@@ -41,8 +41,8 @@ describe('Trade View', () => {
 
     it('should render correctly - ORDER', async () => {
         (useTrade as jest.Mock).mockReturnValue({
-            loadData: jest.fn(),
-            dataLoaded: true,
+            loadTrade: jest.fn(),
+            tradeLoaded: true,
             trade
         });
         await act(async () => {
@@ -63,8 +63,8 @@ describe('Trade View', () => {
             search: 'q=URLUtils.searchParams&type=' + TradeType.BASIC
         });
         (useTrade as jest.Mock).mockReturnValue({
-            loadData: jest.fn(),
-            dataLoaded: true,
+            loadTrade: jest.fn(),
+            tradeLoaded: true,
             trade
         });
         await act(async () => {
@@ -82,8 +82,8 @@ describe('Trade View', () => {
 
     it('toggleDisabled', async () => {
         (useTrade as jest.Mock).mockReturnValue({
-            loadData: jest.fn(),
-            dataLoaded: true,
+            loadTrade: jest.fn(),
+            tradeLoaded: true,
             trade
         });
         await act(async () => {
@@ -108,8 +108,8 @@ describe('Trade View', () => {
             search: 'q=URLUtils.searchParams&type=' + 'other'
         });
         (useTrade as jest.Mock).mockReturnValue({
-            loadData: jest.fn(),
-            dataLoaded: true,
+            loadTrade: jest.fn(),
+            tradeLoaded: true,
             trade
         });
         await act(async () => {
@@ -122,8 +122,8 @@ describe('Trade View', () => {
         const mockedNavigate = jest.fn();
         (useNavigate as jest.Mock).mockReturnValue(mockedNavigate);
         (useTrade as jest.Mock).mockReturnValue({
-            loadData: jest.fn(),
-            dataLoaded: true,
+            loadTrade: jest.fn(),
+            tradeLoaded: true,
             trade: undefined
         });
         await act(async () => {

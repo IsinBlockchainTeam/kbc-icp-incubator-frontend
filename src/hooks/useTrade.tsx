@@ -5,7 +5,7 @@ import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
 import { useDispatch } from 'react-redux';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { paths } from '@/constants/paths';
-import { DetailedTradePresentable } from '@/api/types/TradePresentable';
+import { DetailedTradePresentable, TradePreviewPresentable } from '@/api/types/TradePresentable';
 import { BasicTradeRequest, OrderTradeRequest } from '@/api/types/TradeRequest';
 import { DocumentRequest } from '@/api/types/DocumentRequest';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
@@ -16,20 +16,42 @@ export default function useTrade() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const [dataLoaded, setDataLoaded] = useState<boolean>(false);
+    const [tradeLoaded, setTradeLoaded] = useState<boolean>(false);
     const [trade, setTrade] = useState<DetailedTradePresentable>();
+    const [tradesLoaded, setTradesLoaded] = useState<boolean>(false);
+    const [trades, setTrades] = useState<TradePreviewPresentable[]>();
 
-    async function loadData(tradeId: number) {
+    async function loadTrade(tradeId: number) {
         try {
             dispatch(showLoading('Retrieving trade...'));
-
             const trade = await ethTradeService.getTradeById(tradeId);
             setTrade(trade);
-
-            setDataLoaded(true);
+            setTradeLoaded(true);
         } catch (e: any) {
-            console.log('error: ', e);
-            openNotification('Error', 'Error while retrieving trade', NotificationType.ERROR);
+            openNotification(
+                'Error',
+                'Error while retrieving trades',
+                NotificationType.ERROR,
+                NOTIFICATION_DURATION
+            );
+        } finally {
+            dispatch(hideLoading());
+        }
+    }
+
+    async function loadTrades() {
+        try {
+            dispatch(showLoading('Retrieving trades...'));
+            const trades = await ethTradeService.getGeneralTrades();
+            setTrades(trades);
+            setTradesLoaded(true);
+        } catch (e: any) {
+            openNotification(
+                'Error',
+                'Error while retrieving trades',
+                NotificationType.ERROR,
+                NOTIFICATION_DURATION
+            );
         } finally {
             dispatch(hideLoading());
         }
@@ -125,9 +147,12 @@ export default function useTrade() {
     };
 
     return {
-        loadData,
-        dataLoaded,
+        tradeLoaded,
+        tradesLoaded,
+        loadTrade,
+        loadTrades,
         trade,
+        trades,
         saveBasicTrade,
         updateBasicTrade,
         saveOrderTrade,

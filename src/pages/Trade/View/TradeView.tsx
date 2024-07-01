@@ -20,11 +20,11 @@ export const TradeView = () => {
 
     const type = parseInt(new URLSearchParams(location.search).get('type')!);
     const { getActorName } = useActorName();
-    const { loadData, dataLoaded, trade } = useTrade();
+    const { loadTrade, tradeLoaded, trade } = useTrade();
     const [disabled, setDisabled] = useState<boolean>(true);
 
     useEffect(() => {
-        loadData(parseInt(id || ''));
+        loadTrade(parseInt(id || ''));
         fetchNames();
     }, [trade]);
 
@@ -74,7 +74,7 @@ export const TradeView = () => {
     if (!Object.values(TradeType).includes(type)) {
         navigate(paths.HOME);
     }
-    if (!dataLoaded || !areNamesReady) {
+    if (!tradeLoaded || !areNamesReady) {
         return <></>;
     }
     if (!trade) {

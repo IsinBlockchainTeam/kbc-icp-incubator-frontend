@@ -1,43 +1,25 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
-import { Table, TableProps, Tag, Tooltip } from 'antd';
+import { Table, Tag, Tooltip } from 'antd';
 import { CheckCircleOutlined, ExclamationCircleOutlined, SettingOutlined } from '@ant-design/icons';
 import { ColumnsType } from 'antd/es/table';
-import { NotificationType, openNotification } from '@/utils/notification';
 import { TradePreviewPresentable } from '@/api/types/TradePresentable';
 import { Link } from 'react-router-dom';
 import { NegotiationStatus, OrderStatus, TradeType } from '@kbc-lib/coffee-trading-management-lib';
-import { useDispatch } from 'react-redux';
-import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
-import { EthContext } from '@/providers/EthProvider';
 import { setParametersPath } from '@/utils/page';
 import { paths } from '@/constants/paths';
-import { NOTIFICATION_DURATION } from '@/constants/notification';
+import useTrade from '@/hooks/useTrade';
 
 export const Trades = () => {
-    const { ethTradeService } = useContext(EthContext);
-    const [trades, setTrades] = React.useState<TradePreviewPresentable[]>();
-    const dispatch = useDispatch();
+    const { loadTrades, tradesLoaded, trades } = useTrade();
 
-    const loadData = async () => {
-        try {
-            dispatch(showLoading('Retrieving trades...'));
-            const trades = await ethTradeService.getGeneralTrades();
+    useEffect(() => {
+        if (!tradesLoaded) loadTrades();
+    }, [tradesLoaded]);
 
-            setTrades(
-                trades.map((t) => {
-                    // @ts-ignore
-                    t['key'] = `${t.id}_${t.supplier}`;
-                    return t;
-                })
-            );
-        } catch (e: any) {
-            console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR, NOTIFICATION_DURATION);
-        } finally {
-            dispatch(hideLoading());
-        }
-    };
+    if (!tradesLoaded) {
+        return <></>;
+    }
 
     const columns: ColumnsType<TradePreviewPresentable> = [
         {
@@ -108,23 +90,6 @@ export const Trades = () => {
         }
     ];
 
-    const onChange: TableProps<TradePreviewPresentable>['onChange'] = (
-        pagination,
-        filters,
-        sorter,
-        extra
-    ) => {
-        console.log('params', pagination, filters, sorter, extra);
-    };
-
-    useEffect(() => {
-        loadData();
-
-        return () => {
-            dispatch(hideLoading());
-        };
-    }, []);
-
     return (
         <CardPage
             title={
@@ -137,7 +102,7 @@ export const Trades = () => {
                     Trades
                 </div>
             }>
-            <Table columns={columns} dataSource={trades} onChange={onChange} />
+            <Table columns={columns} dataSource={trades} />
         </CardPage>
     );
 };
