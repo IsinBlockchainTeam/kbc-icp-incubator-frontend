@@ -9,7 +9,7 @@ import {
     OrderStatus
 } from '@kbc-lib/coffee-trading-management-lib';
 import { Tag, Tooltip } from 'antd';
-import OrderForm from '@/pages/Trade/OrderForm';
+import OrderStatusSteps from '@/pages/Trade/OrderStatusSteps/OrderStatusSteps';
 import { DetailedTradePresentable, OrderTradePresentable } from '@/api/types/TradePresentable';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
 import React, { useContext, useEffect, useState } from 'react';
@@ -394,7 +394,7 @@ export const OrderTradeView = ({
                     </div>
                 </div>
             }>
-            <OrderForm
+            <OrderStatusSteps
                 status={orderTradePresentable.status}
                 orderInfo={orderTradePresentable}
                 submittable={!disabled}

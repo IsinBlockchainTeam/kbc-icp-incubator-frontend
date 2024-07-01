@@ -3,7 +3,7 @@ import { CardPage } from '@/components/structure/CardPage/CardPage';
 import { Button } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import { paths } from '@/constants/paths';
-import OrderForm from '@/pages/Trade/OrderForm';
+import OrderStatusSteps from '@/pages/Trade/OrderStatusSteps/OrderStatusSteps';
 import {
     OrderStatus,
     DocumentType,
@@ -303,7 +303,7 @@ export const OrderTradeNew = ({
                     </Button>
                 </div>
             }>
-            <OrderForm
+            <OrderStatusSteps
                 status={OrderStatus.CONTRACTING}
                 submittable={true}
                 negotiationElements={elements}

@@ -58,7 +58,7 @@ type Props = {
     onSubmitNew: (values: any) => Promise<void>;
 };
 
-export default function OrderForm(props: Props) {
+export default function OrderStatusSteps(props: Props) {
     const { status, submittable, negotiationElements, orderInfo } = props;
     let onSubmit: (values: any) => Promise<void>;
     const { getNameByDID } = useContext(ICPContext);
@@ -287,42 +287,7 @@ export default function OrderForm(props: Props) {
                 { elements: FormElement[]; onSubmit: (values: any) => Promise<void> }
             >()
                 .set(OrderStatus.PRODUCTION, {
-                    elements: [
-                        {
-                            type: FormElementType.TIP,
-                            span: 24,
-                            label: stepLabelTip(
-                                <p>
-                                    At this stage, the exporter has to load a payment invoice for
-                                    the goods that have been negotiated. <br />
-                                    This operation allows coffee production to be started and
-                                    planned only against a guarantee deposit from the importer
-                                </p>,
-                                orderInfo.trade.paymentDeadline,
-                                OrderStatus.PRODUCTION
-                            ),
-                            marginVertical: '1rem'
-                        },
-                        {
-                            type: FormElementType.DOCUMENT,
-                            span: 12,
-                            name: 'payment-invoice',
-                            label: documentTypesLabel.get(DocumentType.PAYMENT_INVOICE)!,
-                            required: true,
-                            loading: false,
-                            uploadable: isDocumentUploadable(
-                                orderInfo.trade.supplier,
-                                orderInfo,
-                                DocumentType.PAYMENT_INVOICE
-                            ),
-                            info: orderInfo.documents.get(DocumentType.PAYMENT_INVOICE),
-                            height: documentHeight,
-                            validationCallback: props.validationCallback(
-                                orderInfo,
-                                DocumentType.PAYMENT_INVOICE
-                            )
-                        }
-                    ],
+                    elements: [],
                     onSubmit: (values: any) =>
                         submitDocuments(values, [
                             {

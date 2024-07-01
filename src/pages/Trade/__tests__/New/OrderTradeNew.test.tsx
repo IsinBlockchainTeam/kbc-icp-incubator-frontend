@@ -8,14 +8,14 @@ import useMeasure from '@/hooks/useMeasure';
 import { OrderLineRequest, OrderLinePrice } from '@kbc-lib/coffee-trading-management-lib';
 import userEvent from '@testing-library/user-event';
 import { OrderTradeNew } from '@/pages/Trade/New/OrderTradeNew';
-import OrderForm from '@/pages/Trade/OrderForm';
+import OrderStatusSteps from '@/pages/Trade/OrderStatusSteps/OrderStatusSteps';
 
 jest.mock('react-router-dom');
 jest.mock('@/providers/SignerProvider');
 jest.mock('@/hooks/useTrade');
 jest.mock('@/hooks/useMeasure');
 jest.mock('@/hooks/useMaterial');
-jest.mock('@/pages/Trade/OrderForm');
+jest.mock('@/pages/Trade/OrderStatusSteps/OrderStatusSteps');
 
 describe('Basic Trade New', () => {
     const supplierAddress = '0xsupplierAddress';
@@ -55,9 +55,10 @@ describe('Basic Trade New', () => {
             );
         });
         await waitFor(() => {
-            expect(OrderForm).toHaveBeenCalledTimes(1);
+            expect(OrderStatusSteps).toHaveBeenCalledTimes(1);
         });
-        const negotiationElements = (OrderForm as jest.Mock).mock.calls[0][0].negotiationElements;
+        const negotiationElements = (OrderStatusSteps as jest.Mock).mock.calls[0][0]
+            .negotiationElements;
         expect(negotiationElements).toHaveLength(18);
     });
     it('should render nothing if data is not loaded', async () => {
@@ -88,7 +89,7 @@ describe('Basic Trade New', () => {
             );
         });
         await waitFor(() => {
-            expect(OrderForm).not.toHaveBeenCalled();
+            expect(OrderStatusSteps).not.toHaveBeenCalled();
         });
         expect(loadData).toHaveBeenCalledTimes(1);
     });
@@ -121,9 +122,9 @@ describe('Basic Trade New', () => {
             );
         });
         await waitFor(() => {
-            expect(OrderForm).toHaveBeenCalledTimes(1);
+            expect(OrderStatusSteps).toHaveBeenCalledTimes(1);
         });
-        const onSubmit = (OrderForm as jest.Mock).mock.calls[0][0].onSubmitNew;
+        const onSubmit = (OrderStatusSteps as jest.Mock).mock.calls[0][0].onSubmitNew;
         const values = {
             'payment-deadline': '2021-01-01',
             'document-delivery-deadline': '2021-01-02',
@@ -202,7 +203,7 @@ describe('Basic Trade New', () => {
             );
         });
         await waitFor(() => {
-            expect(OrderForm).toHaveBeenCalledTimes(1);
+            expect(OrderStatusSteps).toHaveBeenCalledTimes(1);
         });
         act(() => userEvent.click(screen.getByRole('button', { name: 'delete Delete Trade' })));
 
