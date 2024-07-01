@@ -9,6 +9,7 @@ import configureStore from 'redux-mock-store';
 import { Provider } from 'react-redux';
 import { GenericForm } from '@/components/GenericForm/GenericForm';
 import { NotificationType, openNotification } from '@/utils/notification';
+import { NOTIFICATION_DURATION } from '@/constants/notification';
 
 jest.mock('react-router-dom');
 jest.mock('@/providers/EthProvider');
@@ -106,7 +107,8 @@ describe('Product Category New', () => {
         expect(openNotification).toHaveBeenCalledWith(
             'Error',
             'Error saving product category',
-            NotificationType.ERROR
+            NotificationType.ERROR,
+            NOTIFICATION_DURATION
         );
         expect(navigate).not.toHaveBeenCalled();
     });

@@ -12,6 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import { Material, ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
 import { GenericForm } from '@/components/GenericForm/GenericForm';
 import { NotificationType, openNotification } from '@/utils/notification';
+import { NOTIFICATION_DURATION } from '@/constants/notification';
 
 jest.mock('react-router-dom');
 jest.mock('@/providers/EthProvider');
@@ -103,12 +104,14 @@ describe('Asset Operations New', () => {
         expect(openNotification).toHaveBeenCalledWith(
             'Error',
             'Error loading materials',
-            NotificationType.ERROR
+            NotificationType.ERROR,
+            NOTIFICATION_DURATION
         );
         expect(openNotification).toHaveBeenCalledWith(
             'Error',
             'Error loading process types',
-            NotificationType.ERROR
+            NotificationType.ERROR,
+            NOTIFICATION_DURATION
         );
     });
 
@@ -178,7 +181,8 @@ describe('Asset Operations New', () => {
         expect(openNotification).toHaveBeenCalledWith(
             'Error',
             'Error saving asset operation',
-            NotificationType.ERROR
+            NotificationType.ERROR,
+            NOTIFICATION_DURATION
         );
         expect(navigate).not.toHaveBeenCalled();
     });

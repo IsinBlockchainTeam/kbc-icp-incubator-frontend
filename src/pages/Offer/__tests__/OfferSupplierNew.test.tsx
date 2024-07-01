@@ -12,6 +12,7 @@ import configureStore from 'redux-mock-store';
 import { Provider } from 'react-redux';
 import { GenericForm } from '@/components/GenericForm/GenericForm';
 import { NotificationType, openNotification } from '@/utils/notification';
+import { NOTIFICATION_DURATION } from '@/constants/notification';
 
 jest.mock('react-router-dom');
 jest.mock('@/providers/SignerProvider');
@@ -157,7 +158,8 @@ describe('Offers Supplier New', () => {
         expect(openNotification).toHaveBeenCalledWith(
             'Error',
             'Error saving offer supplier',
-            NotificationType.ERROR
+            NotificationType.ERROR,
+            NOTIFICATION_DURATION
         );
         expect(navigate).not.toHaveBeenCalled();
     });

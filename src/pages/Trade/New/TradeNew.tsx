@@ -1,34 +1,12 @@
 import { FormElement, FormElementType } from '@/components/GenericForm/GenericForm';
 import { TradeType } from '@kbc-lib/coffee-trading-management-lib';
-import { FormInstance } from 'antd';
 import React, { useContext, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { paths } from '@/constants/paths';
-import dayjs from 'dayjs';
 import { SignerContext } from '@/providers/SignerProvider';
 import useActorName from '@/hooks/useActorName';
 import { BasicTradeNew } from '@/pages/Trade/New/BasicTradeNew';
 import { OrderTradeNew } from '@/pages/Trade/New/OrderTradeNew';
-
-const validateDates = (
-    dataFieldName: string,
-    dateFieldNameToCompare: string,
-    comparison: 'greater' | 'less',
-    errorMessage: string
-) => {
-    return (form: FormInstance): Promise<void> => {
-        const date = dayjs(form.getFieldValue(dataFieldName));
-        const dateToCompare = dayjs(form.getFieldValue(dateFieldNameToCompare));
-        if (date && dateToCompare)
-            if (
-                (comparison === 'greater' && date.isBefore(dateToCompare)) ||
-                (comparison === 'less' && date.isAfter(dateToCompare))
-            )
-                return Promise.reject(errorMessage);
-
-        return Promise.resolve();
-    };
-};
 
 export const TradeNew = () => {
     const { signer } = useContext(SignerContext);
@@ -43,6 +21,10 @@ export const TradeNew = () => {
 
     const type = TradeType.ORDER;
     const elements: FormElement[] = [];
+
+    const supplierAddress: string = location?.state?.supplierAddress;
+    const customerAddress: string = signer?.address;
+    const productCategoryId: number = location?.state?.productCategoryId;
 
     useEffect(() => {
         fetchNames();
@@ -89,11 +71,25 @@ export const TradeNew = () => {
         }
     );
 
-    if (!location?.state?.supplierAddress || !location?.state?.productCategoryId) {
+    if (!supplierAddress || !productCategoryId) {
         navigate(paths.HOME);
     }
     if (type === TradeType.ORDER) {
-        return <OrderTradeNew commonElements={elements} validateDates={validateDates} />;
+        return (
+            <OrderTradeNew
+                supplierAddress={supplierAddress}
+                customerAddress={customerAddress}
+                productCategoryId={productCategoryId}
+                commonElements={elements}
+            />
+        );
     }
-    return <BasicTradeNew commonElements={elements} />;
+    return (
+        <BasicTradeNew
+            supplierAddress={supplierAddress}
+            customerAddress={customerAddress}
+            productCategoryId={productCategoryId}
+            commonElements={elements}
+        />
+    );
 };

@@ -11,6 +11,7 @@ import { ICPContext, ICPContextState } from '@/providers/ICPProvider';
 import { credentials } from '@/constants/ssi';
 import { useNavigate } from 'react-router-dom';
 import { NotificationType, openNotification } from '@/utils/notification';
+import { NOTIFICATION_DURATION } from '@/constants/notification';
 
 jest.mock('react-router-dom');
 jest.mock('@/providers/ICPProvider');
@@ -88,7 +89,8 @@ describe('Offers', () => {
         expect(openNotification).toHaveBeenCalledWith(
             'Error',
             'Error loading offers',
-            NotificationType.ERROR
+            NotificationType.ERROR,
+            NOTIFICATION_DURATION
         );
     });
 

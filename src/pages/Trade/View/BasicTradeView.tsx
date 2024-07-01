@@ -4,36 +4,29 @@ import { CardPage } from '@/components/structure/CardPage/CardPage';
 import { BasicTrade, DocumentType, LineRequest } from '@kbc-lib/coffee-trading-management-lib';
 import { Tooltip } from 'antd';
 import { CheckCircleOutlined, EditOutlined } from '@ant-design/icons';
-import React, { useContext, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import useMaterial from '@/hooks/useMaterial';
 import useMeasure from '@/hooks/useMeasure';
-import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
-import { NotificationType, openNotification } from '@/utils/notification';
 import { BasicTradeRequest } from '@/api/types/TradeRequest';
 import { paths } from '@/constants/paths';
 import { useNavigate } from 'react-router-dom';
-import { EthContext } from '@/providers/EthProvider';
-import { useDispatch } from 'react-redux';
-import { NOTIFICATION_DURATION } from '@/constants/notification';
+import useTrade from '@/hooks/useTrade';
 
 type BasicTradeViewProps = {
     basicTradePresentable: BasicTradePresentable;
     disabled: boolean;
     toggleDisabled: () => void;
-    confirmNegotiation: () => void;
     commonElements: FormElement[];
 };
 export const BasicTradeView = ({
     basicTradePresentable,
     disabled,
     toggleDisabled,
-    confirmNegotiation,
     commonElements
 }: BasicTradeViewProps) => {
-    const { ethTradeService } = useContext(EthContext);
     const { loadData, dataLoaded, productCategories } = useMaterial();
+    const { updateBasicTrade, confirmNegotiation } = useTrade();
     const { units } = useMeasure();
-    const dispatch = useDispatch();
     const navigate = useNavigate();
     const documentHeight = '45vh';
     const basicTrade = basicTradePresentable.trade as BasicTrade;
@@ -43,32 +36,21 @@ export const BasicTradeView = ({
     }, [dataLoaded]);
 
     const onSubmit = async (values: any) => {
-        try {
-            dispatch(showLoading('Loading...'));
-            const supplier: string = values['supplier'];
-            const customer: string = values['customer'];
-            const commissioner: string = values['commissioner'];
-            const quantity: number = parseInt(values[`quantity-1`]);
-            const unit: string = values[`unit-1`];
-            const productCategoryId: number = parseInt(values['product-category-id-1']);
+        const quantity: number = parseInt(values[`quantity-1`]);
+        const unit: string = values[`unit-1`];
+        const productCategoryId: number = parseInt(values['product-category-id-1']);
 
-            const updatedBasicTrade: BasicTradeRequest = {
-                supplier,
-                customer,
-                commissioner,
-                lines: [new LineRequest(productCategoryId, quantity, unit)],
-                name: values['name']
-            };
-            await ethTradeService.putBasicTrade(basicTrade.tradeId, updatedBasicTrade);
+        const updatedBasicTrade: BasicTradeRequest = {
+            supplier: values['supplier'],
+            customer: values['customer'],
+            commissioner: values['commissioner'],
+            lines: [new LineRequest(productCategoryId, quantity, unit)],
+            name: values['name']
+        };
+        await updateBasicTrade(basicTrade.tradeId, updatedBasicTrade);
 
-            toggleDisabled();
-            navigate(paths.TRADES);
-        } catch (e: any) {
-            console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR, NOTIFICATION_DURATION);
-        } finally {
-            dispatch(hideLoading());
-        }
+        toggleDisabled();
+        navigate(paths.TRADES);
     };
 
     if (!dataLoaded) return <></>;
@@ -152,8 +134,9 @@ export const BasicTradeView = ({
                             <EditOutlined style={{ marginLeft: '8px' }} onClick={toggleDisabled} />
                             <Tooltip title="Confirm the negotiation if everything is OK">
                                 <CheckCircleOutlined
+                                    role="confirm"
                                     style={{ marginLeft: '8px' }}
-                                    onClick={confirmNegotiation}
+                                    onClick={() => confirmNegotiation(basicTrade.tradeId)}
                                 />
                             </Tooltip>
                         </div>

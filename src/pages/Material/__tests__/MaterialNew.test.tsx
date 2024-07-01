@@ -10,6 +10,7 @@ import { ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
 import { Provider } from 'react-redux';
 import { GenericForm } from '@/components/GenericForm/GenericForm';
 import { NotificationType, openNotification } from '@/utils/notification';
+import { NOTIFICATION_DURATION } from '@/constants/notification';
 
 jest.mock('react-router-dom');
 jest.mock('@/providers/EthProvider');
@@ -86,7 +87,8 @@ describe('Materials New', () => {
         expect(openNotification).toHaveBeenCalledWith(
             'Error',
             'Error loading product categories',
-            NotificationType.ERROR
+            NotificationType.ERROR,
+            NOTIFICATION_DURATION
         );
     });
 
@@ -142,7 +144,8 @@ describe('Materials New', () => {
         expect(openNotification).toHaveBeenCalledWith(
             'Error',
             'Error saving material',
-            NotificationType.ERROR
+            NotificationType.ERROR,
+            NOTIFICATION_DURATION
         );
         expect(navigate).not.toHaveBeenCalled();
     });

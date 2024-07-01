@@ -1,39 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { FormInstance } from 'antd';
 import { TradeType } from '@kbc-lib/coffee-trading-management-lib';
 import { FormElement, FormElementType } from '@/components/GenericForm/GenericForm';
 import { BasicTradePresentable, OrderTradePresentable } from '@/api/types/TradePresentable';
-import dayjs from 'dayjs';
-import { useLocation, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import useTrade from '@/hooks/useTrade';
 import useActorName from '@/hooks/useActorName';
 import OrderTradeView from '@/pages/Trade/View/OrderTradeView';
 import { BasicTradeView } from '@/pages/Trade/View/BasicTradeView';
-
-const validateDates = (
-    dataFieldName: string,
-    dateFieldNameToCompare: string,
-    comparison: 'greater' | 'less',
-    errorMessage: string
-) => {
-    return (form: FormInstance): Promise<void> => {
-        const date = dayjs(form.getFieldValue(dataFieldName));
-        const dateToCompare = dayjs(form.getFieldValue(dateFieldNameToCompare));
-        if (date && dateToCompare)
-            if (
-                (comparison === 'greater' && date.isBefore(dateToCompare)) ||
-                (comparison === 'less' && date.isAfter(dateToCompare))
-            )
-                return Promise.reject(errorMessage);
-
-        return Promise.resolve();
-    };
-};
-export type ValidateDatesType = typeof validateDates;
+import { paths } from '@/constants/paths';
 
 export const TradeView = () => {
     const { id } = useParams();
     const location = useLocation();
+    const navigate = useNavigate();
 
     const [areNamesReady, setAreNamesReady] = useState<boolean>(false);
     const [supplierName, setSupplierName] = useState<string>('Unknown');
@@ -41,10 +20,11 @@ export const TradeView = () => {
 
     const type = parseInt(new URLSearchParams(location.search).get('type')!);
     const { getActorName } = useActorName();
-    const { dataLoaded, trade, confirmNegotiation } = useTrade(parseInt(id || ''));
+    const { loadData, dataLoaded, trade } = useTrade();
     const [disabled, setDisabled] = useState<boolean>(true);
 
     useEffect(() => {
+        loadData(parseInt(id || ''));
         fetchNames();
     }, [trade]);
 
@@ -92,7 +72,7 @@ export const TradeView = () => {
     ];
 
     if (!Object.values(TradeType).includes(type)) {
-        return <div>Wrong type</div>;
+        navigate(paths.HOME);
     }
     if (!dataLoaded || !areNamesReady) {
         return <></>;
@@ -106,9 +86,7 @@ export const TradeView = () => {
                 orderTradePresentable={trade as OrderTradePresentable}
                 disabled={disabled}
                 toggleDisabled={toggleDisabled}
-                confirmNegotiation={confirmNegotiation}
                 commonElements={elements}
-                validateDates={validateDates}
             />
         );
     }
@@ -117,7 +95,6 @@ export const TradeView = () => {
             basicTradePresentable={trade as BasicTradePresentable}
             disabled={disabled}
             toggleDisabled={toggleDisabled}
-            confirmNegotiation={confirmNegotiation}
             commonElements={elements}
         />
     );

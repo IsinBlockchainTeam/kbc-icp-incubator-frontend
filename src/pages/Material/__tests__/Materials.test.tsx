@@ -9,6 +9,7 @@ import { EthContext, EthContextState } from '@/providers/EthProvider';
 import { Material, ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
 import { Provider } from 'react-redux';
 import { NotificationType, openNotification } from '@/utils/notification';
+import { NOTIFICATION_DURATION } from '@/constants/notification';
 
 jest.mock('react-router-dom');
 jest.mock('@/providers/EthProvider');
@@ -91,7 +92,8 @@ describe('Materials', () => {
         expect(openNotification).toHaveBeenCalledWith(
             'Error',
             'Error loading product categories',
-            NotificationType.ERROR
+            NotificationType.ERROR,
+            NOTIFICATION_DURATION
         );
     });
 

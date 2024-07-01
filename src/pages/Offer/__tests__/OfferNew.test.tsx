@@ -14,6 +14,7 @@ import { SignerContext, SignerContextState } from '@/providers/SignerProvider';
 import { GenericForm } from '@/components/GenericForm/GenericForm';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
+import { NOTIFICATION_DURATION } from '@/constants/notification';
 
 jest.mock('react-router-dom');
 jest.mock('@/providers/SignerProvider');
@@ -116,7 +117,8 @@ describe('Offers New', () => {
         expect(openNotification).toHaveBeenCalledWith(
             'Error',
             'Error loading elements',
-            NotificationType.ERROR
+            NotificationType.ERROR,
+            NOTIFICATION_DURATION
         );
     });
     it('should open notifications if load fails - product categories', async () => {
@@ -144,7 +146,8 @@ describe('Offers New', () => {
         expect(openNotification).toHaveBeenCalledWith(
             'Error',
             'Error loading product categories',
-            NotificationType.ERROR
+            NotificationType.ERROR,
+            NOTIFICATION_DURATION
         );
     });
 
@@ -212,7 +215,8 @@ describe('Offers New', () => {
         expect(openNotification).toHaveBeenCalledWith(
             'Error',
             'Error saving offer',
-            NotificationType.ERROR
+            NotificationType.ERROR,
+            NOTIFICATION_DURATION
         );
         expect(navigate).not.toHaveBeenCalled();
     });
