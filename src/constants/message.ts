@@ -43,3 +43,34 @@ export const UNIT_MESSAGE = {
         ERROR: 'Error while retrieving units.'
     }
 };
+export const OFFER_MESSAGE = {
+    RETRIEVE: {
+        LOADING: 'Retrieving offers...',
+        OK: '',
+        ERROR: 'Error while retrieving offers.'
+    },
+    SAVE: {
+        LOADING: 'Saving offer...',
+        OK: 'Offer saved successfully.',
+        ERROR: 'Error while saving offer.'
+    }
+};
+export const SUPPLIER_MESSAGE = {
+    RETRIEVE: {
+        LOADING: 'Retrieving suppliers...',
+        OK: '',
+        ERROR: 'Error while retrieving suppliers.'
+    },
+    SAVE: {
+        LOADING: 'Saving supplier...',
+        OK: 'Supplier saved successfully.',
+        ERROR: 'Error while saving supplier.'
+    }
+};
+export const NAME_MESSAGE = {
+    RETRIEVE: {
+        LOADING: 'Retrieving names...',
+        OK: '',
+        ERROR: 'Error while retrieving names.'
+    }
+};

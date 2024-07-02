@@ -25,6 +25,8 @@ import { paths } from '@/constants/paths';
 import DataLoader from './DataLoader';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
+import { useEthOffer } from '@/providers/entities/EthOfferProvider';
+import { useICPName } from '@/providers/entities/ICPNameProvider';
 
 export const App = () => {
     return (
@@ -37,18 +39,35 @@ export const App = () => {
                                 <Route element={<PrivateRoutes />}>
                                     <Route index path={paths.PROFILE} element={<Profile />} />
                                     <Route path={paths.PARTNERS} element={<Partners />} />
-                                    <Route path={paths.OFFERS} element={<Offers />} />
+                                    <Route
+                                        path={paths.OFFERS}
+                                        element={
+                                            <DataLoader customUseContext={useICPName}>
+                                                <DataLoader customUseContext={useEthOffer}>
+                                                    <Offers />
+                                                </DataLoader>
+                                            </DataLoader>
+                                        }
+                                    />
                                     <Route
                                         path={paths.OFFERS_NEW}
                                         element={
-                                            <DataLoader customUseContext={useEthMaterial}>
-                                                <OfferNew />
+                                            <DataLoader customUseContext={useICPName}>
+                                                <DataLoader customUseContext={useEthMaterial}>
+                                                    <DataLoader customUseContext={useEthOffer}>
+                                                        <OfferNew />
+                                                    </DataLoader>
+                                                </DataLoader>
                                             </DataLoader>
                                         }
                                     />
                                     <Route
                                         path={paths.OFFERS_SUPPLIER_NEW}
-                                        element={<OfferSupplierNew />}
+                                        element={
+                                            <DataLoader customUseContext={useEthOffer}>
+                                                <OfferSupplierNew />
+                                            </DataLoader>
+                                        }
                                     />
                                     <Route
                                         path={paths.MATERIALS}

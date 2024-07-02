@@ -39,7 +39,6 @@ describe('EthProvider', () => {
             expect(context).toHaveProperty('ethAssetOperationService');
             expect(context).toHaveProperty('ethDocumentService');
             expect(context).toHaveProperty('ethGraphService');
-            expect(context).toHaveProperty('ethOfferService');
             expect(context).toHaveProperty('ethPartnerService');
             expect(context).toHaveProperty('ethTradeService');
             return null;
