@@ -3,7 +3,6 @@ import { createContext, ReactNode } from 'react';
 import { EthAssetOperationService } from '@/api/services/EthAssetOperationService';
 import { useEthServices } from '@/providers/hooks/useEthServices';
 import { EthDocumentService } from '@/api/services/EthDocumentService';
-import { EthEnumerableTypeService } from '@/api/services/EthEnumerableTypeService';
 import { EthGraphService } from '@/api/services/EthGraphService';
 import { EthOfferService } from '@/api/services/EthOfferService';
 import { EthPartnerService } from '@/api/services/EthPartnerService';
@@ -12,9 +11,6 @@ import { EthTradeService } from '@/api/services/EthTradeService';
 export type EthContextState = {
     ethAssetOperationService: EthAssetOperationService;
     ethDocumentService: EthDocumentService;
-    ethProcessTypeService: EthEnumerableTypeService;
-    ethUnitService: EthEnumerableTypeService;
-    ethFiatService: EthEnumerableTypeService;
     ethGraphService: EthGraphService;
     ethOfferService: EthOfferService;
     ethPartnerService: EthPartnerService;
@@ -25,9 +21,6 @@ export function EthProvider({ children }: { children: ReactNode }) {
     const {
         ethAssetOperationService,
         ethDocumentService,
-        ethProcessTypeService,
-        ethUnitService,
-        ethFiatService,
         ethGraphService,
         ethOfferService,
         ethPartnerService,
@@ -39,9 +32,6 @@ export function EthProvider({ children }: { children: ReactNode }) {
             value={{
                 ethAssetOperationService,
                 ethDocumentService,
-                ethProcessTypeService,
-                ethUnitService,
-                ethFiatService,
                 ethGraphService,
                 ethOfferService,
                 ethPartnerService,

@@ -21,11 +21,11 @@ import useDocument from '@/hooks/useDocument';
 import { OrderTradeRequest } from '@/api/types/TradeRequest';
 import { paths } from '@/constants/paths';
 import { useNavigate } from 'react-router-dom';
-import useMeasure from '@/hooks/useMeasure';
 import { CheckCircleOutlined, EditOutlined, RollbackOutlined } from '@ant-design/icons';
 import { validateDates } from '@/utils/date';
 import useTrade from '@/hooks/useTrade';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
+import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 
 type OrderTradeViewProps = {
     orderTradePresentable: OrderTradePresentable;
@@ -42,8 +42,8 @@ export const OrderTradeView = ({
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const { signer } = useContext(SignerContext);
     const { productCategories } = useEthMaterial();
+    const { units, fiats } = useEthEnumerable();
     const { updateOrderTrade, confirmNegotiation } = useTrade();
-    const { units, fiats } = useMeasure();
     const { validateDocument } = useDocument();
 
     const orderTrade = orderTradePresentable.trade as OrderTrade;

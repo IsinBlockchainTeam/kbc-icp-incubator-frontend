@@ -22,3 +22,24 @@ export const PRODUCT_CATEGORY_MESSAGE = {
         ERROR: 'Error while saving product category.'
     }
 };
+export const FIAT_MESSAGE = {
+    RETRIEVE: {
+        LOADING: 'Retrieving fiats...',
+        OK: '',
+        ERROR: 'Error while retrieving fiats.'
+    }
+};
+export const PROCESS_TYPE_MESSAGE = {
+    RETRIEVE: {
+        LOADING: 'Retrieving process types...',
+        OK: '',
+        ERROR: 'Error while retrieving process types.'
+    }
+};
+export const UNIT_MESSAGE = {
+    RETRIEVE: {
+        LOADING: 'Retrieving units...',
+        OK: '',
+        ERROR: 'Error while retrieving units.'
+    }
+};

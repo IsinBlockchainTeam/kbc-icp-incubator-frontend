@@ -38,11 +38,7 @@ describe('EthProvider', () => {
             const context = useContext(EthContext);
             expect(context).toHaveProperty('ethAssetOperationService');
             expect(context).toHaveProperty('ethDocumentService');
-            expect(context).toHaveProperty('ethProcessTypeService');
-            expect(context).toHaveProperty('ethUnitService');
-            expect(context).toHaveProperty('ethFiatService');
             expect(context).toHaveProperty('ethGraphService');
-            expect(context).toHaveProperty('ethMaterialService');
             expect(context).toHaveProperty('ethOfferService');
             expect(context).toHaveProperty('ethPartnerService');
             expect(context).toHaveProperty('ethTradeService');

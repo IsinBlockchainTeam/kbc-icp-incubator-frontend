@@ -1,21 +1,21 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import { paths } from '@/constants/paths';
-import useMaterial from '@/hooks/useMaterial';
 import { FormElement } from '@/components/GenericForm/GenericForm';
 import useTrade from '@/hooks/useTrade';
-import useMeasure from '@/hooks/useMeasure';
 import { OrderLineRequest, OrderLinePrice } from '@kbc-lib/coffee-trading-management-lib';
 import userEvent from '@testing-library/user-event';
 import { OrderTradeNew } from '@/pages/Trade/New/OrderTradeNew';
 import OrderStatusSteps from '@/pages/Trade/OrderStatusSteps/OrderStatusSteps';
+import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
+import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 
 jest.mock('react-router-dom');
 jest.mock('@/providers/SignerProvider');
 jest.mock('@/hooks/useTrade');
-jest.mock('@/hooks/useMeasure');
-jest.mock('@/hooks/useMaterial');
 jest.mock('@/pages/Trade/OrderStatusSteps/OrderStatusSteps');
+jest.mock('@/providers/entities/EthMaterialProvider');
+jest.mock('@/providers/entities/EthEnumerableProvider');
 
 describe('Basic Trade New', () => {
     const supplierAddress = '0xsupplierAddress';
@@ -27,6 +27,14 @@ describe('Basic Trade New', () => {
         jest.spyOn(console, 'log').mockImplementation(jest.fn());
         jest.spyOn(console, 'error').mockImplementation(jest.fn());
         jest.clearAllMocks();
+
+        (useEthMaterial as jest.Mock).mockReturnValue({
+            productCategories: [{ id: 1, name: 'Product Category 1' }]
+        });
+        (useEthEnumerable as jest.Mock).mockReturnValue({
+            fiats: ['fiat1', 'fiat2'],
+            units: ['unit1', 'unit2']
+        });
     });
 
     it('should render correctly', async () => {
@@ -36,62 +44,18 @@ describe('Basic Trade New', () => {
         (useTrade as jest.Mock).mockReturnValue({
             saveBasicTrade: jest.fn()
         });
-        (useMaterial as jest.Mock).mockReturnValue({
-            dataLoaded: true,
-            productCategories: [{ id: 1, name: 'Product Category 1' }]
-        });
-        (useMeasure as jest.Mock).mockReturnValue({
-            fiats: ['fiat1', 'fiat2'],
-            units: ['unit1', 'unit2']
-        });
-        await act(async () => {
-            render(
-                <OrderTradeNew
-                    supplierAddress={supplierAddress}
-                    customerAddress={customerAddress}
-                    productCategoryId={productCategoryId}
-                    commonElements={commonElements}
-                />
-            );
-        });
-        await waitFor(() => {
-            expect(OrderStatusSteps).toHaveBeenCalledTimes(1);
-        });
+        render(
+            <OrderTradeNew
+                supplierAddress={supplierAddress}
+                customerAddress={customerAddress}
+                productCategoryId={productCategoryId}
+                commonElements={commonElements}
+            />
+        );
+
         const negotiationElements = (OrderStatusSteps as jest.Mock).mock.calls[0][0]
             .negotiationElements;
         expect(negotiationElements).toHaveLength(18);
-    });
-    it('should render nothing if data is not loaded', async () => {
-        const loadData = jest.fn();
-        (useLocation as jest.Mock).mockReturnValue({
-            state: { productCategoryId: 1 }
-        });
-        (useTrade as jest.Mock).mockReturnValue({
-            saveBasicTrade: jest.fn()
-        });
-        (useMaterial as jest.Mock).mockReturnValue({
-            dataLoaded: false,
-            loadData,
-            productCategories: [{ id: 1, name: 'Product Category 1' }]
-        });
-        (useMeasure as jest.Mock).mockReturnValue({
-            fiats: ['fiat1', 'fiat2'],
-            units: ['unit1', 'unit2']
-        });
-        await act(async () => {
-            render(
-                <OrderTradeNew
-                    supplierAddress={supplierAddress}
-                    customerAddress={customerAddress}
-                    productCategoryId={productCategoryId}
-                    commonElements={commonElements}
-                />
-            );
-        });
-        await waitFor(() => {
-            expect(OrderStatusSteps).not.toHaveBeenCalled();
-        });
-        expect(loadData).toHaveBeenCalledTimes(1);
     });
     it('onSubmit', async () => {
         const navigate = jest.fn();
@@ -103,27 +67,16 @@ describe('Basic Trade New', () => {
         (useTrade as jest.Mock).mockReturnValue({
             saveOrderTrade
         });
-        (useMaterial as jest.Mock).mockReturnValue({
-            dataLoaded: true,
-            productCategories: [{ id: 1, name: 'Product Category 1' }]
-        });
-        (useMeasure as jest.Mock).mockReturnValue({
-            fiats: ['fiat1', 'fiat2'],
-            units: ['unit1', 'unit2']
-        });
-        await act(async () => {
-            render(
-                <OrderTradeNew
-                    supplierAddress={supplierAddress}
-                    customerAddress={customerAddress}
-                    productCategoryId={productCategoryId}
-                    commonElements={commonElements}
-                />
-            );
-        });
-        await waitFor(() => {
-            expect(OrderStatusSteps).toHaveBeenCalledTimes(1);
-        });
+
+        render(
+            <OrderTradeNew
+                supplierAddress={supplierAddress}
+                customerAddress={customerAddress}
+                productCategoryId={productCategoryId}
+                commonElements={commonElements}
+            />
+        );
+
         const onSubmit = (OrderStatusSteps as jest.Mock).mock.calls[0][0].onSubmitNew;
         const values = {
             'payment-deadline': '2021-01-01',
@@ -184,27 +137,16 @@ describe('Basic Trade New', () => {
         (useTrade as jest.Mock).mockReturnValue({
             saveBasicTrade
         });
-        (useMaterial as jest.Mock).mockReturnValue({
-            dataLoaded: true,
-            productCategories: [{ id: 1, name: 'Product Category 1' }]
-        });
-        (useMeasure as jest.Mock).mockReturnValue({
-            fiats: ['fiat1', 'fiat2'],
-            units: ['unit1', 'unit2']
-        });
-        await act(async () => {
-            render(
-                <OrderTradeNew
-                    supplierAddress={supplierAddress}
-                    customerAddress={customerAddress}
-                    productCategoryId={productCategoryId}
-                    commonElements={commonElements}
-                />
-            );
-        });
-        await waitFor(() => {
-            expect(OrderStatusSteps).toHaveBeenCalledTimes(1);
-        });
+
+        render(
+            <OrderTradeNew
+                supplierAddress={supplierAddress}
+                customerAddress={customerAddress}
+                productCategoryId={productCategoryId}
+                commonElements={commonElements}
+            />
+        );
+
         act(() => userEvent.click(screen.getByRole('button', { name: 'delete Delete Trade' })));
 
         expect(navigate).toHaveBeenCalledTimes(1);

@@ -15,12 +15,12 @@ import { DetailedTradePresentable } from '@/api/types/TradePresentable';
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { regex } from '@/utils/regex';
-import useMeasure from '@/hooks/useMeasure';
 import { OrderTradeRequest } from '@/api/types/TradeRequest';
 import dayjs from 'dayjs';
 import { validateDates } from '@/utils/date';
 import useTrade from '@/hooks/useTrade';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
+import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 
 type OrderTradeNewProps = {
     supplierAddress: string;
@@ -38,8 +38,8 @@ export const OrderTradeNew = ({
     const location = useLocation();
 
     const { productCategories } = useEthMaterial();
+    const { units, fiats } = useEthEnumerable();
     const { saveOrderTrade } = useTrade();
-    const { units, fiats } = useMeasure();
 
     const disabledDate = (current: dayjs.Dayjs): boolean => {
         return current && current <= dayjs().endOf('day');

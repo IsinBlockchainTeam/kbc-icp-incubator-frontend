@@ -8,6 +8,7 @@ import { ICPProvider } from '@/providers/ICPProvider';
 import { EthProvider } from '@/providers/EthProvider';
 import { paths } from '@/constants/paths';
 import { EthMaterialProvider } from '@/providers/entities/EthMaterialProvider';
+import { EthEnumerableProvider } from '@/providers/entities/EthEnumerableProvider';
 
 const PrivateRoutes = () => {
     const { isLogged } = useSelector((state: RootState) => state.userInfo);
@@ -16,9 +17,11 @@ const PrivateRoutes = () => {
             <SiweIdentityProvider>
                 <ICPProvider>
                     <EthProvider>
-                        <EthMaterialProvider>
-                            <Outlet />
-                        </EthMaterialProvider>
+                        <EthEnumerableProvider>
+                            <EthMaterialProvider>
+                                <Outlet />
+                            </EthMaterialProvider>
+                        </EthEnumerableProvider>
                     </EthProvider>
                 </ICPProvider>
             </SiweIdentityProvider>

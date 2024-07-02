@@ -8,13 +8,13 @@ import configureStore from 'redux-mock-store';
 import { ICPContext, ICPContextState } from '@/providers/ICPProvider';
 import { EthContext, EthContextState } from '@/providers/EthProvider';
 import { credentials } from '@/constants/ssi';
-import { EthMaterialService } from '@/api/services';
 import { Provider } from 'react-redux';
 import { SignerContext, SignerContextState } from '@/providers/SignerProvider';
 import { GenericForm } from '@/components/GenericForm/GenericForm';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
+import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 
 jest.mock('react-router-dom');
 jest.mock('@/providers/SignerProvider');
@@ -22,6 +22,7 @@ jest.mock('@/providers/ICPProvider');
 jest.mock('@/providers/EthProvider');
 jest.mock('@/components/GenericForm/GenericForm');
 jest.mock('@/utils/notification');
+jest.mock('@/providers/entities/EthMaterialProvider');
 
 const mockStore = configureStore([]);
 
@@ -37,10 +38,7 @@ describe('Offers New', () => {
     const ethContextValue = {
         ethOfferService: {
             saveOffer: jest.fn()
-        } as unknown as EthOfferService,
-        ethMaterialService: {
-            getProductCategories: jest.fn()
-        } as unknown as EthMaterialService
+        } as unknown as EthOfferService
     } as EthContextState;
     const store = mockStore({
         userInfo: {
@@ -54,10 +52,12 @@ describe('Offers New', () => {
         jest.clearAllMocks();
 
         (icpContextValue.getNameByDID as jest.Mock).mockResolvedValue('Supplier Name');
-        (ethContextValue.ethMaterialService.getProductCategories as jest.Mock).mockResolvedValue([
-            new ProductCategory(1, 'Product Category 1', 1, ''),
-            new ProductCategory(2, 'Product Category 2', 2, '')
-        ]);
+        (useEthMaterial as jest.Mock).mockReturnValue({
+            productCategories: [
+                new ProductCategory(1, 'Product Category 1', 1, ''),
+                new ProductCategory(2, 'Product Category 2', 2, '')
+            ]
+        });
     });
 
     it('should render correctly', async () => {
@@ -75,7 +75,7 @@ describe('Offers New', () => {
             );
         });
         await waitFor(() => {
-            expect(GenericForm).toHaveBeenCalledTimes(3);
+            expect(GenericForm).toHaveBeenCalledTimes(2);
         });
 
         expect(screen.getByText('New Offer')).toBeInTheDocument();
@@ -89,7 +89,7 @@ describe('Offers New', () => {
             },
             {}
         );
-        expect((GenericForm as jest.Mock).mock.calls[2][0].elements).toHaveLength(3);
+        expect((GenericForm as jest.Mock).mock.calls[1][0].elements).toHaveLength(3);
     });
 
     it('should open notifications if load fails - getNameByDID', async () => {
@@ -110,42 +110,13 @@ describe('Offers New', () => {
             );
         });
         await waitFor(() => {
-            expect(GenericForm).toHaveBeenCalledTimes(2);
-        });
-
-        expect(openNotification).toHaveBeenCalledTimes(2);
-        expect(openNotification).toHaveBeenCalledWith(
-            'Error',
-            'Error loading elements',
-            NotificationType.ERROR,
-            NOTIFICATION_DURATION
-        );
-    });
-    it('should open notifications if load fails - product categories', async () => {
-        (ethContextValue.ethMaterialService.getProductCategories as jest.Mock).mockRejectedValue(
-            new Error('Error loading product categories')
-        );
-        await act(async () => {
-            render(
-                <Provider store={store}>
-                    <SignerContext.Provider value={signerContextValue}>
-                        <ICPContext.Provider value={icpContextValue}>
-                            <EthContext.Provider value={ethContextValue}>
-                                <OfferNew />
-                            </EthContext.Provider>
-                        </ICPContext.Provider>
-                    </SignerContext.Provider>
-                </Provider>
-            );
-        });
-        await waitFor(() => {
-            expect(GenericForm).toHaveBeenCalledTimes(2);
+            expect(GenericForm).toHaveBeenCalledTimes(1);
         });
 
         expect(openNotification).toHaveBeenCalledTimes(1);
         expect(openNotification).toHaveBeenCalledWith(
             'Error',
-            'Error loading product categories',
+            'Error loading elements',
             NotificationType.ERROR,
             NOTIFICATION_DURATION
         );
@@ -168,13 +139,13 @@ describe('Offers New', () => {
             );
         });
         await waitFor(() => {
-            expect(GenericForm).toHaveBeenCalledTimes(3);
+            expect(GenericForm).toHaveBeenCalledTimes(2);
         });
 
         const values = {
             'product-category-id': 1
         };
-        await (GenericForm as jest.Mock).mock.calls[2][0].onSubmit(values);
+        await (GenericForm as jest.Mock).mock.calls[1][0].onSubmit(values);
 
         expect(ethContextValue.ethOfferService.saveOffer).toHaveBeenCalledTimes(1);
         expect(ethContextValue.ethOfferService.saveOffer).toHaveBeenCalledWith('0x123', 1);
@@ -202,13 +173,13 @@ describe('Offers New', () => {
             );
         });
         await waitFor(() => {
-            expect(GenericForm).toHaveBeenCalledTimes(3);
+            expect(GenericForm).toHaveBeenCalledTimes(2);
         });
 
         const values = {
             'product-category-id': 1
         };
-        await (GenericForm as jest.Mock).mock.calls[2][0].onSubmit(values);
+        await (GenericForm as jest.Mock).mock.calls[1][0].onSubmit(values);
 
         expect(ethContextValue.ethOfferService.saveOffer).toHaveBeenCalledTimes(1);
         expect(openNotification).toHaveBeenCalledTimes(1);
@@ -238,7 +209,7 @@ describe('Offers New', () => {
             );
         });
         await waitFor(() => {
-            expect(GenericForm).toHaveBeenCalledTimes(3);
+            expect(GenericForm).toHaveBeenCalledTimes(2);
         });
 
         act(() => userEvent.click(screen.getByRole('button', { name: 'delete Delete Offer' })));

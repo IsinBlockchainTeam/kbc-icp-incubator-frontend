@@ -1,8 +1,6 @@
 import { act, render, waitFor } from '@testing-library/react';
-import useMaterial from '@/hooks/useMaterial';
 import { FormElement } from '@/components/GenericForm/GenericForm';
 import useTrade from '@/hooks/useTrade';
-import useMeasure from '@/hooks/useMeasure';
 import { OrderTradeView } from '@/pages/Trade/View/OrderTradeView';
 import OrderStatusSteps from '@/pages/Trade/OrderStatusSteps/OrderStatusSteps';
 import { OrderTradePresentable } from '@/api/types/TradePresentable';
@@ -15,14 +13,16 @@ import {
     OrderLineRequest
 } from '@kbc-lib/coffee-trading-management-lib';
 import { SignerContext, SignerContextState } from '@/providers/SignerProvider';
+import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
+import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 
 jest.mock('react-router-dom');
 jest.mock('@/providers/SignerProvider');
 jest.mock('@/hooks/useTrade');
-jest.mock('@/hooks/useMeasure');
 jest.mock('@/hooks/useDocument');
-jest.mock('@/hooks/useMaterial');
 jest.mock('@/pages/Trade/OrderStatusSteps/OrderStatusSteps');
+jest.mock('@/providers/entities/EthMaterialProvider');
+jest.mock('@/providers/entities/EthEnumerableProvider');
 
 describe('Basic Trade View', () => {
     const signerContextValue = {
@@ -78,17 +78,17 @@ describe('Basic Trade View', () => {
         jest.spyOn(console, 'error').mockImplementation(jest.fn());
         jest.clearAllMocks();
 
-        (useMeasure as jest.Mock).mockReturnValue({
-            fiats: ['fiat1', 'fiat2'],
-            units: ['unit1', 'unit2']
-        });
         (useDocument as jest.Mock).mockReturnValue({
             validateDocument
         });
-        (useMaterial as jest.Mock).mockReturnValue({
+        (useEthMaterial as jest.Mock).mockReturnValue({
             loadData,
             dataLoaded: true,
             productCategories: [{ id: 1, name: 'Product Category 1' }]
+        });
+        (useEthEnumerable as jest.Mock).mockReturnValue({
+            fiats: ['fiat1', 'fiat2'],
+            units: ['unit1', 'unit2']
         });
         (useTrade as jest.Mock).mockReturnValue({
             updateOrderTrade,
@@ -114,43 +114,19 @@ describe('Basic Trade View', () => {
             .negotiationElements;
         expect(negotiationElements).toHaveLength(22);
     });
-    it('should render nothing if data is not loaded', async () => {
-        (useMaterial as jest.Mock).mockReturnValue({
-            loadData,
-            dataLoaded: false,
-            productCategories: [{ id: 1, name: 'Product Category 1' }]
-        });
-        await act(async () => {
-            render(
-                <OrderTradeView
-                    orderTradePresentable={orderTradePresentable}
-                    disabled={true}
-                    toggleDisabled={toggleDisabled}
-                    commonElements={commonElements}
-                />
-            );
-        });
-        await waitFor(() => {
-            expect(OrderStatusSteps).not.toHaveBeenCalled();
-        });
-        expect(loadData).toHaveBeenCalledTimes(1);
-    });
     it('onSubmit', async () => {
         const navigate = jest.fn();
         (useNavigate as jest.Mock).mockReturnValue(navigate);
-        await act(async () => {
-            render(
-                <OrderTradeView
-                    orderTradePresentable={orderTradePresentable}
-                    disabled={true}
-                    toggleDisabled={toggleDisabled}
-                    commonElements={commonElements}
-                />
-            );
-        });
-        await waitFor(() => {
-            expect(OrderStatusSteps).toHaveBeenCalledTimes(1);
-        });
+        render(
+            <OrderTradeView
+                orderTradePresentable={orderTradePresentable}
+                disabled={true}
+                toggleDisabled={toggleDisabled}
+                commonElements={commonElements}
+            />
+        );
+
+        expect(OrderStatusSteps).toHaveBeenCalledTimes(1);
         const onSubmit = (OrderStatusSteps as jest.Mock).mock.calls[0][0].onSubmitView;
         const values = {
             supplier: supplierAddress,
@@ -203,40 +179,31 @@ describe('Basic Trade View', () => {
         expect(toggleDisabled).toHaveBeenCalledTimes(1);
     });
     it('should confirm negotiation on Confirm click', async () => {
-        await act(async () => {
-            render(
-                <OrderTradeView
-                    orderTradePresentable={orderTradePresentable}
-                    disabled={true}
-                    toggleDisabled={toggleDisabled}
-                    commonElements={commonElements}
-                />
-            );
-        });
-        await waitFor(() => {
-            expect(OrderStatusSteps).toHaveBeenCalledTimes(1);
-        });
+        render(
+            <OrderTradeView
+                orderTradePresentable={orderTradePresentable}
+                disabled={true}
+                toggleDisabled={toggleDisabled}
+                commonElements={commonElements}
+            />
+        );
         const negotiationElements = (OrderStatusSteps as jest.Mock).mock.calls[0][0]
             .negotiationElements;
         negotiationElements[21].onClick();
         expect(confirmNegotiation).toHaveBeenCalledTimes(1);
     });
     it('validationCallback', async () => {
-        await act(async () => {
-            render(
-                <SignerContext.Provider value={signerContextValue}>
-                    <OrderTradeView
-                        orderTradePresentable={orderTradePresentable}
-                        disabled={true}
-                        toggleDisabled={toggleDisabled}
-                        commonElements={commonElements}
-                    />
-                </SignerContext.Provider>
-            );
-        });
-        await waitFor(() => {
-            expect(OrderStatusSteps).toHaveBeenCalledTimes(1);
-        });
+        render(
+            <SignerContext.Provider value={signerContextValue}>
+                <OrderTradeView
+                    orderTradePresentable={orderTradePresentable}
+                    disabled={true}
+                    toggleDisabled={toggleDisabled}
+                    commonElements={commonElements}
+                />
+            </SignerContext.Provider>
+        );
+
         const validationCallback = (OrderStatusSteps as jest.Mock).mock.calls[0][0]
             .validationCallback;
         const resp = validationCallback(

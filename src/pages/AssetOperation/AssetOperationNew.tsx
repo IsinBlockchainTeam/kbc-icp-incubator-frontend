@@ -3,7 +3,7 @@ import { FormElement, FormElementType, GenericForm } from '@/components/GenericF
 import { Button } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { regex } from '@/utils/regex';
 import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
@@ -13,41 +13,16 @@ import { EthContext } from '@/providers/EthProvider';
 import { paths } from '@/constants/paths';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
+import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 
 export const AssetOperationNew = () => {
     const { materials } = useEthMaterial();
-    const { ethAssetOperationService, ethProcessTypeService } = useContext(EthContext);
+    const { processTypes } = useEthEnumerable();
+    const { ethAssetOperationService } = useContext(EthContext);
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
     const [inputMaterialsCount, setInputMaterialsCount] = useState<number>(1);
-    const [processTypes, setProcessTypes] = useState<string[]>([]);
-    const [loadingCount, setLoadingCount] = useState<number>(0);
-
-    useEffect(() => {
-        loadProcessTypes();
-        return () => {
-            dispatch(hideLoading());
-        };
-    }, []);
-
-    useEffect(() => {
-        if (loadingCount > 0) dispatch(showLoading('Loading process types and materials...'));
-        else dispatch(hideLoading());
-    }, [loadingCount]);
-
-    async function loadProcessTypes() {
-        try {
-            setLoadingCount((c) => c + 1);
-            const pT: string[] = await ethProcessTypeService.getAll();
-            setProcessTypes(pT);
-        } catch (e: any) {
-            console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR, NOTIFICATION_DURATION);
-        } finally {
-            setLoadingCount((c) => c - 1);
-        }
-    }
 
     const addInputMaterial = () => {
         setInputMaterialsCount((c) => c + 1);

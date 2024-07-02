@@ -6,12 +6,12 @@ import { FormElement, FormElementType, GenericForm } from '@/components/GenericF
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { regex } from '@/utils/regex';
-import useMeasure from '@/hooks/useMeasure';
 import { LineRequest, DocumentType } from '@kbc-lib/coffee-trading-management-lib';
 import { BasicTradeRequest } from '@/api/types/TradeRequest';
 import { DocumentRequest } from '@/api/types/DocumentRequest';
 import useTrade from '@/hooks/useTrade';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
+import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 
 type BasicTradeNewProps = {
     supplierAddress: string;
@@ -27,7 +27,7 @@ export const BasicTradeNew = ({
 }: BasicTradeNewProps) => {
     const { saveBasicTrade } = useTrade();
     const { productCategories } = useEthMaterial();
-    const { units } = useMeasure();
+    const { units } = useEthEnumerable();
 
     const navigate = useNavigate();
     const location = useLocation();

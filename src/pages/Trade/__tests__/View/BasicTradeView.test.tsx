@@ -1,20 +1,20 @@
 import { useNavigate } from 'react-router-dom';
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import { BasicTradeView } from '@/pages/Trade/View/BasicTradeView';
-import useMaterial from '@/hooks/useMaterial';
 import { FormElement, GenericForm } from '@/components/GenericForm/GenericForm';
 import useTrade from '@/hooks/useTrade';
-import useMeasure from '@/hooks/useMeasure';
 import { LineRequest, DocumentType } from '@kbc-lib/coffee-trading-management-lib';
 import userEvent from '@testing-library/user-event';
 import { BasicTradePresentable } from '@/api/types/TradePresentable';
+import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
+import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 
 jest.mock('react-router-dom');
 jest.mock('@/providers/SignerProvider');
 jest.mock('@/hooks/useTrade');
-jest.mock('@/hooks/useMeasure');
-jest.mock('@/hooks/useMaterial');
 jest.mock('@/components/GenericForm/GenericForm');
+jest.mock('@/providers/entities/EthMaterialProvider');
+jest.mock('@/providers/entities/EthEnumerableProvider');
 
 describe('Basic Trade New', () => {
     const basicTradePresentable = {
@@ -36,12 +36,11 @@ describe('Basic Trade New', () => {
         jest.spyOn(console, 'error').mockImplementation(jest.fn());
         jest.clearAllMocks();
 
-        (useMeasure as jest.Mock).mockReturnValue({
-            units: ['unit1', 'unit2']
-        });
-        (useMaterial as jest.Mock).mockReturnValue({
-            dataLoaded: true,
+        (useEthMaterial as jest.Mock).mockReturnValue({
             productCategories: [{ id: 1, name: 'Product Category 1' }]
+        });
+        (useEthEnumerable as jest.Mock).mockReturnValue({
+            units: ['unit1', 'unit2']
         });
         (useTrade as jest.Mock).mockReturnValue({
             updateBasicTrade,
@@ -50,43 +49,17 @@ describe('Basic Trade New', () => {
     });
 
     it('should render correctly', async () => {
-        await act(async () => {
-            render(
-                <BasicTradeView
-                    basicTradePresentable={basicTradePresentable}
-                    disabled={true}
-                    toggleDisabled={toggleDisabled}
-                    commonElements={commonElements}
-                />
-            );
-        });
-        await waitFor(() => {
-            expect(GenericForm).toHaveBeenCalledTimes(1);
-        });
+        render(
+            <BasicTradeView
+                basicTradePresentable={basicTradePresentable}
+                disabled={true}
+                toggleDisabled={toggleDisabled}
+                commonElements={commonElements}
+            />
+        );
+        expect(GenericForm).toHaveBeenCalledTimes(1);
         const elements = (GenericForm as jest.Mock).mock.calls[0][0].elements;
         expect(elements).toHaveLength(8);
-    });
-    it('should render nothing if data is not loaded', async () => {
-        const loadData = jest.fn();
-        (useMaterial as jest.Mock).mockReturnValue({
-            dataLoaded: false,
-            loadData,
-            productCategories: [{ id: 1, name: 'Product Category 1' }]
-        });
-        await act(async () => {
-            render(
-                <BasicTradeView
-                    basicTradePresentable={basicTradePresentable}
-                    disabled={true}
-                    toggleDisabled={toggleDisabled}
-                    commonElements={commonElements}
-                />
-            );
-        });
-        await waitFor(() => {
-            expect(GenericForm).not.toHaveBeenCalled();
-        });
-        expect(loadData).toHaveBeenCalledTimes(1);
     });
     it('onSubmit', async () => {
         const navigate = jest.fn();
@@ -95,19 +68,14 @@ describe('Basic Trade New', () => {
         (useTrade as jest.Mock).mockReturnValue({
             updateBasicTrade
         });
-        await act(async () => {
-            render(
-                <BasicTradeView
-                    basicTradePresentable={basicTradePresentable}
-                    disabled={true}
-                    toggleDisabled={toggleDisabled}
-                    commonElements={commonElements}
-                />
-            );
-        });
-        await waitFor(() => {
-            expect(GenericForm).toHaveBeenCalledTimes(1);
-        });
+        render(
+            <BasicTradeView
+                basicTradePresentable={basicTradePresentable}
+                disabled={true}
+                toggleDisabled={toggleDisabled}
+                commonElements={commonElements}
+            />
+        );
         const onSubmit = (GenericForm as jest.Mock).mock.calls[0][0].onSubmit;
         const values = {
             name: 'name',
@@ -138,19 +106,15 @@ describe('Basic Trade New', () => {
         (useTrade as jest.Mock).mockReturnValue({
             confirmNegotiation
         });
-        await act(async () => {
-            render(
-                <BasicTradeView
-                    basicTradePresentable={basicTradePresentable}
-                    disabled={true}
-                    toggleDisabled={toggleDisabled}
-                    commonElements={commonElements}
-                />
-            );
-        });
-        await waitFor(() => {
-            expect(GenericForm).toHaveBeenCalledTimes(1);
-        });
+        render(
+            <BasicTradeView
+                basicTradePresentable={basicTradePresentable}
+                disabled={true}
+                toggleDisabled={toggleDisabled}
+                commonElements={commonElements}
+            />
+        );
+
         act(() => userEvent.click(screen.getByRole('confirm')));
 
         expect(confirmNegotiation).toHaveBeenCalledTimes(1);

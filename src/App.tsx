@@ -24,6 +24,7 @@ import { MenuLayout } from '@/components/structure/MenuLayout/MenuLayout';
 import { paths } from '@/constants/paths';
 import DataLoader from './DataLoader';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
+import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 
 export const App = () => {
     return (
@@ -78,7 +79,9 @@ export const App = () => {
                                         path={paths.TRADE_NEW}
                                         element={
                                             <DataLoader customUseContext={useEthMaterial}>
-                                                <TradeNew />
+                                                <DataLoader customUseContext={useEthEnumerable}>
+                                                    <TradeNew />
+                                                </DataLoader>
                                             </DataLoader>
                                         }
                                     />
@@ -86,7 +89,9 @@ export const App = () => {
                                         path={paths.TRADE_VIEW}
                                         element={
                                             <DataLoader customUseContext={useEthMaterial}>
-                                                <TradeView />
+                                                <DataLoader customUseContext={useEthEnumerable}>
+                                                    <TradeView />
+                                                </DataLoader>
                                             </DataLoader>
                                         }
                                     />
@@ -98,7 +103,9 @@ export const App = () => {
                                         path={paths.ASSET_OPERATIONS_NEW}
                                         element={
                                             <DataLoader customUseContext={useEthMaterial}>
-                                                <AssetOperationNew />
+                                                <DataLoader customUseContext={useEthEnumerable}>
+                                                    <AssetOperationNew />
+                                                </DataLoader>
                                             </DataLoader>
                                         }
                                     />
