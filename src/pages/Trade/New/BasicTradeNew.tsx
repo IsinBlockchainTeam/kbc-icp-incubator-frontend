@@ -3,15 +3,15 @@ import { Button } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import { paths } from '@/constants/paths';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { regex } from '@/utils/regex';
-import useMaterial from '@/hooks/useMaterial';
 import useMeasure from '@/hooks/useMeasure';
 import { LineRequest, DocumentType } from '@kbc-lib/coffee-trading-management-lib';
 import { BasicTradeRequest } from '@/api/types/TradeRequest';
 import { DocumentRequest } from '@/api/types/DocumentRequest';
 import useTrade from '@/hooks/useTrade';
+import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 
 type BasicTradeNewProps = {
     supplierAddress: string;
@@ -26,16 +26,12 @@ export const BasicTradeNew = ({
     commonElements
 }: BasicTradeNewProps) => {
     const { saveBasicTrade } = useTrade();
-    const { loadData, dataLoaded, productCategories } = useMaterial();
+    const { productCategories } = useEthMaterial();
     const { units } = useMeasure();
 
     const navigate = useNavigate();
     const location = useLocation();
     const documentHeight = '45vh';
-
-    useEffect(() => {
-        if (!dataLoaded) loadData();
-    }, [dataLoaded]);
 
     const onSubmit = async (values: any) => {
         //FIXME: This is a workaround to get data instead of the form
@@ -70,10 +66,6 @@ export const BasicTradeNew = ({
         await saveBasicTrade(basicTrade, [deliveryNote]);
         navigate(paths.TRADES);
     };
-
-    if (!dataLoaded) {
-        return <></>;
-    }
 
     const elements: FormElement[] = [
         ...commonElements,

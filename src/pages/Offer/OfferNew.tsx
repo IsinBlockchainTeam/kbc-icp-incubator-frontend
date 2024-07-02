@@ -4,56 +4,31 @@ import { NotificationType, openNotification } from '@/utils/notification';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
 import { Button } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
 import { RootState } from '@/redux/store';
 import { EthContext } from '@/providers/EthProvider';
 import { SignerContext } from '@/providers/SignerProvider';
-import { ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
 import { ICPContext } from '@/providers/ICPProvider';
 import { paths } from '@/constants/paths';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { credentials, DID_METHOD } from '@/constants/ssi';
+import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 
 export const OfferNew = () => {
+    const { productCategories } = useEthMaterial();
     const { signer } = useContext(SignerContext);
-    const { ethOfferService, ethMaterialService } = useContext(EthContext);
+    const { ethOfferService } = useContext(EthContext);
     const { getNameByDID } = useContext(ICPContext);
-    const [productCategories, setProductCategories] = useState<ProductCategory[]>([]);
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const [elements, setElements] = React.useState<FormElement[]>([]);
 
     useEffect(() => {
-        loadProductCategories();
-        return () => {
-            dispatch(hideLoading());
-        };
-    }, []);
-
-    useEffect(() => {
         loadElements();
     }, [productCategories]);
-
-    async function loadProductCategories() {
-        try {
-            dispatch(showLoading('Loading product categories...'));
-            const pC = await ethMaterialService.getProductCategories();
-            setProductCategories(pC);
-        } catch (e: any) {
-            console.log('error: ', e);
-            openNotification(
-                'Error',
-                'Error loading product categories',
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
-        } finally {
-            dispatch(hideLoading());
-        }
-    }
 
     async function loadElements() {
         try {

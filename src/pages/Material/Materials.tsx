@@ -1,36 +1,16 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React from 'react';
 import { Button, Table } from 'antd';
-import { NotificationType, openNotification } from '@/utils/notification';
 import { ColumnsType } from 'antd/es/table';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
 import { PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
 import { Material, ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
-import { EthContext } from '@/providers/EthProvider';
 import { paths } from '@/constants/paths';
-import { NOTIFICATION_DURATION } from '@/constants/notification';
+import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 
 export const Materials = () => {
-    const { ethMaterialService } = useContext(EthContext);
+    const { materials, productCategories } = useEthMaterial();
     const navigate = useNavigate();
-    const [materials, setMaterials] = useState<Material[]>();
-    const [productCategories, setProductCategories] = useState<ProductCategory[]>();
-    const dispatch = useDispatch();
-
-    const loadData = async () => {
-        try {
-            dispatch(showLoading('Retrieving product categories and materials...'));
-            setProductCategories(await ethMaterialService.getProductCategories());
-            setMaterials(await ethMaterialService.getMaterials());
-        } catch (e: any) {
-            console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR, NOTIFICATION_DURATION);
-        } finally {
-            dispatch(hideLoading());
-        }
-    };
 
     const productCategoriesColumns: ColumnsType<ProductCategory> = [
         {
@@ -65,13 +45,6 @@ export const Materials = () => {
             sorter: (a, b) => a.productCategory.name.localeCompare(b.productCategory.name)
         }
     ];
-
-    useEffect(() => {
-        loadData();
-        return () => {
-            dispatch(hideLoading());
-        };
-    }, []);
 
     return (
         <>

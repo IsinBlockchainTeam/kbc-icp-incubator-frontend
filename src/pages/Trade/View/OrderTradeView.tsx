@@ -12,7 +12,7 @@ import { Tag, Tooltip } from 'antd';
 import OrderStatusSteps from '@/pages/Trade/OrderStatusSteps/OrderStatusSteps';
 import { DetailedTradePresentable, OrderTradePresentable } from '@/api/types/TradePresentable';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { FormElement, FormElementType } from '@/components/GenericForm/GenericForm';
 import { regex } from '@/utils/regex';
 import dayjs from 'dayjs';
@@ -21,11 +21,11 @@ import useDocument from '@/hooks/useDocument';
 import { OrderTradeRequest } from '@/api/types/TradeRequest';
 import { paths } from '@/constants/paths';
 import { useNavigate } from 'react-router-dom';
-import useMaterial from '@/hooks/useMaterial';
 import useMeasure from '@/hooks/useMeasure';
 import { CheckCircleOutlined, EditOutlined, RollbackOutlined } from '@ant-design/icons';
 import { validateDates } from '@/utils/date';
 import useTrade from '@/hooks/useTrade';
+import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 
 type OrderTradeViewProps = {
     orderTradePresentable: OrderTradePresentable;
@@ -41,7 +41,7 @@ export const OrderTradeView = ({
 }: OrderTradeViewProps) => {
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const { signer } = useContext(SignerContext);
-    const { loadData, dataLoaded, productCategories } = useMaterial();
+    const { productCategories } = useEthMaterial();
     const { updateOrderTrade, confirmNegotiation } = useTrade();
     const { units, fiats } = useMeasure();
     const { validateDocument } = useDocument();
@@ -49,10 +49,6 @@ export const OrderTradeView = ({
     const orderTrade = orderTradePresentable.trade as OrderTrade;
     const negotiationStatus = NegotiationStatus[orderTrade.negotiationStatus];
     const navigate = useNavigate();
-
-    useEffect(() => {
-        if (!dataLoaded) loadData();
-    }, [dataLoaded]);
 
     const toggleEditing = () => {
         toggleDisabled();
@@ -117,8 +113,6 @@ export const OrderTradeView = ({
         toggleDisabled();
         navigate(paths.TRADES);
     };
-
-    if (!dataLoaded) return <></>;
 
     const elements: FormElement[] = [
         {

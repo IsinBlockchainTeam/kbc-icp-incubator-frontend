@@ -130,7 +130,12 @@ export const MenuLayout = () => {
             </Sider>
             <Layout>
                 <Content className={styles.MainContent} style={{ background: colorBgContainer }}>
-                    <Spin spinning={loading.isLoading} size="large" tip={loading.loadingMessage}>
+                    <Spin
+                        spinning={loading.isLoading}
+                        size="large"
+                        tip={loading.loadingMessages.map((msg) => (
+                            <div key={msg}>{msg}</div>
+                        ))}>
                         <Outlet />
                     </Spin>
                 </Content>

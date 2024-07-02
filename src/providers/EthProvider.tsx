@@ -5,7 +5,6 @@ import { useEthServices } from '@/providers/hooks/useEthServices';
 import { EthDocumentService } from '@/api/services/EthDocumentService';
 import { EthEnumerableTypeService } from '@/api/services/EthEnumerableTypeService';
 import { EthGraphService } from '@/api/services/EthGraphService';
-import { EthMaterialService } from '@/api/services/EthMaterialService';
 import { EthOfferService } from '@/api/services/EthOfferService';
 import { EthPartnerService } from '@/api/services/EthPartnerService';
 import { EthTradeService } from '@/api/services/EthTradeService';
@@ -17,7 +16,6 @@ export type EthContextState = {
     ethUnitService: EthEnumerableTypeService;
     ethFiatService: EthEnumerableTypeService;
     ethGraphService: EthGraphService;
-    ethMaterialService: EthMaterialService;
     ethOfferService: EthOfferService;
     ethPartnerService: EthPartnerService;
     ethTradeService: EthTradeService;
@@ -31,7 +29,6 @@ export function EthProvider({ children }: { children: ReactNode }) {
         ethUnitService,
         ethFiatService,
         ethGraphService,
-        ethMaterialService,
         ethOfferService,
         ethPartnerService,
         ethTradeService
@@ -46,7 +43,6 @@ export function EthProvider({ children }: { children: ReactNode }) {
                 ethUnitService,
                 ethFiatService,
                 ethGraphService,
-                ethMaterialService,
                 ethOfferService,
                 ethPartnerService,
                 ethTradeService

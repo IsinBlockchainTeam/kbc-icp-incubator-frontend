@@ -12,15 +12,15 @@ import {
     LineRequest
 } from '@kbc-lib/coffee-trading-management-lib';
 import { DetailedTradePresentable } from '@/api/types/TradePresentable';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { regex } from '@/utils/regex';
-import useMaterial from '@/hooks/useMaterial';
 import useMeasure from '@/hooks/useMeasure';
 import { OrderTradeRequest } from '@/api/types/TradeRequest';
 import dayjs from 'dayjs';
 import { validateDates } from '@/utils/date';
 import useTrade from '@/hooks/useTrade';
+import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 
 type OrderTradeNewProps = {
     supplierAddress: string;
@@ -37,13 +37,9 @@ export const OrderTradeNew = ({
     const navigate = useNavigate();
     const location = useLocation();
 
-    const { loadData, dataLoaded, productCategories } = useMaterial();
+    const { productCategories } = useEthMaterial();
     const { saveOrderTrade } = useTrade();
     const { units, fiats } = useMeasure();
-
-    useEffect(() => {
-        if (!dataLoaded) loadData();
-    }, [dataLoaded]);
 
     const disabledDate = (current: dayjs.Dayjs): boolean => {
         return current && current <= dayjs().endOf('day');
@@ -96,8 +92,6 @@ export const OrderTradeNew = ({
         await saveOrderTrade(orderTrade);
         navigate(paths.TRADES);
     };
-
-    if (!dataLoaded) return <></>;
 
     const elements: FormElement[] = [
         ...commonElements,

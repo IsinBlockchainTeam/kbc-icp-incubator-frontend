@@ -10,7 +10,13 @@ export type SignerContextState = {
     signer: ethers.Wallet;
 };
 export const SignerContext = createContext<SignerContextState>({} as SignerContextState);
-
+export const useSigner = (): SignerContextState => {
+    const context = React.useContext(SignerContext);
+    if (!context) {
+        throw new Error('useSigner must be used within an SignerProvider.');
+    }
+    return context;
+};
 export function SignerProvider({ children }: { children: ReactNode }) {
     const userInfo = useSelector((state: RootState) => state.userInfo);
 

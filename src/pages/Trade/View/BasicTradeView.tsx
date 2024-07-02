@@ -4,13 +4,13 @@ import { CardPage } from '@/components/structure/CardPage/CardPage';
 import { BasicTrade, DocumentType, LineRequest } from '@kbc-lib/coffee-trading-management-lib';
 import { Tooltip } from 'antd';
 import { CheckCircleOutlined, EditOutlined } from '@ant-design/icons';
-import React, { useEffect } from 'react';
-import useMaterial from '@/hooks/useMaterial';
+import React from 'react';
 import useMeasure from '@/hooks/useMeasure';
 import { BasicTradeRequest } from '@/api/types/TradeRequest';
 import { paths } from '@/constants/paths';
 import { useNavigate } from 'react-router-dom';
 import useTrade from '@/hooks/useTrade';
+import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 
 type BasicTradeViewProps = {
     basicTradePresentable: BasicTradePresentable;
@@ -24,16 +24,12 @@ export const BasicTradeView = ({
     toggleDisabled,
     commonElements
 }: BasicTradeViewProps) => {
-    const { loadData, dataLoaded, productCategories } = useMaterial();
+    const { productCategories } = useEthMaterial();
     const { updateBasicTrade, confirmNegotiation } = useTrade();
     const { units } = useMeasure();
     const navigate = useNavigate();
     const documentHeight = '45vh';
     const basicTrade = basicTradePresentable.trade as BasicTrade;
-
-    useEffect(() => {
-        if (!dataLoaded) loadData();
-    }, [dataLoaded]);
 
     const onSubmit = async (values: any) => {
         const quantity: number = parseInt(values[`quantity-1`]);
@@ -52,8 +48,6 @@ export const BasicTradeView = ({
         toggleDisabled();
         navigate(paths.TRADES);
     };
-
-    if (!dataLoaded) return <></>;
 
     const elements: FormElement[] = [
         ...commonElements,

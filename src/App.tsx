@@ -22,6 +22,8 @@ import { persistor, store } from '@/redux/store';
 import { PersistGate } from 'redux-persist/integration/react';
 import { MenuLayout } from '@/components/structure/MenuLayout/MenuLayout';
 import { paths } from '@/constants/paths';
+import DataLoader from './DataLoader';
+import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 
 export const App = () => {
     return (
@@ -35,27 +37,70 @@ export const App = () => {
                                     <Route index path={paths.PROFILE} element={<Profile />} />
                                     <Route path={paths.PARTNERS} element={<Partners />} />
                                     <Route path={paths.OFFERS} element={<Offers />} />
-                                    <Route path={paths.OFFERS_NEW} element={<OfferNew />} />
+                                    <Route
+                                        path={paths.OFFERS_NEW}
+                                        element={
+                                            <DataLoader customUseContext={useEthMaterial}>
+                                                <OfferNew />
+                                            </DataLoader>
+                                        }
+                                    />
                                     <Route
                                         path={paths.OFFERS_SUPPLIER_NEW}
                                         element={<OfferSupplierNew />}
                                     />
-                                    <Route path={paths.MATERIALS} element={<Materials />} />
-                                    <Route path={paths.MATERIAL_NEW} element={<MaterialNew />} />
+                                    <Route
+                                        path={paths.MATERIALS}
+                                        element={
+                                            <DataLoader customUseContext={useEthMaterial}>
+                                                <Materials />
+                                            </DataLoader>
+                                        }
+                                    />
+                                    <Route
+                                        path={paths.MATERIAL_NEW}
+                                        element={
+                                            <DataLoader customUseContext={useEthMaterial}>
+                                                <MaterialNew />
+                                            </DataLoader>
+                                        }
+                                    />
                                     <Route
                                         path={paths.PRODUCT_CATEGORY_NEW}
-                                        element={<ProductCategoryNew />}
+                                        element={
+                                            <DataLoader customUseContext={useEthMaterial}>
+                                                <ProductCategoryNew />
+                                            </DataLoader>
+                                        }
                                     />
                                     <Route path={paths.TRADES} element={<Trades />} />
-                                    <Route path={paths.TRADE_NEW} element={<TradeNew />} />
-                                    <Route path={paths.TRADE_VIEW} element={<TradeView />} />
+                                    <Route
+                                        path={paths.TRADE_NEW}
+                                        element={
+                                            <DataLoader customUseContext={useEthMaterial}>
+                                                <TradeNew />
+                                            </DataLoader>
+                                        }
+                                    />
+                                    <Route
+                                        path={paths.TRADE_VIEW}
+                                        element={
+                                            <DataLoader customUseContext={useEthMaterial}>
+                                                <TradeView />
+                                            </DataLoader>
+                                        }
+                                    />
                                     <Route
                                         path={paths.ASSET_OPERATIONS}
                                         element={<AssetOperations />}
                                     />
                                     <Route
                                         path={paths.ASSET_OPERATIONS_NEW}
-                                        element={<AssetOperationNew />}
+                                        element={
+                                            <DataLoader customUseContext={useEthMaterial}>
+                                                <AssetOperationNew />
+                                            </DataLoader>
+                                        }
                                     />
                                     <Route path={paths.GRAPH} element={<GraphPage />} />
                                 </Route>

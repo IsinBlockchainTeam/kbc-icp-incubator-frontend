@@ -10,24 +10,22 @@ import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
 import { useDispatch } from 'react-redux';
 import { AssetOperationRequest } from '@/api/types/AssetOperationRequest';
 import { EthContext } from '@/providers/EthProvider';
-import { Material } from '@kbc-lib/coffee-trading-management-lib';
 import { paths } from '@/constants/paths';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
+import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 
 export const AssetOperationNew = () => {
-    const { ethAssetOperationService, ethProcessTypeService, ethMaterialService } =
-        useContext(EthContext);
+    const { materials } = useEthMaterial();
+    const { ethAssetOperationService, ethProcessTypeService } = useContext(EthContext);
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
     const [inputMaterialsCount, setInputMaterialsCount] = useState<number>(1);
     const [processTypes, setProcessTypes] = useState<string[]>([]);
-    const [materials, setMaterials] = useState<Material[]>([]);
     const [loadingCount, setLoadingCount] = useState<number>(0);
 
     useEffect(() => {
         loadProcessTypes();
-        loadMaterials();
         return () => {
             dispatch(hideLoading());
         };
@@ -43,19 +41,6 @@ export const AssetOperationNew = () => {
             setLoadingCount((c) => c + 1);
             const pT: string[] = await ethProcessTypeService.getAll();
             setProcessTypes(pT);
-        } catch (e: any) {
-            console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR, NOTIFICATION_DURATION);
-        } finally {
-            setLoadingCount((c) => c - 1);
-        }
-    }
-
-    async function loadMaterials() {
-        try {
-            setLoadingCount((c) => c + 1);
-            const m = await ethMaterialService.getMaterials();
-            setMaterials(m);
         } catch (e: any) {
             console.log('error: ', e);
             openNotification('Error', e.message, NotificationType.ERROR, NOTIFICATION_DURATION);
