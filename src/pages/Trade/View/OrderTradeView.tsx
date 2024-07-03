@@ -22,7 +22,7 @@ import { CheckCircleOutlined, EditOutlined, RollbackOutlined } from '@ant-design
 import { validateDates } from '@/utils/date';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
-import { useEthTrade } from '@/providers/entities/EthTradeProvider';
+import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
 
 type OrderTradeViewProps = {
     orderTrade: OrderTrade;
@@ -46,7 +46,7 @@ export const OrderTradeView = ({
         getOrderStatus,
         validateOrderDocument,
         getOrderRequiredDocuments
-    } = useEthTrade();
+    } = useEthOrderTrade();
     const negotiationStatus = NegotiationStatus[orderTrade.negotiationStatus];
     const navigate = useNavigate();
 

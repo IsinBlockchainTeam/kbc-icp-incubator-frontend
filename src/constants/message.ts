@@ -74,28 +74,42 @@ export const NAME_MESSAGE = {
         ERROR: 'Error while retrieving names.'
     }
 };
-export const TRADE_MESSAGE = {
+export const RAW_TRADE_MESSAGE = {
     RETRIEVE: {
-        LOADING: 'Retrieving trades...',
+        LOADING: 'Retrieving raw trades...',
         OK: '',
-        ERROR: 'Error while retrieving trades.'
+        ERROR: 'Error while retrieving raw trades.'
+    }
+};
+export const BASIC_TRADE_MESSAGE = {
+    RETRIEVE: {
+        LOADING: 'Retrieving basic trades...',
+        OK: '',
+        ERROR: 'Error while retrieving basic trades.'
     },
-    SAVE_BASIC: {
+    SAVE: {
         LOADING: 'Creating basic trade...',
         OK: 'The basic trade has been created.',
         ERROR: 'Error while creating basic trade.'
     },
-    UPDATE_BASIC: {
+    UPDATE: {
         LOADING: 'Updating basic trade...',
         OK: 'The basic trade has been updated.',
         ERROR: 'Error while updating basic trade.'
+    }
+};
+export const ORDER_TRADE_MESSAGE = {
+    RETRIEVE: {
+        LOADING: 'Retrieving order trades...',
+        OK: '',
+        ERROR: 'Error while retrieving order trades.'
     },
-    SAVE_ORDER: {
+    SAVE: {
         LOADING: 'Creating order trade...',
         OK: 'The order trade has been created.',
         ERROR: 'Error while creating order trade.'
     },
-    UPDATE_ORDER: {
+    UPDATE: {
         LOADING: 'Updating order trade...',
         OK: 'The order trade has been updated.',
         ERROR: 'Error while updating order trade.'
@@ -104,11 +118,6 @@ export const TRADE_MESSAGE = {
         LOADING: 'Confirming negotiation...',
         OK: 'The negotiation has been confirmed.',
         ERROR: 'Error while confirming negotiation.'
-    },
-    SAVE: {
-        LOADING: 'Saving trade...',
-        OK: 'Trade saved successfully.',
-        ERROR: 'Error while saving trade.'
     }
 };
 export const DOCUMENT_MESSAGE = {

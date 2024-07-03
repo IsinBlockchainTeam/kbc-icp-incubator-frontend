@@ -11,8 +11,10 @@ import { EthMaterialProvider } from '@/providers/entities/EthMaterialProvider';
 import { EthEnumerableProvider } from '@/providers/entities/EthEnumerableProvider';
 import { EthOfferProvider } from '@/providers/entities/EthOfferProvider';
 import { ICPNameProvider } from '@/providers/entities/ICPNameProvider';
-import { EthTradeProvider } from '@/providers/entities/EthTradeProvider';
+import { EthRawTradeProvider } from '@/providers/entities/EthRawTradeProvider';
 import { EthDocumentProvider } from '@/providers/entities/EthDocumentProvider';
+import { EthBasicTradeProvider } from '@/providers/entities/EthBasicTradeProvider';
+import { EthOrderTradeProvider } from '@/providers/entities/EthOrderTradeProvider';
 
 const PrivateRoutes = () => {
     const { isLogged } = useSelector((state: RootState) => state.userInfo);
@@ -26,9 +28,13 @@ const PrivateRoutes = () => {
                                 <EthMaterialProvider>
                                     <EthOfferProvider>
                                         <EthDocumentProvider>
-                                            <EthTradeProvider>
-                                                <Outlet />
-                                            </EthTradeProvider>
+                                            <EthRawTradeProvider>
+                                                <EthBasicTradeProvider>
+                                                    <EthOrderTradeProvider>
+                                                        <Outlet />
+                                                    </EthOrderTradeProvider>
+                                                </EthBasicTradeProvider>
+                                            </EthRawTradeProvider>
                                         </EthDocumentProvider>
                                     </EthOfferProvider>
                                 </EthMaterialProvider>

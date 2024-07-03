@@ -9,7 +9,8 @@ import { paths } from '@/constants/paths';
 import { useNavigate } from 'react-router-dom';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
-import { useEthTrade } from '@/providers/entities/EthTradeProvider';
+import { useEthBasicTrade } from '@/providers/entities/EthBasicTradeProvider';
+import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
 
 type BasicTradeViewProps = {
     basicTrade: BasicTrade;
@@ -25,7 +26,8 @@ export const BasicTradeView = ({
 }: BasicTradeViewProps) => {
     const { productCategories } = useEthMaterial();
     const { units } = useEthEnumerable();
-    const { updateBasicTrade, confirmNegotiation, getBasicTradeDocuments } = useEthTrade();
+    const { updateBasicTrade, getBasicTradeDocuments } = useEthBasicTrade();
+    const { confirmNegotiation } = useEthOrderTrade();
     const navigate = useNavigate();
     const documentHeight = '45vh';
 

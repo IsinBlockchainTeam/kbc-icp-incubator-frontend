@@ -20,7 +20,7 @@ import dayjs from 'dayjs';
 import { validateDates } from '@/utils/date';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
-import { useEthTrade } from '@/providers/entities/EthTradeProvider';
+import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
 
 type OrderTradeNewProps = {
     supplierAddress: string;
@@ -39,7 +39,7 @@ export const OrderTradeNew = ({
 
     const { productCategories } = useEthMaterial();
     const { units, fiats } = useEthEnumerable();
-    const { saveOrderTrade } = useEthTrade();
+    const { saveOrderTrade } = useEthOrderTrade();
 
     const disabledDate = (current: dayjs.Dayjs): boolean => {
         return current && current <= dayjs().endOf('day');

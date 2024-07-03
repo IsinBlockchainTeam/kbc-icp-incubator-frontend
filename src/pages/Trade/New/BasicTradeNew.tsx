@@ -11,7 +11,7 @@ import { BasicTradeRequest } from '@/api/types/TradeRequest';
 import { DocumentRequest } from '@/api/types/DocumentRequest';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
-import { useEthTrade } from '@/providers/entities/EthTradeProvider';
+import { useEthBasicTrade } from '@/providers/entities/EthBasicTradeProvider';
 
 type BasicTradeNewProps = {
     supplierAddress: string;
@@ -25,7 +25,7 @@ export const BasicTradeNew = ({
     productCategoryId,
     commonElements
 }: BasicTradeNewProps) => {
-    const { saveBasicTrade } = useEthTrade();
+    const { saveBasicTrade } = useEthBasicTrade();
     const { productCategories } = useEthMaterial();
     const { units } = useEthEnumerable();
 

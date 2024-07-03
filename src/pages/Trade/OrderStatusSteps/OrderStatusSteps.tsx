@@ -44,13 +44,13 @@ import { ICPContext } from '@/providers/ICPProvider';
 import { RootState } from '@/redux/store';
 import { DID_METHOD } from '@/constants/ssi';
 import { requestPath } from '@/constants/url';
-import { useEthTrade } from '@/providers/entities/EthTradeProvider';
+import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
 
 type Props = {
     status: OrderStatus;
     submittable: boolean;
     negotiationElements: FormElement[];
-    // TODO: please stop using ?:
+    // FIXME: please stop using ?:
     orderTrade?: OrderTrade;
     validationCallback: (
         orderTrade: OrderTrade | null,
@@ -62,7 +62,7 @@ type Props = {
 
 export default function OrderStatusSteps(props: Props) {
     const { status, submittable, negotiationElements, orderTrade } = props;
-    const { getOrderStatus, getOrderRequiredDocuments } = useEthTrade();
+    const { getOrderStatus, getOrderRequiredDocuments } = useEthOrderTrade();
     let onSubmit: (values: any) => Promise<void>;
     const { getNameByDID } = useContext(ICPContext);
     const { signer } = useContext(SignerContext);
@@ -74,6 +74,7 @@ export default function OrderStatusSteps(props: Props) {
         status === OrderStatus.COMPLETED ? OrderStatus.SHIPPED : status
     );
     const documentHeight = '45vh';
+    // FIXME: Don't use a map for fixed values, use dictionary instead
     const documentTypesLabel = new Map<DocumentType, string>()
         .set(DocumentType.PAYMENT_INVOICE, 'Payment Invoice')
         .set(DocumentType.ORIGIN_SWISS_DECODE, 'Swiss Decode')

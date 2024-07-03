@@ -6,7 +6,8 @@ import OrderTradeView from '@/pages/Trade/View/OrderTradeView';
 import { BasicTradeView } from '@/pages/Trade/View/BasicTradeView';
 import { paths } from '@/constants/paths';
 import { useICPName } from '@/providers/entities/ICPNameProvider';
-import { useEthTrade } from '@/providers/entities/EthTradeProvider';
+import { useEthBasicTrade } from '@/providers/entities/EthBasicTradeProvider';
+import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
 
 export const TradeView = () => {
     const { id } = useParams();
@@ -14,7 +15,8 @@ export const TradeView = () => {
     const navigate = useNavigate();
 
     const { getName } = useICPName();
-    const { basicTrades, orderTrades } = useEthTrade();
+    const { basicTrades } = useEthBasicTrade();
+    const { orderTrades } = useEthOrderTrade();
     const [disabled, setDisabled] = useState<boolean>(true);
 
     const type = parseInt(new URLSearchParams(location.search).get('type')!);

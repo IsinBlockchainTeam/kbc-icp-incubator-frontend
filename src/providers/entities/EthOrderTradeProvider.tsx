@@ -1,65 +1,46 @@
+import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 import {
-    BasicTrade,
-    BasicTradeDriver,
-    BasicTradeService,
-    DocumentDriver,
-    DocumentInfo,
-    DocumentStatus,
-    DocumentType,
-    Line,
-    NegotiationStatus,
-    OrderLine,
-    OrderLinePrice,
-    OrderStatus,
     OrderTrade,
     OrderTradeDriver,
     OrderTradeService,
-    TradeDriver,
+    DocumentDriver,
+    DocumentInfo,
+    DocumentType,
     TradeManagerDriver,
     TradeManagerService,
-    TradeService,
     TradeType,
-    URLStructure
+    URLStructure,
+    DocumentStatus,
+    NegotiationStatus,
+    OrderStatus,
+    OrderLine,
+    OrderLinePrice
 } from '@kbc-lib/coffee-trading-management-lib';
-import { createContext, ReactNode, useContext, useMemo, useState } from 'react';
+import { useEthRawTrade } from '@/providers/entities/EthRawTradeProvider';
 import { contractAddresses } from '@/constants/evm';
 import { useSigner } from '@/providers/SignerProvider';
 import { ICPContext } from '@/providers/ICPProvider';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
-import { ACTION_MESSAGE, TRADE_MESSAGE } from '@/constants/message';
-import { useDispatch, useSelector } from 'react-redux';
+import { ACTION_MESSAGE, ORDER_TRADE_MESSAGE } from '@/constants/message';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
-import { useEthDocument } from '@/providers/entities/EthDocumentProvider';
-import { BasicTradeRequest, OrderTradeRequest } from '@/api/types/TradeRequest';
+import { useDispatch, useSelector } from 'react-redux';
+import { OrderTradeRequest } from '@/api/types/TradeRequest';
 import { DocumentRequest } from '@/api/types/DocumentRequest';
-import { RootState } from '@/redux/store';
 import { getICPCanisterURL } from '@/utils/icp';
 import { ICP } from '@/constants/icp';
 import { ICPResourceSpec } from '@blockchain-lib/common';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
+import { RootState } from '@/redux/store';
+import { useEthDocument } from '@/providers/entities/EthDocumentProvider';
 
-export type RawTrade = {
-    address: string;
-    type: TradeType;
-};
-export type EthTradeContextState = {
-    dataLoaded: boolean;
-    rawTrades: RawTrade[];
-    basicTrades: BasicTrade[];
+export type EthOrderTradeContextState = {
     orderTrades: OrderTrade[];
-    loadData: () => Promise<void>;
-    saveBasicTrade: (
-        basicTradeRequest: BasicTradeRequest,
-        documentRequests: DocumentRequest[]
-    ) => Promise<void>;
-    updateBasicTrade: (tradeId: number, basicTradeRequest: BasicTradeRequest) => Promise<void>;
     saveOrderTrade: (
         orderTradeRequest: OrderTradeRequest,
         documentRequests: DocumentRequest[]
     ) => Promise<void>;
     updateOrderTrade: (tradeId: number, orderTradeRequest: OrderTradeRequest) => Promise<void>;
-    getBasicTradeDocuments: (tradeId: number) => DocumentInfo[];
     getActionRequired: (orderId: number) => string;
     getNegotiationStatus: (orderId: number) => NegotiationStatus;
     getOrderRequiredDocuments: (
@@ -73,18 +54,15 @@ export type EthTradeContextState = {
         validationStatus: DocumentStatus
     ) => Promise<void>;
 };
-export const EthTradeContext = createContext<EthTradeContextState>({} as EthTradeContextState);
-export const useEthTrade = (): EthTradeContextState => {
-    const context = useContext(EthTradeContext);
+export const EthOrderTradeContext = createContext<EthOrderTradeContextState>(
+    {} as EthOrderTradeContextState
+);
+export const useEthOrderTrade = (): EthOrderTradeContextState => {
+    const context = useContext(EthOrderTradeContext);
     if (!context) {
-        throw new Error('useEthTrade must be used within an EthTradeProvider.');
+        throw new Error('useEthOrderTrade must be used within an EthOrderTradeProvider.');
     }
     return context;
-};
-type DetailedBasicTrade = {
-    trade: BasicTrade;
-    service: BasicTradeService;
-    documents: DocumentInfo[];
 };
 type DetailedOrderTrade = {
     trade: OrderTrade;
@@ -94,17 +72,14 @@ type DetailedOrderTrade = {
     negotiationStatus: NegotiationStatus;
     orderStatus: OrderStatus;
 };
-export function EthTradeProvider(props: { children: ReactNode }) {
-    const [dataLoaded, setDataLoaded] = useState<boolean>(false);
-    const [detailedBasicTrades, setDetailedBasicTrades] = useState<DetailedBasicTrade[]>([]);
-    const [detailedOrderTrades, setDetailedOrderTrades] = useState<DetailedOrderTrade[]>([]);
-    const [rawTrades, setRawTrades] = useState<RawTrade[]>([]);
-
+export function EthOrderTradeProvider(props: { children: ReactNode }) {
     const { signer, waitForTransactions } = useSigner();
+    const { rawTrades } = useEthRawTrade();
     const { productCategories } = useEthMaterial();
     const { getRequiredDocumentsTypes, validateDocument } = useEthDocument();
-    const { fileDriver } = useContext(ICPContext);
     const dispatch = useDispatch();
+    const [detailedOrderTrades, setDetailedOrderTrades] = useState<DetailedOrderTrade[]>([]);
+    const { fileDriver } = useContext(ICPContext);
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const organizationId = parseInt(userInfo.organizationId);
 
@@ -126,17 +101,60 @@ export function EthTradeProvider(props: { children: ReactNode }) {
         [signer]
     );
 
-    const getBasicTradeService = (address: string) =>
-        new BasicTradeService(
-            new BasicTradeDriver(
-                signer,
-                address,
-                contractAddresses.MATERIAL(),
-                contractAddresses.PRODUCT_CATEGORY()
-            ),
-            documentDriver,
-            fileDriver
-        );
+    // Update basic trades if raw trades change
+    useEffect(() => {
+        loadDetailedTrades();
+    }, [rawTrades]);
+
+    const loadDetailedTrades = async () => {
+        try {
+            dispatch(addLoadingMessage(ORDER_TRADE_MESSAGE.RETRIEVE.LOADING));
+            const detailedOrderTrades: DetailedOrderTrade[] = [];
+            await Promise.all(
+                rawTrades
+                    .filter((rT) => rT.type === TradeType.ORDER)
+                    .map(async (rT) => {
+                        const service = getOrderTradeService(rT.address);
+                        const trade = await service.getTrade();
+                        const negotiationStatus = trade.negotiationStatus;
+                        const orderStatus = await service.getOrderStatus();
+                        const signatures = await service.getWhoSigned();
+                        const requiredDocuments = await getRequiredDocumentsDetail(
+                            orderStatus,
+                            service
+                        );
+                        const actionRequired = await getActionMessage(
+                            trade,
+                            requiredDocuments,
+                            negotiationStatus,
+                            orderStatus,
+                            signatures
+                        );
+
+                        detailedOrderTrades.push({
+                            trade,
+                            service,
+                            requiredDocuments,
+                            actionRequired,
+                            negotiationStatus,
+                            orderStatus
+                        });
+                    })
+            );
+            setDetailedOrderTrades(detailedOrderTrades);
+        } catch (e) {
+            console.error(e);
+            openNotification(
+                'Error',
+                ORDER_TRADE_MESSAGE.RETRIEVE.ERROR,
+                NotificationType.ERROR,
+                NOTIFICATION_DURATION
+            );
+        } finally {
+            dispatch(removeLoadingMessage(ORDER_TRADE_MESSAGE.RETRIEVE.LOADING));
+        }
+    };
+
     const getOrderTradeService = (address: string) =>
         new OrderTradeService(
             new OrderTradeDriver(
@@ -148,18 +166,6 @@ export function EthTradeProvider(props: { children: ReactNode }) {
             documentDriver,
             fileDriver
         );
-
-    const getDesignatedPartyAddress = (orderStatus: OrderStatus, orderTrade: OrderTrade) => {
-        switch (orderStatus) {
-            case OrderStatus.PRODUCTION:
-            case OrderStatus.PAYED:
-            case OrderStatus.EXPORTED:
-                return orderTrade.supplier;
-            case OrderStatus.SHIPPED:
-            default:
-                return orderTrade.commissioner;
-        }
-    };
 
     const getRequiredDocumentsDetail = async (
         orderStatus: OrderStatus,
@@ -180,6 +186,18 @@ export function EthTradeProvider(props: { children: ReactNode }) {
             })
         );
         return documentMap;
+    };
+
+    const getDesignatedPartyAddress = (orderStatus: OrderStatus, orderTrade: OrderTrade) => {
+        switch (orderStatus) {
+            case OrderStatus.PRODUCTION:
+            case OrderStatus.PAYED:
+            case OrderStatus.EXPORTED:
+                return orderTrade.supplier;
+            case OrderStatus.SHIPPED:
+            default:
+                return orderTrade.commissioner;
+        }
     };
 
     const getActionMessage = async (
@@ -221,213 +239,12 @@ export function EthTradeProvider(props: { children: ReactNode }) {
         return ACTION_MESSAGE.NO_ACTION;
     };
 
-    const loadDetailedTrades = async () => {
-        try {
-            dispatch(addLoadingMessage(TRADE_MESSAGE.RETRIEVE.LOADING));
-            const tradeIds = [
-                ...(await tradeManagerService.getTradeIdsOfSupplier(signer.address)),
-                ...(await tradeManagerService.getTradeIdsOfCommissioner(signer.address))
-            ];
-            const tradeAddresses = await Promise.all(
-                tradeIds.map((id) => tradeManagerService.getTrade(id))
-            );
-            const detailedBasicTrades: DetailedBasicTrade[] = [];
-            const detailedOrderTrades: DetailedOrderTrade[] = [];
-            const rawTrades: RawTrade[] = [];
-            await Promise.all(
-                tradeAddresses.map(async (address) => {
-                    const tradeService = new TradeService(
-                        new TradeDriver(signer, address),
-                        documentDriver,
-                        fileDriver
-                    );
-                    const type = await tradeService.getTradeType();
-                    rawTrades.push({ address, type });
-                    if (type === TradeType.BASIC) {
-                        const concreteService = getBasicTradeService(address);
-                        detailedBasicTrades.push({
-                            trade: (await concreteService.getTrade()) as BasicTrade,
-                            service: concreteService,
-                            documents: await concreteService.getDocumentsByType(
-                                DocumentType.DELIVERY_NOTE
-                            )
-                        });
-                        return;
-                    }
-                    const service = getOrderTradeService(address);
-                    const trade = await service.getTrade();
-                    const negotiationStatus = trade.negotiationStatus;
-                    const orderStatus = await service.getOrderStatus();
-                    const signatures = await service.getWhoSigned();
-                    const requiredDocuments = await getRequiredDocumentsDetail(
-                        orderStatus,
-                        service
-                    );
-                    const actionRequired = await getActionMessage(
-                        trade,
-                        requiredDocuments,
-                        negotiationStatus,
-                        orderStatus,
-                        signatures
-                    );
-
-                    detailedOrderTrades.push({
-                        trade,
-                        service,
-                        requiredDocuments,
-                        actionRequired,
-                        negotiationStatus,
-                        orderStatus
-                    });
-                })
-            );
-            setRawTrades(rawTrades);
-            setDetailedBasicTrades(detailedBasicTrades);
-            setDetailedOrderTrades(detailedOrderTrades);
-        } catch (e) {
-            console.error(e);
-            openNotification(
-                'Error',
-                TRADE_MESSAGE.RETRIEVE.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
-        } finally {
-            dispatch(removeLoadingMessage(TRADE_MESSAGE.RETRIEVE.LOADING));
-        }
-    };
-
-    const saveBasicTrade = async (
-        basicTradeRequest: BasicTradeRequest,
-        documentRequests: DocumentRequest[]
-    ) => {
-        try {
-            dispatch(addLoadingMessage(TRADE_MESSAGE.SAVE_BASIC.LOADING));
-            // TODO: remove this harcoded value
-            const delegatedOrganizationIds: number[] = organizationId === 0 ? [1] : [0];
-            const urlStructure: URLStructure = {
-                prefix: getICPCanisterURL(ICP.CANISTER_ID_ORGANIZATION),
-                organizationId
-            };
-            const metadata = {
-                date: new Date()
-            };
-            const [, newTradeAddress, transactionHash] =
-                await tradeManagerService.registerBasicTrade(
-                    basicTradeRequest.supplier,
-                    basicTradeRequest.customer,
-                    basicTradeRequest.commissioner,
-                    basicTradeRequest.name,
-                    metadata,
-                    urlStructure,
-                    delegatedOrganizationIds
-                );
-            await waitForTransactions(
-                transactionHash,
-                Number(process.env.REACT_APP_BC_CONFIRMATION_NUMBER || 0)
-            );
-            const basicTradeService = getBasicTradeService(newTradeAddress);
-            const deliveryNote = documentRequests?.find(
-                (doc) => doc.documentType === DocumentType.DELIVERY_NOTE
-            );
-            if (deliveryNote) {
-                const externalUrl = (await basicTradeService.getTrade()).externalUrl;
-                const resourceSpec: ICPResourceSpec = {
-                    name: deliveryNote.filename,
-                    type: deliveryNote.content.type
-                };
-                const bytes = new Uint8Array(
-                    await new Response(deliveryNote.content).arrayBuffer()
-                );
-                await basicTradeService.addDocument(
-                    deliveryNote.documentType,
-                    bytes,
-                    externalUrl,
-                    resourceSpec,
-                    delegatedOrganizationIds
-                );
-            }
-            for (const line of basicTradeRequest.lines) {
-                await basicTradeService.addLine(line);
-            }
-            openNotification(
-                'Success',
-                TRADE_MESSAGE.SAVE_BASIC.OK,
-                NotificationType.SUCCESS,
-                NOTIFICATION_DURATION
-            );
-        } catch (e: any) {
-            openNotification(
-                'Error',
-                TRADE_MESSAGE.SAVE_BASIC.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
-        } finally {
-            dispatch(removeLoadingMessage(TRADE_MESSAGE.SAVE_BASIC.LOADING));
-        }
-    };
-
-    const updateBasicTrade = async (tradeId: number, basicTradeRequest: BasicTradeRequest) => {
-        try {
-            dispatch(addLoadingMessage(TRADE_MESSAGE.UPDATE_BASIC.LOADING));
-            const detailedBasicTrade = detailedBasicTrades.find((t) => t.trade.tradeId === tradeId);
-            if (!detailedBasicTrade) return Promise.reject('Trade not found');
-            const oldTrade = detailedBasicTrade.trade;
-            const basicTradeService = detailedBasicTrade.service;
-
-            if (oldTrade.name !== basicTradeRequest.name)
-                await basicTradeService.setName(basicTradeRequest.name);
-
-            // update one single line because at this time we manage only one line per trade
-            const oldLine = oldTrade.lines[0];
-            const newLine = basicTradeRequest.lines[0];
-            if (!oldLine || !newLine) return;
-
-            // Note assigned material is ignored as it is not changeable in the UI
-            if (
-                oldLine.productCategory.id !== newLine.productCategoryId ||
-                oldLine.unit !== newLine.unit ||
-                oldLine.quantity !== newLine.quantity
-            ) {
-                const productCategory = productCategories.find(
-                    (pc) => pc.id === newLine.productCategoryId
-                );
-                if (!productCategory) return Promise.reject('Product category not found');
-                await basicTradeService.updateLine(
-                    new Line(
-                        oldLine.id,
-                        oldLine.material,
-                        productCategory,
-                        newLine.quantity,
-                        newLine.unit
-                    )
-                );
-            }
-            openNotification(
-                'Success',
-                TRADE_MESSAGE.UPDATE_ORDER.OK,
-                NotificationType.SUCCESS,
-                NOTIFICATION_DURATION
-            );
-        } catch (e: any) {
-            openNotification(
-                'Error',
-                TRADE_MESSAGE.UPDATE_BASIC.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
-        } finally {
-            dispatch(removeLoadingMessage(TRADE_MESSAGE.UPDATE_BASIC.LOADING));
-        }
-    };
-
     const saveOrderTrade = async (
         orderTradeRequest: OrderTradeRequest,
         documentRequests: DocumentRequest[]
     ) => {
         try {
-            dispatch(addLoadingMessage(TRADE_MESSAGE.SAVE_ORDER.LOADING));
+            dispatch(addLoadingMessage(ORDER_TRADE_MESSAGE.SAVE.LOADING));
             // TODO: remove this harcoded value
             const delegatedOrganizationIds: number[] = organizationId === 0 ? [1] : [0];
             const urlStructure: URLStructure = {
@@ -486,26 +303,26 @@ export function EthTradeProvider(props: { children: ReactNode }) {
             }
             openNotification(
                 'Success',
-                TRADE_MESSAGE.SAVE_ORDER.OK,
+                ORDER_TRADE_MESSAGE.SAVE.OK,
                 NotificationType.SUCCESS,
                 NOTIFICATION_DURATION
             );
         } catch (e: any) {
             openNotification(
                 'Error',
-                TRADE_MESSAGE.SAVE_ORDER.ERROR,
+                ORDER_TRADE_MESSAGE.SAVE.ERROR,
                 NotificationType.ERROR,
                 NOTIFICATION_DURATION
             );
         } finally {
-            dispatch(removeLoadingMessage(TRADE_MESSAGE.SAVE_ORDER.LOADING));
+            dispatch(removeLoadingMessage(ORDER_TRADE_MESSAGE.SAVE.LOADING));
         }
     };
 
     // TODO: BUG! -> Right now metadata of the trade are not updated, is it possible to update metadata file in ICP or it must be replaced?
     const updateOrderTrade = async (tradeId: number, orderTradeRequest: OrderTradeRequest) => {
         try {
-            dispatch(addLoadingMessage(TRADE_MESSAGE.UPDATE_ORDER.LOADING));
+            dispatch(addLoadingMessage(ORDER_TRADE_MESSAGE.UPDATE.LOADING));
             const detailedOrderTrade = detailedOrderTrades.find((t) => t.trade.tradeId === tradeId);
             if (!detailedOrderTrade) return Promise.reject('Trade not found');
             const oldTrade = detailedOrderTrade.trade;
@@ -558,19 +375,19 @@ export function EthTradeProvider(props: { children: ReactNode }) {
             }
             openNotification(
                 'Success',
-                TRADE_MESSAGE.UPDATE_ORDER.OK,
+                ORDER_TRADE_MESSAGE.UPDATE.OK,
                 NotificationType.SUCCESS,
                 NOTIFICATION_DURATION
             );
         } catch (e: any) {
             openNotification(
                 'Error',
-                TRADE_MESSAGE.UPDATE_ORDER.ERROR,
+                ORDER_TRADE_MESSAGE.UPDATE.ERROR,
                 NotificationType.ERROR,
                 NOTIFICATION_DURATION
             );
         } finally {
-            dispatch(removeLoadingMessage(TRADE_MESSAGE.UPDATE_ORDER.LOADING));
+            dispatch(removeLoadingMessage(ORDER_TRADE_MESSAGE.UPDATE.LOADING));
         }
     };
 
@@ -580,23 +397,23 @@ export function EthTradeProvider(props: { children: ReactNode }) {
                 (t) => t.trade.tradeId === orderId
             )?.service;
             if (!orderService) return Promise.reject('Trade not found');
-            dispatch(addLoadingMessage(TRADE_MESSAGE.CONFIRM_NEGOTIATION.LOADING));
+            dispatch(addLoadingMessage(ORDER_TRADE_MESSAGE.CONFIRM_NEGOTIATION.LOADING));
             await orderService.confirmOrder();
             openNotification(
                 'Success',
-                TRADE_MESSAGE.CONFIRM_NEGOTIATION.OK,
+                ORDER_TRADE_MESSAGE.CONFIRM_NEGOTIATION.OK,
                 NotificationType.SUCCESS,
                 NOTIFICATION_DURATION
             );
         } catch (e: any) {
             openNotification(
                 'Error',
-                TRADE_MESSAGE.CONFIRM_NEGOTIATION.ERROR,
+                ORDER_TRADE_MESSAGE.CONFIRM_NEGOTIATION.ERROR,
                 NotificationType.ERROR,
                 NOTIFICATION_DURATION
             );
         } finally {
-            dispatch(removeLoadingMessage(TRADE_MESSAGE.CONFIRM_NEGOTIATION.LOADING));
+            dispatch(removeLoadingMessage(ORDER_TRADE_MESSAGE.CONFIRM_NEGOTIATION.LOADING));
         }
     };
 
@@ -610,14 +427,7 @@ export function EthTradeProvider(props: { children: ReactNode }) {
         return validateDocument(documentId, validationStatus, orderService);
     };
 
-    const loadData = async () => {
-        await loadDetailedTrades();
-        setDataLoaded(true);
-    };
-
-    const basicTrades = detailedBasicTrades.map((detailedTrade) => detailedTrade.trade);
     const orderTrades = detailedOrderTrades.map((detailedTrade) => detailedTrade.trade);
-
     const getActionRequired = (orderId: number) =>
         detailedOrderTrades.find((t) => t.trade.tradeId === orderId)?.actionRequired || '';
     const getNegotiationStatus = (orderId: number) =>
@@ -629,21 +439,12 @@ export function EthTradeProvider(props: { children: ReactNode }) {
     const getOrderRequiredDocuments = (orderId: number) =>
         detailedOrderTrades.find((t) => t.trade.tradeId === orderId)?.requiredDocuments ||
         new Map<DocumentType, [DocumentInfo, DocumentStatus] | null>();
-    const getBasicTradeDocuments = (tradeId: number) =>
-        detailedBasicTrades.find((t) => t.trade.tradeId === tradeId)?.documents || [];
     return (
-        <EthTradeContext.Provider
+        <EthOrderTradeContext.Provider
             value={{
-                dataLoaded,
-                rawTrades,
-                basicTrades,
                 orderTrades,
-                loadData,
-                saveBasicTrade,
-                updateBasicTrade,
                 saveOrderTrade,
                 updateOrderTrade,
-                getBasicTradeDocuments,
                 getActionRequired,
                 getNegotiationStatus,
                 getOrderStatus,
@@ -652,6 +453,6 @@ export function EthTradeProvider(props: { children: ReactNode }) {
                 validateOrderDocument
             }}>
             {props.children}
-        </EthTradeContext.Provider>
+        </EthOrderTradeContext.Provider>
     );
 }

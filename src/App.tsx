@@ -27,7 +27,7 @@ import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 import { useEthOffer } from '@/providers/entities/EthOfferProvider';
 import { useICPName } from '@/providers/entities/ICPNameProvider';
-import { useEthTrade } from '@/providers/entities/EthTradeProvider';
+import { useEthRawTrade } from '@/providers/entities/EthRawTradeProvider';
 
 export const App = () => {
     return (
@@ -98,7 +98,7 @@ export const App = () => {
                                         path={paths.TRADES}
                                         element={
                                             <DataLoader customUseContext={useICPName}>
-                                                <DataLoader customUseContext={useEthTrade}>
+                                                <DataLoader customUseContext={useEthRawTrade}>
                                                     <Trades />
                                                 </DataLoader>
                                             </DataLoader>
@@ -110,7 +110,10 @@ export const App = () => {
                                             <DataLoader customUseContext={useEthEnumerable}>
                                                 <DataLoader customUseContext={useEthMaterial}>
                                                     <DataLoader customUseContext={useEthEnumerable}>
-                                                        <TradeNew />
+                                                        <DataLoader
+                                                            customUseContext={useEthRawTrade}>
+                                                            <TradeNew />
+                                                        </DataLoader>
                                                     </DataLoader>
                                                 </DataLoader>
                                             </DataLoader>
@@ -122,7 +125,10 @@ export const App = () => {
                                             <DataLoader customUseContext={useEthEnumerable}>
                                                 <DataLoader customUseContext={useEthMaterial}>
                                                     <DataLoader customUseContext={useEthEnumerable}>
-                                                        <TradeView />
+                                                        <DataLoader
+                                                            customUseContext={useEthRawTrade}>
+                                                            <TradeView />
+                                                        </DataLoader>
                                                     </DataLoader>
                                                 </DataLoader>
                                             </DataLoader>

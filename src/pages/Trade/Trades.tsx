@@ -8,12 +8,14 @@ import { Link } from 'react-router-dom';
 import { NegotiationStatus, OrderStatus, TradeType } from '@kbc-lib/coffee-trading-management-lib';
 import { setParametersPath } from '@/utils/page';
 import { paths } from '@/constants/paths';
-import { useEthTrade } from '@/providers/entities/EthTradeProvider';
 import { useICPName } from '@/providers/entities/ICPNameProvider';
+import { useEthBasicTrade } from '@/providers/entities/EthBasicTradeProvider';
+import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
 
 export const Trades = () => {
-    const { basicTrades, orderTrades, getActionRequired, getNegotiationStatus, getOrderStatus } =
-        useEthTrade();
+    const { basicTrades } = useEthBasicTrade();
+    const { orderTrades, getActionRequired, getNegotiationStatus, getOrderStatus } =
+        useEthOrderTrade();
     const { getName } = useICPName();
 
     const tradesPresentable: TradePreviewPresentable[] = basicTrades.map((t) => ({

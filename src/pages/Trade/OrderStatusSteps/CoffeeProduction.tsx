@@ -3,7 +3,7 @@ import React, { ReactNode } from 'react';
 import { OrderStatus, DocumentType, OrderTrade } from '@kbc-lib/coffee-trading-management-lib';
 import TradeDutiesWaiting, { DutiesWaiting } from '@/pages/Trade/TradeDutiesWaiting';
 import { useEthDocument } from '@/providers/entities/EthDocumentProvider';
-import { useEthTrade } from '@/providers/entities/EthTradeProvider';
+import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
 
 type Props = {
     orderTrade: OrderTrade;
@@ -27,7 +27,7 @@ export const CoffeeProduction = ({
     isDocumentUploadable
 }: Props) => {
     const { hasAllRequiredDocuments, getRequiredDocumentsTypes } = useEthDocument();
-    const { getOrderStatus } = useEthTrade();
+    const { getOrderStatus } = useEthOrderTrade();
 
     const hasPendingDuties = false;
 
