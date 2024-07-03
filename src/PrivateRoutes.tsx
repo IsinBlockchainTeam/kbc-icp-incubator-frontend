@@ -11,6 +11,8 @@ import { EthMaterialProvider } from '@/providers/entities/EthMaterialProvider';
 import { EthEnumerableProvider } from '@/providers/entities/EthEnumerableProvider';
 import { EthOfferProvider } from '@/providers/entities/EthOfferProvider';
 import { ICPNameProvider } from '@/providers/entities/ICPNameProvider';
+import { EthTradeProvider } from '@/providers/entities/EthTradeProvider';
+import { EthDocumentProvider } from '@/providers/entities/EthDocumentProvider';
 
 const PrivateRoutes = () => {
     const { isLogged } = useSelector((state: RootState) => state.userInfo);
@@ -23,7 +25,11 @@ const PrivateRoutes = () => {
                             <EthEnumerableProvider>
                                 <EthMaterialProvider>
                                     <EthOfferProvider>
-                                        <Outlet />
+                                        <EthDocumentProvider>
+                                            <EthTradeProvider>
+                                                <Outlet />
+                                            </EthTradeProvider>
+                                        </EthDocumentProvider>
                                     </EthOfferProvider>
                                 </EthMaterialProvider>
                             </EthEnumerableProvider>

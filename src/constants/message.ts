@@ -74,3 +74,59 @@ export const NAME_MESSAGE = {
         ERROR: 'Error while retrieving names.'
     }
 };
+export const TRADE_MESSAGE = {
+    RETRIEVE: {
+        LOADING: 'Retrieving trades...',
+        OK: '',
+        ERROR: 'Error while retrieving trades.'
+    },
+    SAVE_BASIC: {
+        LOADING: 'Creating basic trade...',
+        OK: 'The basic trade has been created.',
+        ERROR: 'Error while creating basic trade.'
+    },
+    UPDATE_BASIC: {
+        LOADING: 'Updating basic trade...',
+        OK: 'The basic trade has been updated.',
+        ERROR: 'Error while updating basic trade.'
+    },
+    SAVE_ORDER: {
+        LOADING: 'Creating order trade...',
+        OK: 'The order trade has been created.',
+        ERROR: 'Error while creating order trade.'
+    },
+    UPDATE_ORDER: {
+        LOADING: 'Updating order trade...',
+        OK: 'The order trade has been updated.',
+        ERROR: 'Error while updating order trade.'
+    },
+    CONFIRM_NEGOTIATION: {
+        LOADING: 'Confirming negotiation...',
+        OK: 'The negotiation has been confirmed.',
+        ERROR: 'Error while confirming negotiation.'
+    },
+    SAVE: {
+        LOADING: 'Saving trade...',
+        OK: 'Trade saved successfully.',
+        ERROR: 'Error while saving trade.'
+    }
+};
+export const DOCUMENT_MESSAGE = {
+    UPLOAD: {
+        LOADING: 'Uploading documents...',
+        OK: '',
+        ERROR: 'Error while uploading documents.'
+    },
+    VALIDATE: {
+        LOADING: 'Validating document...',
+        APPROVED: 'The document has been successfully approved.',
+        REJECTED: 'The document has been successfully rejected.',
+        ERROR: 'Error while validating document.'
+    }
+};
+export const ACTION_MESSAGE = {
+    NO_ACTION: '',
+    SIGNATURE_REQUIRED: 'This negotiation needs your sign to proceed.',
+    UPLOAD_REQUIRED: 'You have to upload some documents.',
+    VALIDATION_REQUIRED: 'This negotiation needs your sign to proceed.'
+};

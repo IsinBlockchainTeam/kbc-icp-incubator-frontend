@@ -1,35 +1,33 @@
-import { BasicTradePresentable } from '@/api/types/TradePresentable';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
-import { BasicTrade, DocumentType, LineRequest } from '@kbc-lib/coffee-trading-management-lib';
+import { BasicTrade, LineRequest } from '@kbc-lib/coffee-trading-management-lib';
 import { Tooltip } from 'antd';
 import { CheckCircleOutlined, EditOutlined } from '@ant-design/icons';
 import React from 'react';
 import { BasicTradeRequest } from '@/api/types/TradeRequest';
 import { paths } from '@/constants/paths';
 import { useNavigate } from 'react-router-dom';
-import useTrade from '@/hooks/useTrade';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
+import { useEthTrade } from '@/providers/entities/EthTradeProvider';
 
 type BasicTradeViewProps = {
-    basicTradePresentable: BasicTradePresentable;
+    basicTrade: BasicTrade;
     disabled: boolean;
     toggleDisabled: () => void;
     commonElements: FormElement[];
 };
 export const BasicTradeView = ({
-    basicTradePresentable,
+    basicTrade,
     disabled,
     toggleDisabled,
     commonElements
 }: BasicTradeViewProps) => {
     const { productCategories } = useEthMaterial();
     const { units } = useEthEnumerable();
-    const { updateBasicTrade, confirmNegotiation } = useTrade();
+    const { updateBasicTrade, confirmNegotiation, getBasicTradeDocuments } = useEthTrade();
     const navigate = useNavigate();
     const documentHeight = '45vh';
-    const basicTrade = basicTradePresentable.trade as BasicTrade;
 
     const onSubmit = async (values: any) => {
         const quantity: number = parseInt(values[`quantity-1`]);
@@ -69,7 +67,8 @@ export const BasicTradeView = ({
             required: false,
             loading: false,
             uploadable: !disabled,
-            info: basicTradePresentable.documents.get(DocumentType.DELIVERY_NOTE),
+            // TODO: Fix this
+            // info: getBasicTradeDocuments(basicTrade.tradeId),
             height: documentHeight
         },
         { type: FormElementType.TITLE, span: 24, label: 'Line Item' }

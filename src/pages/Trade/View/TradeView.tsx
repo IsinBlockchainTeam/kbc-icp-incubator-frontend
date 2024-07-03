@@ -1,40 +1,35 @@
-import React, { useEffect, useState } from 'react';
-import { TradeType } from '@kbc-lib/coffee-trading-management-lib';
+import React, { useState } from 'react';
+import { BasicTrade, OrderTrade, TradeType } from '@kbc-lib/coffee-trading-management-lib';
 import { FormElement, FormElementType } from '@/components/GenericForm/GenericForm';
-import { BasicTradePresentable, OrderTradePresentable } from '@/api/types/TradePresentable';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import useTrade from '@/hooks/useTrade';
-import useActorName from '@/hooks/useActorName';
 import OrderTradeView from '@/pages/Trade/View/OrderTradeView';
 import { BasicTradeView } from '@/pages/Trade/View/BasicTradeView';
 import { paths } from '@/constants/paths';
+import { useICPName } from '@/providers/entities/ICPNameProvider';
+import { useEthTrade } from '@/providers/entities/EthTradeProvider';
 
 export const TradeView = () => {
     const { id } = useParams();
     const location = useLocation();
     const navigate = useNavigate();
 
-    const [areNamesReady, setAreNamesReady] = useState<boolean>(false);
-    const [supplierName, setSupplierName] = useState<string>('Unknown');
-    const [commissionerName, setCommissionerName] = useState<string>('Unknown');
-
-    const type = parseInt(new URLSearchParams(location.search).get('type')!);
-    const { getActorName } = useActorName();
-    const { loadTrade, tradeLoaded, trade } = useTrade();
+    const { getName } = useICPName();
+    const { basicTrades, orderTrades } = useEthTrade();
     const [disabled, setDisabled] = useState<boolean>(true);
 
-    useEffect(() => {
-        loadTrade(parseInt(id || ''));
-        fetchNames();
-    }, [trade]);
+    const type = parseInt(new URLSearchParams(location.search).get('type')!);
+    const trade =
+        type === TradeType.ORDER
+            ? orderTrades.find((t) => t.tradeId === parseInt(id || ''))
+            : basicTrades.find((t) => t.tradeId === parseInt(id || ''));
 
-    const fetchNames = async () => {
-        if (trade) {
-            setSupplierName(await getActorName(trade.trade.supplier));
-            setCommissionerName(await getActorName(trade.trade.commissioner));
-            setAreNamesReady(true);
-        }
-    };
+    if (!Object.values(TradeType).includes(type)) {
+        navigate(paths.HOME);
+    }
+    if (!trade) return <div>Trade not available</div>;
+
+    const supplierName = getName(trade.supplier);
+    const commissionerName = getName(trade.commissioner);
 
     const toggleDisabled = () => {
         setDisabled((d) => !d);
@@ -71,19 +66,10 @@ export const TradeView = () => {
         }
     ];
 
-    if (!Object.values(TradeType).includes(type)) {
-        navigate(paths.HOME);
-    }
-    if (!tradeLoaded || !areNamesReady) {
-        return <></>;
-    }
-    if (!trade) {
-        return <div>Trade not available</div>;
-    }
     if (type === TradeType.ORDER) {
         return (
             <OrderTradeView
-                orderTradePresentable={trade as OrderTradePresentable}
+                orderTrade={trade as OrderTrade}
                 disabled={disabled}
                 toggleDisabled={toggleDisabled}
                 commonElements={elements}
@@ -92,7 +78,7 @@ export const TradeView = () => {
     }
     return (
         <BasicTradeView
-            basicTradePresentable={trade as BasicTradePresentable}
+            basicTrade={trade as BasicTrade}
             disabled={disabled}
             toggleDisabled={toggleDisabled}
             commonElements={elements}

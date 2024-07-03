@@ -1,44 +1,28 @@
 import { FormElement, FormElementType } from '@/components/GenericForm/GenericForm';
 import { TradeType } from '@kbc-lib/coffee-trading-management-lib';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { paths } from '@/constants/paths';
 import { SignerContext } from '@/providers/SignerProvider';
-import useActorName from '@/hooks/useActorName';
 import { BasicTradeNew } from '@/pages/Trade/New/BasicTradeNew';
 import { OrderTradeNew } from '@/pages/Trade/New/OrderTradeNew';
+import { useICPName } from '@/providers/entities/ICPNameProvider';
 
 export const TradeNew = () => {
     const { signer } = useContext(SignerContext);
-    const { getActorName } = useActorName();
-
     const navigate = useNavigate();
-    const location = useLocation();
 
-    const [areNamesReady, setAreNamesReady] = useState<boolean>(false);
-    const [supplierName, setSupplierName] = useState<string>('Unknown');
-    const [commissionerName, setCommissionerName] = useState<string>('Unknown');
+    const location = useLocation();
+    const { getName } = useICPName();
 
     const type = TradeType.ORDER;
+
     const elements: FormElement[] = [];
-
     const supplierAddress: string = location?.state?.supplierAddress;
-    const customerAddress: string = signer?.address;
+    const customerAddress: string = signer.address;
     const productCategoryId: number = location?.state?.productCategoryId;
-
-    useEffect(() => {
-        fetchNames();
-    }, []);
-
-    const fetchNames = async () => {
-        setSupplierName(await getActorName(location?.state?.supplierAddress));
-        setCommissionerName(await getActorName(signer?.address));
-        setAreNamesReady(true);
-    };
-
-    if (!areNamesReady) {
-        return <></>;
-    }
+    const supplierName = getName(supplierAddress);
+    const commissionerName = getName(customerAddress);
 
     elements.push(
         { type: FormElementType.TITLE, span: 24, label: 'Actors' },

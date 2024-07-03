@@ -153,13 +153,16 @@ export class EthTradeService {
         )
             return 'This negotiation needs your sign to proceed';
 
+        // TODO: Mettere in document provider
         const requiredDocumentsTypes = this._getRequiredDocumentsTypes(orderStatus);
         if (requiredDocumentsTypes.length === 0) return undefined;
 
+        // TODO: Mettere in trade provider
         const designatedPartyAddress = await this._getDesignatedPartyAddress(
             orderStatus,
             orderTrade
         );
+        // TODO: Mettere in document provider
         const documentsInfoMapByType = await this._getDocumentsInfoMapByTypes(
             tradeId,
             requiredDocumentsTypes

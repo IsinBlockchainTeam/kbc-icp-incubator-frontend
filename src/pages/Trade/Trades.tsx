@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
 import { Table, Tag, Tooltip } from 'antd';
 import { CheckCircleOutlined, ExclamationCircleOutlined, SettingOutlined } from '@ant-design/icons';
@@ -8,18 +8,31 @@ import { Link } from 'react-router-dom';
 import { NegotiationStatus, OrderStatus, TradeType } from '@kbc-lib/coffee-trading-management-lib';
 import { setParametersPath } from '@/utils/page';
 import { paths } from '@/constants/paths';
-import useTrade from '@/hooks/useTrade';
+import { useEthTrade } from '@/providers/entities/EthTradeProvider';
+import { useICPName } from '@/providers/entities/ICPNameProvider';
 
 export const Trades = () => {
-    const { loadTrades, tradesLoaded, trades } = useTrade();
+    const { basicTrades, orderTrades, getActionRequired, getNegotiationStatus, getOrderStatus } =
+        useEthTrade();
+    const { getName } = useICPName();
 
-    useEffect(() => {
-        if (!tradesLoaded) loadTrades();
-    }, [tradesLoaded]);
-
-    if (!tradesLoaded) {
-        return <></>;
-    }
+    const tradesPresentable: TradePreviewPresentable[] = basicTrades.map((t) => ({
+        id: t.tradeId,
+        supplier: getName(t.supplier),
+        commissioner: getName(t.commissioner),
+        type: TradeType.BASIC
+    }));
+    tradesPresentable.push(
+        ...orderTrades.map((o) => ({
+            id: o.tradeId,
+            supplier: getName(o.supplier),
+            commissioner: getName(o.commissioner),
+            type: TradeType.ORDER,
+            actionRequired: getActionRequired(o.tradeId),
+            negotiationStatus: getNegotiationStatus(o.tradeId),
+            orderStatus: getOrderStatus(o.tradeId)
+        }))
+    );
 
     const columns: ColumnsType<TradePreviewPresentable> = [
         {
@@ -102,7 +115,7 @@ export const Trades = () => {
                     Trades
                 </div>
             }>
-            <Table columns={columns} dataSource={trades} />
+            <Table columns={columns} dataSource={tradesPresentable} />
         </CardPage>
     );
 };

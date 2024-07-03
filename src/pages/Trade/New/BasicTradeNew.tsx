@@ -9,9 +9,9 @@ import { regex } from '@/utils/regex';
 import { LineRequest, DocumentType } from '@kbc-lib/coffee-trading-management-lib';
 import { BasicTradeRequest } from '@/api/types/TradeRequest';
 import { DocumentRequest } from '@/api/types/DocumentRequest';
-import useTrade from '@/hooks/useTrade';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
+import { useEthTrade } from '@/providers/entities/EthTradeProvider';
 
 type BasicTradeNewProps = {
     supplierAddress: string;
@@ -25,7 +25,7 @@ export const BasicTradeNew = ({
     productCategoryId,
     commonElements
 }: BasicTradeNewProps) => {
-    const { saveBasicTrade } = useTrade();
+    const { saveBasicTrade } = useEthTrade();
     const { productCategories } = useEthMaterial();
     const { units } = useEthEnumerable();
 

@@ -5,36 +5,33 @@ import {
     DocumentStatus,
     OrderLineRequest,
     OrderLinePrice,
-    OrderLine,
-    OrderStatus
+    OrderLine
 } from '@kbc-lib/coffee-trading-management-lib';
 import { Tag, Tooltip } from 'antd';
 import OrderStatusSteps from '@/pages/Trade/OrderStatusSteps/OrderStatusSteps';
-import { DetailedTradePresentable, OrderTradePresentable } from '@/api/types/TradePresentable';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
 import React, { useContext, useState } from 'react';
 import { FormElement, FormElementType } from '@/components/GenericForm/GenericForm';
 import { regex } from '@/utils/regex';
 import dayjs from 'dayjs';
 import { SignerContext } from '@/providers/SignerProvider';
-import useDocument from '@/hooks/useDocument';
 import { OrderTradeRequest } from '@/api/types/TradeRequest';
 import { paths } from '@/constants/paths';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircleOutlined, EditOutlined, RollbackOutlined } from '@ant-design/icons';
 import { validateDates } from '@/utils/date';
-import useTrade from '@/hooks/useTrade';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
+import { useEthTrade } from '@/providers/entities/EthTradeProvider';
 
 type OrderTradeViewProps = {
-    orderTradePresentable: OrderTradePresentable;
+    orderTrade: OrderTrade;
     disabled: boolean;
     toggleDisabled: () => void;
     commonElements: FormElement[];
 };
 export const OrderTradeView = ({
-    orderTradePresentable,
+    orderTrade,
     disabled,
     toggleDisabled,
     commonElements
@@ -43,10 +40,13 @@ export const OrderTradeView = ({
     const { signer } = useContext(SignerContext);
     const { productCategories } = useEthMaterial();
     const { units, fiats } = useEthEnumerable();
-    const { updateOrderTrade, confirmNegotiation } = useTrade();
-    const { validateDocument } = useDocument();
-
-    const orderTrade = orderTradePresentable.trade as OrderTrade;
+    const {
+        updateOrderTrade,
+        confirmNegotiation,
+        getOrderStatus,
+        validateOrderDocument,
+        getOrderRequiredDocuments
+    } = useEthTrade();
     const negotiationStatus = NegotiationStatus[orderTrade.negotiationStatus];
     const navigate = useNavigate();
 
@@ -59,20 +59,26 @@ export const OrderTradeView = ({
         return current && current <= dayjs().endOf('day');
     };
 
-    const validationCallback = (
-        tradeInfo: DetailedTradePresentable | undefined,
-        documentType: DocumentType
-    ) => {
-        if (!tradeInfo) return undefined;
-        const doc = tradeInfo.documents.get(documentType);
-        return doc &&
-            doc.status === DocumentStatus.NOT_EVALUATED &&
-            doc.uploadedBy !== signer?.address
+    const validationCallback = (orderTrade: OrderTrade | null, documentType: DocumentType) => {
+        if (!orderTrade) return undefined;
+        const resp = getOrderRequiredDocuments(orderTrade.tradeId).get(documentType);
+        if (!resp) return undefined;
+        const [documentInfo, documentStatus] = resp;
+        return documentStatus === DocumentStatus.NOT_EVALUATED &&
+            documentInfo.uploadedBy !== signer?.address
             ? {
                   approve: () =>
-                      validateDocument(tradeInfo.trade.tradeId, doc.id, DocumentStatus.APPROVED),
+                      validateOrderDocument(
+                          orderTrade.tradeId,
+                          documentInfo.id,
+                          DocumentStatus.APPROVED
+                      ),
                   reject: () =>
-                      validateDocument(tradeInfo.trade.tradeId, doc.id, DocumentStatus.NOT_APPROVED)
+                      validateOrderDocument(
+                          orderTrade.tradeId,
+                          documentInfo.id,
+                          DocumentStatus.NOT_APPROVED
+                      )
               }
             : undefined;
     };
@@ -381,16 +387,14 @@ export const OrderTradeView = ({
                         <Tag color="green">
                             {negotiationStatus !== NegotiationStatus[NegotiationStatus.CONFIRMED]
                                 ? negotiationStatus.toUpperCase()
-                                : OrderStatus[orderTradePresentable.status]
-                                      .toString()
-                                      .toUpperCase()}
+                                : getOrderStatus(orderTrade.tradeId).toString().toUpperCase()}
                         </Tag>
                     </div>
                 </div>
             }>
             <OrderStatusSteps
-                status={orderTradePresentable.status}
-                orderInfo={orderTradePresentable}
+                status={getOrderStatus(orderTrade.tradeId)}
+                orderTrade={orderTrade}
                 submittable={!disabled}
                 negotiationElements={elements}
                 validationCallback={validationCallback}

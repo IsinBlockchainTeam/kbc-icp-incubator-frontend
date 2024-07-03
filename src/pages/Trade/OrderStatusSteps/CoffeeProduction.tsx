@@ -1,32 +1,33 @@
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
 import React, { ReactNode } from 'react';
-import { OrderStatus, DocumentType } from '@kbc-lib/coffee-trading-management-lib';
-import { DetailedTradePresentable, OrderTradePresentable } from '@/api/types/TradePresentable';
-import useDocument from '@/hooks/useDocument';
+import { OrderStatus, DocumentType, OrderTrade } from '@kbc-lib/coffee-trading-management-lib';
 import TradeDutiesWaiting, { DutiesWaiting } from '@/pages/Trade/TradeDutiesWaiting';
+import { useEthDocument } from '@/providers/entities/EthDocumentProvider';
+import { useEthTrade } from '@/providers/entities/EthTradeProvider';
 
 type Props = {
-    orderInfo: OrderTradePresentable;
+    orderTrade: OrderTrade;
     onSubmit: (values: any) => void;
     stepLabelTip: (message: ReactNode, deadline: number, status: OrderStatus) => ReactNode;
     validationCallback: (
-        tradeInfo: DetailedTradePresentable | undefined,
+        orderTrade: OrderTrade | null,
         documentType: DocumentType
     ) => undefined | { approve: () => Promise<void>; reject: () => Promise<void> };
     isDocumentUploadable: (
         designatedPartyAddress: string,
-        tradeInfo: DetailedTradePresentable,
+        orderTrade: OrderTrade,
         documentType: DocumentType
     ) => boolean;
 };
 export const CoffeeProduction = ({
-    orderInfo,
+    orderTrade,
     onSubmit,
     stepLabelTip,
     validationCallback,
     isDocumentUploadable
 }: Props) => {
-    const { hasAllRequiredDocuments } = useDocument();
+    const { hasAllRequiredDocuments, getRequiredDocumentsTypes } = useEthDocument();
+    const { getOrderStatus } = useEthTrade();
 
     const hasPendingDuties = false;
 
@@ -41,7 +42,7 @@ export const CoffeeProduction = ({
                     This operation allows coffee production to be started and planned only against a
                     guarantee deposit from the importer
                 </p>,
-                orderInfo.trade.paymentDeadline,
+                orderTrade.paymentDeadline,
                 OrderStatus.PRODUCTION
             ),
             marginVertical: '1rem'
@@ -54,16 +55,25 @@ export const CoffeeProduction = ({
             required: true,
             loading: false,
             uploadable: isDocumentUploadable(
-                orderInfo.trade.supplier,
-                orderInfo,
+                orderTrade.supplier,
+                orderTrade,
                 DocumentType.PAYMENT_INVOICE
             ),
-            info: orderInfo.documents.get(DocumentType.PAYMENT_INVOICE),
+            // TODO: fix this
+            // info: orderTrade.documents.get(DocumentType.PAYMENT_INVOICE),
             height: '45vh',
-            validationCallback: validationCallback(orderInfo, DocumentType.PAYMENT_INVOICE)
+            validationCallback: validationCallback(orderTrade, DocumentType.PAYMENT_INVOICE)
         }
     ];
-    if (!hasAllRequiredDocuments(orderInfo, OrderStatus.PRODUCTION)) {
+    if (
+        true
+        // TODO: fix this
+        // !hasAllRequiredDocuments(
+        //     orderTrade,
+        //     getRequiredDocumentsTypes(getOrderStatus(orderTrade.tradeId)),
+        //     OrderStatus.PRODUCTION
+        // )
+    ) {
         return (
             <TradeDutiesWaiting
                 waitingType={DutiesWaiting.EXPORTER_PRODUCTION}

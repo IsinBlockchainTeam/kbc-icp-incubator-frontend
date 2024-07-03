@@ -9,18 +9,18 @@ import {
     DocumentType,
     OrderLineRequest,
     OrderLinePrice,
-    LineRequest
+    LineRequest,
+    OrderTrade
 } from '@kbc-lib/coffee-trading-management-lib';
-import { DetailedTradePresentable } from '@/api/types/TradePresentable';
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { regex } from '@/utils/regex';
 import { OrderTradeRequest } from '@/api/types/TradeRequest';
 import dayjs from 'dayjs';
 import { validateDates } from '@/utils/date';
-import useTrade from '@/hooks/useTrade';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
+import { useEthTrade } from '@/providers/entities/EthTradeProvider';
 
 type OrderTradeNewProps = {
     supplierAddress: string;
@@ -39,7 +39,7 @@ export const OrderTradeNew = ({
 
     const { productCategories } = useEthMaterial();
     const { units, fiats } = useEthEnumerable();
-    const { saveOrderTrade } = useTrade();
+    const { saveOrderTrade } = useEthTrade();
 
     const disabledDate = (current: dayjs.Dayjs): boolean => {
         return current && current <= dayjs().endOf('day');
@@ -89,7 +89,7 @@ export const OrderTradeNew = ({
             shippingPort: values['shipping-port'],
             deliveryPort: values['delivery-port']
         };
-        await saveOrderTrade(orderTrade);
+        await saveOrderTrade(orderTrade, []);
         navigate(paths.TRADES);
     };
 
@@ -303,7 +303,7 @@ export const OrderTradeNew = ({
                 negotiationElements={elements}
                 validationCallback={
                     {} as (
-                        tradeInfo: DetailedTradePresentable | undefined,
+                        orderTrade: OrderTrade | null,
                         documentType: DocumentType
                     ) => undefined | { approve: () => Promise<void>; reject: () => Promise<void> }
                 }
