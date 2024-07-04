@@ -14,10 +14,10 @@ import {
 } from 'antd';
 import PDFViewer from '../PDFViewer/PDFViewer';
 import { DownloadOutlined } from '@ant-design/icons';
-import { DocumentPresentable } from '@/api/types/DocumentPresentable';
 import { FormItemInputProps } from 'antd/es/form/FormItemInput';
-import dayjs from 'dayjs';
 import { createDownloadWindow } from '@/utils/page';
+import { DocumentContent } from '@/providers/entities/EthDocumentProvider';
+import { DocumentStatus } from '@kbc-lib/coffee-trading-management-lib';
 
 export enum FormElementType {
     TITLE = 'title',
@@ -108,7 +108,8 @@ export type DocumentElement = Omit<LabeledElement, 'type'> & {
     uploadable: boolean;
     required: boolean;
     loading: boolean;
-    info?: DocumentPresentable;
+    content?: DocumentContent;
+    status?: DocumentStatus;
     height?: `${number}px` | `${number}%` | `${number}vh` | 'auto';
     validationCallback?: {
         approve: (...args: any[]) => Promise<void>;
@@ -147,8 +148,8 @@ export const GenericForm = (props: Props) => {
         props.elements.forEach((element) => {
             if (element.type === FormElementType.DOCUMENT) {
                 const doc = element as DocumentElement;
-                if (doc?.info?.content) {
-                    documents.set(doc.name, doc.info.content);
+                if (doc?.content?.content) {
+                    documents.set(doc.name, doc.content.content);
                 }
             }
         });
@@ -345,7 +346,8 @@ export const GenericForm = (props: Props) => {
         },
         [FormElementType.DOCUMENT]: (element: FormElement, index: number) => {
             element = element as DocumentElement;
-            const docInfo = element.info!;
+            const docInfo = element.content!;
+            const status = element.status!;
 
             return (
                 <Col
@@ -362,7 +364,7 @@ export const GenericForm = (props: Props) => {
                         <PDFViewer
                             element={element}
                             onDocumentChange={addDocument}
-                            validationStatus={docInfo?.status}
+                            validationStatus={status}
                         />
                         {element.validationCallback && (
                             <Popover

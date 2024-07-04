@@ -5,7 +5,8 @@ import {
     DocumentStatus,
     OrderLineRequest,
     OrderLinePrice,
-    OrderLine
+    OrderLine,
+    OrderStatus
 } from '@kbc-lib/coffee-trading-management-lib';
 import { Tag, Tooltip } from 'antd';
 import OrderStatusSteps from '@/pages/Trade/OrderStatusSteps/OrderStatusSteps';
@@ -386,8 +387,8 @@ export const OrderTradeView = ({
                     <div style={{ display: 'flex', alignItems: 'center' }}>
                         <Tag color="green">
                             {negotiationStatus !== NegotiationStatus[NegotiationStatus.CONFIRMED]
-                                ? negotiationStatus.toUpperCase()
-                                : getOrderStatus(orderTrade.tradeId).toString().toUpperCase()}
+                                ? negotiationStatus
+                                : OrderStatus[getOrderStatus(orderTrade.tradeId)]}
                         </Tag>
                     </div>
                 </div>

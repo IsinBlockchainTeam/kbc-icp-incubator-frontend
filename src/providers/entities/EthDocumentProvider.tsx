@@ -1,13 +1,14 @@
 import { createContext, ReactNode, useContext, useMemo } from 'react';
 import {
-    OrderStatus,
-    DocumentType,
     DocumentDriver,
+    DocumentInfo,
     DocumentService,
     DocumentStatus,
-    TradeService,
+    DocumentType,
+    OrderStatus,
     Trade,
-    DocumentInfo
+    TradeService,
+    TransactionLine
 } from '@kbc-lib/coffee-trading-management-lib';
 import { useSigner } from '@/providers/SignerProvider';
 import { contractAddresses } from '@/constants/evm';
@@ -17,7 +18,41 @@ import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { useDispatch } from 'react-redux';
 import { DOCUMENT_MESSAGE } from '@/constants/message';
+import { getMimeType } from '@/utils/file';
 
+export type DocumentContent = {
+    contentType: string;
+    content: Blob;
+    filename: string;
+    date: Date;
+    transactionLines?: TransactionLine[];
+};
+export type DocumentDetail = {
+    info: DocumentInfo;
+    status: DocumentStatus;
+    content: DocumentContent;
+};
+export type OrderStatusDocument = {
+    [OrderStatus.CONTRACTING]: {};
+    [OrderStatus.PRODUCTION]: {
+        [DocumentType.PAYMENT_INVOICE]: DocumentDetail | null;
+    };
+    [OrderStatus.PAYED]: {
+        [DocumentType.ORIGIN_SWISS_DECODE]: DocumentDetail | null;
+        [DocumentType.WEIGHT_CERTIFICATE]: DocumentDetail | null;
+        [DocumentType.FUMIGATION_CERTIFICATE]: DocumentDetail | null;
+        [DocumentType.PREFERENTIAL_ENTRY_CERTIFICATE]: DocumentDetail | null;
+        [DocumentType.PHYTOSANITARY_CERTIFICATE]: DocumentDetail | null;
+        [DocumentType.INSURANCE_CERTIFICATE]: DocumentDetail | null;
+    };
+    [OrderStatus.EXPORTED]: {
+        [DocumentType.BILL_OF_LADING]: DocumentDetail | null;
+    };
+    [OrderStatus.SHIPPED]: {
+        [DocumentType.COMPARISON_SWISS_DECODE]: DocumentDetail | null;
+    };
+    [OrderStatus.COMPLETED]: {};
+};
 export type EthDocumentContextState = {
     getRequiredDocumentsTypes: (orderStatus: OrderStatus) => DocumentType[];
     validateDocument: (
@@ -31,6 +66,7 @@ export type EthDocumentContextState = {
         documents: Map<DocumentType, [DocumentInfo, DocumentStatus]>,
         orderStatus: OrderStatus
     ) => boolean;
+    getDocumentContent: (documentInfo: DocumentInfo) => Promise<DocumentContent>;
 };
 export const EthDocumentContext = createContext<EthDocumentContextState>(
     {} as EthDocumentContextState
@@ -162,13 +198,29 @@ export function EthDocumentProvider(props: { children: ReactNode }) {
         }
     };
 
+    const getDocumentContent = async (documentInfo: DocumentInfo) => {
+        const completeDocument = await documentService.getCompleteDocument(documentInfo);
+        const blob = new Blob([completeDocument!.content], {
+            type: getMimeType(completeDocument.filename)
+        });
+
+        return {
+            contentType: blob.type,
+            content: blob,
+            filename: completeDocument.filename,
+            date: new Date(completeDocument.date),
+            transactionLines: completeDocument.transactionLines
+        };
+    };
+
     return (
         <EthDocumentContext.Provider
             value={{
                 getRequiredDocumentsTypes,
                 validateDocument,
                 uploadDocuments,
-                hasAllRequiredDocuments
+                hasAllRequiredDocuments,
+                getDocumentContent
             }}>
             {props.children}
         </EthDocumentContext.Provider>

@@ -63,7 +63,7 @@ describe('PDFViewer', () => {
         label: 'Document 1',
         required: true,
         uploadable: true,
-        info: {
+        content: {
             content: mockedFile
         } as DocumentPresentable,
         loading: false
@@ -94,7 +94,7 @@ describe('PDFViewer', () => {
     it('should render correctly with no content', () => {
         const emptyElement: FormElement = {
             ...element,
-            info: undefined
+            content: undefined
         };
         const tree = render(<PDFViewer element={emptyElement} onDocumentChange={jest.fn()} />);
 

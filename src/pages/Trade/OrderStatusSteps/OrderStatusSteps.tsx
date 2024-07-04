@@ -29,7 +29,7 @@ import {
     serial,
     TradeType
 } from '@kbc-lib/coffee-trading-management-lib';
-import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
+import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
 import { DocumentRequest } from '@/api/types/DocumentRequest';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { useDispatch, useSelector } from 'react-redux';
@@ -97,7 +97,7 @@ export default function OrderStatusSteps(props: Props) {
     ): Promise<void> => {
         try {
             if (!orderTrade) return;
-            dispatch(showLoading('Documents uploading...'));
+            dispatch(addLoadingMessage('Documents uploading...'));
             await serial(
                 documents.map((doc) => async () => {
                     if (!values[doc.valueName] || !values[doc.valueName].name) return;
@@ -140,7 +140,7 @@ export default function OrderStatusSteps(props: Props) {
             console.log('error: ', e);
             openNotification('Error', e.message, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
-            dispatch(hideLoading());
+            dispatch(removeLoadingMessage('Documents uploading...'));
         }
     };
 
@@ -149,11 +149,13 @@ export default function OrderStatusSteps(props: Props) {
         orderTrade: OrderTrade,
         documentType: DocumentType
     ): boolean => {
-        const resp = getOrderRequiredDocuments(orderTrade.tradeId).get(documentType);
+        const resp = getOrderRequiredDocuments(orderTrade.tradeId).has(documentType);
         if (!resp) return false;
-        const [_, documentStatus] = resp;
+        const result = getOrderRequiredDocuments(orderTrade.tradeId).get(documentType);
+        if (!result) return true;
+        const [_, documentStatus] = result;
         return (
-            signer?.address === designatedPartyAddress && documentStatus !== DocumentStatus.APPROVED
+            signer.address === designatedPartyAddress && documentStatus !== DocumentStatus.APPROVED
         );
     };
 
@@ -161,7 +163,7 @@ export default function OrderStatusSteps(props: Props) {
         try {
             if (!orderTrade) return Promise.reject('Order trade not found');
             const recipientCompanyName =
-                orderTrade.supplier === signer?.address
+                orderTrade.supplier === signer.address
                     ? await getNameByDID(`${DID_METHOD}:${orderTrade.commissioner}`)
                     : await getNameByDID(`${DID_METHOD}:${orderTrade.supplier}`);
             const response = await fetch(`${requestPath.EMAIL_SENDER_URL}/email/deadline-expired`, {
@@ -188,7 +190,6 @@ export default function OrderStatusSteps(props: Props) {
         } catch (e: any) {
             openNotification('Error', e.message, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
-            dispatch(hideLoading());
             navigate(paths.TRADES);
         }
     };
@@ -295,7 +296,47 @@ export default function OrderStatusSteps(props: Props) {
                 { elements: FormElement[]; onSubmit: (values: any) => Promise<void> }
             >()
                 .set(OrderStatus.PRODUCTION, {
-                    elements: [],
+                    elements: [
+                        {
+                            type: FormElementType.TIP,
+                            span: 24,
+                            label: stepLabelTip(
+                                <p>
+                                    At this stage, the exporter has to load a payment invoice for
+                                    the goods that have been negotiated. <br />
+                                    This operation allows coffee production to be started and
+                                    planned only against a guarantee deposit from the importer
+                                </p>,
+                                orderTrade.paymentDeadline,
+                                OrderStatus.PRODUCTION
+                            ),
+                            marginVertical: '1rem'
+                        },
+                        {
+                            type: FormElementType.DOCUMENT,
+                            span: 12,
+                            name: 'payment-invoice',
+                            label: documentTypesLabel.get(DocumentType.PAYMENT_INVOICE)!,
+                            required: true,
+                            loading: false,
+                            uploadable: isDocumentUploadable(
+                                orderTrade.supplier,
+                                orderTrade,
+                                DocumentType.PAYMENT_INVOICE
+                            ),
+                            content: getOrderRequiredDocuments(orderTrade.tradeId).get(
+                                DocumentType.PAYMENT_INVOICE
+                            )?.[2],
+                            status: getOrderRequiredDocuments(orderTrade.tradeId).get(
+                                DocumentType.PAYMENT_INVOICE
+                            )?.[1],
+                            height: documentHeight,
+                            validationCallback: props.validationCallback(
+                                orderTrade,
+                                DocumentType.PAYMENT_INVOICE
+                            )
+                        }
+                    ],
                     onSubmit: (values: any) =>
                         submitDocuments(values, [
                             {
@@ -333,10 +374,12 @@ export default function OrderStatusSteps(props: Props) {
                                 orderTrade,
                                 DocumentType.ORIGIN_SWISS_DECODE
                             ),
-                            // TODO: fix this
-                            // info: getOrderRequiredDocuments(orderTrade.tradeId).get(
-                            //     DocumentType.ORIGIN_SWISS_DECODE
-                            // ),
+                            content: getOrderRequiredDocuments(orderTrade.tradeId).get(
+                                DocumentType.ORIGIN_SWISS_DECODE
+                            )?.[2],
+                            status: getOrderRequiredDocuments(orderTrade.tradeId).get(
+                                DocumentType.ORIGIN_SWISS_DECODE
+                            )?.[1],
                             height: documentHeight,
                             validationCallback: props.validationCallback(
                                 orderTrade,
@@ -355,10 +398,12 @@ export default function OrderStatusSteps(props: Props) {
                                 orderTrade,
                                 DocumentType.WEIGHT_CERTIFICATE
                             ),
-                            // TODO: fix this
-                            // info: getOrderRequiredDocuments(orderTrade.tradeId).get(
-                            //     DocumentType.WEIGHT_CERTIFICATE
-                            // ),
+                            content: getOrderRequiredDocuments(orderTrade.tradeId).get(
+                                DocumentType.WEIGHT_CERTIFICATE
+                            )?.[2],
+                            status: getOrderRequiredDocuments(orderTrade.tradeId).get(
+                                DocumentType.WEIGHT_CERTIFICATE
+                            )?.[1],
                             height: documentHeight,
                             validationCallback: props.validationCallback(
                                 orderTrade,
@@ -377,10 +422,12 @@ export default function OrderStatusSteps(props: Props) {
                                 orderTrade,
                                 DocumentType.FUMIGATION_CERTIFICATE
                             ),
-                            // TODO: fix this
-                            // info: getOrderRequiredDocuments(orderTrade.tradeId).get(
-                            //     DocumentType.FUMIGATION_CERTIFICATE
-                            // ),
+                            content: getOrderRequiredDocuments(orderTrade.tradeId).get(
+                                DocumentType.FUMIGATION_CERTIFICATE
+                            )?.[2],
+                            status: getOrderRequiredDocuments(orderTrade.tradeId).get(
+                                DocumentType.FUMIGATION_CERTIFICATE
+                            )?.[1],
                             height: documentHeight,
                             validationCallback: props.validationCallback(
                                 orderTrade,
@@ -401,10 +448,12 @@ export default function OrderStatusSteps(props: Props) {
                                 orderTrade,
                                 DocumentType.PREFERENTIAL_ENTRY_CERTIFICATE
                             ),
-                            // TODO: fix this
-                            // info: getOrderRequiredDocuments(orderTrade.tradeId).get(
-                            //     DocumentType.PREFERENTIAL_ENTRY_CERTIFICATE
-                            // ),
+                            content: getOrderRequiredDocuments(orderTrade.tradeId).get(
+                                DocumentType.PREFERENTIAL_ENTRY_CERTIFICATE
+                            )?.[2],
+                            status: getOrderRequiredDocuments(orderTrade.tradeId).get(
+                                DocumentType.PREFERENTIAL_ENTRY_CERTIFICATE
+                            )?.[1],
                             height: documentHeight,
                             validationCallback: props.validationCallback(
                                 orderTrade,
@@ -423,10 +472,12 @@ export default function OrderStatusSteps(props: Props) {
                                 orderTrade,
                                 DocumentType.PHYTOSANITARY_CERTIFICATE
                             ),
-                            // TODO: fix this
-                            // info: getOrderRequiredDocuments(orderTrade.tradeId).get(
-                            //     DocumentType.PHYTOSANITARY_CERTIFICATE
-                            // ),
+                            content: getOrderRequiredDocuments(orderTrade.tradeId).get(
+                                DocumentType.PHYTOSANITARY_CERTIFICATE
+                            )?.[2],
+                            status: getOrderRequiredDocuments(orderTrade.tradeId).get(
+                                DocumentType.PHYTOSANITARY_CERTIFICATE
+                            )?.[1],
                             height: documentHeight,
                             validationCallback: props.validationCallback(
                                 orderTrade,
@@ -445,10 +496,12 @@ export default function OrderStatusSteps(props: Props) {
                                 orderTrade,
                                 DocumentType.INSURANCE_CERTIFICATE
                             ),
-                            // TODO: fix this
-                            // info: getOrderRequiredDocuments(orderTrade.tradeId).get(
-                            //     DocumentType.INSURANCE_CERTIFICATE
-                            // ),
+                            content: getOrderRequiredDocuments(orderTrade.tradeId).get(
+                                DocumentType.INSURANCE_CERTIFICATE
+                            )?.[2],
+                            status: getOrderRequiredDocuments(orderTrade.tradeId).get(
+                                DocumentType.INSURANCE_CERTIFICATE
+                            )?.[1],
                             height: documentHeight,
                             validationCallback: props.validationCallback(
                                 orderTrade,
@@ -513,8 +566,12 @@ export default function OrderStatusSteps(props: Props) {
                                 orderTrade,
                                 DocumentType.BILL_OF_LADING
                             ),
-                            // TODO: fix this
-                            // info: getOrderRequiredDocuments(orderTrade.tradeId).get(DocumentType.BILL_OF_LADING),
+                            content: getOrderRequiredDocuments(orderTrade.tradeId).get(
+                                DocumentType.BILL_OF_LADING
+                            )?.[2],
+                            status: getOrderRequiredDocuments(orderTrade.tradeId).get(
+                                DocumentType.BILL_OF_LADING
+                            )?.[1],
                             height: documentHeight,
                             validationCallback: props.validationCallback(
                                 orderTrade,
@@ -559,10 +616,12 @@ export default function OrderStatusSteps(props: Props) {
                                 orderTrade,
                                 DocumentType.COMPARISON_SWISS_DECODE
                             ),
-                            // TODO: fix this
-                            // info: getOrderRequiredDocuments(orderTrade.tradeId).get(
-                            //     DocumentType.COMPARISON_SWISS_DECODE
-                            // ),
+                            content: getOrderRequiredDocuments(orderTrade.tradeId).get(
+                                DocumentType.COMPARISON_SWISS_DECODE
+                            )?.[2],
+                            status: getOrderRequiredDocuments(orderTrade.tradeId).get(
+                                DocumentType.COMPARISON_SWISS_DECODE
+                            )?.[1],
                             height: documentHeight,
                             validationCallback: props.validationCallback(
                                 orderTrade,
@@ -604,7 +663,7 @@ export default function OrderStatusSteps(props: Props) {
             ): boolean =>
                 documentTypes.some((docType) => orderTradeDocuments.has(docType))
                     ? true
-                    : signer?.address === designatedPartyAddress;
+                    : signer.address === designatedPartyAddress;
 
             switch (orderStatus) {
                 case OrderStatus.PRODUCTION:
@@ -639,16 +698,16 @@ export default function OrderStatusSteps(props: Props) {
                 docTypes: DocumentType[],
                 statuses: DocumentStatus[]
             ): boolean =>
-                signer?.address !== designatedPartyAddress
+                signer.address !== designatedPartyAddress
                     ? false
-                    : docTypes.some((docType) =>
-                          statuses.some((status) =>
-                              orderTradeDocuments.has(docType)
-                                  ? orderTradeDocuments.get(docType)?.[1] === status
-                                  : true
-                          )
-                      );
-
+                    : docTypes.some((docType) => {
+                          const documentIsRequired = orderTradeDocuments.has(docType);
+                          if (!documentIsRequired) return false;
+                          const result = orderTradeDocuments.get(docType);
+                          if (!result) return true;
+                          const [_, documentStatus] = result;
+                          return statuses.includes(documentStatus);
+                      });
             switch (orderStatus) {
                 case OrderStatus.PRODUCTION:
                     return checkDocumentStatuses(
