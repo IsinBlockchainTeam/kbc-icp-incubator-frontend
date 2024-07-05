@@ -15,6 +15,11 @@ This package is written in TypeScript.
 -   [Coffee Trading Management Lib](https://gitlab-core.supsi.ch/dti-isin/giuliano.gremlich/blockchain/one-lib-to-rule-them-all/coffee-trading-management-lib) project up and running
 -   [VC Manager](https://gitlab-core.supsi.ch/dti-isin/giuliano.gremlich/blockchain/coffe-trading/vc-manager) project up and running
 
+Before you can run this web application, you need to gain access to the necessary libraries and the mobile application. These are currently private due to security and development reasons.
+
+## Requesting Access
+If you wish to run this web application, please send an email to **isin-blockchain@supsi.ch** requesting access to the necessary libraries and the mobile application. Your request will be evaluated and you will be granted access if deemed appropriate.
+
 ## Getting Started
 
 1. First, ensure you have configured and run the ['One Lib To Rule Them All'](https://gitlab-core.supsi.ch/dti-isin/giuliano.gremlich/blockchain/one_lib_to_rule_them_all) ICP network, [Coffee Trading Management Lib](https://gitlab-core.supsi.ch/dti-isin/giuliano.gremlich/blockchain/one-lib-to-rule-them-all/coffee-trading-management-lib) Ethereum network and the [VC Manager](https://gitlab-core.supsi.ch/dti-isin/giuliano.gremlich/blockchain/coffe-trading/vc-manager) projects
