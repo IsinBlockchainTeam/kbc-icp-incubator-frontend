@@ -6,11 +6,9 @@ import { paths } from '@/constants/paths';
 import OrderStatusSteps from '@/pages/Trade/OrderStatusSteps/OrderStatusSteps';
 import {
     OrderStatus,
-    DocumentType,
     OrderLineRequest,
     OrderLinePrice,
-    LineRequest,
-    OrderTrade
+    LineRequest
 } from '@kbc-lib/coffee-trading-management-lib';
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -301,12 +299,6 @@ export const OrderTradeNew = ({
                 status={OrderStatus.CONTRACTING}
                 submittable={true}
                 negotiationElements={elements}
-                validationCallback={
-                    {} as (
-                        orderTrade: OrderTrade | null,
-                        documentType: DocumentType
-                    ) => undefined | { approve: () => Promise<void>; reject: () => Promise<void> }
-                }
                 onSubmit={onSubmit}
             />
         </CardPage>

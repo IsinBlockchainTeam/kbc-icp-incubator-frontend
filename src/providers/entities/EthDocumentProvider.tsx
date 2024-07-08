@@ -7,7 +7,6 @@ import {
     DocumentType,
     OrderStatus,
     OrderTradeService,
-    Trade,
     TradeService,
     TransactionLine
 } from '@kbc-lib/coffee-trading-management-lib';
@@ -66,11 +65,6 @@ export type EthDocumentContextState = {
         externalUrl: string,
         tradeService: TradeService
     ) => Promise<void>;
-    hasAllRequiredDocuments: (
-        trade: Trade,
-        documents: Map<DocumentType, [DocumentInfo, DocumentStatus]>,
-        orderStatus: OrderStatus
-    ) => boolean;
     getDocumentDuty: (
         uploaderAddress: string,
         approverAddress: string,
@@ -204,40 +198,6 @@ export function EthDocumentProvider(props: { children: ReactNode }) {
         return documentDetailMap;
     };
 
-    const hasAllRequiredDocuments = (
-        trade: Trade,
-        documents: Map<DocumentType, [DocumentInfo, DocumentStatus] | null>,
-        orderStatus: OrderStatus
-    ) => {
-        const hasDocuments = (
-            designatedPartyAddress: string,
-            documentTypes: DocumentType[]
-        ): boolean =>
-            documentTypes.some((docType) => documents.has(docType))
-                ? true
-                : signer.address === designatedPartyAddress;
-
-        switch (orderStatus) {
-            case OrderStatus.PRODUCTION:
-                return hasDocuments(trade.supplier, [DocumentType.PAYMENT_INVOICE]);
-            case OrderStatus.PAYED:
-                return hasDocuments(trade.supplier, [
-                    DocumentType.ORIGIN_SWISS_DECODE,
-                    DocumentType.WEIGHT_CERTIFICATE,
-                    DocumentType.FUMIGATION_CERTIFICATE,
-                    DocumentType.PREFERENTIAL_ENTRY_CERTIFICATE,
-                    DocumentType.PHYTOSANITARY_CERTIFICATE,
-                    DocumentType.INSURANCE_CERTIFICATE
-                ]);
-            case OrderStatus.EXPORTED:
-                return hasDocuments(trade.supplier, [DocumentType.BILL_OF_LADING]);
-            case OrderStatus.SHIPPED:
-                return hasDocuments(trade.commissioner, [DocumentType.COMPARISON_SWISS_DECODE]);
-            default:
-                return true;
-        }
-    };
-
     const validateDocument = async (
         documentId: number,
         validationStatus: DocumentStatus,
@@ -334,7 +294,6 @@ export function EthDocumentProvider(props: { children: ReactNode }) {
                 getDocumentDetailMap,
                 validateDocument,
                 uploadDocument,
-                hasAllRequiredDocuments,
                 getDocumentDuty
             }}>
             {props.children}

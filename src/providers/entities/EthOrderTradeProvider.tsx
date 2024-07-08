@@ -33,6 +33,7 @@ import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { RootState } from '@/redux/store';
 import {
     DOCUMENT_DUTY,
+    DocumentDetail,
     DocumentDetailMap,
     useEthDocument
 } from '@/providers/entities/EthDocumentProvider';
@@ -45,10 +46,15 @@ export type EthOrderTradeContextState = {
         orderTradeRequest: OrderTradeRequest,
         documentRequests: DocumentRequest[]
     ) => Promise<void>;
-    updateOrderTrade: (tradeId: number, orderTradeRequest: OrderTradeRequest) => Promise<void>;
+    updateOrderTrade: (orderId: number, orderTradeRequest: OrderTradeRequest) => Promise<void>;
     getActionRequired: (orderId: number) => string;
     getNegotiationStatus: (orderId: number) => NegotiationStatus;
-    getOrderDocumentDetailMap: (orderId: number) => DocumentDetailMap;
+    getRequiredDocumentTypes: (orderId: number, orderStatus: OrderStatus) => DocumentType[];
+    getDocumentDetail: (
+        orderId: number,
+        orderStatus: OrderStatus,
+        documentType: DocumentType
+    ) => DocumentDetail | null;
     getOrderStatus: (orderId: number) => OrderStatus;
     confirmNegotiation: (orderId: number) => Promise<void>;
     validateOrderDocument: (
@@ -295,10 +301,10 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
     };
 
     // TODO: BUG! -> Right now metadata of the trade are not updated, is it possible to update metadata file in ICP or it must be replaced?
-    const updateOrderTrade = async (tradeId: number, orderTradeRequest: OrderTradeRequest) => {
+    const updateOrderTrade = async (orderId: number, orderTradeRequest: OrderTradeRequest) => {
         try {
             dispatch(addLoadingMessage(ORDER_TRADE_MESSAGE.UPDATE.LOADING));
-            const detailedOrderTrade = detailedOrderTrades.find((t) => t.trade.tradeId === tradeId);
+            const detailedOrderTrade = detailedOrderTrades.find((t) => t.trade.tradeId === orderId);
             if (!detailedOrderTrade) return Promise.reject('Trade not found');
             const oldTrade = detailedOrderTrade.trade;
             const orderTradeService = detailedOrderTrade.service;
@@ -463,9 +469,27 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
     const getOrderStatus = (orderId: number) =>
         detailedOrderTrades.find((t) => t.trade.tradeId === orderId)?.orderStatus ||
         OrderStatus.CONTRACTING;
-    const getOrderDocumentDetailMap = (orderId: number) =>
-        detailedOrderTrades.find((t) => t.trade.tradeId === orderId)?.documentDetailMap ||
-        (new Map() as DocumentDetailMap);
+
+    const getRequiredDocumentTypes = (orderId: number, orderStatus: OrderStatus) => {
+        const detailedOrderTrade = detailedOrderTrades.find((t) => t.trade.tradeId === orderId);
+        if (!detailedOrderTrade) throw new Error('Order trade not found.');
+        const documentTypeMap = detailedOrderTrade.documentDetailMap.get(orderStatus);
+        if (documentTypeMap === undefined) throw new Error('Order status not found.');
+        return Array.from(documentTypeMap.keys());
+    };
+    const getDocumentDetail = (
+        orderId: number,
+        orderStatus: OrderStatus,
+        documentType: DocumentType
+    ) => {
+        const detailedOrderTrade = detailedOrderTrades.find((t) => t.trade.tradeId === orderId);
+        if (!detailedOrderTrade) throw new Error('Order trade not found.');
+        const documentTypeMap = detailedOrderTrade.documentDetailMap.get(orderStatus);
+        if (documentTypeMap === undefined) throw new Error('Order status not found.');
+        const documentDetail = documentTypeMap.get(documentType);
+        if (documentDetail === undefined) throw new Error('Document type not found.');
+        return documentDetail;
+    };
     return (
         <EthOrderTradeContext.Provider
             value={{
@@ -475,7 +499,8 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
                 getActionRequired,
                 getNegotiationStatus,
                 getOrderStatus,
-                getOrderDocumentDetailMap,
+                getRequiredDocumentTypes,
+                getDocumentDetail,
                 confirmNegotiation,
                 validateOrderDocument,
                 uploadOrderDocument,

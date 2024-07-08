@@ -26,7 +26,7 @@ export const BasicTradeView = ({
 }: BasicTradeViewProps) => {
     const { productCategories } = useEthMaterial();
     const { units } = useEthEnumerable();
-    const { updateBasicTrade, getBasicTradeDocuments } = useEthBasicTrade();
+    const { updateBasicTrade } = useEthBasicTrade();
     const { confirmNegotiation } = useEthOrderTrade();
     const navigate = useNavigate();
     const documentHeight = '45vh';
@@ -69,6 +69,7 @@ export const BasicTradeView = ({
             required: false,
             loading: false,
             uploadable: !disabled,
+            approvable: false,
             // TODO: Fix this
             // info: getBasicTradeDocuments(basicTrade.tradeId),
             height: documentHeight

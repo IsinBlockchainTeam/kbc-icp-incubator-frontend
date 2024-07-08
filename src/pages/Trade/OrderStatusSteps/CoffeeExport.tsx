@@ -4,8 +4,13 @@ import {
     FormElementType,
     GenericForm
 } from '@/components/GenericForm/GenericForm';
-import React from 'react';
-import { OrderStatus, DocumentType, OrderTrade } from '@kbc-lib/coffee-trading-management-lib';
+import React, { useContext } from 'react';
+import {
+    OrderStatus,
+    DocumentType,
+    OrderTrade,
+    DocumentStatus
+} from '@kbc-lib/coffee-trading-management-lib';
 import TradeDutiesWaiting, {
     DutiesWaiting
 } from '@/pages/Trade/OrderStatusSteps/TradeDutiesWaiting';
@@ -15,23 +20,16 @@ import { DocumentRequest } from '@/api/types/DocumentRequest';
 import { paths } from '@/constants/paths';
 import { useNavigate } from 'react-router-dom';
 import { StepTip } from '@/pages/Trade/OrderStatusSteps/StepTip';
+import { SignerContext } from '@/providers/SignerProvider';
 
 type Props = {
     orderTrade: OrderTrade;
-    validationCallback: (
-        orderTrade: OrderTrade | null,
-        documentType: DocumentType
-    ) => undefined | { approve: () => Promise<void>; reject: () => Promise<void> };
 };
-export const CoffeeExport = ({ orderTrade, validationCallback }: Props) => {
-    const { getOrderDocumentDetailMap, uploadOrderDocument } = useEthOrderTrade();
+export const CoffeeExport = ({ orderTrade }: Props) => {
+    const { getDocumentDetail, uploadOrderDocument, validateOrderDocument } = useEthOrderTrade();
     const { getDocumentDuty } = useEthDocument();
-    const orderDocumentDetailMap = getOrderDocumentDetailMap(orderTrade.tradeId);
+    const { signer } = useContext(SignerContext);
     const navigate = useNavigate();
-    const documentsMap = orderDocumentDetailMap.get(OrderStatus.PAYED);
-    if (!documentsMap) {
-        return <>OrderStatus not supported</>;
-    }
 
     const documents = [
         {
@@ -71,7 +69,11 @@ export const CoffeeExport = ({ orderTrade, validationCallback }: Props) => {
         label: string,
         documentType: DocumentType
     ): FormElement => {
-        const documentDetail = documentsMap.get(documentType);
+        const documentDetail = getDocumentDetail(
+            orderTrade.tradeId,
+            OrderStatus.PAYED,
+            documentType
+        );
         if (documentDetail === undefined) {
             return { type: FormElementType.SPACE, span: 12 };
         }
@@ -94,7 +96,22 @@ export const CoffeeExport = ({ orderTrade, validationCallback }: Props) => {
             content: documentDetail?.content,
             status: documentDetail?.status,
             height: '45vh',
-            validationCallback: validationCallback(orderTrade, documentType)
+            approvable:
+                documentDetail !== null &&
+                documentDetail.status === DocumentStatus.NOT_EVALUATED &&
+                documentDetail.info.uploadedBy !== signer?.address,
+            onApprove: () =>
+                validateOrderDocument(
+                    orderTrade.tradeId,
+                    documentDetail!.info.id,
+                    DocumentStatus.APPROVED
+                ),
+            onReject: () =>
+                validateOrderDocument(
+                    orderTrade.tradeId,
+                    documentDetail!.info.id,
+                    DocumentStatus.NOT_APPROVED
+                )
         };
     };
     const elements: FormElement[] = [

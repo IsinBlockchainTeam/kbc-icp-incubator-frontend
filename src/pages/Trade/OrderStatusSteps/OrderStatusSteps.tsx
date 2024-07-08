@@ -8,7 +8,7 @@ import {
 } from '@ant-design/icons';
 import React from 'react';
 import { FormElement, GenericForm } from '@/components/GenericForm/GenericForm';
-import { DocumentType, OrderStatus, OrderTrade } from '@kbc-lib/coffee-trading-management-lib';
+import { OrderStatus, OrderTrade } from '@kbc-lib/coffee-trading-management-lib';
 import { CoffeeProduction } from '@/pages/Trade/OrderStatusSteps/CoffeeProduction';
 import { CoffeeExport } from '@/pages/Trade/OrderStatusSteps/CoffeeExport';
 import { CoffeeShipment } from '@/pages/Trade/OrderStatusSteps/CoffeeShipment';
@@ -20,10 +20,6 @@ type Props = {
     negotiationElements: FormElement[];
     // FIXME: please stop using ?:
     orderTrade?: OrderTrade;
-    validationCallback: (
-        orderTrade: OrderTrade | null,
-        documentType: DocumentType
-    ) => undefined | { approve: () => Promise<void>; reject: () => Promise<void> };
     onSubmit: (values: any) => Promise<void>;
 };
 
@@ -53,42 +49,22 @@ export default function OrderStatusSteps(props: Props) {
         {
             title: 'Coffee Production',
             icon: <ProductOutlined />,
-            content: orderTrade && (
-                <CoffeeProduction
-                    orderTrade={orderTrade}
-                    validationCallback={props.validationCallback}
-                />
-            )
+            content: orderTrade && <CoffeeProduction orderTrade={orderTrade} />
         },
         {
             title: 'Coffee Export',
             icon: <SendOutlined />,
-            content: orderTrade && (
-                <CoffeeExport
-                    orderTrade={orderTrade}
-                    validationCallback={props.validationCallback}
-                />
-            )
+            content: orderTrade && <CoffeeExport orderTrade={orderTrade} />
         },
         {
             title: 'Coffee Shipment',
             icon: <TruckOutlined />,
-            content: orderTrade && (
-                <CoffeeShipment
-                    orderTrade={orderTrade}
-                    validationCallback={props.validationCallback}
-                />
-            )
+            content: orderTrade && <CoffeeShipment orderTrade={orderTrade} />
         },
         {
             title: 'Coffee Import',
             icon: <ImportOutlined />,
-            content: orderTrade && (
-                <CoffeeImport
-                    orderTrade={orderTrade}
-                    validationCallback={props.validationCallback}
-                />
-            )
+            content: orderTrade && <CoffeeImport orderTrade={orderTrade} />
         }
     ];
 

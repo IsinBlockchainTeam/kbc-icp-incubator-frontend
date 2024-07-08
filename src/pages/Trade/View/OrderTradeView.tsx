@@ -1,8 +1,6 @@
 import {
     NegotiationStatus,
     OrderTrade,
-    DocumentType,
-    DocumentStatus,
     OrderLineRequest,
     OrderLinePrice,
     OrderLine,
@@ -41,13 +39,7 @@ export const OrderTradeView = ({
     const { signer } = useContext(SignerContext);
     const { productCategories } = useEthMaterial();
     const { units, fiats } = useEthEnumerable();
-    const {
-        updateOrderTrade,
-        confirmNegotiation,
-        getOrderStatus,
-        validateOrderDocument,
-        getOrderDocumentDetailMap
-    } = useEthOrderTrade();
+    const { updateOrderTrade, confirmNegotiation, getOrderStatus } = useEthOrderTrade();
     const negotiationStatus = NegotiationStatus[orderTrade.negotiationStatus];
     const navigate = useNavigate();
 
@@ -58,32 +50,6 @@ export const OrderTradeView = ({
 
     const disabledDate = (current: dayjs.Dayjs): boolean => {
         return current && current <= dayjs().endOf('day');
-    };
-
-    const validationCallback = (orderTrade: OrderTrade | null, documentType: DocumentType) => {
-        if (!orderTrade) return undefined;
-        const orderStatus = getOrderStatus(orderTrade.tradeId);
-        const detail = getOrderDocumentDetailMap(orderTrade.tradeId)
-            .get(orderStatus)
-            ?.get(documentType);
-        if (!detail) return undefined;
-        return detail.status === DocumentStatus.NOT_EVALUATED &&
-            detail.info.uploadedBy !== signer?.address
-            ? {
-                  approve: () =>
-                      validateOrderDocument(
-                          orderTrade.tradeId,
-                          detail.info.id,
-                          DocumentStatus.APPROVED
-                      ),
-                  reject: () =>
-                      validateOrderDocument(
-                          orderTrade.tradeId,
-                          detail.info.id,
-                          DocumentStatus.NOT_APPROVED
-                      )
-              }
-            : undefined;
     };
 
     const onSubmit = async (values: any) => {
@@ -400,7 +366,6 @@ export const OrderTradeView = ({
                 orderTrade={orderTrade}
                 submittable={!disabled}
                 negotiationElements={elements}
-                validationCallback={validationCallback}
                 onSubmit={onSubmit}
             />
         </CardPage>

@@ -87,7 +87,8 @@ export const BasicTradeNew = ({
             required: true,
             loading: false,
             uploadable: true,
-            height: documentHeight
+            height: documentHeight,
+            approvable: false
         },
         { type: FormElementType.TITLE, span: 24, label: 'Line Item' },
         {

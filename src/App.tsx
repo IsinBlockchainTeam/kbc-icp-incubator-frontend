@@ -107,12 +107,15 @@ export const App = () => {
                                     <Route
                                         path={paths.TRADE_NEW}
                                         element={
-                                            <DataLoader customUseContext={useEthEnumerable}>
-                                                <DataLoader customUseContext={useEthMaterial}>
-                                                    <DataLoader customUseContext={useEthEnumerable}>
+                                            <DataLoader customUseContext={useICPName}>
+                                                <DataLoader customUseContext={useEthEnumerable}>
+                                                    <DataLoader customUseContext={useEthMaterial}>
                                                         <DataLoader
-                                                            customUseContext={useEthRawTrade}>
-                                                            <TradeNew />
+                                                            customUseContext={useEthEnumerable}>
+                                                            <DataLoader
+                                                                customUseContext={useEthRawTrade}>
+                                                                <TradeNew />
+                                                            </DataLoader>
                                                         </DataLoader>
                                                     </DataLoader>
                                                 </DataLoader>
@@ -122,12 +125,15 @@ export const App = () => {
                                     <Route
                                         path={paths.TRADE_VIEW}
                                         element={
-                                            <DataLoader customUseContext={useEthEnumerable}>
-                                                <DataLoader customUseContext={useEthMaterial}>
-                                                    <DataLoader customUseContext={useEthEnumerable}>
+                                            <DataLoader customUseContext={useICPName}>
+                                                <DataLoader customUseContext={useEthEnumerable}>
+                                                    <DataLoader customUseContext={useEthMaterial}>
                                                         <DataLoader
-                                                            customUseContext={useEthRawTrade}>
-                                                            <TradeView />
+                                                            customUseContext={useEthEnumerable}>
+                                                            <DataLoader
+                                                                customUseContext={useEthRawTrade}>
+                                                                <TradeView />
+                                                            </DataLoader>
                                                         </DataLoader>
                                                     </DataLoader>
                                                 </DataLoader>

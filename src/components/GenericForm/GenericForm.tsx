@@ -14,7 +14,6 @@ import {
 } from 'antd';
 import PDFViewer from '../PDFViewer/PDFViewer';
 import { DownloadOutlined } from '@ant-design/icons';
-import { FormItemInputProps } from 'antd/es/form/FormItemInput';
 import { createDownloadWindow } from '@/utils/page';
 import { DocumentContent } from '@/providers/entities/EthDocumentProvider';
 import { DocumentStatus } from '@kbc-lib/coffee-trading-management-lib';
@@ -111,10 +110,9 @@ export type DocumentElement = Omit<LabeledElement, 'type'> & {
     content?: DocumentContent;
     status?: DocumentStatus;
     height?: `${number}px` | `${number}%` | `${number}vh` | 'auto';
-    validationCallback?: {
-        approve: (...args: any[]) => Promise<void>;
-        reject: (...args: any[]) => Promise<void>;
-    };
+    approvable: boolean;
+    onApprove?: () => Promise<void>;
+    onReject?: () => Promise<void>;
 };
 
 type Props = {
@@ -122,22 +120,6 @@ type Props = {
     submittable?: boolean;
     onSubmit?: (values: any) => void;
 };
-
-const showTextWithHtmlLinebreaks = (text: string): ReactNode => {
-    return (
-        <>
-            {text.split('\n').map((str, index) => (
-                <React.Fragment key={index}>
-                    {' '}
-                    {str}
-                    <br />{' '}
-                </React.Fragment>
-            ))}
-        </>
-    );
-};
-
-export type ElementStatus = { type: FormItemInputProps['status']; message: ReactNode };
 
 export const GenericForm = (props: Props) => {
     const [form] = Form.useForm();
@@ -366,7 +348,7 @@ export const GenericForm = (props: Props) => {
                             onDocumentChange={addDocument}
                             validationStatus={status}
                         />
-                        {element.validationCallback && (
+                        {element.approvable && (
                             <Popover
                                 title="Validate the document"
                                 trigger="click"
@@ -393,7 +375,7 @@ export const GenericForm = (props: Props) => {
                                             <Button
                                                 type="primary"
                                                 style={{ width: '100%' }}
-                                                onClick={element.validationCallback.approve}>
+                                                onClick={element.onApprove}>
                                                 Approve
                                             </Button>
                                         </Col>
@@ -402,7 +384,7 @@ export const GenericForm = (props: Props) => {
                                                 danger
                                                 type="primary"
                                                 style={{ width: '100%' }}
-                                                onClick={element.validationCallback.reject}>
+                                                onClick={element.onReject}>
                                                 Reject
                                             </Button>
                                         </Col>
