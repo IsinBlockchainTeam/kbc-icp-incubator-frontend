@@ -118,6 +118,11 @@ export const ORDER_TRADE_MESSAGE = {
         LOADING: 'Confirming negotiation...',
         OK: 'The negotiation has been confirmed.',
         ERROR: 'Error while confirming negotiation.'
+    },
+    NOTIFY_EXPIRATION: {
+        LOADING: 'Notifying expiration...',
+        OK: 'The expiration has been notified.',
+        ERROR: 'Error while notifying expiration.'
     }
 };
 export const DOCUMENT_MESSAGE = {

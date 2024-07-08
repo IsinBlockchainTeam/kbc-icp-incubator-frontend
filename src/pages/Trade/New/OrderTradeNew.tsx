@@ -307,10 +307,7 @@ export const OrderTradeNew = ({
                         documentType: DocumentType
                     ) => undefined | { approve: () => Promise<void>; reject: () => Promise<void> }
                 }
-                onSubmitNew={onSubmit}
-                onSubmitView={async (values: any) => {
-                    return;
-                }}
+                onSubmit={onSubmit}
             />
         </CardPage>
     );

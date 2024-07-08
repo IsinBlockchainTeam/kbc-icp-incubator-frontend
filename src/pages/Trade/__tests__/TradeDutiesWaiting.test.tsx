@@ -1,5 +1,7 @@
 import { render } from '@testing-library/react';
-import TradeDutiesWaiting, { DutiesWaiting } from '@/pages/Trade/TradeDutiesWaiting';
+import TradeDutiesWaiting, {
+    DutiesWaiting
+} from '@/pages/Trade/OrderStatusSteps/TradeDutiesWaiting';
 import { Image } from 'antd';
 
 jest.mock('antd', () => {

@@ -36,6 +36,8 @@ import {
     DocumentDetailMap,
     useEthDocument
 } from '@/providers/entities/EthDocumentProvider';
+import { useICPName } from '@/providers/entities/ICPNameProvider';
+import { requestPath } from '@/constants/url';
 
 export type EthOrderTradeContextState = {
     orderTrades: OrderTrade[];
@@ -59,6 +61,7 @@ export type EthOrderTradeContextState = {
         documentRequest: DocumentRequest,
         externalUrl: string
     ) => Promise<void>;
+    notifyExpiration: (orderId: number, email: string, message: string) => Promise<void>;
 };
 export const EthOrderTradeContext = createContext<EthOrderTradeContextState>(
     {} as EthOrderTradeContextState
@@ -84,6 +87,7 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
     const { productCategories } = useEthMaterial();
     const { validateDocument, uploadDocument, getDocumentDuty, getDocumentDetailMap } =
         useEthDocument();
+    const { getName } = useICPName();
     const dispatch = useDispatch();
     const [detailedOrderTrades, setDetailedOrderTrades] = useState<DetailedOrderTrade[]>([]);
     const { fileDriver } = useContext(ICPContext);
@@ -171,18 +175,6 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
             fileDriver
         );
 
-    const getDesignatedPartyAddress = (orderStatus: OrderStatus, orderTrade: OrderTrade) => {
-        switch (orderStatus) {
-            case OrderStatus.PRODUCTION:
-            case OrderStatus.PAYED:
-            case OrderStatus.EXPORTED:
-                return orderTrade.supplier;
-            case OrderStatus.SHIPPED:
-            default:
-                return orderTrade.commissioner;
-        }
-    };
-
     const getActionMessage = async (
         orderTrade: OrderTrade,
         documentDetailMap: DocumentDetailMap,
@@ -196,15 +188,16 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
         const requiredDocuments = documentDetailMap.get(orderStatus);
         if (!requiredDocuments) return ACTION_MESSAGE.NO_ACTION;
 
+        const uploader =
+            orderStatus !== OrderStatus.SHIPPED ? orderTrade.supplier : orderTrade.commissioner;
+        const approver =
+            orderStatus !== OrderStatus.SHIPPED ? orderTrade.commissioner : orderTrade.supplier;
         const requiredDocumentsTypes = Array.from(requiredDocuments.keys());
         if (
             requiredDocumentsTypes.some(
                 (docType) =>
-                    getDocumentDuty(
-                        orderTrade.supplier,
-                        orderTrade.commissioner,
-                        requiredDocuments.get(docType)!
-                    ) == DOCUMENT_DUTY.UPLOAD_NEEDED
+                    getDocumentDuty(uploader, approver, requiredDocuments.get(docType)!) ==
+                    DOCUMENT_DUTY.UPLOAD_NEEDED
             )
         )
             return ACTION_MESSAGE.UPLOAD_REQUIRED;
@@ -212,11 +205,8 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
         if (
             requiredDocumentsTypes.some(
                 (docType) =>
-                    getDocumentDuty(
-                        orderTrade.supplier,
-                        orderTrade.commissioner,
-                        requiredDocuments.get(docType)!
-                    ) == DOCUMENT_DUTY.APPROVAL_NEEDED
+                    getDocumentDuty(uploader, approver, requiredDocuments.get(docType)!) ==
+                    DOCUMENT_DUTY.APPROVAL_NEEDED
             )
         )
             return ACTION_MESSAGE.VALIDATION_REQUIRED;
@@ -422,6 +412,48 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
         return uploadDocument(documentRequest, externalUrl, orderService);
     };
 
+    const notifyExpiration = async (orderId: number, email: string, message: string) => {
+        try {
+            const orderTrade = detailedOrderTrades.find((t) => t.trade.tradeId === orderId)?.trade;
+            if (!orderTrade) return Promise.reject('Trade not found');
+            dispatch(addLoadingMessage(ORDER_TRADE_MESSAGE.NOTIFY_EXPIRATION.LOADING));
+            const recipientCompanyName =
+                orderTrade.supplier === signer.address
+                    ? getName(orderTrade.commissioner)
+                    : getName(orderTrade.supplier);
+            const response = await fetch(`${requestPath.EMAIL_SENDER_URL}/email/deadline-expired`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email,
+                    recipientCompanyName,
+                    senderCompanyName: userInfo.legalName,
+                    senderEmailAddress: userInfo.email,
+                    message,
+                    transactionUrl: window.location.href
+                })
+            });
+            if (response.ok)
+                openNotification(
+                    'Success',
+                    ORDER_TRADE_MESSAGE.NOTIFY_EXPIRATION.OK,
+                    NotificationType.SUCCESS,
+                    NOTIFICATION_DURATION
+                );
+        } catch (e: any) {
+            openNotification(
+                'Error',
+                ORDER_TRADE_MESSAGE.NOTIFY_EXPIRATION.ERROR,
+                NotificationType.ERROR,
+                NOTIFICATION_DURATION
+            );
+        } finally {
+            dispatch(removeLoadingMessage(ORDER_TRADE_MESSAGE.NOTIFY_EXPIRATION.LOADING));
+        }
+    };
+
     const orderTrades = detailedOrderTrades.map((detailedTrade) => detailedTrade.trade);
     const getActionRequired = (orderId: number) =>
         detailedOrderTrades.find((t) => t.trade.tradeId === orderId)?.actionRequired || '';
@@ -446,7 +478,8 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
                 getOrderDocumentDetailMap,
                 confirmNegotiation,
                 validateOrderDocument,
-                uploadOrderDocument
+                uploadOrderDocument,
+                notifyExpiration
             }}>
             {props.children}
         </EthOrderTradeContext.Provider>

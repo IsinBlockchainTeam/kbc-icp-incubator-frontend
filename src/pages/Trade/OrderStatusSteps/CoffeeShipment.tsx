@@ -23,17 +23,17 @@ type Props = {
         documentType: DocumentType
     ) => undefined | { approve: () => Promise<void>; reject: () => Promise<void> };
 };
-export const CoffeeProduction = ({ orderTrade, validationCallback }: Props) => {
+export const CoffeeShipment = ({ orderTrade, validationCallback }: Props) => {
     const { getOrderDocumentDetailMap, uploadOrderDocument } = useEthOrderTrade();
     const { getDocumentDuty } = useEthDocument();
     const orderDocumentDetailMap = getOrderDocumentDetailMap(orderTrade.tradeId);
     const navigate = useNavigate();
 
-    const documentsMap = orderDocumentDetailMap.get(OrderStatus.PRODUCTION);
+    const documentsMap = orderDocumentDetailMap.get(OrderStatus.EXPORTED);
     if (!documentsMap) {
         return <>OrderStatus not supported</>;
     }
-    const documentDetail = documentsMap.get(DocumentType.PAYMENT_INVOICE);
+    const documentDetail = documentsMap.get(DocumentType.BILL_OF_LADING);
     if (documentDetail === undefined) {
         return <>Document not supported</>;
     }
@@ -57,14 +57,14 @@ export const CoffeeProduction = ({ orderTrade, validationCallback }: Props) => {
                     orderTrade={orderTrade}
                     message={
                         <p>
-                            At this stage, the exporter has to load a payment invoice for the goods
-                            that have been negotiated. <br />
-                            This operation allows coffee production to be started and planned only
-                            against a guarantee deposit from the importer
+                            This is the last step for the exporter, in which is important to prove
+                            that the goods are ready to be shipped. <br />
+                            The exporter has to load the Bill of Lading to proceed with the
+                            shipment.
                         </p>
                     }
-                    deadline={orderTrade.paymentDeadline}
-                    status={OrderStatus.PRODUCTION}
+                    deadline={orderTrade.shippingDeadline}
+                    status={OrderStatus.EXPORTED}
                 />
             ),
             marginVertical: '1rem'
@@ -72,19 +72,19 @@ export const CoffeeProduction = ({ orderTrade, validationCallback }: Props) => {
         {
             type: FormElementType.DOCUMENT,
             span: 12,
-            name: 'payment-invoice',
-            label: 'Payment Invoice',
+            name: 'bill-of-lading',
+            label: 'Bill of lading',
             required: true,
             loading: false,
             uploadable: isDocumentEditable,
             content: documentDetail?.content,
             status: documentDetail?.status,
             height: '45vh',
-            validationCallback: validationCallback(orderTrade, DocumentType.PAYMENT_INVOICE)
+            validationCallback: validationCallback(orderTrade, DocumentType.BILL_OF_LADING)
         }
     ];
     const onSubmit = async (values: any) => {
-        const file = values['payment-invoice'];
+        const file = values['bill-of-lading'];
         if (!file || !file.name) return;
         const documentRequest: DocumentRequest = {
             content: file,
@@ -106,9 +106,9 @@ export const CoffeeProduction = ({ orderTrade, validationCallback }: Props) => {
     }
     return (
         <TradeDutiesWaiting
-            waitingType={DutiesWaiting.EXPORTER_PRODUCTION}
+            waitingType={DutiesWaiting.EXPORTER_SHIPPING}
             message={
-                'The exporter has not uploaded the Payment Invoice yet. \n You will be notified when there are new developments.'
+                'The exporter has not uploaded the Bill of Lading. \n You will be notified when there are new developments.'
             }
             marginVertical="1rem"
         />

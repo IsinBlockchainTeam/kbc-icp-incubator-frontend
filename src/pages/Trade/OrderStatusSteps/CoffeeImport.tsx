@@ -23,24 +23,24 @@ type Props = {
         documentType: DocumentType
     ) => undefined | { approve: () => Promise<void>; reject: () => Promise<void> };
 };
-export const CoffeeProduction = ({ orderTrade, validationCallback }: Props) => {
+export const CoffeeImport = ({ orderTrade, validationCallback }: Props) => {
     const { getOrderDocumentDetailMap, uploadOrderDocument } = useEthOrderTrade();
     const { getDocumentDuty } = useEthDocument();
     const orderDocumentDetailMap = getOrderDocumentDetailMap(orderTrade.tradeId);
     const navigate = useNavigate();
 
-    const documentsMap = orderDocumentDetailMap.get(OrderStatus.PRODUCTION);
+    const documentsMap = orderDocumentDetailMap.get(OrderStatus.SHIPPED);
     if (!documentsMap) {
         return <>OrderStatus not supported</>;
     }
-    const documentDetail = documentsMap.get(DocumentType.PAYMENT_INVOICE);
+    const documentDetail = documentsMap.get(DocumentType.BILL_OF_LADING);
     if (documentDetail === undefined) {
         return <>Document not supported</>;
     }
 
     const documentDuty = getDocumentDuty(
-        orderTrade.supplier,
         orderTrade.commissioner,
+        orderTrade.supplier,
         documentDetail
     );
 
@@ -57,14 +57,14 @@ export const CoffeeProduction = ({ orderTrade, validationCallback }: Props) => {
                     orderTrade={orderTrade}
                     message={
                         <p>
-                            At this stage, the exporter has to load a payment invoice for the goods
-                            that have been negotiated. <br />
-                            This operation allows coffee production to be started and planned only
-                            against a guarantee deposit from the importer
+                            This is the final stage for this transaction where is important to prove
+                            that the goods, reached by the importer, have exactly the same
+                            specifications that are claimed by the exporter. <br />
+                            The importer has to load the results of the Swiss Decode.
                         </p>
                     }
-                    deadline={orderTrade.paymentDeadline}
-                    status={OrderStatus.PRODUCTION}
+                    deadline={orderTrade.deliveryDeadline}
+                    status={OrderStatus.SHIPPED}
                 />
             ),
             marginVertical: '1rem'
@@ -72,24 +72,24 @@ export const CoffeeProduction = ({ orderTrade, validationCallback }: Props) => {
         {
             type: FormElementType.DOCUMENT,
             span: 12,
-            name: 'payment-invoice',
-            label: 'Payment Invoice',
+            name: 'comparison-swiss-decode',
+            label: 'Comparison Swiss Decode',
             required: true,
             loading: false,
             uploadable: isDocumentEditable,
             content: documentDetail?.content,
             status: documentDetail?.status,
             height: '45vh',
-            validationCallback: validationCallback(orderTrade, DocumentType.PAYMENT_INVOICE)
+            validationCallback: validationCallback(orderTrade, DocumentType.COMPARISON_SWISS_DECODE)
         }
     ];
     const onSubmit = async (values: any) => {
-        const file = values['payment-invoice'];
+        const file = values['comparison-swiss-decode'];
         if (!file || !file.name) return;
         const documentRequest: DocumentRequest = {
             content: file,
             filename: file.name,
-            documentType: DocumentType.PAYMENT_INVOICE
+            documentType: DocumentType.COMPARISON_SWISS_DECODE
         };
         await uploadOrderDocument(orderTrade.tradeId, documentRequest, orderTrade.externalUrl);
         navigate(paths.TRADES);
@@ -106,9 +106,9 @@ export const CoffeeProduction = ({ orderTrade, validationCallback }: Props) => {
     }
     return (
         <TradeDutiesWaiting
-            waitingType={DutiesWaiting.EXPORTER_PRODUCTION}
+            waitingType={DutiesWaiting.IMPORTER_IMPORT}
             message={
-                'The exporter has not uploaded the Payment Invoice yet. \n You will be notified when there are new developments.'
+                'The importer has not uploaded the Swiss Decode results for comparison. \n You will be notified when there are new developments.'
             }
             marginVertical="1rem"
         />

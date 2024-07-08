@@ -401,10 +401,7 @@ export const OrderTradeView = ({
                 submittable={!disabled}
                 negotiationElements={elements}
                 validationCallback={validationCallback}
-                onSubmitView={onSubmit}
-                onSubmitNew={async (values: any) => {
-                    return;
-                }}
+                onSubmit={onSubmit}
             />
         </CardPage>
     );
