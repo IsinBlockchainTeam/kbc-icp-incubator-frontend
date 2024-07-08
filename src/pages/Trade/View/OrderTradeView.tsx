@@ -46,7 +46,7 @@ export const OrderTradeView = ({
         confirmNegotiation,
         getOrderStatus,
         validateOrderDocument,
-        getOrderRequiredDocuments
+        getOrderDocumentDetailMap
     } = useEthOrderTrade();
     const negotiationStatus = NegotiationStatus[orderTrade.negotiationStatus];
     const navigate = useNavigate();
@@ -62,22 +62,24 @@ export const OrderTradeView = ({
 
     const validationCallback = (orderTrade: OrderTrade | null, documentType: DocumentType) => {
         if (!orderTrade) return undefined;
-        const resp = getOrderRequiredDocuments(orderTrade.tradeId).get(documentType);
-        if (!resp) return undefined;
-        const [documentInfo, documentStatus] = resp;
-        return documentStatus === DocumentStatus.NOT_EVALUATED &&
-            documentInfo.uploadedBy !== signer?.address
+        const orderStatus = getOrderStatus(orderTrade.tradeId);
+        const detail = getOrderDocumentDetailMap(orderTrade.tradeId)
+            .get(orderStatus)
+            ?.get(documentType);
+        if (!detail) return undefined;
+        return detail.status === DocumentStatus.NOT_EVALUATED &&
+            detail.info.uploadedBy !== signer?.address
             ? {
                   approve: () =>
                       validateOrderDocument(
                           orderTrade.tradeId,
-                          documentInfo.id,
+                          detail.info.id,
                           DocumentStatus.APPROVED
                       ),
                   reject: () =>
                       validateOrderDocument(
                           orderTrade.tradeId,
-                          documentInfo.id,
+                          detail.info.id,
                           DocumentStatus.NOT_APPROVED
                       )
               }

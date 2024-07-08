@@ -13,7 +13,6 @@ import {
 import {
     CalendarFilled,
     EditOutlined,
-    ImportOutlined,
     ProductOutlined,
     SendOutlined,
     MailOutlined,
@@ -45,6 +44,8 @@ import { RootState } from '@/redux/store';
 import { DID_METHOD } from '@/constants/ssi';
 import { requestPath } from '@/constants/url';
 import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
+import { DocumentDetailMap, useEthDocument } from '@/providers/entities/EthDocumentProvider';
+import { CoffeeProduction } from '@/pages/Trade/OrderStatusSteps/CoffeeProduction';
 
 type Props = {
     status: OrderStatus;
@@ -62,7 +63,7 @@ type Props = {
 
 export default function OrderStatusSteps(props: Props) {
     const { status, submittable, negotiationElements, orderTrade } = props;
-    const { getOrderStatus, getOrderRequiredDocuments } = useEthOrderTrade();
+    const { getOrderStatus, getOrderDocumentDetailMap } = useEthOrderTrade();
     let onSubmit: (values: any) => Promise<void>;
     const { getNameByDID } = useContext(ICPContext);
     const { signer } = useContext(SignerContext);
@@ -74,6 +75,13 @@ export default function OrderStatusSteps(props: Props) {
         status === OrderStatus.COMPLETED ? OrderStatus.SHIPPED : status
     );
     const documentHeight = '45vh';
+    const actualOrderStatus = orderTrade
+        ? getOrderStatus(orderTrade.tradeId)
+        : OrderStatus.CONTRACTING;
+    const orderDocumentDetailMap = orderTrade
+        ? getOrderDocumentDetailMap(orderTrade.tradeId)
+        : (new Map() as DocumentDetailMap);
+
     // FIXME: Don't use a map for fixed values, use dictionary instead
     const documentTypesLabel = new Map<DocumentType, string>()
         .set(DocumentType.PAYMENT_INVOICE, 'Payment Invoice')
@@ -146,16 +154,17 @@ export default function OrderStatusSteps(props: Props) {
 
     const isDocumentUploadable = (
         designatedPartyAddress: string,
-        orderTrade: OrderTrade,
         documentType: DocumentType
     ): boolean => {
-        const resp = getOrderRequiredDocuments(orderTrade.tradeId).has(documentType);
-        if (!resp) return false;
-        const result = getOrderRequiredDocuments(orderTrade.tradeId).get(documentType);
-        if (!result) return true;
-        const [_, documentStatus] = result;
+        const map = orderDocumentDetailMap.get(actualOrderStatus);
+        // No upload required
+        if (!map) return false;
+        const documentDetail = map.get(documentType);
+        // Document not uploaded yet
+        if (!documentDetail) return true;
         return (
-            signer.address === designatedPartyAddress && documentStatus !== DocumentStatus.APPROVED
+            signer.address === designatedPartyAddress &&
+            documentDetail.status !== DocumentStatus.APPROVED
         );
     };
 
@@ -321,15 +330,14 @@ export default function OrderStatusSteps(props: Props) {
                             loading: false,
                             uploadable: isDocumentUploadable(
                                 orderTrade.supplier,
-                                orderTrade,
                                 DocumentType.PAYMENT_INVOICE
                             ),
-                            content: getOrderRequiredDocuments(orderTrade.tradeId).get(
-                                DocumentType.PAYMENT_INVOICE
-                            )?.[2],
-                            status: getOrderRequiredDocuments(orderTrade.tradeId).get(
-                                DocumentType.PAYMENT_INVOICE
-                            )?.[1],
+                            content: orderDocumentDetailMap
+                                .get(actualOrderStatus)
+                                ?.get(DocumentType.PAYMENT_INVOICE)?.content,
+                            status: orderDocumentDetailMap
+                                .get(actualOrderStatus)
+                                ?.get(DocumentType.PAYMENT_INVOICE)?.status,
                             height: documentHeight,
                             validationCallback: props.validationCallback(
                                 orderTrade,
@@ -371,15 +379,14 @@ export default function OrderStatusSteps(props: Props) {
                             loading: false,
                             uploadable: isDocumentUploadable(
                                 orderTrade.supplier,
-                                orderTrade,
                                 DocumentType.ORIGIN_SWISS_DECODE
                             ),
-                            content: getOrderRequiredDocuments(orderTrade.tradeId).get(
-                                DocumentType.ORIGIN_SWISS_DECODE
-                            )?.[2],
-                            status: getOrderRequiredDocuments(orderTrade.tradeId).get(
-                                DocumentType.ORIGIN_SWISS_DECODE
-                            )?.[1],
+                            content: orderDocumentDetailMap
+                                .get(actualOrderStatus)
+                                ?.get(DocumentType.ORIGIN_SWISS_DECODE)?.content,
+                            status: orderDocumentDetailMap
+                                .get(actualOrderStatus)
+                                ?.get(DocumentType.ORIGIN_SWISS_DECODE)?.status,
                             height: documentHeight,
                             validationCallback: props.validationCallback(
                                 orderTrade,
@@ -395,15 +402,14 @@ export default function OrderStatusSteps(props: Props) {
                             loading: false,
                             uploadable: isDocumentUploadable(
                                 orderTrade.supplier,
-                                orderTrade,
                                 DocumentType.WEIGHT_CERTIFICATE
                             ),
-                            content: getOrderRequiredDocuments(orderTrade.tradeId).get(
-                                DocumentType.WEIGHT_CERTIFICATE
-                            )?.[2],
-                            status: getOrderRequiredDocuments(orderTrade.tradeId).get(
-                                DocumentType.WEIGHT_CERTIFICATE
-                            )?.[1],
+                            content: orderDocumentDetailMap
+                                .get(actualOrderStatus)
+                                ?.get(DocumentType.WEIGHT_CERTIFICATE)?.content,
+                            status: orderDocumentDetailMap
+                                .get(actualOrderStatus)
+                                ?.get(DocumentType.WEIGHT_CERTIFICATE)?.status,
                             height: documentHeight,
                             validationCallback: props.validationCallback(
                                 orderTrade,
@@ -419,15 +425,14 @@ export default function OrderStatusSteps(props: Props) {
                             loading: false,
                             uploadable: isDocumentUploadable(
                                 orderTrade.supplier,
-                                orderTrade,
                                 DocumentType.FUMIGATION_CERTIFICATE
                             ),
-                            content: getOrderRequiredDocuments(orderTrade.tradeId).get(
-                                DocumentType.FUMIGATION_CERTIFICATE
-                            )?.[2],
-                            status: getOrderRequiredDocuments(orderTrade.tradeId).get(
-                                DocumentType.FUMIGATION_CERTIFICATE
-                            )?.[1],
+                            content: orderDocumentDetailMap
+                                .get(actualOrderStatus)
+                                ?.get(DocumentType.FUMIGATION_CERTIFICATE)?.content,
+                            status: orderDocumentDetailMap
+                                .get(actualOrderStatus)
+                                ?.get(DocumentType.FUMIGATION_CERTIFICATE)?.status,
                             height: documentHeight,
                             validationCallback: props.validationCallback(
                                 orderTrade,
@@ -445,15 +450,14 @@ export default function OrderStatusSteps(props: Props) {
                             loading: false,
                             uploadable: isDocumentUploadable(
                                 orderTrade.supplier,
-                                orderTrade,
                                 DocumentType.PREFERENTIAL_ENTRY_CERTIFICATE
                             ),
-                            content: getOrderRequiredDocuments(orderTrade.tradeId).get(
-                                DocumentType.PREFERENTIAL_ENTRY_CERTIFICATE
-                            )?.[2],
-                            status: getOrderRequiredDocuments(orderTrade.tradeId).get(
-                                DocumentType.PREFERENTIAL_ENTRY_CERTIFICATE
-                            )?.[1],
+                            content: orderDocumentDetailMap
+                                .get(actualOrderStatus)
+                                ?.get(DocumentType.PREFERENTIAL_ENTRY_CERTIFICATE)?.content,
+                            status: orderDocumentDetailMap
+                                .get(actualOrderStatus)
+                                ?.get(DocumentType.PREFERENTIAL_ENTRY_CERTIFICATE)?.status,
                             height: documentHeight,
                             validationCallback: props.validationCallback(
                                 orderTrade,
@@ -469,15 +473,14 @@ export default function OrderStatusSteps(props: Props) {
                             loading: false,
                             uploadable: isDocumentUploadable(
                                 orderTrade.supplier,
-                                orderTrade,
                                 DocumentType.PHYTOSANITARY_CERTIFICATE
                             ),
-                            content: getOrderRequiredDocuments(orderTrade.tradeId).get(
-                                DocumentType.PHYTOSANITARY_CERTIFICATE
-                            )?.[2],
-                            status: getOrderRequiredDocuments(orderTrade.tradeId).get(
-                                DocumentType.PHYTOSANITARY_CERTIFICATE
-                            )?.[1],
+                            content: orderDocumentDetailMap
+                                .get(actualOrderStatus)
+                                ?.get(DocumentType.PHYTOSANITARY_CERTIFICATE)?.content,
+                            status: orderDocumentDetailMap
+                                .get(actualOrderStatus)
+                                ?.get(DocumentType.PHYTOSANITARY_CERTIFICATE)?.status,
                             height: documentHeight,
                             validationCallback: props.validationCallback(
                                 orderTrade,
@@ -493,15 +496,14 @@ export default function OrderStatusSteps(props: Props) {
                             loading: false,
                             uploadable: isDocumentUploadable(
                                 orderTrade.supplier,
-                                orderTrade,
                                 DocumentType.INSURANCE_CERTIFICATE
                             ),
-                            content: getOrderRequiredDocuments(orderTrade.tradeId).get(
-                                DocumentType.INSURANCE_CERTIFICATE
-                            )?.[2],
-                            status: getOrderRequiredDocuments(orderTrade.tradeId).get(
-                                DocumentType.INSURANCE_CERTIFICATE
-                            )?.[1],
+                            content: orderDocumentDetailMap
+                                .get(actualOrderStatus)
+                                ?.get(DocumentType.INSURANCE_CERTIFICATE)?.content,
+                            status: orderDocumentDetailMap
+                                .get(actualOrderStatus)
+                                ?.get(DocumentType.INSURANCE_CERTIFICATE)?.status,
                             height: documentHeight,
                             validationCallback: props.validationCallback(
                                 orderTrade,
@@ -563,15 +565,14 @@ export default function OrderStatusSteps(props: Props) {
                             loading: false,
                             uploadable: isDocumentUploadable(
                                 orderTrade.supplier,
-                                orderTrade,
                                 DocumentType.BILL_OF_LADING
                             ),
-                            content: getOrderRequiredDocuments(orderTrade.tradeId).get(
-                                DocumentType.BILL_OF_LADING
-                            )?.[2],
-                            status: getOrderRequiredDocuments(orderTrade.tradeId).get(
-                                DocumentType.BILL_OF_LADING
-                            )?.[1],
+                            content: orderDocumentDetailMap
+                                .get(actualOrderStatus)
+                                ?.get(DocumentType.BILL_OF_LADING)?.content,
+                            status: orderDocumentDetailMap
+                                .get(actualOrderStatus)
+                                ?.get(DocumentType.BILL_OF_LADING)?.status,
                             height: documentHeight,
                             validationCallback: props.validationCallback(
                                 orderTrade,
@@ -613,15 +614,14 @@ export default function OrderStatusSteps(props: Props) {
                             loading: false,
                             uploadable: isDocumentUploadable(
                                 orderTrade.commissioner,
-                                orderTrade,
                                 DocumentType.COMPARISON_SWISS_DECODE
                             ),
-                            content: getOrderRequiredDocuments(orderTrade.tradeId).get(
-                                DocumentType.COMPARISON_SWISS_DECODE
-                            )?.[2],
-                            status: getOrderRequiredDocuments(orderTrade.tradeId).get(
-                                DocumentType.COMPARISON_SWISS_DECODE
-                            )?.[1],
+                            content: orderDocumentDetailMap
+                                .get(actualOrderStatus)
+                                ?.get(DocumentType.COMPARISON_SWISS_DECODE)?.content,
+                            status: orderDocumentDetailMap
+                                .get(actualOrderStatus)
+                                ?.get(DocumentType.COMPARISON_SWISS_DECODE)?.status,
                             height: documentHeight,
                             validationCallback: props.validationCallback(
                                 orderTrade,
@@ -654,95 +654,14 @@ export default function OrderStatusSteps(props: Props) {
             { elements: FormElement[]; onSubmit: (values: any) => Promise<void> }
         > => {
             if (!orderTrade) return false;
-            const orderTradeDocuments = getOrderRequiredDocuments(orderTrade.tradeId);
-            if (!orderTrade || !orderTradeDocuments) return false;
 
-            const hasDocuments = (
-                designatedPartyAddress: string,
-                documentTypes: DocumentType[]
-            ): boolean =>
-                documentTypes.some((docType) => orderTradeDocuments.has(docType))
-                    ? true
-                    : signer.address === designatedPartyAddress;
-
-            switch (orderStatus) {
-                case OrderStatus.PRODUCTION:
-                    return hasDocuments(orderTrade.supplier, [DocumentType.PAYMENT_INVOICE]);
-                case OrderStatus.PAYED:
-                    return hasDocuments(orderTrade.supplier, [
-                        DocumentType.ORIGIN_SWISS_DECODE,
-                        DocumentType.WEIGHT_CERTIFICATE,
-                        DocumentType.FUMIGATION_CERTIFICATE,
-                        DocumentType.PREFERENTIAL_ENTRY_CERTIFICATE,
-                        DocumentType.PHYTOSANITARY_CERTIFICATE,
-                        DocumentType.INSURANCE_CERTIFICATE
-                    ]);
-                case OrderStatus.EXPORTED:
-                    return hasDocuments(orderTrade.supplier, [DocumentType.BILL_OF_LADING]);
-                case OrderStatus.SHIPPED:
-                    return hasDocuments(orderTrade.commissioner, [
-                        DocumentType.COMPARISON_SWISS_DECODE
-                    ]);
-                default:
-                    return true;
-            }
+            return true;
         };
 
         const hasPendingDuties = (orderStatus: OrderStatus): boolean => {
             if (!orderTrade) return false;
-            const orderTradeDocuments = getOrderRequiredDocuments(orderTrade.tradeId);
-            if (!orderTradeDocuments) return false;
 
-            const checkDocumentStatuses = (
-                designatedPartyAddress: string,
-                docTypes: DocumentType[],
-                statuses: DocumentStatus[]
-            ): boolean =>
-                signer.address !== designatedPartyAddress
-                    ? false
-                    : docTypes.some((docType) => {
-                          const documentIsRequired = orderTradeDocuments.has(docType);
-                          if (!documentIsRequired) return false;
-                          const result = orderTradeDocuments.get(docType);
-                          if (!result) return true;
-                          const [_, documentStatus] = result;
-                          return statuses.includes(documentStatus);
-                      });
-            switch (orderStatus) {
-                case OrderStatus.PRODUCTION:
-                    return checkDocumentStatuses(
-                        orderTrade.supplier,
-                        [DocumentType.PAYMENT_INVOICE],
-                        [DocumentStatus.NOT_EVALUATED, DocumentStatus.NOT_APPROVED]
-                    );
-                case OrderStatus.PAYED:
-                    return checkDocumentStatuses(
-                        orderTrade.supplier,
-                        [
-                            DocumentType.ORIGIN_SWISS_DECODE,
-                            DocumentType.WEIGHT_CERTIFICATE,
-                            DocumentType.FUMIGATION_CERTIFICATE,
-                            DocumentType.PREFERENTIAL_ENTRY_CERTIFICATE,
-                            DocumentType.PHYTOSANITARY_CERTIFICATE,
-                            DocumentType.INSURANCE_CERTIFICATE
-                        ],
-                        [DocumentStatus.NOT_EVALUATED, DocumentStatus.NOT_APPROVED]
-                    );
-                case OrderStatus.EXPORTED:
-                    return checkDocumentStatuses(
-                        orderTrade.supplier,
-                        [DocumentType.BILL_OF_LADING],
-                        [DocumentStatus.NOT_EVALUATED, DocumentStatus.NOT_APPROVED]
-                    );
-                case OrderStatus.SHIPPED:
-                    return checkDocumentStatuses(
-                        orderTrade.commissioner,
-                        [DocumentType.COMPARISON_SWISS_DECODE],
-                        [DocumentStatus.NOT_EVALUATED, DocumentStatus.NOT_APPROVED]
-                    );
-                default:
-                    return false;
-            }
+            return true;
         };
 
         return [
@@ -760,19 +679,11 @@ export default function OrderStatusSteps(props: Props) {
             {
                 title: 'Coffee Production',
                 icon: <ProductOutlined />,
-                content: hasStartingDuties(OrderStatus.PRODUCTION, elementsAfterNegotiation) ? (
-                    <GenericForm
-                        elements={elementsAfterNegotiation.get(OrderStatus.PRODUCTION)!.elements}
-                        submittable={hasPendingDuties(OrderStatus.PRODUCTION)}
-                        onSubmit={elementsAfterNegotiation.get(OrderStatus.PRODUCTION)!.onSubmit}
-                    />
-                ) : (
-                    <TradeDutiesWaiting
-                        waitingType={DutiesWaiting.EXPORTER_PRODUCTION}
-                        message={
-                            'The exporter has not uploaded the Payment Invoice yet. \n You will be notified when there are new developments.'
-                        }
-                        marginVertical="1rem"
+                content: orderTrade && (
+                    <CoffeeProduction
+                        orderTrade={orderTrade}
+                        stepLabelTip={stepLabelTip}
+                        validationCallback={props.validationCallback}
                     />
                 )
             },
@@ -813,26 +724,33 @@ export default function OrderStatusSteps(props: Props) {
                         marginVertical="1rem"
                     />
                 )
-            },
-            {
-                title: 'Coffee Import',
-                icon: <ImportOutlined />,
-                content: hasStartingDuties(OrderStatus.SHIPPED, elementsAfterNegotiation) ? (
-                    <GenericForm
-                        elements={elementsAfterNegotiation.get(OrderStatus.SHIPPED)!.elements}
-                        submittable={hasPendingDuties(OrderStatus.SHIPPED)}
-                        onSubmit={elementsAfterNegotiation.get(OrderStatus.SHIPPED)!.onSubmit}
-                    />
-                ) : (
-                    <TradeDutiesWaiting
-                        waitingType={DutiesWaiting.IMPORTER_IMPORT}
-                        message={
-                            'The importer has not uploaded the Swiss Decode results for comparison. \n You will be notified when there are new developments.'
-                        }
-                        marginVertical="1rem"
-                    />
-                )
             }
+            // {
+            //     title: 'Coffee Import',
+            //     icon: <ImportOutlined />,
+            //     content:
+            //         orderTrade &&
+            //         orderDocumentDetailMap.get(OrderStatus.SHIPPED) &&
+            //         getDocumentsDuties(
+            //             orderTrade?.supplier,
+            //             orderTrade?.commissioner,
+            //             orderDocumentDetailMap.get(OrderStatus.SHIPPED)!
+            //         ) !== DOCUMENT_DUTY.NO_ACTION_NEEDED ? (
+            //             <GenericForm
+            //                 elements={elementsAfterNegotiation.get(OrderStatus.SHIPPED)!.elements}
+            //                 submittable={hasPendingDuties(OrderStatus.SHIPPED)}
+            //                 onSubmit={elementsAfterNegotiation.get(OrderStatus.SHIPPED)!.onSubmit}
+            //             />
+            //         ) : (
+            //             <TradeDutiesWaiting
+            //                 waitingType={DutiesWaiting.IMPORTER_IMPORT}
+            //                 message={
+            //                     'The importer has not uploaded the Swiss Decode results for comparison. \n You will be notified when there are new developments.'
+            //                 }
+            //                 marginVertical="1rem"
+            //             />
+            //         )
+            // }
         ];
     }, [negotiationElements, submittable]);
 

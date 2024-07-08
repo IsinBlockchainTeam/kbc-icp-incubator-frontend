@@ -1,20 +1,19 @@
 import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 import {
+    DocumentDriver,
+    DocumentStatus,
+    DocumentType,
+    NegotiationStatus,
+    OrderLine,
+    OrderLinePrice,
+    OrderStatus,
     OrderTrade,
     OrderTradeDriver,
     OrderTradeService,
-    DocumentDriver,
-    DocumentInfo,
-    DocumentType,
     TradeManagerDriver,
     TradeManagerService,
     TradeType,
-    URLStructure,
-    DocumentStatus,
-    NegotiationStatus,
-    OrderStatus,
-    OrderLine,
-    OrderLinePrice
+    URLStructure
 } from '@kbc-lib/coffee-trading-management-lib';
 import { useEthRawTrade } from '@/providers/entities/EthRawTradeProvider';
 import { contractAddresses } from '@/constants/evm';
@@ -32,7 +31,11 @@ import { ICP } from '@/constants/icp';
 import { ICPResourceSpec } from '@blockchain-lib/common';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { RootState } from '@/redux/store';
-import { DocumentContent, useEthDocument } from '@/providers/entities/EthDocumentProvider';
+import {
+    DOCUMENT_DUTY,
+    DocumentDetailMap,
+    useEthDocument
+} from '@/providers/entities/EthDocumentProvider';
 
 export type EthOrderTradeContextState = {
     orderTrades: OrderTrade[];
@@ -43,15 +46,18 @@ export type EthOrderTradeContextState = {
     updateOrderTrade: (tradeId: number, orderTradeRequest: OrderTradeRequest) => Promise<void>;
     getActionRequired: (orderId: number) => string;
     getNegotiationStatus: (orderId: number) => NegotiationStatus;
-    getOrderRequiredDocuments: (
-        orderId: number
-    ) => Map<DocumentType, [DocumentInfo, DocumentStatus, DocumentContent] | null>;
+    getOrderDocumentDetailMap: (orderId: number) => DocumentDetailMap;
     getOrderStatus: (orderId: number) => OrderStatus;
     confirmNegotiation: (orderId: number) => Promise<void>;
     validateOrderDocument: (
         orderId: number,
         documentId: number,
         validationStatus: DocumentStatus
+    ) => Promise<void>;
+    uploadOrderDocument: (
+        orderId: number,
+        documentRequest: DocumentRequest,
+        externalUrl: string
     ) => Promise<void>;
 };
 export const EthOrderTradeContext = createContext<EthOrderTradeContextState>(
@@ -67,7 +73,7 @@ export const useEthOrderTrade = (): EthOrderTradeContextState => {
 type DetailedOrderTrade = {
     trade: OrderTrade;
     service: OrderTradeService;
-    requiredDocuments: Map<DocumentType, [DocumentInfo, DocumentStatus, DocumentContent] | null>;
+    documentDetailMap: DocumentDetailMap;
     actionRequired: string;
     negotiationStatus: NegotiationStatus;
     orderStatus: OrderStatus;
@@ -76,7 +82,8 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
     const { signer, waitForTransactions } = useSigner();
     const { rawTrades } = useEthRawTrade();
     const { productCategories } = useEthMaterial();
-    const { getRequiredDocumentsTypes, validateDocument, getDocumentContent } = useEthDocument();
+    const { validateDocument, uploadDocument, getDocumentDuty, getDocumentDetailMap } =
+        useEthDocument();
     const dispatch = useDispatch();
     const [detailedOrderTrades, setDetailedOrderTrades] = useState<DetailedOrderTrade[]>([]);
     const { fileDriver } = useContext(ICPContext);
@@ -119,13 +126,10 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
                         const negotiationStatus = trade.negotiationStatus;
                         const orderStatus = await service.getOrderStatus();
                         const signatures = await service.getWhoSigned();
-                        const requiredDocuments = await getRequiredDocumentsDetail(
-                            orderStatus,
-                            service
-                        );
+                        const documentDetailMap = await getDocumentDetailMap(service);
                         const actionRequired = await getActionMessage(
                             trade,
-                            requiredDocuments,
+                            documentDetailMap,
                             negotiationStatus,
                             orderStatus,
                             signatures
@@ -134,7 +138,7 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
                         detailedOrderTrades.push({
                             trade,
                             service,
-                            requiredDocuments,
+                            documentDetailMap,
                             actionRequired,
                             negotiationStatus,
                             orderStatus
@@ -143,6 +147,7 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
             );
             setDetailedOrderTrades(detailedOrderTrades);
         } catch (e) {
+            console.log(e);
             openNotification(
                 'Error',
                 ORDER_TRADE_MESSAGE.RETRIEVE.ERROR,
@@ -166,33 +171,6 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
             fileDriver
         );
 
-    const getRequiredDocumentsDetail = async (
-        orderStatus: OrderStatus,
-        service: OrderTradeService
-    ) => {
-        const requiredDocumentsTypes = getRequiredDocumentsTypes(orderStatus);
-        const documentMap = new Map<
-            DocumentType,
-            [DocumentInfo, DocumentStatus, DocumentContent] | null
-        >();
-        await Promise.all(
-            requiredDocumentsTypes.map(async (type) => {
-                const documents = await service.getDocumentsByType(type);
-                const documentInfo = documents
-                    .filter((docInfo) => !docInfo.externalUrl.endsWith('.json'))
-                    .pop();
-                if (!documentInfo) {
-                    documentMap.set(type, null);
-                    return;
-                }
-                const status = await service.getDocumentStatus(documentInfo.id);
-                const documentContent = await getDocumentContent(documentInfo);
-                documentMap.set(type, [documentInfo, status, documentContent]);
-            })
-        );
-        return documentMap;
-    };
-
     const getDesignatedPartyAddress = (orderStatus: OrderStatus, orderTrade: OrderTrade) => {
         switch (orderStatus) {
             case OrderStatus.PRODUCTION:
@@ -207,10 +185,7 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
 
     const getActionMessage = async (
         orderTrade: OrderTrade,
-        requiredDocuments: Map<
-            DocumentType,
-            [DocumentInfo, DocumentStatus, DocumentContent] | null
-        >,
+        documentDetailMap: DocumentDetailMap,
         negotiationStatus: NegotiationStatus,
         orderStatus: OrderStatus,
         signatures: string[]
@@ -218,32 +193,34 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
         if (!signatures.includes(signer.address) && negotiationStatus === NegotiationStatus.PENDING)
             return ACTION_MESSAGE.SIGNATURE_REQUIRED;
 
-        const requiredDocumentsTypes = [...requiredDocuments.keys()];
-        if (requiredDocuments.size === 0) return ACTION_MESSAGE.NO_ACTION;
+        const requiredDocuments = documentDetailMap.get(orderStatus);
+        if (!requiredDocuments) return ACTION_MESSAGE.NO_ACTION;
 
-        const designatedPartyAddress = getDesignatedPartyAddress(orderStatus, orderTrade);
+        const requiredDocumentsTypes = Array.from(requiredDocuments.keys());
+        if (
+            requiredDocumentsTypes.some(
+                (docType) =>
+                    getDocumentDuty(
+                        orderTrade.supplier,
+                        orderTrade.commissioner,
+                        requiredDocuments.get(docType)!
+                    ) == DOCUMENT_DUTY.UPLOAD_NEEDED
+            )
+        )
+            return ACTION_MESSAGE.UPLOAD_REQUIRED;
 
-        if (signer.address === designatedPartyAddress) {
-            const isUploadRequired = requiredDocumentsTypes.some((docType) => {
-                const value = requiredDocuments.get(docType);
-                if (!value) return true;
-                const [_, documentStatus] = value;
-                return documentStatus === DocumentStatus.NOT_APPROVED;
-            });
+        if (
+            requiredDocumentsTypes.some(
+                (docType) =>
+                    getDocumentDuty(
+                        orderTrade.supplier,
+                        orderTrade.commissioner,
+                        requiredDocuments.get(docType)!
+                    ) == DOCUMENT_DUTY.APPROVAL_NEEDED
+            )
+        )
+            return ACTION_MESSAGE.VALIDATION_REQUIRED;
 
-            if (isUploadRequired) {
-                return ACTION_MESSAGE.UPLOAD_REQUIRED;
-            }
-        } else {
-            const isValidationRequired = requiredDocumentsTypes.some((docType) => {
-                const value = requiredDocuments.get(docType);
-                if (!value) return false;
-                const [_, documentStatus] = value;
-                return documentStatus === DocumentStatus.NOT_EVALUATED;
-            });
-
-            if (isValidationRequired) return ACTION_MESSAGE.VALIDATION_REQUIRED;
-        }
         return ACTION_MESSAGE.NO_ACTION;
     };
 
@@ -435,6 +412,16 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
         return validateDocument(documentId, validationStatus, orderService);
     };
 
+    const uploadOrderDocument = async (
+        orderId: number,
+        documentRequest: DocumentRequest,
+        externalUrl: string
+    ) => {
+        const orderService = detailedOrderTrades.find((t) => t.trade.tradeId === orderId)?.service;
+        if (!orderService) return Promise.reject('Trade not found');
+        return uploadDocument(documentRequest, externalUrl, orderService);
+    };
+
     const orderTrades = detailedOrderTrades.map((detailedTrade) => detailedTrade.trade);
     const getActionRequired = (orderId: number) =>
         detailedOrderTrades.find((t) => t.trade.tradeId === orderId)?.actionRequired || '';
@@ -444,9 +431,9 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
     const getOrderStatus = (orderId: number) =>
         detailedOrderTrades.find((t) => t.trade.tradeId === orderId)?.orderStatus ||
         OrderStatus.CONTRACTING;
-    const getOrderRequiredDocuments = (orderId: number) =>
-        detailedOrderTrades.find((t) => t.trade.tradeId === orderId)?.requiredDocuments ||
-        new Map<DocumentType, [DocumentInfo, DocumentStatus, DocumentContent] | null>();
+    const getOrderDocumentDetailMap = (orderId: number) =>
+        detailedOrderTrades.find((t) => t.trade.tradeId === orderId)?.documentDetailMap ||
+        (new Map() as DocumentDetailMap);
     return (
         <EthOrderTradeContext.Provider
             value={{
@@ -456,9 +443,10 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
                 getActionRequired,
                 getNegotiationStatus,
                 getOrderStatus,
-                getOrderRequiredDocuments,
+                getOrderDocumentDetailMap,
                 confirmNegotiation,
-                validateOrderDocument
+                validateOrderDocument,
+                uploadOrderDocument
             }}>
             {props.children}
         </EthOrderTradeContext.Provider>

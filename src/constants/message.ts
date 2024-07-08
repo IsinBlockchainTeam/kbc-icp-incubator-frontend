@@ -122,9 +122,9 @@ export const ORDER_TRADE_MESSAGE = {
 };
 export const DOCUMENT_MESSAGE = {
     UPLOAD: {
-        LOADING: 'Uploading documents...',
-        OK: '',
-        ERROR: 'Error while uploading documents.'
+        LOADING: 'Uploading document...',
+        OK: 'The document has been successfully uploaded.',
+        ERROR: 'Error while uploading document.'
     },
     VALIDATE: {
         LOADING: 'Validating document...',
