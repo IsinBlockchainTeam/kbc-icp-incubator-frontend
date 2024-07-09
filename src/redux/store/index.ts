@@ -3,6 +3,7 @@ import userInfoReducer from '@/redux/reducers/userInfoSlice';
 import loadingReducer from '@/redux/reducers/loadingSlice';
 import siweIdentityReducer from '@/redux/reducers/siweIdentitySlice';
 import storage from 'redux-persist/lib/storage/session';
+import walletConnectReducer from '@/redux/reducers/walletConnectSlice';
 import {
     persistReducer,
     persistStore,

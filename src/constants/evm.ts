@@ -1,10 +1,30 @@
-import { checkAndGetEnvironmentVariable } from '@/utils/env';
+import {checkAndGetEnvironmentVariable} from '@/utils/env';
 
 export const RPC_URL = checkAndGetEnvironmentVariable(
     process.env.REACT_APP_RPC_URL,
     'RPC URL must be defined'
 );
-export const contractAddresses = {
+export const CHAIN_ID = (): number => {
+    const chainId = checkAndGetEnvironmentVariable(
+        process.env.REACT_APP_CHAIN_ID,
+        'Chain ID must be defined'
+    );
+    try {
+        return parseInt(chainId);
+    } catch (e) {
+        throw new Error('Chain ID must be a number');
+    }
+}
+export const CHAIN_NAME = (): string => {
+    try {
+        return checkAndGetEnvironmentVariable(
+            process.env.REACT_APP_CHAIN_NAME
+        );
+    } catch (e) {
+        return 'Unknown Chain';
+    }
+}
+export const CONTRACT_ADDRESSES = {
     PROCESS_TYPE: () =>
         checkAndGetEnvironmentVariable(
             process.env.REACT_APP_CONTRACT_PROCESS_TYPE,

@@ -31,7 +31,10 @@ function WalletConnect() {
     }, [isConnected, walletProvider]);
 
     const sendTransaction = async () => {
-        const ethersProvider = new ethers.providers.Web3Provider(walletProvider!);
+        if(!walletProvider)
+            return;
+        const ethersProvider = new ethers.providers.Web3Provider(walletProvider);
+        console.log("ethersProvider:", ethersProvider)
         const signer = ethersProvider.getSigner();
         console.log("signer:", signer);
 

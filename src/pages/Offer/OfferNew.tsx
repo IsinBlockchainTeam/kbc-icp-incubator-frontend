@@ -59,7 +59,7 @@ export const OfferNew = () => {
         try {
             dispatch(showLoading('Loading elements...'));
             const supplierName =
-                (await getNameByDID(DID_METHOD + ':' + signer?.address)) || 'Unknown';
+                (await getNameByDID(DID_METHOD + ':' + signer?._address)) || 'Unknown';
             setElements([
                 { type: FormElementType.TITLE, span: 24, label: 'Data' },
                 {
@@ -100,7 +100,7 @@ export const OfferNew = () => {
 
     const onSubmit = async (values: any) => {
         try {
-            values['offeror'] = signer?.address || 'Unknown';
+            values['offeror'] = signer?._address || 'Unknown';
             dispatch(showLoading('Creating offer...'));
             await ethOfferService.saveOffer(values.offeror, values['product-category-id']);
             openNotification(

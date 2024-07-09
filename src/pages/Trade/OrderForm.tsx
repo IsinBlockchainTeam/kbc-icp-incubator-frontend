@@ -146,7 +146,7 @@ export default function OrderForm(props: Props) {
         documentType: DocumentType
     ): boolean => {
         return (
-            signer?.address === designatedPartyAddress &&
+            signer?._address === designatedPartyAddress &&
             tradeInfo.documents.get(documentType)?.status !== DocumentStatus.APPROVED
         );
     };
@@ -154,7 +154,7 @@ export default function OrderForm(props: Props) {
     const deadlineExpiredEmailSend: FormProps['onFinish'] = async (values) => {
         try {
             const recipientCompanyName =
-                orderInfo?.trade.supplier === signer?.address
+                orderInfo?.trade.supplier === signer?._address
                     ? await getNameByDID(`${DID_METHOD}:${orderInfo?.trade.commissioner}`)
                     : await getNameByDID(`${DID_METHOD}:${orderInfo?.trade.supplier}`);
             const response = await fetch(`${requestPath.EMAIL_SENDER_URL}/email/deadline-expired`, {
@@ -611,7 +611,7 @@ export default function OrderForm(props: Props) {
             ): boolean =>
                 documentTypes.some((docType) => documents.has(docType))
                     ? true
-                    : signer?.address === designatedPartyAddress;
+                    : signer?._address === designatedPartyAddress;
 
             switch (orderStatus) {
                 case OrderStatus.PRODUCTION:
@@ -644,7 +644,7 @@ export default function OrderForm(props: Props) {
                 docTypes: DocumentType[],
                 statuses: DocumentStatus[]
             ): boolean =>
-                signer?.address !== designatedPartyAddress
+                signer?._address !== designatedPartyAddress
                     ? false
                     : docTypes.some((docType) =>
                           statuses.some((status) =>

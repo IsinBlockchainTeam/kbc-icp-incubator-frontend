@@ -71,7 +71,7 @@ export default function Profile() {
                 <Paragraph>Address: {userInfo.address}</Paragraph>
                 <Paragraph>Nation: {userInfo.nation}</Paragraph>
                 <Paragraph>Telephone: {userInfo.telephone}</Paragraph>
-                <Paragraph>Ethereum Address: {signer?.address || 'undefined'}</Paragraph>
+                <Paragraph>Ethereum Address: {signer?._address || 'undefined'}</Paragraph>
                 {identity && (
                     <>
                         <Paragraph>ICP principal: {principal}</Paragraph>

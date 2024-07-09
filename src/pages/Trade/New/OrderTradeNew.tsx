@@ -54,8 +54,8 @@ export const OrderTradeNew = ({ commonElements, validateDates }: OrderTradeNewPr
         try {
             //FIXME: This is a workaround to get data instead of the form
             values['supplier'] = location?.state?.supplierAddress || 'Unknown';
-            values['customer'] = signer?.address || 'Unknown';
-            values['commissioner'] = signer?.address || 'Unknown';
+            values['customer'] = signer?._address || 'Unknown';
+            values['commissioner'] = signer?._address || 'Unknown';
             values['product-category-id-1'] = location?.state?.productCategoryId || '0';
             dispatch(showLoading('Creating trade...'));
             const supplier: string = values['supplier'];

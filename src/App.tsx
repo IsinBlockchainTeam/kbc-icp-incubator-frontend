@@ -24,12 +24,19 @@ import { MenuLayout } from '@/components/structure/MenuLayout/MenuLayout';
 import { paths } from '@/constants/paths';
 
 import { createWeb3Modal, defaultConfig } from '@web3modal/ethers5/react'
-
+import {RPC_URL} from "@/constants/evm";
 
 // 1. Get projectId
 const projectId = 'e55dee800a9c2117a91613b30aa697ee'
 
 // 2. Set chains
+// const chain = {
+//     chainId: 222,
+//     name: '3A Chain',
+//     currency: 'ETH',
+//     explorerUrl: 'https://etherscan.io',
+//     rpcUrl: RPC_URL,
+// }
 const chain = {
     chainId: 11155111,
     name: 'Sepolia Infura',

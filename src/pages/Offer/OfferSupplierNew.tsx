@@ -30,7 +30,7 @@ export const OfferSupplierNew = () => {
             name: 'supplier-address',
             label: 'Supplier Address',
             required: false,
-            defaultValue: signer?.address || 'Unknown',
+            defaultValue: signer?._address || 'Unknown',
             disabled: true
         },
         {
@@ -46,7 +46,7 @@ export const OfferSupplierNew = () => {
 
     const onSubmit = async (values: any) => {
         try {
-            values['supplier-address'] = signer?.address || 'Unknown';
+            values['supplier-address'] = signer?._address || 'Unknown';
             values['supplier-name'] = userInfo.legalName || 'Unknown';
             dispatch(showLoading('Inserting offer supplier...'));
             await ethOfferService.saveSupplier(values['supplier-address'], values['supplier-name']);

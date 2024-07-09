@@ -50,7 +50,7 @@ export const TradeNew = () => {
 
     const fetchNames = async () => {
         setSupplierName(await getActorName(location?.state?.supplierAddress));
-        setCommissionerName(await getActorName(signer?.address));
+        setCommissionerName(await getActorName(signer?._address));
         setAreNamesReady(true);
     };
 

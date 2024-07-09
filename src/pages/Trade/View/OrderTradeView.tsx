@@ -79,7 +79,7 @@ export const OrderTradeView = ({
         const doc = tradeInfo.documents.get(documentType);
         return doc &&
             doc.status === DocumentStatus.NOT_EVALUATED &&
-            doc.uploadedBy !== signer?.address
+            doc.uploadedBy !== signer?._address
             ? {
                   approve: () =>
                       validateDocument(tradeInfo.trade.tradeId, doc.id, DocumentStatus.APPROVED),
@@ -380,8 +380,8 @@ export const OrderTradeView = ({
             }
         );
         if (
-            (orderTrade.hasSupplierSigned && orderTrade.supplier !== signer?.address) ||
-            (orderTrade.hasCommissionerSigned && orderTrade.commissioner !== signer?.address)
+            (orderTrade.hasSupplierSigned && orderTrade.supplier !== signer?._address) ||
+            (orderTrade.hasCommissionerSigned && orderTrade.commissioner !== signer?._address)
         ) {
             elements.push({
                 type: FormElementType.BUTTON,

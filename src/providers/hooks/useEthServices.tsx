@@ -24,7 +24,7 @@ import {
     TradeService
 } from '@kbc-lib/coffee-trading-management-lib';
 import { EnumerableTypeReadDriver, EnumerableTypeService } from '@blockchain-lib/common';
-import { contractAddresses } from '@/constants/evm';
+import { CONTRACT_ADDRESSES } from '@/constants/evm';
 import {
     EthAssetOperationService,
     EthDocumentService,
@@ -46,31 +46,31 @@ export function useEthServices() {
 
     const productCategoryDriver = new ProductCategoryDriver(
         signer,
-        contractAddresses.PRODUCT_CATEGORY()
+        CONTRACT_ADDRESSES.PRODUCT_CATEGORY()
     );
     const materialDriver = new MaterialDriver(
         signer,
-        contractAddresses.MATERIAL(),
-        contractAddresses.PRODUCT_CATEGORY()
+        CONTRACT_ADDRESSES.MATERIAL(),
+        CONTRACT_ADDRESSES.PRODUCT_CATEGORY()
     );
-    const relationshipDriver = new RelationshipDriver(signer, contractAddresses.RELATIONSHIP());
+    const relationshipDriver = new RelationshipDriver(signer, CONTRACT_ADDRESSES.RELATIONSHIP());
     const tradeManagerDriver = new TradeManagerDriver(
         signer,
-        contractAddresses.TRADE(),
-        contractAddresses.MATERIAL(),
-        contractAddresses.PRODUCT_CATEGORY()
+        CONTRACT_ADDRESSES.TRADE(),
+        CONTRACT_ADDRESSES.MATERIAL(),
+        CONTRACT_ADDRESSES.PRODUCT_CATEGORY()
     );
-    const documentDriver = new DocumentDriver(signer, contractAddresses.DOCUMENT());
+    const documentDriver = new DocumentDriver(signer, CONTRACT_ADDRESSES.DOCUMENT());
     const assetOperationDriver = new AssetOperationDriver(
         signer,
-        contractAddresses.ASSET_OPERATION(),
-        contractAddresses.MATERIAL(),
-        contractAddresses.PRODUCT_CATEGORY()
+        CONTRACT_ADDRESSES.ASSET_OPERATION(),
+        CONTRACT_ADDRESSES.MATERIAL(),
+        CONTRACT_ADDRESSES.PRODUCT_CATEGORY()
     );
     const offerDriver = new OfferDriver(
         signer,
-        contractAddresses.OFFER(),
-        contractAddresses.PRODUCT_CATEGORY()
+        CONTRACT_ADDRESSES.OFFER(),
+        CONTRACT_ADDRESSES.PRODUCT_CATEGORY()
     );
 
     const productCategoryService = new ProductCategoryService(productCategoryDriver);
@@ -85,13 +85,13 @@ export function useEthServices() {
     const graphService = new GraphService(signer, tradeManagerService, assetOperationService);
     const offerService = new OfferService(offerDriver);
     const fiatService = new EnumerableTypeService(
-        new EnumerableTypeReadDriver(signer, contractAddresses.FIAT())
+        new EnumerableTypeReadDriver(signer, CONTRACT_ADDRESSES.FIAT())
     );
     const processTypeService = new EnumerableTypeService(
-        new EnumerableTypeReadDriver(signer, contractAddresses.PROCESS_TYPE())
+        new EnumerableTypeReadDriver(signer, CONTRACT_ADDRESSES.PROCESS_TYPE())
     );
     const unitService = new EnumerableTypeService(
-        new EnumerableTypeReadDriver(signer, contractAddresses.UNIT())
+        new EnumerableTypeReadDriver(signer, CONTRACT_ADDRESSES.UNIT())
     );
 
     const getTradeService = (address: string) =>
@@ -101,8 +101,8 @@ export function useEthServices() {
             new BasicTradeDriver(
                 signer,
                 address,
-                contractAddresses.MATERIAL(),
-                contractAddresses.PRODUCT_CATEGORY()
+                CONTRACT_ADDRESSES.MATERIAL(),
+                CONTRACT_ADDRESSES.PRODUCT_CATEGORY()
             ),
             documentDriver,
             fileDriver
@@ -112,8 +112,8 @@ export function useEthServices() {
             new OrderTradeDriver(
                 signer,
                 address,
-                contractAddresses.MATERIAL(),
-                contractAddresses.PRODUCT_CATEGORY()
+                CONTRACT_ADDRESSES.MATERIAL(),
+                CONTRACT_ADDRESSES.PRODUCT_CATEGORY()
             ),
             documentDriver,
             fileDriver
@@ -123,7 +123,7 @@ export function useEthServices() {
     }
 
     const ethAssetOperationService = new EthAssetOperationService(
-        signer.address,
+        signer._address,
         assetOperationService,
         materialService
     );
@@ -138,14 +138,14 @@ export function useEthServices() {
     const ethFiatService = new EthEnumerableTypeService(fiatService);
     const ethGraphService = new EthGraphService(graphService);
     const ethMaterialService = new EthMaterialService(
-        signer.address,
+        signer._address,
         productCategoryService,
         materialService
     );
     const ethOfferService = new EthOfferService(offerService);
-    const ethPartnerService = new EthPartnerService(signer.address, relationshipService);
+    const ethPartnerService = new EthPartnerService(signer._address, relationshipService);
     const ethTradeService = new EthTradeService(
-        signer.address,
+        signer._address,
         parseInt(userInfo.organizationId),
         ethMaterialService,
         tradeManagerService,
