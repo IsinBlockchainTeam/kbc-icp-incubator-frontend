@@ -3,17 +3,17 @@ import { FormElement, FormElementType, GenericForm } from '@/components/GenericF
 import { CardPage } from '@/components/structure/CardPage/CardPage';
 import { Button } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
-import React, { useContext } from 'react';
+import React from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
-import { SignerContext } from '@/providers/SignerProvider';
+import { useSigner } from '@/providers/SignerProvider';
 import { paths } from '@/constants/paths';
 import { credentials } from '@/constants/ssi';
 import { useEthOffer } from '@/providers/entities/EthOfferProvider';
 
 export const OfferSupplierNew = () => {
     const { saveSupplier } = useEthOffer();
-    const { signer } = useContext(SignerContext);
+    const { signer } = useSigner();
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const navigate = useNavigate();
 

@@ -18,7 +18,7 @@ import {
 import { useEthRawTrade } from '@/providers/entities/EthRawTradeProvider';
 import { contractAddresses } from '@/constants/evm';
 import { useSigner } from '@/providers/SignerProvider';
-import { ICPContext } from '@/providers/ICPProvider';
+import { useICP } from '@/providers/ICPProvider';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
 import { ACTION_MESSAGE, ORDER_TRADE_MESSAGE } from '@/constants/message';
 import { NotificationType, openNotification } from '@/utils/notification';
@@ -96,7 +96,7 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
     const { getName } = useICPName();
     const dispatch = useDispatch();
     const [detailedOrderTrades, setDetailedOrderTrades] = useState<DetailedOrderTrade[]>([]);
-    const { fileDriver } = useContext(ICPContext);
+    const { fileDriver } = useICP();
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const organizationId = parseInt(userInfo.organizationId);
 

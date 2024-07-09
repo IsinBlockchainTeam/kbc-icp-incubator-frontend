@@ -8,10 +8,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { updateUserInfo } from '@/redux/reducers/userInfoSlice';
 import { RootState } from '@/redux/store';
 import { Navigate } from 'react-router-dom';
-import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
+import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
 import { requestPath } from '@/constants/url';
 import { paths } from '@/constants/paths';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
+import { LOGIN_MESSAGE } from '@/constants/message';
 
 export default function VeramoLogin() {
     const [qrCodeURL, setQrCodeURL] = useState<string>('');
@@ -21,7 +22,7 @@ export default function VeramoLogin() {
 
     const requestAuthPresentation = async () => {
         try {
-            dispatch(showLoading('Loading...'));
+            dispatch(addLoadingMessage(LOGIN_MESSAGE.COMPUTE.LOADING));
             const id = uuid();
             const response = await request(
                 `${requestPath.VERIFIER_BACKEND_URL}/presentations/create/selective-disclosure`,
@@ -38,17 +39,19 @@ export default function VeramoLogin() {
             setChallengeId(id);
         } catch (e: any) {
             console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR, NOTIFICATION_DURATION);
+            openNotification(
+                'Error',
+                LOGIN_MESSAGE.COMPUTE.ERROR,
+                NotificationType.ERROR,
+                NOTIFICATION_DURATION
+            );
         } finally {
-            dispatch(hideLoading());
+            dispatch(removeLoadingMessage(LOGIN_MESSAGE.COMPUTE.LOADING));
         }
     };
 
     useEffect(() => {
         requestAuthPresentation();
-        return () => {
-            dispatch(hideLoading());
-        };
     }, []);
 
     useEffect(() => {

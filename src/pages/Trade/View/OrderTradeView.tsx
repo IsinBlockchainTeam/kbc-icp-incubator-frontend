@@ -9,11 +9,11 @@ import {
 import { Tag, Tooltip } from 'antd';
 import OrderStatusSteps from '@/pages/Trade/OrderStatusSteps/OrderStatusSteps';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { FormElement, FormElementType } from '@/components/GenericForm/GenericForm';
 import { regex } from '@/utils/regex';
 import dayjs from 'dayjs';
-import { SignerContext } from '@/providers/SignerProvider';
+import { useSigner } from '@/providers/SignerProvider';
 import { OrderTradeRequest } from '@/api/types/TradeRequest';
 import { paths } from '@/constants/paths';
 import { useNavigate } from 'react-router-dom';
@@ -36,7 +36,7 @@ export const OrderTradeView = ({
     commonElements
 }: OrderTradeViewProps) => {
     const [isEditing, setIsEditing] = useState<boolean>(false);
-    const { signer } = useContext(SignerContext);
+    const { signer } = useSigner();
     const { productCategories } = useEthMaterial();
     const { units, fiats } = useEthEnumerable();
     const { updateOrderTrade, confirmNegotiation, getOrderStatus } = useEthOrderTrade();

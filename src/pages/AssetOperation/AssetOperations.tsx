@@ -1,41 +1,16 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { NotificationType, openNotification } from '@/utils/notification';
+import React from 'react';
 import { ColumnsType } from 'antd/es/table';
 import { Button, Table } from 'antd';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
 import { AssetOperation } from '@kbc-lib/coffee-trading-management-lib';
 import { PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
-import { useDispatch } from 'react-redux';
-import { EthContext } from '@/providers/EthProvider';
 import { paths } from '@/constants/paths';
-import { NOTIFICATION_DURATION } from '@/constants/notification';
+import { useEthAssetOperation } from '@/providers/entities/EthAssetOperationProvider';
 
 export const AssetOperations = () => {
-    const { ethAssetOperationService } = useContext(EthContext);
+    const { assetOperations } = useEthAssetOperation();
     const navigate = useNavigate();
-    const dispatch = useDispatch();
-
-    const [assetOperations, setAssetOperations] = useState<AssetOperation[]>();
-    const loadData = async () => {
-        try {
-            dispatch(showLoading('Retrieving asset operations...'));
-            const assetOperations = await ethAssetOperationService.getAssetOperations();
-            setAssetOperations(
-                assetOperations.map((t) => {
-                    // @ts-ignore
-                    t['key'] = t.id;
-                    return t;
-                })
-            );
-        } catch (e: any) {
-            console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR, NOTIFICATION_DURATION);
-        } finally {
-            dispatch(hideLoading());
-        }
-    };
 
     const columns: ColumnsType<AssetOperation> = [
         {
@@ -58,13 +33,6 @@ export const AssetOperations = () => {
             }
         }
     ];
-
-    useEffect(() => {
-        loadData();
-        return () => {
-            dispatch(hideLoading());
-        };
-    }, []);
 
     return (
         <CardPage

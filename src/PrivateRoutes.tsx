@@ -5,7 +5,6 @@ import { RootState } from '@/redux/store';
 import { SignerProvider } from '@/providers/SignerProvider';
 import { SiweIdentityProvider } from '@/providers/SiweIdentityProvider';
 import { ICPProvider } from '@/providers/ICPProvider';
-import { EthProvider } from '@/providers/EthProvider';
 import { paths } from '@/constants/paths';
 import { EthMaterialProvider } from '@/providers/entities/EthMaterialProvider';
 import { EthEnumerableProvider } from '@/providers/entities/EthEnumerableProvider';
@@ -15,6 +14,9 @@ import { EthRawTradeProvider } from '@/providers/entities/EthRawTradeProvider';
 import { EthDocumentProvider } from '@/providers/entities/EthDocumentProvider';
 import { EthBasicTradeProvider } from '@/providers/entities/EthBasicTradeProvider';
 import { EthOrderTradeProvider } from '@/providers/entities/EthOrderTradeProvider';
+import { EthAssetOperationProvider } from '@/providers/entities/EthAssetOperationProvider';
+import { EthRelationshipProvider } from '@/providers/entities/EthRelationshipProvider';
+import { EthGraphProvider } from '@/providers/entities/EthGraphProvider';
 
 const PrivateRoutes = () => {
     const { isLogged } = useSelector((state: RootState) => state.userInfo);
@@ -22,25 +24,29 @@ const PrivateRoutes = () => {
         <SignerProvider>
             <SiweIdentityProvider>
                 <ICPProvider>
-                    <EthProvider>
+                    <EthRelationshipProvider>
                         <ICPNameProvider>
                             <EthEnumerableProvider>
                                 <EthMaterialProvider>
                                     <EthOfferProvider>
-                                        <EthDocumentProvider>
-                                            <EthRawTradeProvider>
-                                                <EthBasicTradeProvider>
-                                                    <EthOrderTradeProvider>
-                                                        <Outlet />
-                                                    </EthOrderTradeProvider>
-                                                </EthBasicTradeProvider>
-                                            </EthRawTradeProvider>
-                                        </EthDocumentProvider>
+                                        <EthAssetOperationProvider>
+                                            <EthDocumentProvider>
+                                                <EthRawTradeProvider>
+                                                    <EthBasicTradeProvider>
+                                                        <EthOrderTradeProvider>
+                                                            <EthGraphProvider>
+                                                                <Outlet />
+                                                            </EthGraphProvider>
+                                                        </EthOrderTradeProvider>
+                                                    </EthBasicTradeProvider>
+                                                </EthRawTradeProvider>
+                                            </EthDocumentProvider>
+                                        </EthAssetOperationProvider>
                                     </EthOfferProvider>
                                 </EthMaterialProvider>
                             </EthEnumerableProvider>
                         </ICPNameProvider>
-                    </EthProvider>
+                    </EthRelationshipProvider>
                 </ICPProvider>
             </SiweIdentityProvider>
         </SignerProvider>

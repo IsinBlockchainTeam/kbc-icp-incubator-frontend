@@ -9,7 +9,7 @@ import {
 import { createContext, ReactNode, useContext, useMemo, useState } from 'react';
 import { contractAddresses } from '@/constants/evm';
 import { useSigner } from '@/providers/SignerProvider';
-import { ICPContext } from '@/providers/ICPProvider';
+import { useICP } from '@/providers/ICPProvider';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
 import { RAW_TRADE_MESSAGE } from '@/constants/message';
 import { useDispatch } from 'react-redux';
@@ -39,7 +39,7 @@ export function EthRawTradeProvider(props: { children: ReactNode }) {
     const [dataLoaded, setDataLoaded] = useState<boolean>(false);
     const [rawTrades, setRawTrades] = useState<RawTrade[]>([]);
     const { signer } = useSigner();
-    const { fileDriver } = useContext(ICPContext);
+    const { fileDriver } = useICP();
     const dispatch = useDispatch();
 
     const tradeManagerService = useMemo(

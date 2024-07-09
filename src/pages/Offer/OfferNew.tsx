@@ -3,10 +3,10 @@ import { FormElement, FormElementType, GenericForm } from '@/components/GenericF
 import { CardPage } from '@/components/structure/CardPage/CardPage';
 import { Button } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
-import React, { useContext } from 'react';
+import React from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
-import { SignerContext } from '@/providers/SignerProvider';
+import { useSigner } from '@/providers/SignerProvider';
 import { paths } from '@/constants/paths';
 import { credentials } from '@/constants/ssi';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
@@ -17,7 +17,7 @@ export const OfferNew = () => {
     const { productCategories } = useEthMaterial();
     const { saveOffer } = useEthOffer();
     const { getName } = useICPName();
-    const { signer } = useContext(SignerContext);
+    const { signer } = useSigner();
     const navigate = useNavigate();
     const userInfo = useSelector((state: RootState) => state.userInfo);
 

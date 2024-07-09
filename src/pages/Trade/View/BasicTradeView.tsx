@@ -69,7 +69,6 @@ export const BasicTradeView = ({
             required: false,
             loading: false,
             uploadable: !disabled,
-            approvable: false,
             // TODO: Fix this
             // info: getBasicTradeDocuments(basicTrade.tradeId),
             height: documentHeight

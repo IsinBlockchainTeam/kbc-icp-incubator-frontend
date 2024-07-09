@@ -4,7 +4,7 @@ import { NAME_MESSAGE } from '@/constants/message';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { useDispatch } from 'react-redux';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
-import { ICPContext } from '@/providers/ICPProvider';
+import { useICP } from '@/providers/ICPProvider';
 import { DID_METHOD } from '@/constants/ssi';
 import { request } from '@/utils/request';
 import { requestPath } from '@/constants/url';
@@ -33,7 +33,7 @@ export function ICPNameProvider(props: { children: React.ReactNode }) {
     const [dataLoaded, setDataLoaded] = useState<boolean>(false);
     const [names, setNames] = useState<Map<string, string>>(new Map<string, string>());
 
-    const { organizationDriver } = useContext(ICPContext);
+    const { organizationDriver } = useICP();
     const dispatch = useDispatch();
 
     const getName = (address: string) => {

@@ -101,6 +101,10 @@ type EditableElement = Omit<LabeledElement, 'type'> & {
     validationCallback?: (form: FormInstance) => Promise<void>;
 };
 
+export type DocumentValidationCallback = {
+    onApprove: () => Promise<void>;
+    onReject: () => Promise<void>;
+};
 export type DocumentElement = Omit<LabeledElement, 'type'> & {
     type: FormElementType.DOCUMENT;
     name: string;
@@ -110,9 +114,7 @@ export type DocumentElement = Omit<LabeledElement, 'type'> & {
     content?: DocumentContent;
     status?: DocumentStatus;
     height?: `${number}px` | `${number}%` | `${number}vh` | 'auto';
-    approvable: boolean;
-    onApprove?: () => Promise<void>;
-    onReject?: () => Promise<void>;
+    validationCallbacks?: DocumentValidationCallback;
 };
 
 type Props = {
@@ -348,7 +350,7 @@ export const GenericForm = (props: Props) => {
                             onDocumentChange={addDocument}
                             validationStatus={status}
                         />
-                        {element.approvable && (
+                        {element.validationCallbacks && (
                             <Popover
                                 title="Validate the document"
                                 trigger="click"
@@ -375,7 +377,7 @@ export const GenericForm = (props: Props) => {
                                             <Button
                                                 type="primary"
                                                 style={{ width: '100%' }}
-                                                onClick={element.onApprove}>
+                                                onClick={element.validationCallbacks.onApprove}>
                                                 Approve
                                             </Button>
                                         </Col>
@@ -384,7 +386,7 @@ export const GenericForm = (props: Props) => {
                                                 danger
                                                 type="primary"
                                                 style={{ width: '100%' }}
-                                                onClick={element.onReject}>
+                                                onClick={element.validationCallbacks.onReject}>
                                                 Reject
                                             </Button>
                                         </Col>

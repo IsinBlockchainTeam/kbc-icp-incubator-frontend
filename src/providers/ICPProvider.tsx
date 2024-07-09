@@ -13,7 +13,13 @@ export type ICPContextState = {
     getNameByDID: (did: string) => Promise<string>;
 };
 export const ICPContext = createContext<ICPContextState>({} as ICPContextState);
-
+export const useICP = (): ICPContextState => {
+    const context = React.useContext(ICPContext);
+    if (!context) {
+        throw new Error('useICP must be used within an ICPProvider.');
+    }
+    return context;
+};
 export function ICPProvider({ children }: { children: ReactNode }) {
     const { identity } = useSiweIdentity();
 

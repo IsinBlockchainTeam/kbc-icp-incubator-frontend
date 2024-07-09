@@ -4,15 +4,15 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { Navigate } from 'react-router-dom';
 import { useSiweIdentity } from '@/providers/SiweIdentityProvider';
-import React, { useContext, useEffect, useState } from 'react';
-import { SignerContext } from '@/providers/SignerProvider';
-import { ICPContext } from '@/providers/ICPProvider';
+import React, { useEffect, useState } from 'react';
+import { useSigner } from '@/providers/SignerProvider';
+import { useICP } from '@/providers/ICPProvider';
 import { paths } from '@/constants/paths';
 
 const { Title, Paragraph, Text } = Typography;
 export default function Profile() {
-    const { signer } = useContext(SignerContext);
-    const { organizationDriver } = useContext(ICPContext);
+    const { signer } = useSigner();
+    const { organizationDriver } = useICP();
     const { identity } = useSiweIdentity();
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const [principal, setPrincipal] = useState<string>('');

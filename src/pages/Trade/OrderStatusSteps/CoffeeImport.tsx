@@ -4,7 +4,7 @@ import {
     FormElementType,
     GenericForm
 } from '@/components/GenericForm/GenericForm';
-import React, { useContext } from 'react';
+import React from 'react';
 import {
     OrderStatus,
     DocumentType,
@@ -20,7 +20,7 @@ import { DocumentRequest } from '@/api/types/DocumentRequest';
 import { paths } from '@/constants/paths';
 import { useNavigate } from 'react-router-dom';
 import { StepTip } from '@/pages/Trade/OrderStatusSteps/StepTip';
-import { SignerContext } from '@/providers/SignerProvider';
+import { useSigner } from '@/providers/SignerProvider';
 
 type Props = {
     orderTrade: OrderTrade;
@@ -28,7 +28,7 @@ type Props = {
 export const CoffeeImport = ({ orderTrade }: Props) => {
     const { getDocumentDetail, uploadOrderDocument, validateOrderDocument } = useEthOrderTrade();
     const { getDocumentDuty } = useEthDocument();
-    const { signer } = useContext(SignerContext);
+    const { signer } = useSigner();
     const navigate = useNavigate();
 
     const documentDetail = getDocumentDetail(
@@ -50,6 +50,10 @@ export const CoffeeImport = ({ orderTrade }: Props) => {
         documentDuty == DOCUMENT_DUTY.UPLOAD_NEEDED ||
         documentDuty == DOCUMENT_DUTY.UPLOAD_POSSIBLE;
 
+    const needsValidation =
+        documentDetail !== null &&
+        documentDetail.status === DocumentStatus.NOT_EVALUATED &&
+        documentDetail.info.uploadedBy !== signer?.address;
     const elements: FormElement[] = [
         {
             type: FormElementType.TIP,
@@ -82,22 +86,22 @@ export const CoffeeImport = ({ orderTrade }: Props) => {
             content: documentDetail?.content,
             status: documentDetail?.status,
             height: '45vh',
-            approvable:
-                documentDetail !== null &&
-                documentDetail.status === DocumentStatus.NOT_EVALUATED &&
-                documentDetail.info.uploadedBy !== signer?.address,
-            onApprove: () =>
-                validateOrderDocument(
-                    orderTrade.tradeId,
-                    documentDetail!.info.id,
-                    DocumentStatus.APPROVED
-                ),
-            onReject: () =>
-                validateOrderDocument(
-                    orderTrade.tradeId,
-                    documentDetail!.info.id,
-                    DocumentStatus.NOT_APPROVED
-                )
+            validationCallbacks: needsValidation
+                ? {
+                      onApprove: () =>
+                          validateOrderDocument(
+                              orderTrade.tradeId,
+                              documentDetail!.info.id,
+                              DocumentStatus.APPROVED
+                          ),
+                      onReject: () =>
+                          validateOrderDocument(
+                              orderTrade.tradeId,
+                              documentDetail!.info.id,
+                              DocumentStatus.NOT_APPROVED
+                          )
+                  }
+                : undefined
         }
     ];
     const onSubmit = async (values: any) => {

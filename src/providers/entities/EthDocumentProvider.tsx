@@ -12,7 +12,7 @@ import {
 } from '@kbc-lib/coffee-trading-management-lib';
 import { useSigner } from '@/providers/SignerProvider';
 import { contractAddresses } from '@/constants/evm';
-import { ICPContext } from '@/providers/ICPProvider';
+import { useICP } from '@/providers/ICPProvider';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
@@ -83,7 +83,7 @@ export const useEthDocument = (): EthDocumentContextState => {
 };
 export function EthDocumentProvider(props: { children: ReactNode }) {
     const { signer } = useSigner();
-    const { fileDriver } = useContext(ICPContext);
+    const { fileDriver } = useICP();
     const dispatch = useDispatch();
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const documentDriver = useMemo(

@@ -74,6 +74,25 @@ export const NAME_MESSAGE = {
         ERROR: 'Error while retrieving names.'
     }
 };
+export const ASSET_OPERATION_MESSAGE = {
+    RETRIEVE: {
+        LOADING: 'Retrieving asset operations...',
+        OK: '',
+        ERROR: 'Error while retrieving asset operations.'
+    },
+    SAVE: {
+        LOADING: 'Creating asset operation...',
+        OK: 'The asset operation has been created.',
+        ERROR: 'Error while creating asset operation.'
+    }
+};
+export const RELATIONSHIP_MESSAGE = {
+    RETRIEVE: {
+        LOADING: 'Retrieving relationships...',
+        OK: '',
+        ERROR: 'Error while retrieving relationships.'
+    }
+};
 export const RAW_TRADE_MESSAGE = {
     RETRIEVE: {
         LOADING: 'Retrieving raw trades...',
@@ -143,4 +162,25 @@ export const ACTION_MESSAGE = {
     SIGNATURE_REQUIRED: 'This negotiation needs your sign to proceed.',
     UPLOAD_REQUIRED: 'You have to upload some documents.',
     VALIDATION_REQUIRED: 'This negotiation needs your sign to proceed.'
+};
+export const GRAPH_MESSAGE = {
+    COMPUTE: {
+        LOADING: 'Computing graph...',
+        OK: '',
+        ERROR: 'Error while computing graph.'
+    }
+};
+export const COMPANY_MESSAGE = {
+    INVITE: {
+        LOADING: 'Inviting company...',
+        OK: 'Company invited successfully.',
+        ERROR: 'Error while inviting company.'
+    }
+};
+export const LOGIN_MESSAGE = {
+    COMPUTE: {
+        LOADING: 'Logging in...',
+        OK: '',
+        ERROR: 'Error while logging in.'
+    }
 };

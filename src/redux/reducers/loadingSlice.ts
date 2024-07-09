@@ -25,17 +25,8 @@ const loadingSlice = createSlice({
             if (state.loadingMessages.length === 0) {
                 state.isLoading = false;
             }
-        },
-        showLoading: (state: LoadingState, action: { payload: string; type: string }) => {
-            state.isLoading = true;
-            state.loadingMessage = action.payload;
-        },
-        hideLoading: (state: LoadingState) => {
-            state.isLoading = false;
-            state.loadingMessage = '';
         }
     }
 });
-export const { addLoadingMessage, removeLoadingMessage, showLoading, hideLoading } =
-    loadingSlice.actions;
+export const { addLoadingMessage, removeLoadingMessage } = loadingSlice.actions;
 export default loadingSlice.reducer;

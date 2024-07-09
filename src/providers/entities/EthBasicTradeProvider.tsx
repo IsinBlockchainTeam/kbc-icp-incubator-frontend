@@ -15,7 +15,7 @@ import {
 import { useEthRawTrade } from '@/providers/entities/EthRawTradeProvider';
 import { contractAddresses } from '@/constants/evm';
 import { useSigner } from '@/providers/SignerProvider';
-import { ICPContext } from '@/providers/ICPProvider';
+import { useICP } from '@/providers/ICPProvider';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
 import { BASIC_TRADE_MESSAGE } from '@/constants/message';
 import { NotificationType, openNotification } from '@/utils/notification';
@@ -59,7 +59,7 @@ export function EthBasicTradeProvider(props: { children: ReactNode }) {
     const { productCategories } = useEthMaterial();
     const dispatch = useDispatch();
     const [detailedBasicTrades, setDetailedBasicTrades] = useState<DetailedBasicTrade[]>([]);
-    const { fileDriver } = useContext(ICPContext);
+    const { fileDriver } = useICP();
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const organizationId = parseInt(userInfo.organizationId);
 

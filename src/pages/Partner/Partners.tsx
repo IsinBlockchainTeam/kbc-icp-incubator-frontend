@@ -1,46 +1,20 @@
 import { CardPage } from '@/components/structure/CardPage/CardPage';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { ColumnsType } from 'antd/es/table';
-import { Table, TableProps } from 'antd';
-import { NotificationType, openNotification } from '@/utils/notification';
-import { PartnershipPresentable } from '@/api/types/PartnershipPresentable';
+import { Table } from 'antd';
 import { InviteCompany } from './InviteCompany';
-import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
-import { useDispatch } from 'react-redux';
-import { EthContext } from '@/providers/EthProvider';
-import { NOTIFICATION_DURATION } from '@/constants/notification';
+import { useEthRelationship } from '@/providers/entities/EthRelationshipProvider';
+import { Relationship } from '@kbc-lib/coffee-trading-management-lib';
 
 export const Partners = () => {
-    const { ethPartnerService } = useContext(EthContext);
-    const [partnership, setPartnership] = useState<PartnershipPresentable[]>();
+    const { relationships } = useEthRelationship();
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-    const dispatch = useDispatch();
 
-    const loadData = async () => {
-        try {
-            dispatch(showLoading('Retrieving partners...'));
-
-            const partners = await ethPartnerService.getPartners();
-            setPartnership(
-                partners.map((p) => {
-                    // @ts-ignore
-                    p['key'] = p.companyName;
-                    return p;
-                })
-            );
-        } catch (e: any) {
-            console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR, NOTIFICATION_DURATION);
-        } finally {
-            dispatch(hideLoading());
-        }
-    };
-
-    const columns: ColumnsType<PartnershipPresentable> = [
+    const columns: ColumnsType<Relationship> = [
         {
             title: 'Company',
             dataIndex: 'companyName',
-            sorter: (a, b) => a.companyName.localeCompare(b.companyName),
+            sorter: (a, b) => a.companyA.localeCompare(b.companyB),
             sortDirections: ['descend']
         },
         {
@@ -59,29 +33,13 @@ export const Partners = () => {
         }
     ];
 
-    const onChange: TableProps<PartnershipPresentable>['onChange'] = (
-        pagination,
-        filters,
-        sorter,
-        extra
-    ) => {
-        console.log('params', pagination, filters, sorter, extra);
-    };
-
-    useEffect(() => {
-        loadData();
-        return () => {
-            dispatch(hideLoading());
-        };
-    }, []);
-
     return (
         <>
             <InviteCompany open={isModalOpen} onClose={() => setIsModalOpen(false)} />
             <CardPage
                 title="Partners"
                 extra={<a onClick={() => setIsModalOpen(true)}>Invite a new company</a>}>
-                <Table columns={columns} dataSource={partnership} onChange={onChange} />
+                <Table columns={columns} dataSource={relationships} rowKey={'id'} />
             </CardPage>
         </>
     );

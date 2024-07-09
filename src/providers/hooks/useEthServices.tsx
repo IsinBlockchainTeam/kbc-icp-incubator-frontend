@@ -1,5 +1,4 @@
-import { SignerContext } from '@/providers/SignerProvider';
-import { useContext } from 'react';
+import { useSigner } from '@/providers/SignerProvider';
 import {
     AssetOperationDriver,
     AssetOperationService,
@@ -35,13 +34,13 @@ import {
     EthPartnerService,
     EthTradeService
 } from '@/api/services';
-import { ICPContext } from '@/providers/ICPProvider';
+import { useICP } from '@/providers/ICPProvider';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 
 export function useEthServices() {
-    const { signer } = useContext(SignerContext);
-    const { fileDriver, getNameByDID } = useContext(ICPContext);
+    const { signer } = useSigner();
+    const { fileDriver, getNameByDID } = useICP();
     const userInfo = useSelector((state: RootState) => state.userInfo);
 
     const productCategoryDriver = new ProductCategoryDriver(

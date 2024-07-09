@@ -28,6 +28,9 @@ import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 import { useEthOffer } from '@/providers/entities/EthOfferProvider';
 import { useICPName } from '@/providers/entities/ICPNameProvider';
 import { useEthRawTrade } from '@/providers/entities/EthRawTradeProvider';
+import { useEthAssetOperation } from '@/providers/entities/EthAssetOperationProvider';
+import { useEthRelationship } from '@/providers/entities/EthRelationshipProvider';
+import { useEthGraph } from '@/providers/entities/EthGraphProvider';
 
 export const App = () => {
     return (
@@ -39,7 +42,14 @@ export const App = () => {
                             <Route element={<MenuLayout />}>
                                 <Route element={<PrivateRoutes />}>
                                     <Route index path={paths.PROFILE} element={<Profile />} />
-                                    <Route path={paths.PARTNERS} element={<Partners />} />
+                                    <Route
+                                        path={paths.PARTNERS}
+                                        element={
+                                            <DataLoader customUseContext={useEthRelationship}>
+                                                <Partners />
+                                            </DataLoader>
+                                        }
+                                    />
                                     <Route
                                         path={paths.OFFERS}
                                         element={
@@ -142,19 +152,33 @@ export const App = () => {
                                     />
                                     <Route
                                         path={paths.ASSET_OPERATIONS}
-                                        element={<AssetOperations />}
+                                        element={
+                                            <DataLoader customUseContext={useEthAssetOperation}>
+                                                <AssetOperations />
+                                            </DataLoader>
+                                        }
                                     />
                                     <Route
                                         path={paths.ASSET_OPERATIONS_NEW}
                                         element={
                                             <DataLoader customUseContext={useEthMaterial}>
                                                 <DataLoader customUseContext={useEthEnumerable}>
-                                                    <AssetOperationNew />
+                                                    <DataLoader
+                                                        customUseContext={useEthAssetOperation}>
+                                                        <AssetOperationNew />
+                                                    </DataLoader>
                                                 </DataLoader>
                                             </DataLoader>
                                         }
                                     />
-                                    <Route path={paths.GRAPH} element={<GraphPage />} />
+                                    <Route
+                                        path={paths.GRAPH}
+                                        element={
+                                            <DataLoader customUseContext={useEthGraph}>
+                                                <GraphPage />
+                                            </DataLoader>
+                                        }
+                                    />
                                 </Route>
                                 <Route path={paths.LOGIN} element={<Login />} />
                                 <Route path="*" element={<Navigate to={paths.LOGIN} />} />

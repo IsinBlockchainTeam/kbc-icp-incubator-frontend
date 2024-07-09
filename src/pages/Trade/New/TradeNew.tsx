@@ -1,15 +1,15 @@
 import { FormElement, FormElementType } from '@/components/GenericForm/GenericForm';
 import { TradeType } from '@kbc-lib/coffee-trading-management-lib';
-import React, { useContext } from 'react';
+import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { paths } from '@/constants/paths';
-import { SignerContext } from '@/providers/SignerProvider';
+import { useSigner } from '@/providers/SignerProvider';
 import { BasicTradeNew } from '@/pages/Trade/New/BasicTradeNew';
 import { OrderTradeNew } from '@/pages/Trade/New/OrderTradeNew';
 import { useICPName } from '@/providers/entities/ICPNameProvider';
 
 export const TradeNew = () => {
-    const { signer } = useContext(SignerContext);
+    const { signer } = useSigner();
     const navigate = useNavigate();
 
     const location = useLocation();
