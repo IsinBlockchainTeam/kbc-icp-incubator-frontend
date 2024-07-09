@@ -1,11 +1,13 @@
 import {
     NegotiationStatus,
     TradeType,
-    TradeStatus,
+    OrderStatus,
     DocumentType,
-    BasicTrade, OrderTrade, Trade
-} from "@kbc-lib/coffee-trading-management-lib";
-import {DocumentPresentable} from "./DocumentPresentable";
+    BasicTrade,
+    OrderTrade,
+    Trade
+} from '@kbc-lib/coffee-trading-management-lib';
+import { DocumentPresentable } from '@/api/types/DocumentPresentable';
 
 export type TradePreviewPresentable = {
     id: number;
@@ -13,8 +15,9 @@ export type TradePreviewPresentable = {
     commissioner: string;
     type: TradeType;
     negotiationStatus?: NegotiationStatus;
+    orderStatus?: OrderStatus;
     actionRequired?: string;
-}
+};
 
 export abstract class DetailedTradePresentable {
     private _documents: Map<DocumentType, DocumentPresentable>;
@@ -29,10 +32,6 @@ export abstract class DetailedTradePresentable {
 
     set documents(value: Map<DocumentType, DocumentPresentable>) {
         this._documents = value;
-    }
-
-    addDocument(document: DocumentPresentable) {
-        this._documents.set(document.documentType, document);
     }
 
     abstract get trade(): Trade;
@@ -60,27 +59,31 @@ export class BasicTradePresentable extends DetailedTradePresentable {
 export class OrderTradePresentable extends DetailedTradePresentable {
     private _orderTrade: OrderTrade;
 
-    private _status: TradeStatus;
+    private _status: OrderStatus;
 
-    constructor(orderTrade: OrderTrade, status: TradeStatus, documents?: Map<DocumentType, DocumentPresentable>) {
+    constructor(
+        orderTrade: OrderTrade,
+        status: OrderStatus,
+        documents?: Map<DocumentType, DocumentPresentable>
+    ) {
         super(documents);
         this._orderTrade = orderTrade;
         this._status = status;
     }
 
-    get status(): TradeStatus {
+    get status(): OrderStatus {
         return this._status;
     }
 
-    set status(value: TradeStatus) {
+    set status(value: OrderStatus) {
         this._status = value;
     }
 
-    get trade(): Trade {
+    get trade(): OrderTrade {
         return this._orderTrade;
     }
 
-    set trade(value: Trade) {
-        this._orderTrade = value as OrderTrade;
+    set trade(value: OrderTrade) {
+        this._orderTrade = value;
     }
 }

@@ -1,4 +1,4 @@
-import {EnumerableTypeService} from "@blockchain-lib/common";
+import { EnumerableTypeService } from '@blockchain-lib/common';
 
 export class EthEnumerableTypeService {
     private _enumerableTypeService: EnumerableTypeService;

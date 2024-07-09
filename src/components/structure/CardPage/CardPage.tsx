@@ -1,12 +1,12 @@
-import styles from "./CardPage.module.scss";
-import {Card} from "antd";
-import * as React from "react";
+import styles from './CardPage.module.scss';
+import { Card } from 'antd';
+import * as React from 'react';
 
 type Props = {
-    children?: any,
-    title: React.ReactNode,
-    extra?: React.ReactNode
-}
+    children?: any;
+    title: React.ReactNode;
+    extra?: React.ReactNode;
+};
 
 export const CardPage = (props: Props) => {
     return (
@@ -14,4 +14,4 @@ export const CardPage = (props: Props) => {
             {props.children}
         </Card>
     );
-}
+};

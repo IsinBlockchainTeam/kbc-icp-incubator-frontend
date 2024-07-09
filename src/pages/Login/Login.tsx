@@ -1,9 +1,9 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from 'react';
 import styles from './Login.module.scss';
-import {Card} from "antd";
-import VeramoLogin from "./VeramoLogin";
+import { Card } from 'antd';
+import VeramoLogin from './VeramoLogin';
 import {useWeb3Modal, useWeb3ModalAccount, useWeb3ModalProvider} from '@web3modal/ethers5/react';
-import {updateWalletConnect} from "../../redux/reducers/walletConnectSlice";
+import {updateWalletConnect} from "@/redux/reducers/walletConnectSlice";
 import {useDispatch} from "react-redux";
 import {ethers} from "ethers";
 
@@ -62,8 +62,9 @@ function WalletConnect() {
     );
 }
 
+
 export const Login = () => {
-    const [activeLoginTab, setActiveLoginTab] = useState<string>("vc_login");
+    const [activeLoginTab, setActiveLoginTab] = useState<string>('vc_login');
 
     const tabList = [
         { key: 'vc_login', tab: "Verifiable Credential Login"},

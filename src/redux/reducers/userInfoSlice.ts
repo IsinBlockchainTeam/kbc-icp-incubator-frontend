@@ -1,4 +1,4 @@
-import {createSlice} from "@reduxjs/toolkit";
+import { createSlice } from '@reduxjs/toolkit';
 
 export type UserInfoState = {
     isLogged: boolean;
@@ -11,29 +11,33 @@ export type UserInfoState = {
     image: string;
     role: string;
     organizationId: string;
-    privateKey: string,
-}
+    privateKey: string;
+};
 
 export const initialState: UserInfoState = {
     isLogged: false,
-    id: "",
-    legalName: "",
-    email: "",
-    address: "",
-    nation: "",
-    telephone: "",
-    image: "",
-    role: "",
-    organizationId: "",
-    privateKey: "",
-}
-export type UpdatableUserInfoState = Omit<UserInfoState, "isLogged">;
+    id: '',
+    legalName: '',
+    email: '',
+    address: '',
+    nation: '',
+    telephone: '',
+    image: '',
+    role: '',
+    organizationId: '',
+    privateKey: ''
+};
+export type UpdatableUserInfoState = Omit<UserInfoState, 'isLogged'>;
 
 const userInfoSlice = createSlice({
-    name: "userInfo",
+    name: 'userInfo',
     initialState,
     reducers: {
-        updateUserInfo: (state: UserInfoState, action: {payload: UpdatableUserInfoState, type: string}) => {
+        updateUserInfo: (
+            state: UserInfoState,
+            action: { payload: UpdatableUserInfoState; type: string }
+        ) => {
+            state.isLogged = true;
             state.id = action.payload.id;
             state.legalName = action.payload.legalName;
             state.email = action.payload.email;
@@ -47,23 +51,19 @@ const userInfoSlice = createSlice({
         },
         resetUserInfo: (state: UserInfoState) => {
             state.isLogged = false;
-            state.id = "";
-            state.legalName = "";
-            state.email = "";
-            state.address = "";
-            state.nation = "";
-            state.telephone = "";
-            state.image = "";
-            state.role = "";
-            state.organizationId = "";
-            state.privateKey = "";
-        },
-        setLogged: (state: UserInfoState, action: {payload: boolean, type: string}) => {
-            state.isLogged = action.payload;
+            state.id = '';
+            state.legalName = '';
+            state.email = '';
+            state.address = '';
+            state.nation = '';
+            state.telephone = '';
+            state.image = '';
+            state.role = '';
+            state.organizationId = '';
+            state.privateKey = '';
         }
-
-    },
+    }
 });
-export const { updateUserInfo, resetUserInfo, setLogged } = userInfoSlice.actions;
+export const { updateUserInfo, resetUserInfo } = userInfoSlice.actions;
 
 export default userInfoSlice.reducer;

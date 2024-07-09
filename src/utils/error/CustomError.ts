@@ -1,4 +1,4 @@
-import {HttpStatusCode} from "./HttpStatusCode";
+import { HttpStatusCode } from './HttpStatusCode';
 
 export class CustomError extends Error {
     public readonly name: string;

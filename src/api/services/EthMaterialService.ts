@@ -1,17 +1,26 @@
-import {Material, MaterialService, ProductCategory, ProductCategoryService} from "@kbc-lib/coffee-trading-management-lib";
+import {
+    Material,
+    MaterialService,
+    ProductCategory,
+    ProductCategoryService
+} from '@kbc-lib/coffee-trading-management-lib';
 
 export class EthMaterialService {
     private readonly _walletAddress: string;
     private readonly _productCategoryService: ProductCategoryService;
     private readonly _materialService: MaterialService;
 
-    constructor(walletAddress: string, productCategoryService: ProductCategoryService, materialService: MaterialService) {
+    constructor(
+        walletAddress: string,
+        productCategoryService: ProductCategoryService,
+        materialService: MaterialService
+    ) {
         this._walletAddress = walletAddress;
         this._productCategoryService = productCategoryService;
         this._materialService = materialService;
     }
 
-    async getProductCategories(): Promise<ProductCategory[]> {
+    getProductCategories(): Promise<ProductCategory[]> {
         return this._productCategoryService.getProductCategories();
     }
 

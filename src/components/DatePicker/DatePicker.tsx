@@ -1,19 +1,21 @@
-import React from "react";
-import {DatePicker} from "antd";
-import {utils} from "../../constants";
+import React from 'react';
+import { DatePicker } from 'antd';
+import { utils } from '@/constants/misc';
 
 type Props = {
-    style?: any,
-    defaultValue?: any,
-    value?: any
-}
+    style?: any;
+    defaultValue?: any;
+    value?: any;
+};
 export default (props: Props) => {
-    const {
-        style,
-        ...additionalProps
-    } = props;
+    const { style, ...additionalProps } = props;
 
     return (
-        <DatePicker style={{width: '100%', ...style}} {...additionalProps} format={utils.DATE_FORMAT}/>
-    )
-}
+        <DatePicker
+            role="date-picker"
+            style={{ width: '100%', ...style }}
+            {...additionalProps}
+            format={utils.DATE_FORMAT}
+        />
+    );
+};
