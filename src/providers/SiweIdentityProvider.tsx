@@ -128,7 +128,6 @@ export function SiweIdentityProvider({
      */
     async function prepareLogin(): Promise<string | undefined> {
         const connectedEthAddress = (signer?._address || '0xabc') as `0x${string}`;
-        console.log('signer._address:', signer?._address);
         if (!state.anonymousActor) {
             throw new Error(
                 'Hook not initialized properly. Make sure to supply all required props to the SiweIdentityProvider.'
@@ -280,7 +279,6 @@ export function SiweIdentityProvider({
 
     async function login() {
         const connectedEthAddress = signer?._address || '';
-        console.log('signer._address:', signer?._address);
         const promise = new Promise<DelegationIdentity>((resolve, reject) => {
             loginPromiseHandlers.current = { resolve, reject };
         });

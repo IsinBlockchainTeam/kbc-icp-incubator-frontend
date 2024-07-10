@@ -23,7 +23,7 @@ export const Materials = () => {
         try {
             dispatch(showLoading('Retrieving product categories and materials...'));
             setProductCategories(await ethMaterialService.getProductCategories());
-            // setMaterials(await ethMaterialService.getMaterials());
+            setMaterials(await ethMaterialService.getMaterials());
         } catch (e: any) {
             console.log('error: ', e);
             openNotification('Error', e.message, NotificationType.ERROR, NOTIFICATION_DURATION);

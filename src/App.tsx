@@ -23,27 +23,19 @@ import { PersistGate } from 'redux-persist/integration/react';
 import { MenuLayout } from '@/components/structure/MenuLayout/MenuLayout';
 import { paths } from '@/constants/paths';
 
-import { createWeb3Modal, defaultConfig } from '@web3modal/ethers5/react'
-import {RPC_URL} from "@/constants/evm";
+import { createWeb3Modal, defaultConfig } from '@web3modal/ethers5/react';
 
 // 1. Get projectId
-const projectId = 'e55dee800a9c2117a91613b30aa697ee'
+const projectId = 'e55dee800a9c2117a91613b30aa697ee';
 
 // 2. Set chains
-// const chain = {
-//     chainId: 222,
-//     name: '3A Chain',
-//     currency: 'ETH',
-//     explorerUrl: 'https://etherscan.io',
-//     rpcUrl: RPC_URL,
-// }
 const chain = {
-    chainId: 11155111,
-    name: 'Sepolia Infura',
+    chainId: 222,
+    name: '3AChain',
     currency: 'ETH',
-    explorerUrl: 'https://etherscan.io',
-    rpcUrl: "https://sepolia.infura.io/v3/f34b1619ac084f5280a31c5bcdbfdd9e",
-}
+    explorerUrl: 'https://explorertest.3achain.org/',
+    rpcUrl: 'https://testnet-3achain-rpc.noku.io/'
+};
 
 // 3. Create a metadata object
 const metadata = {
@@ -51,7 +43,7 @@ const metadata = {
     description: 'A portal to decentralized coffee trading',
     url: 'http://192.168.0.173:3000',
     icons: ['https://upload.wikimedia.org/wikipedia/commons/9/9c/Dunder_Mifflin%2C_Inc.svg']
-}
+};
 
 // 4. Create Ethers config
 const ethersConfig = defaultConfig({
@@ -61,14 +53,14 @@ const ethersConfig = defaultConfig({
     /*Optional*/
     enableEIP6963: true, // true by default
     enableInjected: true, // true by default
-    enableCoinbase: true, // true by default
-})
+    enableCoinbase: true // true by default
+});
 
 // 5. Create a Web3Modal instance
 createWeb3Modal({
     ethersConfig,
     chains: [chain],
-    projectId,
+    projectId
 });
 
 export const App = () => {
