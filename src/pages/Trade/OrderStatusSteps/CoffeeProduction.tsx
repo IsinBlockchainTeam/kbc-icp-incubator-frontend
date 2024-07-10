@@ -14,9 +14,12 @@ import {
 import TradeDutiesWaiting, {
     DutiesWaiting
 } from '@/pages/Trade/OrderStatusSteps/TradeDutiesWaiting';
-import { DOCUMENT_DUTY, useEthDocument } from '@/providers/entities/EthDocumentProvider';
+import {
+    DOCUMENT_DUTY,
+    DocumentRequest,
+    useEthDocument
+} from '@/providers/entities/EthDocumentProvider';
 import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
-import { DocumentRequest } from '@/api/types/DocumentRequest';
 import { paths } from '@/constants/paths';
 import { useNavigate } from 'react-router-dom';
 import { StepTip } from '@/pages/Trade/OrderStatusSteps/StepTip';

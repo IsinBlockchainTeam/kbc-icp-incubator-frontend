@@ -2,48 +2,49 @@ import { useNavigate } from 'react-router-dom';
 import { act, render, screen } from '@testing-library/react';
 import { BasicTradeView } from '@/pages/Trade/View/BasicTradeView';
 import { FormElement, GenericForm } from '@/components/GenericForm/GenericForm';
-import useTrade from '@/hooks/useTrade';
-import { LineRequest, DocumentType } from '@kbc-lib/coffee-trading-management-lib';
+import { LineRequest, BasicTrade } from '@kbc-lib/coffee-trading-management-lib';
 import userEvent from '@testing-library/user-event';
-import { BasicTradePresentable } from '@/api/types/TradePresentable';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
+import { useEthBasicTrade } from '@/providers/entities/EthBasicTradeProvider';
+import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
 
 jest.mock('react-router-dom');
 jest.mock('@/providers/SignerProvider');
-jest.mock('@/hooks/useTrade');
 jest.mock('@/components/GenericForm/GenericForm');
 jest.mock('@/providers/entities/EthMaterialProvider');
 jest.mock('@/providers/entities/EthEnumerableProvider');
+jest.mock('@/providers/entities/EthBasicTradeProvider');
+jest.mock('@/providers/entities/EthOrderTradeProvider');
 
 describe('Basic Trade New', () => {
-    const basicTradePresentable = {
-        trade: {
-            tradeId: 1,
-            name: 'name',
-            lines: [{ productCategory: { id: 1 }, quantity: 5, unit: 'unit1' }]
-        },
-        documents: new Map().set(DocumentType.DELIVERY_NOTE, [{ id: 1, name: 'file.pdf' }])
-    } as unknown as BasicTradePresentable;
+    const basicTrade = {
+        tradeId: 1,
+        name: 'name',
+        lines: [{ productCategory: { id: 1 }, quantity: 5, unit: 'unit1' }]
+    } as BasicTrade;
     const toggleDisabled = jest.fn();
     const commonElements: FormElement[] = [];
 
     const updateBasicTrade = jest.fn();
     const confirmNegotiation = jest.fn();
-
+    const navigate = jest.fn();
     beforeEach(() => {
         jest.spyOn(console, 'log').mockImplementation(jest.fn());
         jest.spyOn(console, 'error').mockImplementation(jest.fn());
         jest.clearAllMocks();
 
+        (useNavigate as jest.Mock).mockReturnValue(navigate);
         (useEthMaterial as jest.Mock).mockReturnValue({
             productCategories: [{ id: 1, name: 'Product Category 1' }]
         });
         (useEthEnumerable as jest.Mock).mockReturnValue({
             units: ['unit1', 'unit2']
         });
-        (useTrade as jest.Mock).mockReturnValue({
-            updateBasicTrade,
+        (useEthBasicTrade as jest.Mock).mockReturnValue({
+            updateBasicTrade
+        });
+        (useEthOrderTrade as jest.Mock).mockReturnValue({
             confirmNegotiation
         });
     });
@@ -51,7 +52,7 @@ describe('Basic Trade New', () => {
     it('should render correctly', async () => {
         render(
             <BasicTradeView
-                basicTradePresentable={basicTradePresentable}
+                basicTrade={basicTrade}
                 disabled={true}
                 toggleDisabled={toggleDisabled}
                 commonElements={commonElements}
@@ -62,15 +63,9 @@ describe('Basic Trade New', () => {
         expect(elements).toHaveLength(8);
     });
     it('onSubmit', async () => {
-        const navigate = jest.fn();
-        const updateBasicTrade = jest.fn();
-        (useNavigate as jest.Mock).mockReturnValue(navigate);
-        (useTrade as jest.Mock).mockReturnValue({
-            updateBasicTrade
-        });
         render(
             <BasicTradeView
-                basicTradePresentable={basicTradePresentable}
+                basicTrade={basicTrade}
                 disabled={true}
                 toggleDisabled={toggleDisabled}
                 commonElements={commonElements}
@@ -91,7 +86,7 @@ describe('Basic Trade New', () => {
         };
         await onSubmit(values);
         expect(updateBasicTrade).toHaveBeenCalledTimes(1);
-        expect(updateBasicTrade).toHaveBeenCalledWith(basicTradePresentable.trade.tradeId, {
+        expect(updateBasicTrade).toHaveBeenCalledWith(basicTrade.tradeId, {
             supplier: 'supplier',
             customer: 'customer',
             commissioner: 'commissioner',
@@ -102,13 +97,9 @@ describe('Basic Trade New', () => {
         expect(toggleDisabled).toHaveBeenCalledTimes(1);
     });
     it('should confirmNegotiation when clicking on confirm button', async () => {
-        const confirmNegotiation = jest.fn();
-        (useTrade as jest.Mock).mockReturnValue({
-            confirmNegotiation
-        });
         render(
             <BasicTradeView
-                basicTradePresentable={basicTradePresentable}
+                basicTrade={basicTrade}
                 disabled={true}
                 toggleDisabled={toggleDisabled}
                 commonElements={commonElements}
@@ -118,6 +109,6 @@ describe('Basic Trade New', () => {
         act(() => userEvent.click(screen.getByRole('confirm')));
 
         expect(confirmNegotiation).toHaveBeenCalledTimes(1);
-        expect(confirmNegotiation).toHaveBeenCalledWith(basicTradePresentable.trade.tradeId);
+        expect(confirmNegotiation).toHaveBeenCalledWith(basicTrade.tradeId);
     });
 });

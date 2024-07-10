@@ -118,14 +118,11 @@ export const App = () => {
                                         path={paths.TRADE_NEW}
                                         element={
                                             <DataLoader customUseContext={useICPName}>
-                                                <DataLoader customUseContext={useEthEnumerable}>
-                                                    <DataLoader customUseContext={useEthMaterial}>
+                                                <DataLoader customUseContext={useEthMaterial}>
+                                                    <DataLoader customUseContext={useEthEnumerable}>
                                                         <DataLoader
-                                                            customUseContext={useEthEnumerable}>
-                                                            <DataLoader
-                                                                customUseContext={useEthRawTrade}>
-                                                                <TradeNew />
-                                                            </DataLoader>
+                                                            customUseContext={useEthRawTrade}>
+                                                            <TradeNew />
                                                         </DataLoader>
                                                     </DataLoader>
                                                 </DataLoader>

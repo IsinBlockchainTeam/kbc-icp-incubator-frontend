@@ -4,12 +4,11 @@ import { BasicTrade, LineRequest } from '@kbc-lib/coffee-trading-management-lib'
 import { Tooltip } from 'antd';
 import { CheckCircleOutlined, EditOutlined } from '@ant-design/icons';
 import React from 'react';
-import { BasicTradeRequest } from '@/api/types/TradeRequest';
 import { paths } from '@/constants/paths';
 import { useNavigate } from 'react-router-dom';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
-import { useEthBasicTrade } from '@/providers/entities/EthBasicTradeProvider';
+import { BasicTradeRequest, useEthBasicTrade } from '@/providers/entities/EthBasicTradeProvider';
 import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
 
 type BasicTradeViewProps = {

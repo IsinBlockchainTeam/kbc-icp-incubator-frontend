@@ -11,7 +11,6 @@ import { useICPName } from '@/providers/entities/ICPNameProvider';
 export const TradeNew = () => {
     const { signer } = useSigner();
     const navigate = useNavigate();
-
     const location = useLocation();
     const { getName } = useICPName();
 

@@ -3,46 +3,44 @@ import { act, render, screen } from '@testing-library/react';
 import { paths } from '@/constants/paths';
 import { BasicTradeNew } from '@/pages/Trade/New/BasicTradeNew';
 import { FormElement, GenericForm } from '@/components/GenericForm/GenericForm';
-import useTrade from '@/hooks/useTrade';
 import { LineRequest, DocumentType } from '@kbc-lib/coffee-trading-management-lib';
 import userEvent from '@testing-library/user-event';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
+import { useEthBasicTrade } from '@/providers/entities/EthBasicTradeProvider';
 
 jest.mock('react-router-dom');
 jest.mock('@/providers/SignerProvider');
-jest.mock('@/hooks/useTrade');
 jest.mock('@/components/GenericForm/GenericForm');
 jest.mock('@/providers/entities/EthMaterialProvider');
 jest.mock('@/providers/entities/EthEnumerableProvider');
+jest.mock('@/providers/entities/EthBasicTradeProvider');
 
 describe('Basic Trade New', () => {
     const supplierAddress = '0xsupplierAddress';
     const customerAddress = '0xcustomerAddress';
     const productCategoryId = 1;
     const commonElements: FormElement[] = [];
+    const productCategories = [{ id: 1, name: 'Product Category 1' }];
+    const units = ['unit1', 'unit2'];
+    const saveBasicTrade = jest.fn();
+    const navigate = jest.fn();
 
     beforeEach(() => {
         jest.spyOn(console, 'log').mockImplementation(jest.fn());
         jest.spyOn(console, 'error').mockImplementation(jest.fn());
         jest.clearAllMocks();
 
-        (useEthMaterial as jest.Mock).mockReturnValue({
-            productCategories: [{ id: 1, name: 'Product Category 1' }]
-        });
-        (useEthEnumerable as jest.Mock).mockReturnValue({
-            units: ['unit1', 'unit2']
-        });
-    });
-
-    it('should render correctly', async () => {
         (useLocation as jest.Mock).mockReturnValue({
             state: { productCategoryId: 1 }
         });
-        (useTrade as jest.Mock).mockReturnValue({
-            saveBasicTrade: jest.fn()
-        });
+        (useNavigate as jest.Mock).mockReturnValue(navigate);
+        (useEthMaterial as jest.Mock).mockReturnValue({ productCategories });
+        (useEthEnumerable as jest.Mock).mockReturnValue({ units });
+        (useEthBasicTrade as jest.Mock).mockReturnValue({ saveBasicTrade });
+    });
 
+    it('should render correctly', async () => {
         render(
             <BasicTradeNew
                 supplierAddress={supplierAddress}
@@ -55,15 +53,6 @@ describe('Basic Trade New', () => {
         expect(elements).toHaveLength(8);
     });
     it('onSubmit', async () => {
-        const navigate = jest.fn();
-        const saveBasicTrade = jest.fn();
-        (useLocation as jest.Mock).mockReturnValue({
-            state: { productCategoryId: 1 }
-        });
-        (useNavigate as jest.Mock).mockReturnValue(navigate);
-        (useTrade as jest.Mock).mockReturnValue({
-            saveBasicTrade
-        });
         render(
             <BasicTradeNew
                 supplierAddress={supplierAddress}
@@ -105,15 +94,6 @@ describe('Basic Trade New', () => {
         expect(navigate).toHaveBeenCalledTimes(1);
     });
     it('should navigate to Trades when clicking on Delete button', async () => {
-        const navigate = jest.fn();
-        const saveBasicTrade = jest.fn();
-        (useLocation as jest.Mock).mockReturnValue({
-            state: { productCategoryId: 1 }
-        });
-        (useNavigate as jest.Mock).mockReturnValue(navigate);
-        (useTrade as jest.Mock).mockReturnValue({
-            saveBasicTrade
-        });
         render(
             <BasicTradeNew
                 supplierAddress={supplierAddress}

@@ -24,7 +24,7 @@ export type EthGraphContextState = {
 export const EthGraphContext = createContext<EthGraphContextState>({} as EthGraphContextState);
 export const useEthGraph = (): EthGraphContextState => {
     const context = useContext(EthGraphContext);
-    if (!context) {
+    if (!context || Object.keys(context).length === 0) {
         throw new Error('useEthGraph must be used within an EthGraphProvider.');
     }
     return context;
@@ -63,7 +63,8 @@ export function EthGraphProvider(props: { children: ReactNode }) {
     const computeGraph = async (materialId: number) => {
         try {
             dispatch(addLoadingMessage(GRAPH_MESSAGE.COMPUTE.LOADING));
-            return graphService.computeGraph(materialId, true);
+            const result = await graphService.computeGraph(materialId, true);
+            return result;
         } catch (e) {
             openNotification(
                 'Error',

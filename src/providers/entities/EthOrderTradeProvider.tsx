@@ -6,6 +6,7 @@ import {
     NegotiationStatus,
     OrderLine,
     OrderLinePrice,
+    OrderLineRequest,
     OrderStatus,
     OrderTrade,
     OrderTradeDriver,
@@ -24,8 +25,6 @@ import { ACTION_MESSAGE, ORDER_TRADE_MESSAGE } from '@/constants/message';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { useDispatch, useSelector } from 'react-redux';
-import { OrderTradeRequest } from '@/api/types/TradeRequest';
-import { DocumentRequest } from '@/api/types/DocumentRequest';
 import { getICPCanisterURL } from '@/utils/icp';
 import { ICP } from '@/constants/icp';
 import { ICPResourceSpec } from '@blockchain-lib/common';
@@ -35,11 +34,29 @@ import {
     DOCUMENT_DUTY,
     DocumentDetail,
     DocumentDetailMap,
+    DocumentRequest,
     useEthDocument
 } from '@/providers/entities/EthDocumentProvider';
 import { useICPName } from '@/providers/entities/ICPNameProvider';
 import { requestPath } from '@/constants/url';
 
+export type OrderTradeRequest = {
+    supplier: string;
+    customer: string;
+    commissioner: string;
+    lines: OrderLineRequest[];
+    paymentDeadline: number;
+    documentDeliveryDeadline: number;
+    arbiter: string;
+    shippingDeadline: number;
+    deliveryDeadline: number;
+    agreedAmount: number;
+    tokenAddress: string;
+    incoterms: string;
+    shipper: string;
+    shippingPort: string;
+    deliveryPort: string;
+};
 export type EthOrderTradeContextState = {
     orderTrades: OrderTrade[];
     saveOrderTrade: (

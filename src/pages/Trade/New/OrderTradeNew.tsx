@@ -13,12 +13,11 @@ import {
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { regex } from '@/utils/regex';
-import { OrderTradeRequest } from '@/api/types/TradeRequest';
 import dayjs from 'dayjs';
 import { validateDates } from '@/utils/date';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
-import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
+import { OrderTradeRequest, useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
 
 type OrderTradeNewProps = {
     supplierAddress: string;

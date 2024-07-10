@@ -1,10 +1,17 @@
-import { act, render, waitFor } from '@testing-library/react';
-import useTrade from '@/hooks/useTrade';
-import { TradePreviewPresentable } from '@/api/types/TradePresentable';
+import { render } from '@testing-library/react';
 import Trades from '@/pages/Trade/Trades';
 import { Table, Tag, Tooltip } from 'antd';
-import { TradeType } from '@kbc-lib/coffee-trading-management-lib';
+import {
+    BasicTrade,
+    NegotiationStatus,
+    OrderStatus,
+    OrderTrade,
+    TradeType
+} from '@kbc-lib/coffee-trading-management-lib';
 import { Link } from 'react-router-dom';
+import { useEthBasicTrade } from '@/providers/entities/EthBasicTradeProvider';
+import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
+import { useICPName } from '@/providers/entities/ICPNameProvider';
 
 jest.mock('antd', () => {
     return {
@@ -14,7 +21,9 @@ jest.mock('antd', () => {
         Tooltip: jest.fn(() => <div />)
     };
 });
-jest.mock('@/hooks/useTrade');
+jest.mock('@/providers/entities/EthBasicTradeProvider');
+jest.mock('@/providers/entities/EthOrderTradeProvider');
+jest.mock('@/providers/entities/ICPNameProvider');
 jest.mock('@/utils/page');
 jest.mock('react-router-dom', () => {
     return {
@@ -24,52 +33,45 @@ jest.mock('react-router-dom', () => {
 });
 
 describe('Trades', () => {
-    const trades = [{} as TradePreviewPresentable];
-    const loadTrades = jest.fn();
-
+    const basicTrades = [{} as BasicTrade];
+    const orderTrades = [{} as OrderTrade];
+    const getName = jest.fn();
+    const getActionRequired = jest.fn();
+    const getNegotiationStatus = jest.fn();
+    const getOrderStatus = jest.fn();
     beforeEach(() => {
         jest.spyOn(console, 'log').mockImplementation(jest.fn());
         jest.spyOn(console, 'error').mockImplementation(jest.fn());
         jest.clearAllMocks();
 
-        (useTrade as jest.Mock).mockReturnValue({
-            loadTrades,
-            tradesLoaded: true,
-            trades
+        (useEthBasicTrade as jest.Mock).mockReturnValue({ basicTrades });
+        (useEthOrderTrade as jest.Mock).mockReturnValue({
+            orderTrades,
+            getActionRequired,
+            getNegotiationStatus,
+            getOrderStatus
         });
+        (useICPName as jest.Mock).mockReturnValue({ getName });
+        getName.mockReturnValue('actor');
+        getActionRequired.mockReturnValue('actionRequired');
+        getNegotiationStatus.mockReturnValue(NegotiationStatus.CONFIRMED);
+        getOrderStatus.mockReturnValue(OrderStatus.CONTRACTING);
     });
 
     it('should render correctly', async () => {
-        await act(async () => {
-            render(<Trades />);
-        });
-        await waitFor(() => {
-            expect(Table).toHaveBeenCalledTimes(1);
-        });
+        render(<Trades />);
+        expect(Table).toHaveBeenCalledTimes(1);
         const dataSource = (Table as unknown as jest.Mock).mock.calls[0][0].dataSource;
-        expect(dataSource).toHaveLength(1);
-    });
-
-    it('should render nothing if trades are not available', async () => {
-        (useTrade as jest.Mock).mockReturnValue({
-            loadTrades,
-            tradesLoaded: false,
-            trades
-        });
-        await act(async () => {
-            render(<Trades />);
-        });
-        expect(Table).not.toHaveBeenCalled();
-        expect(loadTrades).toHaveBeenCalledTimes(1);
+        expect(dataSource).toHaveLength(2);
+        expect(getName).toHaveBeenCalledTimes(4);
+        expect(getActionRequired).toHaveBeenCalledTimes(1);
+        expect(getNegotiationStatus).toHaveBeenCalledTimes(1);
+        expect(getOrderStatus).toHaveBeenCalledTimes(1);
     });
 
     it('columns sorting', async () => {
-        await act(async () => {
-            render(<Trades />);
-        });
-        await waitFor(() => {
-            expect(Table).toHaveBeenCalledTimes(1);
-        });
+        render(<Trades />);
+        expect(Table).toHaveBeenCalledTimes(1);
         const columns = (Table as unknown as jest.Mock).mock.calls[0][0].columns;
         expect(columns[0].sorter({ id: 1 }, { id: 2 })).toBeLessThan(0);
         expect(columns[1].sorter({ supplier: 'a' }, { supplier: 'b' })).toBeLessThan(0);
@@ -78,12 +80,8 @@ describe('Trades', () => {
     });
 
     it('columns render', async () => {
-        await act(async () => {
-            render(<Trades />);
-        });
-        await waitFor(() => {
-            expect(Table).toHaveBeenCalledTimes(1);
-        });
+        render(<Trades />);
+        expect(Table).toHaveBeenCalledTimes(1);
         const columns = (Table as unknown as jest.Mock).mock.calls[0][0].columns;
         render(columns[0].render(1, TradeType.BASIC));
         expect(Link).toHaveBeenCalled();

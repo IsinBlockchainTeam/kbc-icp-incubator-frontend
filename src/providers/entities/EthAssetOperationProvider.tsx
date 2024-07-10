@@ -11,8 +11,15 @@ import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadin
 import { ASSET_OPERATION_MESSAGE } from '@/constants/message';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
-import { AssetOperationRequest } from '@/api/types/AssetOperationRequest';
 
+export type AssetOperationRequest = {
+    name: string;
+    inputMaterialIds: number[];
+    outputMaterialId: number;
+    latitude: string;
+    longitude: string;
+    processTypes: string[];
+};
 export type EthAssetOperationContextState = {
     dataLoaded: boolean;
     assetOperations: AssetOperation[];
@@ -24,7 +31,7 @@ export const EthAssetOperationContext = createContext<EthAssetOperationContextSt
 );
 export const useEthAssetOperation = (): EthAssetOperationContextState => {
     const context = useContext(EthAssetOperationContext);
-    if (!context) {
+    if (!context || Object.keys(context).length === 0) {
         throw new Error('useEthAssetOperation must be used within an EthAssetOperationProvider.');
     }
     return context;
@@ -90,7 +97,7 @@ export function EthAssetOperationProvider(props: { children: ReactNode }) {
                 NotificationType.SUCCESS,
                 NOTIFICATION_DURATION
             );
-            await loadAssetOperations();
+            await loadData();
         } catch (e: any) {
             openNotification(
                 'Error',

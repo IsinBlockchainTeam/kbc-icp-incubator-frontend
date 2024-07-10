@@ -1,7 +1,5 @@
 import { createContext, useContext, useState } from 'react';
-import { NotificationType, openNotification } from '@/utils/notification';
 import { NAME_MESSAGE } from '@/constants/message';
-import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { useDispatch } from 'react-redux';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
 import { useICP } from '@/providers/ICPProvider';
@@ -24,7 +22,7 @@ export type ICPNameContextState = {
 export const ICPNameContext = createContext<ICPNameContextState>({} as ICPNameContextState);
 export const useICPName = (): ICPNameContextState => {
     const context = useContext(ICPNameContext);
-    if (!context) {
+    if (!context || Object.keys(context).length === 0) {
         throw new Error('useICPName must be used within an ICPNameProvider.');
     }
     return context;
@@ -51,12 +49,10 @@ export function ICPNameProvider(props: { children: React.ReactNode }) {
             );
             serviceUrl = didDocument.didDocument.service[0].serviceEndpoint;
         } catch (e) {
-            console.log('Error getting service URL');
             return 'Unknown';
         }
         const canisterId = serviceUrl.split('/')[URL_SEGMENT_INDEXES.CANISTER_ID].split('.')[0];
         if (canisterId != ICP.CANISTER_ID_ORGANIZATION) {
-            console.log('Unknown canister ID');
             return 'Unknown';
         }
         const organizationId = serviceUrl.split('/')[URL_SEGMENT_INDEXES.ORGANIZATION_ID];
@@ -65,30 +61,19 @@ export function ICPNameProvider(props: { children: React.ReactNode }) {
             verifiablePresentation =
                 await organizationDriver.getVerifiablePresentation(organizationId);
         } catch (e) {
-            console.log('Error getting verifiable presentation');
             return 'Unknown';
         }
         return verifiablePresentation.legalName;
     };
 
     const loadNames = async () => {
-        try {
-            dispatch(addLoadingMessage(NAME_MESSAGE.RETRIEVE.LOADING));
-            const names = new Map<string, string>();
-            for (const address of ADDRESSES) {
-                names.set(address, await getNameByDID(DID_METHOD + ':' + address));
-            }
-            setNames(names);
-        } catch (e: any) {
-            openNotification(
-                'Error',
-                NAME_MESSAGE.RETRIEVE.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
-        } finally {
-            dispatch(removeLoadingMessage(NAME_MESSAGE.RETRIEVE.LOADING));
+        dispatch(addLoadingMessage(NAME_MESSAGE.RETRIEVE.LOADING));
+        const names = new Map<string, string>();
+        for (const address of ADDRESSES) {
+            names.set(address, await getNameByDID(DID_METHOD + ':' + address));
         }
+        setNames(names);
+        dispatch(removeLoadingMessage(NAME_MESSAGE.RETRIEVE.LOADING));
     };
 
     const loadData = async () => {

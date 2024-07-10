@@ -3,7 +3,6 @@ import { CardPage } from '@/components/structure/CardPage/CardPage';
 import { Table, Tag, Tooltip } from 'antd';
 import { CheckCircleOutlined, ExclamationCircleOutlined, SettingOutlined } from '@ant-design/icons';
 import { ColumnsType } from 'antd/es/table';
-import { TradePreviewPresentable } from '@/api/types/TradePresentable';
 import { Link } from 'react-router-dom';
 import { NegotiationStatus, OrderStatus, TradeType } from '@kbc-lib/coffee-trading-management-lib';
 import { setParametersPath } from '@/utils/page';
@@ -12,6 +11,15 @@ import { useICPName } from '@/providers/entities/ICPNameProvider';
 import { useEthBasicTrade } from '@/providers/entities/EthBasicTradeProvider';
 import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
 
+type TradePreviewPresentable = {
+    id: number;
+    supplier: string;
+    commissioner: string;
+    type: TradeType;
+    negotiationStatus?: NegotiationStatus;
+    orderStatus?: OrderStatus;
+    actionRequired?: string;
+};
 export const Trades = () => {
     const { basicTrades } = useEthBasicTrade();
     const { orderTrades, getActionRequired, getNegotiationStatus, getOrderStatus } =

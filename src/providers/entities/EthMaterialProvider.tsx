@@ -19,8 +19,6 @@ export type EthMaterialContextState = {
     dataLoaded: boolean;
     materials: Material[];
     productCategories: ProductCategory[];
-    productCategoryService: ProductCategoryService;
-    materialService: MaterialService;
     loadData: () => Promise<void>;
     saveMaterial: (productCategoryId: number) => Promise<void>;
     saveProductCategory: (name: string, quality: number, description: string) => Promise<void>;
@@ -30,7 +28,7 @@ export const EthMaterialContext = createContext<EthMaterialContextState>(
 );
 export const useEthMaterial = (): EthMaterialContextState => {
     const context = useContext(EthMaterialContext);
-    if (!context) {
+    if (!context || Object.keys(context).length === 0) {
         throw new Error('useEthMaterial must be used within an MaterialProvider.');
     }
     return context;
@@ -152,8 +150,6 @@ export function EthMaterialProvider(props: { children: ReactNode }) {
                 dataLoaded,
                 materials,
                 productCategories,
-                productCategoryService,
-                materialService,
                 loadData,
                 saveMaterial,
                 saveProductCategory

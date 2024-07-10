@@ -7,11 +7,10 @@ import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { regex } from '@/utils/regex';
 import { LineRequest, DocumentType } from '@kbc-lib/coffee-trading-management-lib';
-import { BasicTradeRequest } from '@/api/types/TradeRequest';
-import { DocumentRequest } from '@/api/types/DocumentRequest';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
-import { useEthBasicTrade } from '@/providers/entities/EthBasicTradeProvider';
+import { BasicTradeRequest, useEthBasicTrade } from '@/providers/entities/EthBasicTradeProvider';
+import { DocumentRequest } from '@/providers/entities/EthDocumentProvider';
 
 type BasicTradeNewProps = {
     supplierAddress: string;

@@ -1,11 +1,15 @@
-import { useICPDrivers } from '../useICPDrivers';
-import { renderHook } from '@testing-library/react';
-import { useSiweIdentity } from '@/providers/SiweIdentityProvider';
-import { request } from '@/utils/request';
-import { ICPIdentityDriver, ICPOrganizationDriver, ICPStorageDriver } from '@blockchain-lib/common';
+import React from 'react';
+import { render, renderHook, screen } from '@testing-library/react';
+import { ICPProvider, ICPContext, useICP } from '../ICPProvider';
+import { useSiweIdentity } from '../SiweIdentityProvider';
 import { checkAndGetEnvironmentVariable } from '@/utils/env';
+import { request } from '@/utils/request';
+import { ICPOrganizationDriver, ICPStorageDriver, ICPIdentityDriver } from '@blockchain-lib/common';
 import { ICPFileDriver } from '@kbc-lib/coffee-trading-management-lib';
 
+jest.mock('../SiweIdentityProvider', () => ({
+    useSiweIdentity: jest.fn()
+}));
 jest.mock('@/providers/SiweIdentityProvider', () => ({
     useSiweIdentity: jest.fn()
 }));
@@ -47,41 +51,74 @@ const mockedDidDocument = {
         ]
     }
 };
+describe('ICPProvider', () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.spyOn(console, 'error').mockImplementation(jest.fn());
+    });
+    it('should throw error if hook is used outside the provider', async () => {
+        expect(() => renderHook(() => useICP())).toThrow();
+    });
+    it('renders children when identity is present', () => {
+        const mockIdentity = { id: 'test-id' };
 
-describe('useICPDrivers', () => {
-    it('returns undefined when identity is not present', () => {
+        (useSiweIdentity as jest.Mock).mockReturnValue({ identity: mockIdentity });
+
+        render(
+            <ICPProvider>
+                <div data-testid="child-component"></div>
+            </ICPProvider>
+        );
+
+        expect(screen.getByTestId('child-component')).toBeInTheDocument();
+    });
+
+    it('renders error message when identity is not present', () => {
         (useSiweIdentity as jest.Mock).mockReturnValue({ identity: null });
 
-        const { result } = renderHook(() => useICPDrivers());
+        render(
+            <ICPProvider>
+                <div data-testid="child-component"></div>
+            </ICPProvider>
+        );
 
-        expect(result.current).toBeUndefined();
+        expect(screen.queryByText('Siwe identity not initialized')).toBeInTheDocument();
+        expect(screen.queryByTestId('child-component')).not.toBeInTheDocument();
     });
 
-    it('returns ICP drivers when identity is present', () => {
+    it('should provide icp drivers', () => {
         const mockIdentity = { id: 'test-id' };
+
         (useSiweIdentity as jest.Mock).mockReturnValue({ identity: mockIdentity });
-        (checkAndGetEnvironmentVariable as jest.Mock).mockReturnValue('mock-canister-id');
-        (request as jest.Mock).mockResolvedValue(mockedDidDocument);
 
-        const { result } = renderHook(() => useICPDrivers());
+        const TestComponent = () => {
+            const context = React.useContext(ICPContext);
+            expect(context).toHaveProperty('organizationDriver');
+            expect(context).toHaveProperty('storageDriver');
+            expect(context).toHaveProperty('fileDriver');
+            expect(context).toHaveProperty('identityDriver');
+            expect(context).toHaveProperty('getNameByDID');
+            return null;
+        };
 
-        expect(result.current).toHaveProperty('icpOrganizationDriver');
-        expect(result.current).toHaveProperty('icpStorageDriver');
-        expect(result.current).toHaveProperty('icpFileDriver');
-        expect(result.current).toHaveProperty('icpIdentityDriver');
-        expect(result.current).toHaveProperty('getNameByDID');
+        render(
+            <ICPProvider>
+                <TestComponent />
+            </ICPProvider>
+        );
     });
-
     it('should create icpOrganizationDriver correctly', () => {
         const mockIdentity = { id: 'test-id' };
         (useSiweIdentity as jest.Mock).mockReturnValue({ identity: mockIdentity });
         (checkAndGetEnvironmentVariable as jest.Mock).mockReturnValue('mock-canister-id');
         (request as jest.Mock).mockResolvedValue(mockedDidDocument);
 
-        const { result } = renderHook(() => useICPDrivers());
+        const { result } = renderHook(() => useICP(), {
+            wrapper: ICPProvider
+        });
 
         expect(ICPOrganizationDriver).toHaveBeenCalledWith(mockIdentity, 'mock-canister-id');
-        expect(result.current?.icpOrganizationDriver).toBeInstanceOf(ICPOrganizationDriver);
+        expect(result.current.organizationDriver).toBeInstanceOf(ICPOrganizationDriver);
     });
     it('should create icpStorageDriver correctly', () => {
         const mockIdentity = { id: 'test-id' };
@@ -89,10 +126,12 @@ describe('useICPDrivers', () => {
         (checkAndGetEnvironmentVariable as jest.Mock).mockReturnValue('mock-canister-id');
         (request as jest.Mock).mockResolvedValue(mockedDidDocument);
 
-        const { result } = renderHook(() => useICPDrivers());
+        const { result } = renderHook(() => useICP(), {
+            wrapper: ICPProvider
+        });
 
         expect(ICPStorageDriver).toHaveBeenCalledWith(mockIdentity, 'mock-canister-id');
-        expect(result.current?.icpStorageDriver).toBeInstanceOf(ICPStorageDriver);
+        expect(result.current.storageDriver).toBeInstanceOf(ICPStorageDriver);
     });
     it('should create icpFileDriver correctly', () => {
         const mockIdentity = { id: 'test-id' };
@@ -100,10 +139,12 @@ describe('useICPDrivers', () => {
         (checkAndGetEnvironmentVariable as jest.Mock).mockReturnValue('mock-canister-id');
         (request as jest.Mock).mockResolvedValue(mockedDidDocument);
 
-        const { result } = renderHook(() => useICPDrivers());
+        const { result } = renderHook(() => useICP(), {
+            wrapper: ICPProvider
+        });
 
-        expect(ICPFileDriver).toHaveBeenCalledWith(result.current?.icpStorageDriver);
-        expect(result.current?.icpFileDriver).toBeInstanceOf(ICPFileDriver);
+        expect(ICPFileDriver).toHaveBeenCalledWith(result.current.storageDriver);
+        expect(result.current.fileDriver).toBeInstanceOf(ICPFileDriver);
     });
     it('should create icpIdentityDriver correctly', () => {
         const mockIdentity = { id: 'test-id' };
@@ -111,10 +152,12 @@ describe('useICPDrivers', () => {
         (checkAndGetEnvironmentVariable as jest.Mock).mockReturnValue('mock-canister-id');
         (request as jest.Mock).mockResolvedValue(mockedDidDocument);
 
-        const { result } = renderHook(() => useICPDrivers());
+        const { result } = renderHook(() => useICP(), {
+            wrapper: ICPProvider
+        });
 
         expect(ICPIdentityDriver).toHaveBeenCalledWith(mockIdentity);
-        expect(result.current?.icpIdentityDriver).toBeInstanceOf(ICPIdentityDriver);
+        expect(result.current.identityDriver).toBeInstanceOf(ICPIdentityDriver);
     });
     it('should return getNameByDID', () => {
         const mockIdentity = { id: 'test-id' };
@@ -122,7 +165,9 @@ describe('useICPDrivers', () => {
         (checkAndGetEnvironmentVariable as jest.Mock).mockReturnValue('mock-canister-id');
         (request as jest.Mock).mockResolvedValue(mockedDidDocument);
 
-        const { result } = renderHook(() => useICPDrivers());
+        const { result } = renderHook(() => useICP(), {
+            wrapper: ICPProvider
+        });
 
         expect(result.current?.getNameByDID).toBeInstanceOf(Function);
     });
@@ -136,7 +181,9 @@ describe('useICPDrivers', () => {
         }));
         mockCanisterIdOrganizationGetter.mockReturnValue('mock-canister-id');
 
-        const { result } = renderHook(() => useICPDrivers());
+        const { result } = renderHook(() => useICP(), {
+            wrapper: ICPProvider
+        });
 
         expect(await result.current?.getNameByDID('mock-did')).toBe('mock-name');
     });
@@ -146,7 +193,9 @@ describe('useICPDrivers', () => {
         (checkAndGetEnvironmentVariable as jest.Mock).mockReturnValue('mock-canister-id');
         (request as jest.Mock).mockRejectedValue(new Error('error'));
 
-        const { result } = renderHook(() => useICPDrivers());
+        const { result } = renderHook(() => useICP(), {
+            wrapper: ICPProvider
+        });
 
         expect(await result.current?.getNameByDID('mock-did')).toBe('Unknown');
     });
@@ -160,7 +209,9 @@ describe('useICPDrivers', () => {
         }));
         mockCanisterIdOrganizationGetter.mockReturnValue('other-mock-canister-id');
 
-        const { result } = renderHook(() => useICPDrivers());
+        const { result } = renderHook(() => useICP(), {
+            wrapper: ICPProvider
+        });
 
         expect(await result.current?.getNameByDID('mock-did')).toBe('Unknown');
     });
@@ -174,7 +225,9 @@ describe('useICPDrivers', () => {
         }));
         mockCanisterIdOrganizationGetter.mockReturnValue('mock-canister-id');
 
-        const { result } = renderHook(() => useICPDrivers());
+        const { result } = renderHook(() => useICP(), {
+            wrapper: ICPProvider
+        });
 
         expect(await result.current?.getNameByDID('mock-did')).toBe('Unknown');
     });

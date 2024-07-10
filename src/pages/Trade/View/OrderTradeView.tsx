@@ -14,14 +14,13 @@ import { FormElement, FormElementType } from '@/components/GenericForm/GenericFo
 import { regex } from '@/utils/regex';
 import dayjs from 'dayjs';
 import { useSigner } from '@/providers/SignerProvider';
-import { OrderTradeRequest } from '@/api/types/TradeRequest';
 import { paths } from '@/constants/paths';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircleOutlined, EditOutlined, RollbackOutlined } from '@ant-design/icons';
 import { validateDates } from '@/utils/date';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
-import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
+import { OrderTradeRequest, useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
 
 type OrderTradeViewProps = {
     orderTrade: OrderTrade;

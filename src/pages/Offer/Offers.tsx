@@ -7,12 +7,18 @@ import { PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
-import { OfferPresentable } from '@/api/types/OfferPresentable';
 import { paths } from '@/constants/paths';
 import { credentials } from '@/constants/ssi';
 import { useEthOffer } from '@/providers/entities/EthOfferProvider';
 import { useICPName } from '@/providers/entities/ICPNameProvider';
+import { ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
 
+type OfferPresentable = {
+    id: number;
+    supplierAddress: string;
+    supplierName: string;
+    productCategory: ProductCategory;
+};
 export const Offers = () => {
     const { offers } = useEthOffer();
     const { getName } = useICPName();

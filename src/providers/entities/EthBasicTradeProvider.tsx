@@ -7,6 +7,7 @@ import {
     DocumentInfo,
     DocumentType,
     Line,
+    LineRequest,
     TradeManagerDriver,
     TradeManagerService,
     TradeType,
@@ -21,14 +22,20 @@ import { BASIC_TRADE_MESSAGE } from '@/constants/message';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { useDispatch, useSelector } from 'react-redux';
-import { BasicTradeRequest } from '@/api/types/TradeRequest';
-import { DocumentRequest } from '@/api/types/DocumentRequest';
 import { getICPCanisterURL } from '@/utils/icp';
 import { ICP } from '@/constants/icp';
 import { ICPResourceSpec } from '@blockchain-lib/common';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { RootState } from '@/redux/store';
+import { DocumentRequest } from '@/providers/entities/EthDocumentProvider';
 
+export type BasicTradeRequest = {
+    supplier: string;
+    customer: string;
+    commissioner: string;
+    lines: LineRequest[];
+    name: string;
+};
 export type EthBasicTradeContextState = {
     basicTrades: BasicTrade[];
     saveBasicTrade: (
@@ -43,7 +50,7 @@ export const EthBasicTradeContext = createContext<EthBasicTradeContextState>(
 );
 export const useEthBasicTrade = (): EthBasicTradeContextState => {
     const context = useContext(EthBasicTradeContext);
-    if (!context) {
+    if (!context || Object.keys(context).length === 0) {
         throw new Error('useEthBasicTrade must be used within an EthBasicTradeProvider.');
     }
     return context;
@@ -96,7 +103,7 @@ export function EthBasicTradeProvider(props: { children: ReactNode }) {
                     .map(async (rT) => {
                         const concreteService = getBasicTradeService(rT.address);
                         detailedBasicTrades.push({
-                            trade: (await concreteService.getTrade()) as BasicTrade,
+                            trade: await concreteService.getTrade(),
                             service: concreteService,
                             documents: await concreteService.getDocumentsByType(
                                 DocumentType.DELIVERY_NOTE
@@ -106,7 +113,6 @@ export function EthBasicTradeProvider(props: { children: ReactNode }) {
             );
             setDetailedBasicTrades(detailedBasicTrades);
         } catch (e) {
-            console.error(e);
             openNotification(
                 'Error',
                 BASIC_TRADE_MESSAGE.RETRIEVE.ERROR,
@@ -183,6 +189,7 @@ export function EthBasicTradeProvider(props: { children: ReactNode }) {
             for (const line of basicTradeRequest.lines) {
                 await basicTradeService.addLine(line);
             }
+            await loadDetailedTrades();
             openNotification(
                 'Success',
                 BASIC_TRADE_MESSAGE.SAVE.OK,
@@ -237,6 +244,7 @@ export function EthBasicTradeProvider(props: { children: ReactNode }) {
                     )
                 );
             }
+            await loadDetailedTrades();
             openNotification(
                 'Success',
                 BASIC_TRADE_MESSAGE.UPDATE.OK,

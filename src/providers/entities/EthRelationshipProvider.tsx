@@ -22,7 +22,7 @@ export const EthRelationshipContext = createContext<EthRelationshipContextState>
 );
 export const useEthRelationship = (): EthRelationshipContextState => {
     const context = useContext(EthRelationshipContext);
-    if (!context) {
+    if (!context || Object.keys(context).length === 0) {
         throw new Error('useEthRelationship must be used within an EthRelationshipProvider.');
     }
     return context;

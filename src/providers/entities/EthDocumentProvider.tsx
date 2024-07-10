@@ -19,7 +19,6 @@ import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { useDispatch, useSelector } from 'react-redux';
 import { DOCUMENT_MESSAGE } from '@/constants/message';
 import { getMimeType } from '@/utils/file';
-import { DocumentRequest } from '@/api/types/DocumentRequest';
 import { ICPResourceSpec } from '@blockchain-lib/common';
 import { RootState } from '@/redux/store';
 
@@ -34,6 +33,11 @@ const DOCUMENT_TYPES: DocumentType[] = [
     DocumentType.INSURANCE_CERTIFICATE,
     DocumentType.COMPARISON_SWISS_DECODE
 ];
+export type DocumentRequest = {
+    content: Blob;
+    filename: string;
+    documentType: DocumentType;
+};
 export enum DOCUMENT_DUTY {
     UPLOAD_NEEDED = 'Upload needed',
     UPLOAD_POSSIBLE = 'Upload possible',

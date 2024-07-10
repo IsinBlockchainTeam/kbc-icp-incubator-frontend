@@ -2,13 +2,11 @@ import { createSlice } from '@reduxjs/toolkit';
 
 export type LoadingState = {
     isLoading: boolean;
-    loadingMessage: string;
     loadingMessages: string[];
 };
 
 const initialState: LoadingState = {
     isLoading: false,
-    loadingMessage: '',
     loadingMessages: []
 };
 

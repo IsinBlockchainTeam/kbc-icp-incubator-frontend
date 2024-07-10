@@ -2,28 +2,26 @@ import { act, render, screen } from '@testing-library/react';
 import Offers from '../Offers';
 import userEvent from '@testing-library/user-event';
 import { paths } from '@/constants/paths';
-import configureStore from 'redux-mock-store';
 import { Offer, ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
-import { Provider } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { credentials } from '@/constants/ssi';
 import { useNavigate } from 'react-router-dom';
 import { useICPName } from '@/providers/entities/ICPNameProvider';
 import { useEthOffer } from '@/providers/entities/EthOfferProvider';
+import { UserInfoState } from '@/redux/reducers/userInfoSlice';
 
 jest.mock('react-router-dom');
 jest.mock('@/utils/notification');
 jest.mock('@/providers/entities/EthOfferProvider');
 jest.mock('@/providers/entities/ICPNameProvider');
-
-const mockStore = configureStore([]);
+jest.mock('react-redux');
 
 describe('Offers', () => {
-    const store = mockStore({
-        userInfo: {
-            role: credentials.ROLE_EXPORTER
-        }
-    });
+    const userInfo = {
+        role: credentials.ROLE_EXPORTER
+    } as UserInfoState;
     const getName = jest.fn();
+    const navigate = jest.fn();
 
     beforeEach(() => {
         jest.spyOn(console, 'log').mockImplementation(jest.fn());
@@ -40,14 +38,12 @@ describe('Offers', () => {
                 new Offer(2, 'Owner 2', new ProductCategory(2, 'Product Category 2', 2, ''))
             ]
         });
+        (useSelector as jest.Mock).mockReturnValue(userInfo);
+        (useNavigate as jest.Mock).mockReturnValue(navigate);
     });
 
     it('should render correctly', async () => {
-        render(
-            <Provider store={store}>
-                <Offers />
-            </Provider>
-        );
+        render(<Offers />);
 
         expect(screen.getByText('Product Category 1')).toBeInTheDocument();
         expect(screen.getByText('Product Category 2')).toBeInTheDocument();
@@ -56,13 +52,7 @@ describe('Offers', () => {
     });
 
     it("should call navigator functions when clicking on 'New' buttons", async () => {
-        const navigate = jest.fn();
-        (useNavigate as jest.Mock).mockReturnValue(navigate);
-        render(
-            <Provider store={store}>
-                <Offers />
-            </Provider>
-        );
+        render(<Offers />);
 
         act(() => {
             userEvent.click(screen.getByRole('button', { name: 'plus New Offer Supplier' }));
@@ -78,18 +68,11 @@ describe('Offers', () => {
     });
 
     it("should call navigator functions when clicking on 'Start a negotiation' buttons", async () => {
-        const store = mockStore({
-            userInfo: {
-                role: credentials.ROLE_IMPORTER
-            }
+        (useSelector as jest.Mock).mockReturnValue({
+            role: credentials.ROLE_IMPORTER
         });
-        const navigate = jest.fn();
-        (useNavigate as jest.Mock).mockReturnValue(navigate);
-        render(
-            <Provider store={store}>
-                <Offers />
-            </Provider>
-        );
+
+        render(<Offers />);
 
         act(() => {
             userEvent.click(screen.getAllByRole('start-negotiation')[0]);
@@ -101,11 +84,7 @@ describe('Offers', () => {
     });
 
     it('should call sorter function correctly when clicking on a table header', async () => {
-        render(
-            <Provider store={store}>
-                <Offers />
-            </Provider>
-        );
+        render(<Offers />);
 
         let tableRows = screen.getAllByRole('row');
         expect(tableRows).toHaveLength(3);
@@ -141,11 +120,7 @@ describe('Offers', () => {
     });
 
     it('should filter offers', async () => {
-        render(
-            <Provider store={store}>
-                <Offers />
-            </Provider>
-        );
+        render(<Offers />);
 
         let tableRows = screen.getAllByRole('row');
         expect(tableRows).toHaveLength(3);

@@ -18,7 +18,7 @@ export type EthOfferContextState = {
 export const EthOfferContext = createContext<EthOfferContextState>({} as EthOfferContextState);
 export const useEthOffer = (): EthOfferContextState => {
     const context = useContext(EthOfferContext);
-    if (!context) {
+    if (!context || Object.keys(context).length === 0) {
         throw new Error('useEthOffer must be used within an EthOfferProvider.');
     }
     return context;
@@ -74,7 +74,7 @@ export function EthOfferProvider(props: { children: ReactNode }) {
                 NotificationType.SUCCESS,
                 NOTIFICATION_DURATION
             );
-            await loadOffers();
+            await loadData();
         } catch (e: any) {
             openNotification(
                 'Error',

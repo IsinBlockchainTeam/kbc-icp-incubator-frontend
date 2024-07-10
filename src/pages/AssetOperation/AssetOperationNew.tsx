@@ -5,11 +5,13 @@ import { DeleteOutlined } from '@ant-design/icons';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
 import React, { useState } from 'react';
 import { regex } from '@/utils/regex';
-import { AssetOperationRequest } from '@/api/types/AssetOperationRequest';
 import { paths } from '@/constants/paths';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
-import { useEthAssetOperation } from '@/providers/entities/EthAssetOperationProvider';
+import {
+    AssetOperationRequest,
+    useEthAssetOperation
+} from '@/providers/entities/EthAssetOperationProvider';
 
 export const AssetOperationNew = () => {
     const { materials } = useEthMaterial();

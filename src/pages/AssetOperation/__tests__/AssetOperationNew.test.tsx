@@ -1,62 +1,42 @@
-import { EthAssetOperationService } from '@/api/services/EthAssetOperationService';
 import { act, render, screen } from '@testing-library/react';
 import AssetOperationNew from '../AssetOperationNew';
 import userEvent from '@testing-library/user-event';
-
 import { paths } from '@/constants/paths';
-import configureStore from 'redux-mock-store';
-import { EthContext, EthContextState } from '@/providers/EthProvider';
-import { Provider } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { Material, ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
 import { GenericForm } from '@/components/GenericForm/GenericForm';
-import { NotificationType, openNotification } from '@/utils/notification';
-import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
+import { useEthAssetOperation } from '@/providers/entities/EthAssetOperationProvider';
 
 jest.mock('react-router-dom');
-jest.mock('@/providers/EthProvider');
 jest.mock('@/components/GenericForm/GenericForm');
-jest.mock('@/utils/notification');
 jest.mock('@/providers/entities/EthMaterialProvider');
 jest.mock('@/providers/entities/EthEnumerableProvider');
-
-const mockStore = configureStore([]);
+jest.mock('@/providers/entities/EthAssetOperationProvider');
 
 describe('Asset Operations New', () => {
-    const contextValue = {
-        ethAssetOperationService: {
-            saveAssetOperation: jest.fn()
-        } as unknown as EthAssetOperationService
-    } as EthContextState;
-
-    const store = mockStore({});
+    const materials = [
+        new Material(1, new ProductCategory(1, 'Product category 1', 1, '')),
+        new Material(2, new ProductCategory(2, 'Product category 2', 2, ''))
+    ];
+    const processTypes = ['Process Type 1', 'Process Type 2'];
+    const saveAssetOperation = jest.fn();
+    const navigate = jest.fn();
 
     beforeEach(() => {
         jest.spyOn(console, 'log').mockImplementation(jest.fn());
         jest.spyOn(console, 'error').mockImplementation(jest.fn());
         jest.clearAllMocks();
 
-        (useEthMaterial as jest.Mock).mockReturnValue({
-            materials: [
-                new Material(1, new ProductCategory(1, 'Product category 1', 1, '')),
-                new Material(2, new ProductCategory(2, 'Product category 2', 2, ''))
-            ]
-        });
-        (useEthEnumerable as jest.Mock).mockReturnValue({
-            processTypes: ['Process Type 1', 'Process Type 2']
-        });
+        (useNavigate as jest.Mock).mockReturnValue(navigate);
+        (useEthMaterial as jest.Mock).mockReturnValue({ materials });
+        (useEthEnumerable as jest.Mock).mockReturnValue({ processTypes });
+        (useEthAssetOperation as jest.Mock).mockReturnValue({ saveAssetOperation });
     });
 
     it('should render correctly', async () => {
-        render(
-            <Provider store={store}>
-                <EthContext.Provider value={contextValue}>
-                    <AssetOperationNew />
-                </EthContext.Provider>
-            </Provider>
-        );
+        render(<AssetOperationNew />);
 
         expect(screen.getByText('New Asset Operation')).toBeInTheDocument();
         expect(
@@ -75,15 +55,7 @@ describe('Asset Operations New', () => {
     });
 
     it('should create asset operation on submit', async () => {
-        const navigate = jest.fn();
-        (useNavigate as jest.Mock).mockReturnValue(navigate);
-        render(
-            <Provider store={store}>
-                <EthContext.Provider value={contextValue}>
-                    <AssetOperationNew />
-                </EthContext.Provider>
-            </Provider>
-        );
+        render(<AssetOperationNew />);
 
         const values = {
             name: 'Asset Operation 1',
@@ -95,8 +67,8 @@ describe('Asset Operations New', () => {
         };
         await (GenericForm as jest.Mock).mock.calls[0][0].onSubmit(values);
 
-        expect(contextValue.ethAssetOperationService.saveAssetOperation).toHaveBeenCalled();
-        expect(contextValue.ethAssetOperationService.saveAssetOperation).toHaveBeenCalledWith({
+        expect(saveAssetOperation).toHaveBeenCalled();
+        expect(saveAssetOperation).toHaveBeenCalledWith({
             name: 'Asset Operation 1',
             inputMaterialIds: [1],
             outputMaterialId: 2,
@@ -108,59 +80,16 @@ describe('Asset Operations New', () => {
         expect(navigate).toHaveBeenCalledWith(paths.ASSET_OPERATIONS);
     });
 
-    it('should open notification if save fails', async () => {
-        const navigate = jest.fn();
-        (useNavigate as jest.Mock).mockReturnValue(navigate);
-        (contextValue.ethAssetOperationService.saveAssetOperation as jest.Mock).mockRejectedValue(
-            new Error('Error saving asset operation')
-        );
-        render(
-            <Provider store={store}>
-                <EthContext.Provider value={contextValue}>
-                    <AssetOperationNew />
-                </EthContext.Provider>
-            </Provider>
-        );
-
-        const values = {};
-        await (GenericForm as jest.Mock).mock.calls[0][0].onSubmit(values);
-
-        expect(contextValue.ethAssetOperationService.saveAssetOperation).toHaveBeenCalled();
-        expect(openNotification).toHaveBeenCalledTimes(1);
-        expect(openNotification).toHaveBeenCalledWith(
-            'Error',
-            'Error saving asset operation',
-            NotificationType.ERROR,
-            NOTIFICATION_DURATION
-        );
-        expect(navigate).not.toHaveBeenCalled();
-    });
-
     it("should navigate to 'Asset Operations' when clicking on 'Delete Asset Operation' button", async () => {
-        const navigate = jest.fn();
-        (useNavigate as jest.Mock).mockReturnValue(navigate);
-        render(
-            <Provider store={store}>
-                <EthContext.Provider value={contextValue}>
-                    <AssetOperationNew />
-                </EthContext.Provider>
-            </Provider>
-        );
+        render(<AssetOperationNew />);
 
         userEvent.click(screen.getByRole('button', { name: 'delete Delete Asset Operation' }));
-
         expect(navigate).toHaveBeenCalledTimes(1);
         expect(navigate).toHaveBeenCalledWith(paths.ASSET_OPERATIONS);
     });
 
     it('should add and remove input material when clicking on buttons', async () => {
-        render(
-            <Provider store={store}>
-                <EthContext.Provider value={contextValue}>
-                    <AssetOperationNew />
-                </EthContext.Provider>
-            </Provider>
-        );
+        render(<AssetOperationNew />);
 
         act(() => {
             const elements: any[] = (GenericForm as jest.Mock).mock.calls[0][0].elements;

@@ -20,7 +20,7 @@ export const EthEnumerableContext = createContext<EthEnumerableContextState>(
 );
 export const useEthEnumerable = (): EthEnumerableContextState => {
     const context = useContext(EthEnumerableContext);
-    if (!context) {
+    if (!context || Object.keys(context).length === 0) {
         throw new Error('useEthEnumerable must be used within an EthEnumerableProvider.');
     }
     return context;

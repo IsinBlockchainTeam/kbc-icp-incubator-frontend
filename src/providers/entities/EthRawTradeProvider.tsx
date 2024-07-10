@@ -30,8 +30,8 @@ export const EthTradeContext = createContext<EthRawTradeContextState>(
 );
 export const useEthRawTrade = (): EthRawTradeContextState => {
     const context = useContext(EthTradeContext);
-    if (!context) {
-        throw new Error('useEthTrade must be used within an EthTradeProvider.');
+    if (!context || Object.keys(context).length === 0) {
+        throw new Error('useEthRawTrade must be used within an EthRawTradeProvider.');
     }
     return context;
 };
