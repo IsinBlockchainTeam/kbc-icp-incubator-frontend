@@ -37,11 +37,8 @@ export const CoffeeImport = ({ orderTrade }: Props) => {
     const documentDetail = getDocumentDetail(
         orderTrade.tradeId,
         OrderStatus.SHIPPED,
-        DocumentType.BILL_OF_LADING
+        DocumentType.COMPARISON_SWISS_DECODE
     );
-    if (documentDetail === undefined) {
-        return <>Document not supported</>;
-    }
 
     const documentDuty = getDocumentDuty(
         orderTrade.commissioner,

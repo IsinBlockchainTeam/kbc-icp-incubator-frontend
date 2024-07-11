@@ -48,8 +48,11 @@ export function EthRelationshipProvider(props: { children: ReactNode }) {
             const relationshipIds = await relationshipService.getRelationshipIdsByCompany(
                 signer.address
             );
-            const relationships = await Promise.all(
-                relationshipIds.map(async (id) => await relationshipService.getRelationshipInfo(id))
+            const relationships: Relationship[] = [];
+            await Promise.allSettled(
+                relationshipIds.map(async (id) =>
+                    relationships.push(await relationshipService.getRelationshipInfo(id))
+                )
             );
             setRelationships(relationships);
         } catch (e) {

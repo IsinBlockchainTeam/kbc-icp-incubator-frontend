@@ -97,7 +97,7 @@ export function EthBasicTradeProvider(props: { children: ReactNode }) {
         try {
             dispatch(addLoadingMessage(BASIC_TRADE_MESSAGE.RETRIEVE.LOADING));
             const detailedBasicTrades: DetailedBasicTrade[] = [];
-            await Promise.all(
+            await Promise.allSettled(
                 rawTrades
                     .filter((rT) => rT.type === TradeType.BASIC)
                     .map(async (rT) => {

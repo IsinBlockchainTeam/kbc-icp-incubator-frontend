@@ -67,11 +67,14 @@ export function EthRawTradeProvider(props: { children: ReactNode }) {
                 ...(await tradeManagerService.getTradeIdsOfSupplier(signer.address)),
                 ...(await tradeManagerService.getTradeIdsOfCommissioner(signer.address))
             ];
-            const tradeAddresses = await Promise.all(
-                tradeIds.map((id) => tradeManagerService.getTrade(id))
+            const tradeAddresses: string[] = [];
+            await Promise.allSettled(
+                tradeIds.map(async (id) =>
+                    tradeAddresses.push(await tradeManagerService.getTrade(id))
+                )
             );
             const rawTrades: RawTrade[] = [];
-            await Promise.all(
+            await Promise.allSettled(
                 tradeAddresses.map(async (address) => {
                     const tradeService = new TradeService(
                         new TradeDriver(signer, address),

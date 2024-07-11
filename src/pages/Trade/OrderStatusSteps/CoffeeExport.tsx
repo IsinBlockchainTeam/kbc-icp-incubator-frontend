@@ -146,9 +146,11 @@ export const CoffeeExport = ({ orderTrade }: Props) => {
         )
     ];
     const onSubmit = async (values: any) => {
+        console.log('onSubmit called');
         for (const { name, documentType } of documents) {
             const file = values[name];
-            if (!file || !file.name) return;
+            console.log(file);
+            if (!file || !file.name) continue;
             const documentRequest: DocumentRequest = {
                 content: file,
                 filename: file.name,

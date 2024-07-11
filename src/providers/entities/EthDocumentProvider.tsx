@@ -120,7 +120,7 @@ export function EthDocumentProvider(props: { children: ReactNode }) {
     const getDocumentDetailMap = async (service: OrderTradeService) => {
         const documentTypeMap = new Map<DocumentType, DocumentDetail | null>();
         try {
-            await Promise.all(
+            await Promise.allSettled(
                 DOCUMENT_TYPES.map(async (type) => {
                     const documents = await service.getDocumentsByType(type);
                     const info = documents

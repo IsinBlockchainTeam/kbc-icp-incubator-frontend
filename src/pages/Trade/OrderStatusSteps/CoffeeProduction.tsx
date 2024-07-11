@@ -39,9 +39,6 @@ export const CoffeeProduction = ({ orderTrade }: Props) => {
         OrderStatus.PRODUCTION,
         DocumentType.PAYMENT_INVOICE
     );
-    if (documentDetail === undefined) {
-        return <>Document not supported</>;
-    }
 
     const documentDuty = getDocumentDuty(
         orderTrade.supplier,

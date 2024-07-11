@@ -39,9 +39,6 @@ export const CoffeeShipment = ({ orderTrade }: Props) => {
         OrderStatus.EXPORTED,
         DocumentType.BILL_OF_LADING
     );
-    if (documentDetail === undefined) {
-        return <>Document not supported</>;
-    }
 
     const documentDuty = getDocumentDuty(
         orderTrade.supplier,
@@ -113,7 +110,7 @@ export const CoffeeShipment = ({ orderTrade }: Props) => {
         const documentRequest: DocumentRequest = {
             content: file,
             filename: file.name,
-            documentType: DocumentType.PAYMENT_INVOICE
+            documentType: DocumentType.BILL_OF_LADING
         };
         await uploadOrderDocument(orderTrade.tradeId, documentRequest, orderTrade.externalUrl);
         navigate(paths.TRADES);

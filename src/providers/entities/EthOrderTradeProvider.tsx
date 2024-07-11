@@ -144,12 +144,12 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
         try {
             dispatch(addLoadingMessage(ORDER_TRADE_MESSAGE.RETRIEVE.LOADING));
             const detailedOrderTrades: DetailedOrderTrade[] = [];
-            await Promise.all(
+            await Promise.allSettled(
                 rawTrades
                     .filter((rT) => rT.type === TradeType.ORDER)
                     .map(async (rT) => {
                         const service = getOrderTradeService(rT.address);
-                        const trade = await service.getTrade();
+                        const trade = await service.getCompleteTrade();
                         const negotiationStatus = trade.negotiationStatus;
                         const orderStatus = await service.getOrderStatus();
                         const signatures = await service.getWhoSigned();
