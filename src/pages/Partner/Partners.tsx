@@ -12,9 +12,15 @@ export const Partners = () => {
 
     const columns: ColumnsType<Relationship> = [
         {
-            title: 'Company',
-            dataIndex: 'companyName',
-            sorter: (a, b) => a.companyA.localeCompare(b.companyB),
+            title: 'Company 1',
+            dataIndex: 'companyA',
+            sorter: (a, b) => a.companyA.localeCompare(b.companyA),
+            sortDirections: ['descend']
+        },
+        {
+            title: 'Company 2',
+            dataIndex: 'companyB',
+            sorter: (a, b) => a.companyB.localeCompare(b.companyB),
             sortDirections: ['descend']
         },
         {

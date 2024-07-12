@@ -11,7 +11,7 @@ import OrderStatusSteps from '@/pages/Trade/OrderStatusSteps/OrderStatusSteps';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
 import React, { useState } from 'react';
 import { FormElement, FormElementType } from '@/components/GenericForm/GenericForm';
-import { regex } from '@/utils/regex';
+import { regex } from '@/constants/regex';
 import dayjs from 'dayjs';
 import { useSigner } from '@/providers/SignerProvider';
 import { paths } from '@/constants/paths';

@@ -36,8 +36,6 @@ const nodeTypes = {
     mapNode: MapNode
 };
 
-const g = new Dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
-
 const nodeWidth = 172;
 const nodeHeight = 36;
 
@@ -50,6 +48,7 @@ export const GraphPage = () => {
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
     useEffect(() => {
+        const g = new Dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
         g.setGraph({ rankdir: 'LR' });
         (async () => {
             const result = await computeGraph(parseInt(materialId!));

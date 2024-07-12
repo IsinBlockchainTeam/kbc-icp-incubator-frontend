@@ -4,7 +4,7 @@ import { Button } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
 import React, { useState } from 'react';
-import { regex } from '@/utils/regex';
+import { regex } from '@/constants/regex';
 import { paths } from '@/constants/paths';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';

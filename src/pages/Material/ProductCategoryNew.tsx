@@ -4,7 +4,7 @@ import { DeleteOutlined } from '@ant-design/icons';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { regex } from '@/utils/regex';
+import { regex } from '@/constants/regex';
 import { paths } from '@/constants/paths';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 

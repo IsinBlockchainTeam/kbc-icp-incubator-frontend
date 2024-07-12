@@ -55,17 +55,6 @@ export const InviteCompany = (props: Props) => {
         }
     };
 
-    const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
-        errorInfo.errorFields.forEach((field) => {
-            openNotification(
-                'Error',
-                field.errors[0],
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
-        });
-    };
-
     return (
         <Modal open={props.open} title="Invite a new Company" onCancel={props.onClose} footer={[]}>
             <Form
@@ -74,7 +63,6 @@ export const InviteCompany = (props: Props) => {
                 wrapperCol={{ span: 16 }}
                 style={{ maxWidth: 600, paddingTop: 20 }}
                 onFinish={onFinish}
-                onFinishFailed={onFinishFailed}
                 autoComplete="off">
                 <Form.Item
                     name="name"

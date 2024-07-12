@@ -77,9 +77,6 @@ export const CoffeeExport = ({ orderTrade }: Props) => {
             OrderStatus.PAYED,
             documentType
         );
-        if (documentDetail === undefined) {
-            return { type: FormElementType.SPACE, span: 12 };
-        }
         const documentDuty = getDocumentDuty(
             orderTrade.supplier,
             orderTrade.commissioner,
@@ -146,10 +143,8 @@ export const CoffeeExport = ({ orderTrade }: Props) => {
         )
     ];
     const onSubmit = async (values: any) => {
-        console.log('onSubmit called');
         for (const { name, documentType } of documents) {
             const file = values[name];
-            console.log(file);
             if (!file || !file.name) continue;
             const documentRequest: DocumentRequest = {
                 content: file,

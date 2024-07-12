@@ -54,6 +54,7 @@ const mockedDidDocument = {
 describe('ICPProvider', () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        jest.spyOn(console, 'log').mockImplementation(jest.fn());
         jest.spyOn(console, 'error').mockImplementation(jest.fn());
     });
     it('should throw error if hook is used outside the provider', async () => {

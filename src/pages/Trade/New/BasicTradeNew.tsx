@@ -5,7 +5,7 @@ import { paths } from '@/constants/paths';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { regex } from '@/utils/regex';
+import { regex } from '@/constants/regex';
 import { LineRequest, DocumentType } from '@kbc-lib/coffee-trading-management-lib';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';

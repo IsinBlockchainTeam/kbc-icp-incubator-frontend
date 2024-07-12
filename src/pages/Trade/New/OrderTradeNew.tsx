@@ -12,7 +12,7 @@ import {
 } from '@kbc-lib/coffee-trading-management-lib';
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { regex } from '@/utils/regex';
+import { regex } from '@/constants/regex';
 import dayjs from 'dayjs';
 import { validateDates } from '@/utils/date';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';

@@ -43,7 +43,6 @@ export default function Profile() {
     };
 
     if (!userInfo.isLogged) {
-        console.log('Not logged');
         return <Navigate to={paths.LOGIN} />;
     }
     return (

@@ -38,7 +38,6 @@ export default function VeramoLogin() {
             setQrCodeURL(response.qrcode);
             setChallengeId(id);
         } catch (e: any) {
-            console.log('error: ', e);
             openNotification(
                 'Error',
                 LOGIN_MESSAGE.COMPUTE.ERROR,
@@ -98,11 +97,8 @@ export default function VeramoLogin() {
                         privateKey: userInfo.privateKey || ''
                     })
                 );
-            } else {
-                console.log('NO MESSAGE');
             }
         } catch (error: any) {
-            console.log('error: ', error);
             openNotification(
                 'Error',
                 'Error while processing VC',
