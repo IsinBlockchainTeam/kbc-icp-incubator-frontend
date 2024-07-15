@@ -80,7 +80,7 @@ export const EthDocumentContext = createContext<EthDocumentContextState>(
 );
 export const useEthDocument = (): EthDocumentContextState => {
     const context = useContext(EthDocumentContext);
-    if (!context) {
+    if (!context || Object.keys(context).length === 0) {
         throw new Error('useEthDocument must be used within an EthDocumentProvider.');
     }
     return context;
@@ -119,29 +119,25 @@ export function EthDocumentProvider(props: { children: ReactNode }) {
 
     const getDocumentDetailMap = async (service: OrderTradeService) => {
         const documentTypeMap = new Map<DocumentType, DocumentDetail | null>();
-        try {
-            await Promise.allSettled(
-                DOCUMENT_TYPES.map(async (type) => {
-                    const documents = await service.getDocumentsByType(type);
-                    const info = documents
-                        .filter((docInfo) => !docInfo.externalUrl.endsWith('.json'))
-                        .pop();
-                    if (!info) {
-                        documentTypeMap.set(type, null);
-                        return;
-                    }
-                    const status = await service.getDocumentStatus(info.id);
-                    const content = await getDocumentContent(info);
-                    documentTypeMap.set(type, {
-                        info,
-                        status,
-                        content
-                    });
-                })
-            );
-        } catch (e: any) {
-            console.error(e);
-        }
+        await Promise.allSettled(
+            DOCUMENT_TYPES.map(async (type) => {
+                const documents = await service.getDocumentsByType(type);
+                const info = documents
+                    .filter((docInfo) => !docInfo.externalUrl.endsWith('.json'))
+                    .pop();
+                if (!info) {
+                    documentTypeMap.set(type, null);
+                    return;
+                }
+                const status = await service.getDocumentStatus(info.id);
+                const content = await getDocumentContent(info);
+                documentTypeMap.set(type, {
+                    info,
+                    status,
+                    content
+                });
+            })
+        );
         const documentDetailMap: DocumentDetailMap = new Map();
         documentDetailMap.set(
             OrderStatus.PRODUCTION,
@@ -224,8 +220,6 @@ export function EthDocumentProvider(props: { children: ReactNode }) {
                     NotificationType.SUCCESS,
                     NOTIFICATION_DURATION
                 );
-            // TODO: Necessary?
-            window.location.reload();
         } catch (e: any) {
             openNotification(
                 'Error',

@@ -91,7 +91,7 @@ export const EthOrderTradeContext = createContext<EthOrderTradeContextState>(
 );
 export const useEthOrderTrade = (): EthOrderTradeContextState => {
     const context = useContext(EthOrderTradeContext);
-    if (!context) {
+    if (!context || Object.keys(context).length === 0) {
         throw new Error('useEthOrderTrade must be used within an EthOrderTradeProvider.');
     }
     return context;
@@ -141,49 +141,38 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
     }, [rawTrades]);
 
     const loadDetailedTrades = async () => {
-        try {
-            dispatch(addLoadingMessage(ORDER_TRADE_MESSAGE.RETRIEVE.LOADING));
-            const detailedOrderTrades: DetailedOrderTrade[] = [];
-            await Promise.allSettled(
-                rawTrades
-                    .filter((rT) => rT.type === TradeType.ORDER)
-                    .map(async (rT) => {
-                        const service = getOrderTradeService(rT.address);
-                        const trade = await service.getCompleteTrade();
-                        const negotiationStatus = trade.negotiationStatus;
-                        const orderStatus = await service.getOrderStatus();
-                        const signatures = await service.getWhoSigned();
-                        const documentDetailMap = await getDocumentDetailMap(service);
-                        const actionRequired = await getActionMessage(
-                            trade,
-                            documentDetailMap,
-                            negotiationStatus,
-                            orderStatus,
-                            signatures
-                        );
+        dispatch(addLoadingMessage(ORDER_TRADE_MESSAGE.RETRIEVE.LOADING));
+        const detailedOrderTrades: DetailedOrderTrade[] = [];
+        await Promise.allSettled(
+            rawTrades
+                .filter((rT) => rT.type === TradeType.ORDER)
+                .map(async (rT) => {
+                    const service = getOrderTradeService(rT.address);
+                    const trade = await service.getCompleteTrade();
+                    const negotiationStatus = trade.negotiationStatus;
+                    const orderStatus = await service.getOrderStatus();
+                    const signatures = await service.getWhoSigned();
+                    const documentDetailMap = await getDocumentDetailMap(service);
+                    const actionRequired = await getActionMessage(
+                        trade,
+                        documentDetailMap,
+                        negotiationStatus,
+                        orderStatus,
+                        signatures
+                    );
 
-                        detailedOrderTrades.push({
-                            trade,
-                            service,
-                            documentDetailMap,
-                            actionRequired,
-                            negotiationStatus,
-                            orderStatus
-                        });
-                    })
-            );
-            setDetailedOrderTrades(detailedOrderTrades);
-        } catch (e) {
-            console.log(e);
-            openNotification(
-                'Error',
-                ORDER_TRADE_MESSAGE.RETRIEVE.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
-        } finally {
-            dispatch(removeLoadingMessage(ORDER_TRADE_MESSAGE.RETRIEVE.LOADING));
-        }
+                    detailedOrderTrades.push({
+                        trade,
+                        service,
+                        documentDetailMap,
+                        actionRequired,
+                        negotiationStatus,
+                        orderStatus
+                    });
+                })
+        );
+        setDetailedOrderTrades(detailedOrderTrades);
+        dispatch(removeLoadingMessage(ORDER_TRADE_MESSAGE.RETRIEVE.LOADING));
     };
 
     const getOrderTradeService = (address: string) =>
@@ -305,6 +294,7 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
                 NotificationType.SUCCESS,
                 NOTIFICATION_DURATION
             );
+            await loadDetailedTrades();
         } catch (e: any) {
             openNotification(
                 'Error',
@@ -377,6 +367,8 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
                 NotificationType.SUCCESS,
                 NOTIFICATION_DURATION
             );
+            // TODO: Reload only this trade instead of all trades
+            await loadDetailedTrades();
         } catch (e: any) {
             openNotification(
                 'Error',
@@ -391,11 +383,11 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
 
     const confirmNegotiation = async (orderId: number) => {
         try {
+            dispatch(addLoadingMessage(ORDER_TRADE_MESSAGE.CONFIRM_NEGOTIATION.LOADING));
             const orderService = detailedOrderTrades.find(
                 (t) => t.trade.tradeId === orderId
             )?.service;
             if (!orderService) return Promise.reject('Trade not found');
-            dispatch(addLoadingMessage(ORDER_TRADE_MESSAGE.CONFIRM_NEGOTIATION.LOADING));
             await orderService.confirmOrder();
             openNotification(
                 'Success',
@@ -403,6 +395,7 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
                 NotificationType.SUCCESS,
                 NOTIFICATION_DURATION
             );
+            await loadDetailedTrades();
         } catch (e: any) {
             openNotification(
                 'Error',
@@ -422,7 +415,8 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
     ) => {
         const orderService = detailedOrderTrades.find((t) => t.trade.tradeId === orderId)?.service;
         if (!orderService) return Promise.reject('Trade not found');
-        return validateDocument(documentId, validationStatus, orderService);
+        await validateDocument(documentId, validationStatus, orderService);
+        await loadDetailedTrades();
     };
 
     const uploadOrderDocument = async (
@@ -432,14 +426,15 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
     ) => {
         const orderService = detailedOrderTrades.find((t) => t.trade.tradeId === orderId)?.service;
         if (!orderService) return Promise.reject('Trade not found');
-        return uploadDocument(documentRequest, externalUrl, orderService);
+        await uploadDocument(documentRequest, externalUrl, orderService);
+        await loadDetailedTrades();
     };
 
     const notifyExpiration = async (orderId: number, email: string, message: string) => {
         try {
+            dispatch(addLoadingMessage(ORDER_TRADE_MESSAGE.NOTIFY_EXPIRATION.LOADING));
             const orderTrade = detailedOrderTrades.find((t) => t.trade.tradeId === orderId)?.trade;
             if (!orderTrade) return Promise.reject('Trade not found');
-            dispatch(addLoadingMessage(ORDER_TRADE_MESSAGE.NOTIFY_EXPIRATION.LOADING));
             const recipientCompanyName =
                 orderTrade.supplier === signer.address
                     ? getName(orderTrade.commissioner)
@@ -478,14 +473,21 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
     };
 
     const orderTrades = detailedOrderTrades.map((detailedTrade) => detailedTrade.trade);
-    const getActionRequired = (orderId: number) =>
-        detailedOrderTrades.find((t) => t.trade.tradeId === orderId)?.actionRequired || '';
-    const getNegotiationStatus = (orderId: number) =>
-        detailedOrderTrades.find((t) => t.trade.tradeId === orderId)?.negotiationStatus ||
-        NegotiationStatus.INITIALIZED;
-    const getOrderStatus = (orderId: number) =>
-        detailedOrderTrades.find((t) => t.trade.tradeId === orderId)?.orderStatus ||
-        OrderStatus.CONTRACTING;
+    const getActionRequired = (orderId: number) => {
+        const detailedOrderTrade = detailedOrderTrades.find((t) => t.trade.tradeId === orderId);
+        if (!detailedOrderTrade) throw new Error('Order trade not found.');
+        return detailedOrderTrade.actionRequired;
+    };
+    const getNegotiationStatus = (orderId: number) => {
+        const detailedOrderTrade = detailedOrderTrades.find((t) => t.trade.tradeId === orderId);
+        if (!detailedOrderTrade) throw new Error('Order trade not found.');
+        return detailedOrderTrade.negotiationStatus;
+    };
+    const getOrderStatus = (orderId: number) => {
+        const detailedOrderTrade = detailedOrderTrades.find((t) => t.trade.tradeId === orderId);
+        if (!detailedOrderTrade) throw new Error('Order trade not found.');
+        return detailedOrderTrade.orderStatus;
+    };
 
     const getRequiredDocumentTypes = (orderId: number, orderStatus: OrderStatus) => {
         const detailedOrderTrade = detailedOrderTrades.find((t) => t.trade.tradeId === orderId);
@@ -511,13 +513,13 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
         <EthOrderTradeContext.Provider
             value={{
                 orderTrades,
-                saveOrderTrade,
-                updateOrderTrade,
                 getActionRequired,
                 getNegotiationStatus,
                 getOrderStatus,
                 getRequiredDocumentTypes,
                 getDocumentDetail,
+                saveOrderTrade,
+                updateOrderTrade,
                 confirmNegotiation,
                 validateOrderDocument,
                 uploadOrderDocument,
