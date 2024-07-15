@@ -136,11 +136,8 @@ export const App = () => {
                                                 <DataLoader customUseContext={useEthEnumerable}>
                                                     <DataLoader customUseContext={useEthMaterial}>
                                                         <DataLoader
-                                                            customUseContext={useEthEnumerable}>
-                                                            <DataLoader
-                                                                customUseContext={useEthRawTrade}>
-                                                                <TradeView />
-                                                            </DataLoader>
+                                                            customUseContext={useEthRawTrade}>
+                                                            <TradeView />
                                                         </DataLoader>
                                                     </DataLoader>
                                                 </DataLoader>

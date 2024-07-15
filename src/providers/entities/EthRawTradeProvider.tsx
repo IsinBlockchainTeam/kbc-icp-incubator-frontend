@@ -25,11 +25,11 @@ export type EthRawTradeContextState = {
     rawTrades: RawTrade[];
     loadData: () => Promise<void>;
 };
-export const EthTradeContext = createContext<EthRawTradeContextState>(
+export const EthRawTradeContext = createContext<EthRawTradeContextState>(
     {} as EthRawTradeContextState
 );
 export const useEthRawTrade = (): EthRawTradeContextState => {
-    const context = useContext(EthTradeContext);
+    const context = useContext(EthRawTradeContext);
     if (!context || Object.keys(context).length === 0) {
         throw new Error('useEthRawTrade must be used within an EthRawTradeProvider.');
     }
@@ -87,7 +87,6 @@ export function EthRawTradeProvider(props: { children: ReactNode }) {
             );
             setRawTrades(rawTrades);
         } catch (e) {
-            console.error(e);
             openNotification(
                 'Error',
                 RAW_TRADE_MESSAGE.RETRIEVE.ERROR,
@@ -105,13 +104,13 @@ export function EthRawTradeProvider(props: { children: ReactNode }) {
     };
 
     return (
-        <EthTradeContext.Provider
+        <EthRawTradeContext.Provider
             value={{
                 dataLoaded,
                 rawTrades,
                 loadData
             }}>
             {props.children}
-        </EthTradeContext.Provider>
+        </EthRawTradeContext.Provider>
     );
 }
