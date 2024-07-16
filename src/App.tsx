@@ -42,7 +42,9 @@ const metadata = {
     name: 'KBC platform',
     description: 'A portal to decentralized coffee trading',
     url: 'http://192.168.0.173:3000',
-    icons: ['https://upload.wikimedia.org/wikipedia/commons/9/9c/Dunder_Mifflin%2C_Inc.svg']
+    icons: [
+        'https://media.licdn.com/dms/image/C4D0BAQFdvo0UQVHVOQ/company-logo_200_200/0/1630488712072?e=2147483647&v=beta&t=2eNF5yIqHWYMfYGWa5IZ4fb-qMwCiJ2wgMiazq_OLa0'
+    ]
 };
 
 // 4. Create Ethers config
