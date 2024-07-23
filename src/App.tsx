@@ -31,6 +31,7 @@ import { useEthRawTrade } from '@/providers/entities/EthRawTradeProvider';
 import { useEthAssetOperation } from '@/providers/entities/EthAssetOperationProvider';
 import { useEthRelationship } from '@/providers/entities/EthRelationshipProvider';
 import { useEthGraph } from '@/providers/entities/EthGraphProvider';
+import { useEthEscrow } from '@/providers/entities/EthEscrowProvider';
 
 export const App = () => {
     return (
@@ -137,7 +138,10 @@ export const App = () => {
                                                     <DataLoader customUseContext={useEthMaterial}>
                                                         <DataLoader
                                                             customUseContext={useEthRawTrade}>
-                                                            <TradeView />
+                                                            <DataLoader
+                                                                customUseContext={useEthEscrow}>
+                                                                <TradeView />
+                                                            </DataLoader>
                                                         </DataLoader>
                                                     </DataLoader>
                                                 </DataLoader>
