@@ -17,7 +17,7 @@ jest.mock('react-redux');
 jest.mock('@/utils/notification');
 
 describe('EthMaterialProvider', () => {
-    const signer = { address: '0x123' } as Wallet;
+    const signer = { _address: '0x123' } as JsonRpcSigner;
     const dispatch = jest.fn();
     const getProductCategories = jest.fn();
     const getMaterials = jest.fn();

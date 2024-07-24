@@ -14,7 +14,7 @@ import {
     URLStructure
 } from '@kbc-lib/coffee-trading-management-lib';
 import { useEthRawTrade } from '@/providers/entities/EthRawTradeProvider';
-import { contractAddresses } from '@/constants/evm';
+import { CONTRACT_ADDRESSES } from '@/constants/evm';
 import { useSigner } from '@/providers/SignerProvider';
 import { useICP } from '@/providers/ICPProvider';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
@@ -75,16 +75,16 @@ export function EthBasicTradeProvider(props: { children: ReactNode }) {
             new TradeManagerService({
                 tradeManagerDriver: new TradeManagerDriver(
                     signer,
-                    contractAddresses.TRADE(),
-                    contractAddresses.MATERIAL(),
-                    contractAddresses.PRODUCT_CATEGORY()
+                    CONTRACT_ADDRESSES.TRADE(),
+                    CONTRACT_ADDRESSES.MATERIAL(),
+                    CONTRACT_ADDRESSES.PRODUCT_CATEGORY()
                 ),
                 icpFileDriver: fileDriver
             }),
         [signer]
     );
     const documentDriver = useMemo(
-        () => new DocumentDriver(signer, contractAddresses.DOCUMENT()),
+        () => new DocumentDriver(signer, CONTRACT_ADDRESSES.DOCUMENT()),
         [signer]
     );
 
@@ -129,8 +129,8 @@ export function EthBasicTradeProvider(props: { children: ReactNode }) {
             new BasicTradeDriver(
                 signer,
                 address,
-                contractAddresses.MATERIAL(),
-                contractAddresses.PRODUCT_CATEGORY()
+                CONTRACT_ADDRESSES.MATERIAL(),
+                CONTRACT_ADDRESSES.PRODUCT_CATEGORY()
             ),
             documentDriver,
             fileDriver

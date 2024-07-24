@@ -88,7 +88,7 @@ export const CoffeeExport = ({ orderTrade }: Props) => {
         const needsValidation =
             documentDetail !== null &&
             documentDetail.status === DocumentStatus.NOT_EVALUATED &&
-            documentDetail.info.uploadedBy !== signer?.address;
+            documentDetail.info.uploadedBy !== signer._address;
         return {
             type: FormElementType.DOCUMENT,
             span: 12,

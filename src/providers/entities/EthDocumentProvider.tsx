@@ -11,7 +11,7 @@ import {
     TransactionLine
 } from '@kbc-lib/coffee-trading-management-lib';
 import { useSigner } from '@/providers/SignerProvider';
-import { contractAddresses } from '@/constants/evm';
+import { CONTRACT_ADDRESSES } from '@/constants/evm';
 import { useICP } from '@/providers/ICPProvider';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
 import { NotificationType, openNotification } from '@/utils/notification';
@@ -91,7 +91,7 @@ export function EthDocumentProvider(props: { children: ReactNode }) {
     const dispatch = useDispatch();
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const documentDriver = useMemo(
-        () => new DocumentDriver(signer, contractAddresses.DOCUMENT()),
+        () => new DocumentDriver(signer, CONTRACT_ADDRESSES.DOCUMENT()),
         [signer]
     );
     const documentService = useMemo(
@@ -104,12 +104,12 @@ export function EthDocumentProvider(props: { children: ReactNode }) {
         approverAddress: string,
         documentDetail: DocumentDetail | null
     ) => {
-        if (signer.address == uploaderAddress && documentDetail == null)
+        if (signer._address == uploaderAddress && documentDetail == null)
             return DOCUMENT_DUTY.UPLOAD_NEEDED;
-        if (signer.address == uploaderAddress && documentDetail?.status !== DocumentStatus.APPROVED)
+        if (signer._address == uploaderAddress && documentDetail?.status !== DocumentStatus.APPROVED)
             return DOCUMENT_DUTY.UPLOAD_POSSIBLE;
         if (
-            signer.address == approverAddress &&
+            signer._address == approverAddress &&
             documentDetail != null &&
             documentDetail.status == DocumentStatus.NOT_EVALUATED
         )

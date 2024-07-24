@@ -39,6 +39,7 @@ import { useICP } from '@/providers/ICPProvider';
 import { useICPName } from '@/providers/entities/ICPNameProvider';
 import { ACTION_MESSAGE } from '@/constants/message';
 import { requestPath } from '@/constants/url';
+import {JsonRpcSigner} from "@ethersproject/providers";
 
 jest.mock('@kbc-lib/coffee-trading-management-lib');
 jest.mock('@/providers/SignerProvider');
@@ -52,7 +53,7 @@ jest.mock('@/providers/entities/EthDocumentProvider');
 jest.mock('@/providers/entities/ICPNameProvider');
 
 describe('EthOrderTradeProvider', () => {
-    const signer = { address: '0x123' } as Wallet;
+    const signer = { _address: '0x123' } as JsonRpcSigner;
     const dispatch = jest.fn();
     const getTrade = jest.fn();
     const getCompleteTrade = jest.fn();

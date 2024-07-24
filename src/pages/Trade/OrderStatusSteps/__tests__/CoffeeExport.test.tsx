@@ -31,7 +31,7 @@ describe('CoffeeExport', () => {
     const uploadOrderDocument = jest.fn();
     const validateOrderDocument = jest.fn();
     const getDocumentDuty = jest.fn();
-    const signer = { address: '0x123' } as Wallet;
+    const signer = { _address: '0x123' } as JsonRpcSigner;
     const navigate = jest.fn();
 
     beforeEach(() => {

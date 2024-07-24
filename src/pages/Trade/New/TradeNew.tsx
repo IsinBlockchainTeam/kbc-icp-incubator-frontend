@@ -54,11 +54,25 @@ export const TradeNew = () => {
         }
     );
 
-    if (!location?.state?.supplierAddress || !location?.state?.productCategoryId) {
+    if (!supplierAddress || !productCategoryId) {
         navigate(paths.HOME);
     }
     if (type === TradeType.ORDER) {
-        return <OrderTradeNew commonElements={elements} validateDates={validateDates} />;
+        return (
+            <OrderTradeNew
+                supplierAddress={supplierAddress}
+                customerAddress={customerAddress}
+                productCategoryId={productCategoryId}
+                commonElements={elements}
+            />
+        );
     }
-    return <BasicTradeNew commonElements={elements} />;
+    return (
+        <BasicTradeNew
+            supplierAddress={supplierAddress}
+            customerAddress={customerAddress}
+            productCategoryId={productCategoryId}
+            commonElements={elements}
+        />
+    );
 };

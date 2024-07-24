@@ -6,14 +6,15 @@ import { useWeb3ModalAccount } from '@web3modal/ethers5/react';
 
 function WalletConnectLogin() {
     return (
-        <Flex style={{ justifyContent: 'center' }}>
+        <Flex style={{ justifyContent: 'center' }} role={'wallet-connect-container'}>
             <w3m-button />
         </Flex>
     );
 }
 
 export const Login = () => {
-    const [current, setCurrent] = useState<number>(0);
+    const { isConnected } = useWeb3ModalAccount();
+    const current = isConnected ? 1 : 0;
     const steps = [
         {
             title: 'WalletConnect Login',
@@ -24,13 +25,6 @@ export const Login = () => {
             content: <VeramoLogin />
         }
     ];
-    const { isConnected } = useWeb3ModalAccount();
-
-    useEffect(() => {
-        if (isConnected) {
-            setCurrent(1);
-        }
-    }, [isConnected]);
 
     return (
         <div className={styles.LoginContainer}>

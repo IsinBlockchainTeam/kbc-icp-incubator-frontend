@@ -32,9 +32,7 @@ describe('Basic Trade View', () => {
     const toggleDisabled = jest.fn();
     const navigate = jest.fn();
 
-    const signer = {
-        address: '0x123'
-    } as Wallet;
+    const signer = { _address: '0x123' } as JsonRpcSigner;
     const productCategories = [{ id: 1, name: 'Product Category 1' }];
     const fiats = ['fiat1', 'fiat2'];
     const units = ['unit1', 'unit2'];

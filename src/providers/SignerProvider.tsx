@@ -21,7 +21,7 @@ export const useSigner = (): SignerContextState => {
 export function SignerProvider({ children }: { children: ReactNode }) {
     const { address } = useWeb3ModalAccount();
     const { walletProvider } = useWeb3ModalProvider();
-    const signer = useMemo(
+    const signer: JsonRpcSigner = useMemo(
         () => {
             if(!walletProvider || !address) return signer;
             const ethersProvider = new ethers.providers.Web3Provider(walletProvider);

@@ -3,48 +3,40 @@ import { CardPage } from '@/components/structure/CardPage/CardPage';
 import { Button } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import { paths } from '@/constants/paths';
-import OrderForm from '@/pages/Trade/OrderForm';
+import OrderStatusSteps from '@/pages/Trade/OrderStatusSteps/OrderStatusSteps';
 import {
     OrderStatus,
-    DocumentType,
     OrderLineRequest,
     OrderLinePrice,
     LineRequest
 } from '@kbc-lib/coffee-trading-management-lib';
-import { DetailedTradePresentable } from '@/api/types/TradePresentable';
-import React, { useContext, useEffect } from 'react';
+import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { regex } from '@/utils/regex';
-import { ValidateDatesType } from '@/pages/Trade/View/TradeView';
-import useMaterial from '@/hooks/useMaterial';
-import useMeasure from '@/hooks/useMeasure';
-import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
-import { NotificationType, openNotification } from '@/utils/notification';
-import { OrderTradeRequest } from '@/api/types/TradeRequest';
+import { regex } from '@/constants/regex';
 import dayjs from 'dayjs';
-import { useDispatch } from 'react-redux';
-import { SignerContext } from '@/providers/SignerProvider';
-import { EthContext } from '@/providers/EthProvider';
-import { NOTIFICATION_DURATION } from '@/constants/notification';
+import { validateDates } from '@/utils/date';
+import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
+import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
+import { OrderTradeRequest, useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
 
 type OrderTradeNewProps = {
+    supplierAddress: string;
+    customerAddress: string;
+    productCategoryId: number;
     commonElements: FormElement[];
-    validateDates: ValidateDatesType;
 };
-export const OrderTradeNew = ({ commonElements, validateDates }: OrderTradeNewProps) => {
-    const { signer } = useContext(SignerContext);
-    const { ethTradeService } = useContext(EthContext);
-
-    const dispatch = useDispatch();
+export const OrderTradeNew = ({
+                                  supplierAddress,
+                                  customerAddress,
+                                  productCategoryId,
+                                  commonElements
+                              }: OrderTradeNewProps) => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { units, fiats } = useMeasure();
 
-    const { loadData, dataLoaded, productCategories } = useMaterial();
-
-    useEffect(() => {
-        if (!dataLoaded) loadData();
-    }, [dataLoaded]);
+    const { productCategories } = useEthMaterial();
+    const { units, fiats } = useEthEnumerable();
+    const { saveOrderTrade } = useEthOrderTrade();
 
     const disabledDate = (current: dayjs.Dayjs): boolean => {
         return current && current <= dayjs().endOf('day');
@@ -57,60 +49,46 @@ export const OrderTradeNew = ({ commonElements, validateDates }: OrderTradeNewPr
         values['commissioner'] = customerAddress;
         values['product-category-id-1'] = productCategoryId;
 
-            const tradeLines: LineRequest[] = [];
-            for (const key in values) {
-                let id: string;
-                if (key.startsWith('product-category-id-')) {
-                    id = key.split('-')[3];
-                    const quantity: number = parseInt(values[`quantity-${id}`]);
-                    const unit: string = values[`unit-${id}`];
-                    const productCategoryId: number = parseInt(values[key]);
-                    const price: number = parseInt(values[`price-${id}`]);
-                    const fiat: string = values[`fiat-${id}`];
-                    tradeLines.push(
-                        new OrderLineRequest(
-                            productCategoryId,
-                            quantity,
-                            unit,
-                            new OrderLinePrice(price, fiat)
-                        )
-                    );
-                }
+        const tradeLines: LineRequest[] = [];
+        for (const key in values) {
+            let id: string;
+            if (key.startsWith('product-category-id-')) {
+                id = key.split('-')[3];
+                const quantity: number = parseInt(values[`quantity-${id}`]);
+                const unit: string = values[`unit-${id}`];
+                const productCategoryId: number = parseInt(values[key]);
+                const price: number = parseInt(values[`price-${id}`]);
+                const fiat: string = values[`fiat-${id}`];
+                tradeLines.push(
+                    new OrderLineRequest(
+                        productCategoryId,
+                        quantity,
+                        unit,
+                        new OrderLinePrice(price, fiat)
+                    )
+                );
             }
-            const orderTrade: OrderTradeRequest = {
-                supplier,
-                customer,
-                commissioner,
-                lines: tradeLines as OrderLineRequest[],
-                paymentDeadline: dayjs(values['payment-deadline']).unix(),
-                documentDeliveryDeadline: dayjs(values['document-delivery-deadline']).unix(),
-                arbiter: values['arbiter'],
-                shippingDeadline: dayjs(values['shipping-deadline']).unix(),
-                deliveryDeadline: dayjs(values['delivery-deadline']).unix(),
-                agreedAmount: parseInt(values['agreed-amount']),
-                tokenAddress: values['token-address'],
-                incoterms: values['incoterms'],
-                shipper: values['shipper'],
-                shippingPort: values['shipping-port'],
-                deliveryPort: values['delivery-port']
-            };
-            await ethTradeService.saveOrderTrade(orderTrade);
-            openNotification(
-                'Order trade registered',
-                `Order trade has been registered correctly!`,
-                NotificationType.SUCCESS,
-                NOTIFICATION_DURATION
-            );
-            navigate(paths.TRADES);
-        } catch (e: any) {
-            console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR, NOTIFICATION_DURATION);
-        } finally {
-            dispatch(hideLoading());
         }
+        const orderTrade: OrderTradeRequest = {
+            supplier: supplierAddress,
+            customer: customerAddress,
+            commissioner: customerAddress,
+            lines: tradeLines as OrderLineRequest[],
+            paymentDeadline: dayjs(values['payment-deadline']).unix(),
+            documentDeliveryDeadline: dayjs(values['document-delivery-deadline']).unix(),
+            arbiter: values['arbiter'],
+            shippingDeadline: dayjs(values['shipping-deadline']).unix(),
+            deliveryDeadline: dayjs(values['delivery-deadline']).unix(),
+            agreedAmount: parseInt(values['agreed-amount']),
+            tokenAddress: values['token-address'],
+            incoterms: values['incoterms'],
+            shipper: values['shipper'],
+            shippingPort: values['shipping-port'],
+            deliveryPort: values['delivery-port']
+        };
+        await saveOrderTrade(orderTrade, []);
+        navigate(paths.TRADES);
     };
-
-    if (!dataLoaded) return <></>;
 
     const elements: FormElement[] = [
         ...commonElements,
@@ -316,20 +294,11 @@ export const OrderTradeNew = ({ commonElements, validateDates }: OrderTradeNewPr
                     </Button>
                 </div>
             }>
-            <OrderForm
+            <OrderStatusSteps
                 status={OrderStatus.CONTRACTING}
                 submittable={true}
                 negotiationElements={elements}
-                validationCallback={
-                    {} as (
-                        tradeInfo: DetailedTradePresentable | undefined,
-                        documentType: DocumentType
-                    ) => undefined | { approve: () => Promise<void>; reject: () => Promise<void> }
-                }
-                onSubmitNew={onSubmit}
-                onSubmitView={async (values: any) => {
-                    return;
-                }}
+                onSubmit={onSubmit}
             />
         </CardPage>
     );

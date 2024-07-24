@@ -7,7 +7,7 @@ import {
     ProductCategoryService
 } from '@kbc-lib/coffee-trading-management-lib';
 import { createContext, ReactNode, useContext, useMemo, useState } from 'react';
-import { contractAddresses } from '@/constants/evm';
+import { CONTRACT_ADDRESSES } from '@/constants/evm';
 import { useSigner } from '@/providers/SignerProvider';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
 import { NotificationType, openNotification } from '@/utils/notification';
@@ -44,7 +44,7 @@ export function EthMaterialProvider(props: { children: ReactNode }) {
     const productCategoryService = useMemo(
         () =>
             new ProductCategoryService(
-                new ProductCategoryDriver(signer, contractAddresses.PRODUCT_CATEGORY())
+                new ProductCategoryDriver(signer, CONTRACT_ADDRESSES.PRODUCT_CATEGORY())
             ),
         [signer]
     );
@@ -53,8 +53,8 @@ export function EthMaterialProvider(props: { children: ReactNode }) {
             new MaterialService(
                 new MaterialDriver(
                     signer,
-                    contractAddresses.MATERIAL(),
-                    contractAddresses.PRODUCT_CATEGORY()
+                    CONTRACT_ADDRESSES.MATERIAL(),
+                    CONTRACT_ADDRESSES.PRODUCT_CATEGORY()
                 )
             ),
         [signer]

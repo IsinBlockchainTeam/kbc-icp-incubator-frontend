@@ -6,7 +6,7 @@ import {
 import { createContext, ReactNode, useContext, useMemo, useState } from 'react';
 import { useSigner } from '@/providers/SignerProvider';
 import { useDispatch } from 'react-redux';
-import { contractAddresses } from '@/constants/evm';
+import { CONTRACT_ADDRESSES } from '@/constants/evm';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
 import { ASSET_OPERATION_MESSAGE } from '@/constants/message';
 import { NotificationType, openNotification } from '@/utils/notification';
@@ -48,9 +48,9 @@ export function EthAssetOperationProvider(props: { children: ReactNode }) {
             new AssetOperationService(
                 new AssetOperationDriver(
                     signer,
-                    contractAddresses.ASSET_OPERATION(),
-                    contractAddresses.MATERIAL(),
-                    contractAddresses.PRODUCT_CATEGORY()
+                    CONTRACT_ADDRESSES.ASSET_OPERATION(),
+                    CONTRACT_ADDRESSES.MATERIAL(),
+                    CONTRACT_ADDRESSES.PRODUCT_CATEGORY()
                 )
             ),
         [signer]
@@ -60,7 +60,7 @@ export function EthAssetOperationProvider(props: { children: ReactNode }) {
         try {
             dispatch(addLoadingMessage(ASSET_OPERATION_MESSAGE.RETRIEVE.LOADING));
             const assetOperations = await assetOperationService.getAssetOperationsOfCreator(
-                signer.address
+                signer._address
             );
             setAssetOperations(assetOperations);
         } catch (e) {

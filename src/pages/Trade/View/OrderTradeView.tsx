@@ -1,66 +1,46 @@
 import {
     NegotiationStatus,
     OrderTrade,
-    DocumentType,
-    DocumentStatus,
     OrderLineRequest,
     OrderLinePrice,
     OrderLine,
     OrderStatus
 } from '@kbc-lib/coffee-trading-management-lib';
 import { Tag, Tooltip } from 'antd';
-import OrderForm from '@/pages/Trade/OrderForm';
-import { DetailedTradePresentable, OrderTradePresentable } from '@/api/types/TradePresentable';
+import OrderStatusSteps from '@/pages/Trade/OrderStatusSteps/OrderStatusSteps';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { FormElement, FormElementType } from '@/components/GenericForm/GenericForm';
-import { regex } from '@/utils/regex';
+import { regex } from '@/constants/regex';
 import dayjs from 'dayjs';
-import { ValidateDatesType } from '@/pages/Trade/View/TradeView';
-import { SignerContext } from '@/providers/SignerProvider';
-import useDocument from '@/hooks/useDocument';
-import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
-import { NotificationType, openNotification } from '@/utils/notification';
-import { OrderTradeRequest } from '@/api/types/TradeRequest';
+import { useSigner } from '@/providers/SignerProvider';
 import { paths } from '@/constants/paths';
-import { useDispatch } from 'react-redux';
-import { EthContext } from '@/providers/EthProvider';
 import { useNavigate } from 'react-router-dom';
-import useMaterial from '@/hooks/useMaterial';
-import useMeasure from '@/hooks/useMeasure';
-import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { CheckCircleOutlined, EditOutlined, RollbackOutlined } from '@ant-design/icons';
+import { validateDates } from '@/utils/date';
+import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
+import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
+import { OrderTradeRequest, useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
 
 type OrderTradeViewProps = {
-    orderTradePresentable: OrderTradePresentable;
+    orderTrade: OrderTrade;
     disabled: boolean;
     toggleDisabled: () => void;
     commonElements: FormElement[];
-    confirmNegotiation: () => void;
-    validateDates: ValidateDatesType;
 };
 export const OrderTradeView = ({
-    orderTradePresentable,
+    orderTrade,
     disabled,
     toggleDisabled,
-    commonElements,
-    confirmNegotiation,
-    validateDates
+    commonElements
 }: OrderTradeViewProps) => {
     const [isEditing, setIsEditing] = useState<boolean>(false);
-    const { signer } = useContext(SignerContext);
-    const { ethTradeService } = useContext(EthContext);
-    const { loadData, dataLoaded, productCategories } = useMaterial();
-    const { units, fiats } = useMeasure();
-    const { validateDocument } = useDocument();
-    const dispatch = useDispatch();
-    const orderTrade = orderTradePresentable.trade as OrderTrade;
+    const { signer } = useSigner();
+    const { productCategories } = useEthMaterial();
+    const { units, fiats } = useEthEnumerable();
+    const { updateOrderTrade, confirmNegotiation, getOrderStatus } = useEthOrderTrade();
     const negotiationStatus = NegotiationStatus[orderTrade.negotiationStatus];
     const navigate = useNavigate();
-
-    useEffect(() => {
-        if (!dataLoaded) loadData();
-    }, [dataLoaded]);
 
     const toggleEditing = () => {
         toggleDisabled();
@@ -72,61 +52,41 @@ export const OrderTradeView = ({
     };
 
     const onSubmit = async (values: any) => {
-        try {
-            dispatch(showLoading('Loading...'));
+        const quantity: number = parseInt(values[`quantity-1`]);
+        const unit: string = values[`unit-1`];
+        const productCategoryId: number = parseInt(values['product-category-id-1']);
 
-            const supplier: string = values['supplier'];
-            const customer: string = values['customer'];
-            const commissioner: string = values['commissioner'];
-            const quantity: number = parseInt(values[`quantity-1`]);
-            const unit: string = values[`unit-1`];
-            const productCategoryId: number = parseInt(values['product-category-id-1']);
+        const price: number = parseInt(values[`price-1`]);
+        const fiat: string = values[`fiat-1`];
 
-            const price: number = parseInt(values[`price-1`]);
-            const fiat: string = values[`fiat-1`];
-
-            const updatedOrderTrade: OrderTradeRequest = {
-                supplier,
-                customer,
-                commissioner,
-                lines: [
-                    new OrderLineRequest(
-                        productCategoryId,
-                        quantity,
-                        unit,
-                        new OrderLinePrice(price, fiat)
-                    )
-                ],
-                paymentDeadline: dayjs(values['payment-deadline']).unix(),
-                documentDeliveryDeadline: dayjs(values['document-delivery-deadline']).unix(),
-                arbiter: values['arbiter'],
-                shippingDeadline: dayjs(values['shipping-deadline']).unix(),
-                deliveryDeadline: dayjs(values['delivery-deadline']).unix(),
-                agreedAmount: parseInt(values['agreed-amount']),
-                tokenAddress: values['token-address'],
-                incoterms: values['incoterms'],
-                shipper: values['shipper'],
-                shippingPort: values['shipping-port'],
-                deliveryPort: values['delivery-port']
-            };
-            await ethTradeService.putOrderTrade(orderTrade.tradeId, updatedOrderTrade);
-            openNotification(
-                'Trade updated',
-                `This trade has been updated correctly!`,
-                NotificationType.SUCCESS,
-                NOTIFICATION_DURATION
-            );
-            toggleDisabled();
-            navigate(paths.TRADES);
-        } catch (e: any) {
-            console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR, NOTIFICATION_DURATION);
-        } finally {
-            dispatch(hideLoading());
-        }
+        const updatedOrderTrade: OrderTradeRequest = {
+            supplier: values['supplier'],
+            customer: values['customer'],
+            commissioner: values['commissioner'],
+            lines: [
+                new OrderLineRequest(
+                    productCategoryId,
+                    quantity,
+                    unit,
+                    new OrderLinePrice(price, fiat)
+                )
+            ],
+            paymentDeadline: dayjs(values['payment-deadline']).unix(),
+            documentDeliveryDeadline: dayjs(values['document-delivery-deadline']).unix(),
+            arbiter: values['arbiter'],
+            shippingDeadline: dayjs(values['shipping-deadline']).unix(),
+            deliveryDeadline: dayjs(values['delivery-deadline']).unix(),
+            agreedAmount: parseInt(values['agreed-amount']),
+            tokenAddress: values['token-address'],
+            incoterms: values['incoterms'],
+            shipper: values['shipper'],
+            shippingPort: values['shipping-port'],
+            deliveryPort: values['delivery-port']
+        };
+        await updateOrderTrade(orderTrade.tradeId, updatedOrderTrade);
+        toggleDisabled();
+        navigate(paths.TRADES);
     };
-
-    if (!dataLoaded) return <></>;
 
     const elements: FormElement[] = [
         {
@@ -362,8 +322,8 @@ export const OrderTradeView = ({
             }
         );
         if (
-            (orderTrade.hasSupplierSigned && orderTrade.supplier !== signer?.address) ||
-            (orderTrade.hasCommissionerSigned && orderTrade.commissioner !== signer?.address)
+            (orderTrade.hasSupplierSigned && orderTrade.supplier !== signer._address) ||
+            (orderTrade.hasCommissionerSigned && orderTrade.commissioner !== signer._address)
         ) {
             elements.push({
                 type: FormElementType.BUTTON,
@@ -376,7 +336,7 @@ export const OrderTradeView = ({
                 ),
                 buttonType: 'primary',
                 hidden: isEditing,
-                onClick: confirmNegotiation
+                onClick: () => confirmNegotiation(orderTrade.tradeId)
             });
         }
     }
@@ -394,24 +354,18 @@ export const OrderTradeView = ({
                     <div style={{ display: 'flex', alignItems: 'center' }}>
                         <Tag color="green">
                             {negotiationStatus !== NegotiationStatus[NegotiationStatus.CONFIRMED]
-                                ? negotiationStatus.toUpperCase()
-                                : OrderStatus[orderTradePresentable.status]
-                                      .toString()
-                                      .toUpperCase()}
+                                ? negotiationStatus
+                                : OrderStatus[getOrderStatus(orderTrade.tradeId)]}
                         </Tag>
                     </div>
                 </div>
             }>
-            <OrderForm
-                status={orderTradePresentable.status}
-                orderInfo={orderTradePresentable}
+            <OrderStatusSteps
+                status={getOrderStatus(orderTrade.tradeId)}
+                orderTrade={orderTrade}
                 submittable={!disabled}
                 negotiationElements={elements}
-                validationCallback={validationCallback}
-                onSubmitView={onSubmit}
-                onSubmitNew={async (values: any) => {
-                    return;
-                }}
+                onSubmit={onSubmit}
             />
         </CardPage>
     );

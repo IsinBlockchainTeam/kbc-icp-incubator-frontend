@@ -3,20 +3,14 @@ import { Button } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import { paths } from '@/constants/paths';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
-import React, { useContext, useEffect } from 'react';
+import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { regex } from '@/utils/regex';
-import useMaterial from '@/hooks/useMaterial';
-import useMeasure from '@/hooks/useMeasure';
-import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
+import { regex } from '@/constants/regex';
 import { LineRequest, DocumentType } from '@kbc-lib/coffee-trading-management-lib';
-import { BasicTradeRequest } from '@/api/types/TradeRequest';
-import { DocumentRequest } from '@/api/types/DocumentRequest';
-import { NotificationType, openNotification } from '@/utils/notification';
-import { useDispatch } from 'react-redux';
-import { SignerContext } from '@/providers/SignerProvider';
-import { EthContext } from '@/providers/EthProvider';
-import { NOTIFICATION_DURATION } from '@/constants/notification';
+import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
+import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
+import { BasicTradeRequest, useEthBasicTrade } from '@/providers/entities/EthBasicTradeProvider';
+import { DocumentRequest } from '@/providers/entities/EthDocumentProvider';
 
 type BasicTradeNewProps = {
     supplierAddress: string;
@@ -25,11 +19,11 @@ type BasicTradeNewProps = {
     commonElements: FormElement[];
 };
 export const BasicTradeNew = ({
-    supplierAddress,
-    customerAddress,
-    productCategoryId,
-    commonElements
-}: BasicTradeNewProps) => {
+                                  supplierAddress,
+                                  customerAddress,
+                                  productCategoryId,
+                                  commonElements
+                              }: BasicTradeNewProps) => {
     const { saveBasicTrade } = useEthBasicTrade();
     const { productCategories } = useEthMaterial();
     const { units } = useEthEnumerable();
@@ -72,10 +66,6 @@ export const BasicTradeNew = ({
         navigate(paths.TRADES);
     };
 
-    if (!dataLoaded) {
-        return <></>;
-    }
-
     const elements: FormElement[] = [
         ...commonElements,
         { type: FormElementType.TITLE, span: 24, label: 'Data' },
@@ -83,8 +73,6 @@ export const BasicTradeNew = ({
             type: FormElementType.INPUT,
             span: 12,
             name: 'name',
-            // WTF is this?
-            // label: 'Reference ID',
             label: 'Name',
             required: true,
             defaultValue: '',

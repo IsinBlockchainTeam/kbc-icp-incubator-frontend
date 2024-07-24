@@ -30,7 +30,7 @@ jest.mock('@/providers/ICPProvider');
 
 describe('EthDocumentProvider', () => {
     const userInfo = { organizationId: '1' } as UserInfoState;
-    const signer = { address: '0x123' } as Wallet;
+    const signer = { _address: '0x123' } as JsonRpcSigner;
     const dispatch = jest.fn();
     const getCompleteDocument = jest.fn();
     const orderTradeService = {

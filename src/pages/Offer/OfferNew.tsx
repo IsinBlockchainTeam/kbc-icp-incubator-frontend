@@ -1,58 +1,34 @@
 import { Navigate, useNavigate } from 'react-router-dom';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
-import { NotificationType, openNotification } from '@/utils/notification';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
 import { Button } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
-import React, { useContext, useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
+import React from 'react';
+import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
-import { EthContext } from '@/providers/EthProvider';
-import { SignerContext } from '@/providers/SignerProvider';
-import { ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
-import { ICPContext } from '@/providers/ICPProvider';
+import { useSigner } from '@/providers/SignerProvider';
 import { paths } from '@/constants/paths';
-import { NOTIFICATION_DURATION } from '@/constants/notification';
-import { credentials, DID_METHOD } from '@/constants/ssi';
+import { credentials } from '@/constants/ssi';
+import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
+import { useEthOffer } from '@/providers/entities/EthOfferProvider';
+import { useICPName } from '@/providers/entities/ICPNameProvider';
 
 export const OfferNew = () => {
-    const { signer } = useContext(SignerContext);
-    const { ethOfferService, ethMaterialService } = useContext(EthContext);
-    const { getNameByDID } = useContext(ICPContext);
-    const [productCategories, setProductCategories] = useState<ProductCategory[]>([]);
+    const { productCategories } = useEthMaterial();
+    const { saveOffer } = useEthOffer();
+    const { getName } = useICPName();
+    const { signer } = useSigner();
     const navigate = useNavigate();
-    const dispatch = useDispatch();
     const userInfo = useSelector((state: RootState) => state.userInfo);
-    const [elements, setElements] = React.useState<FormElement[]>([]);
 
-    useEffect(() => {
-        loadProductCategories();
-        return () => {
-            dispatch(hideLoading());
-        };
-    }, []);
+    const onSubmit = async (values: any) => {
+        values['offeror'] = signer?._address || 'Unknown';
+        await saveOffer(values.offeror, values['product-category-id']);
+        navigate(paths.OFFERS);
+    };
 
-    useEffect(() => {
-        loadElements();
-    }, [productCategories]);
-
-    async function loadProductCategories() {
-        try {
-            dispatch(showLoading('Loading product categories...'));
-            const pC = await ethMaterialService.getProductCategories();
-            setProductCategories(pC);
-        } catch (e: any) {
-            console.log('error: ', e);
-            openNotification(
-                'Error',
-                'Error loading product categories',
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
-        } finally {
-            dispatch(hideLoading());
-        }
+    if (userInfo.role !== credentials.ROLE_EXPORTER) {
+        return <Navigate to={paths.HOME} />;
     }
 
     const elements: FormElement[] = [
@@ -63,7 +39,7 @@ export const OfferNew = () => {
             name: 'offeror',
             label: 'Offeror Company Address',
             required: true,
-            defaultValue: getName(signer.address),
+            defaultValue: getName(signer._address),
             disabled: true
         },
         {

@@ -18,9 +18,7 @@ jest.mock('@/providers/entities/EthOfferProvider');
 jest.mock('react-redux');
 
 describe('Offers Supplier New', () => {
-    const signer = {
-        address: '0x123'
-    } as Wallet;
+    const signer = { _address: '0x123' } as JsonRpcSigner;
     const userInfo = {
         legalName: 'Legal Name',
         role: credentials.ROLE_EXPORTER

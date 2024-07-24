@@ -26,7 +26,7 @@ describe('Profile', () => {
         nation: 'USA',
         telephone: '123-456-7890'
     } as UserInfoState;
-    const signer = { address: '0x123' } as Wallet;
+    const signer = { _address: '0x123' } as JsonRpcSigner;
     const organizationDriver = { getUserOrganizations: jest.fn(), createOrganization: jest.fn() };
     const identity = { getPrincipal: () => ({ toString: () => 'principal' }) };
 

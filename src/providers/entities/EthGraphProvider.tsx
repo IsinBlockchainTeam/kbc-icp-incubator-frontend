@@ -9,7 +9,7 @@ import {
 import { createContext, ReactNode, useContext, useMemo } from 'react';
 import { useSigner } from '@/providers/SignerProvider';
 import { useDispatch } from 'react-redux';
-import { contractAddresses } from '@/constants/evm';
+import { CONTRACT_ADDRESSES } from '@/constants/evm';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
 import { GRAPH_MESSAGE } from '@/constants/message';
 import { NotificationType, openNotification } from '@/utils/notification';
@@ -42,18 +42,18 @@ export function EthGraphProvider(props: { children: ReactNode }) {
                 new TradeManagerService({
                     tradeManagerDriver: new TradeManagerDriver(
                         signer,
-                        contractAddresses.TRADE(),
-                        contractAddresses.MATERIAL(),
-                        contractAddresses.PRODUCT_CATEGORY()
+                        CONTRACT_ADDRESSES.TRADE(),
+                        CONTRACT_ADDRESSES.MATERIAL(),
+                        CONTRACT_ADDRESSES.PRODUCT_CATEGORY()
                     ),
                     icpFileDriver: fileDriver
                 }),
                 new AssetOperationService(
                     new AssetOperationDriver(
                         signer,
-                        contractAddresses.ASSET_OPERATION(),
-                        contractAddresses.MATERIAL(),
-                        contractAddresses.PRODUCT_CATEGORY()
+                        CONTRACT_ADDRESSES.ASSET_OPERATION(),
+                        CONTRACT_ADDRESSES.MATERIAL(),
+                        CONTRACT_ADDRESSES.PRODUCT_CATEGORY()
                     )
                 )
             ),

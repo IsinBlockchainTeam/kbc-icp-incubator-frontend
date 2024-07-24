@@ -1,26 +1,21 @@
 import { Navigate, useNavigate } from 'react-router-dom';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
-import { NotificationType, openNotification } from '@/utils/notification';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
 import { Button } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
-import React, { useContext, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
+import React from 'react';
+import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
-import { SignerContext } from '@/providers/SignerProvider';
-import { EthContext } from '@/providers/EthProvider';
-import { formatAddress } from '@/utils/format';
+import { useSigner } from '@/providers/SignerProvider';
 import { paths } from '@/constants/paths';
-import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { credentials } from '@/constants/ssi';
+import { useEthOffer } from '@/providers/entities/EthOfferProvider';
 
 export const OfferSupplierNew = () => {
-    const { signer } = useContext(SignerContext);
-    const { ethOfferService } = useContext(EthContext);
+    const { saveSupplier } = useEthOffer();
+    const { signer } = useSigner();
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const navigate = useNavigate();
-    const dispatch = useDispatch();
 
     const elements: FormElement[] = [
         { type: FormElementType.TITLE, span: 24, label: 'Data' },
@@ -30,7 +25,7 @@ export const OfferSupplierNew = () => {
             name: 'supplier-address',
             label: 'Supplier Address',
             required: false,
-            defaultValue: signer?._address || 'Unknown',
+            defaultValue: signer._address || 'Unknown',
             disabled: true
         },
         {
@@ -45,17 +40,11 @@ export const OfferSupplierNew = () => {
     ];
 
     const onSubmit = async (values: any) => {
-        values['supplier-address'] = signer?._address || 'Unknown';
+        values['supplier-address'] = signer._address || 'Unknown';
         values['supplier-name'] = userInfo.legalName || 'Unknown';
         await saveSupplier(values['supplier-address'], values['supplier-name']);
         navigate(paths.OFFERS);
     };
-
-    useEffect(() => {
-        return () => {
-            dispatch(hideLoading());
-        };
-    }, []);
 
     if (userInfo.role !== credentials.ROLE_EXPORTER) {
         return <Navigate to={paths.HOME} />;

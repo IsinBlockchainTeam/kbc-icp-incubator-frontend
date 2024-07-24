@@ -14,9 +14,7 @@ jest.mock('@/pages/Trade/New/OrderTradeNew');
 jest.mock('@/providers/entities/ICPNameProvider');
 
 describe('Trade New', () => {
-    const signer = {
-        address: '0x123'
-    } as Wallet;
+    const signer = { _address: '0x123' } as JsonRpcSigner;
     const getName = jest.fn();
     const navigate = jest.fn();
 

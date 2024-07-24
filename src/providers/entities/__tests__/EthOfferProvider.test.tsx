@@ -12,7 +12,7 @@ jest.mock('react-redux');
 jest.mock('@/utils/notification');
 
 describe('EthOfferProvider', () => {
-    const signer = { address: '0x123' } as Wallet;
+    const signer = { _address: '0x123' } as JsonRpcSigner;
     const dispatch = jest.fn();
     const getAllOffers = jest.fn();
     const registerOffer = jest.fn();

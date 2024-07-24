@@ -19,7 +19,7 @@ jest.mock('@/utils/notification');
 jest.mock('@/providers/ICPProvider');
 
 describe('EthRawTradeProvider', () => {
-    const signer = { address: '0x123' } as Wallet;
+    const signer = { _address: '0x123' } as JsonRpcSigner;
     const dispatch = jest.fn();
     const getTrade = jest.fn();
     const getTradeIdsOfSupplier = jest.fn();

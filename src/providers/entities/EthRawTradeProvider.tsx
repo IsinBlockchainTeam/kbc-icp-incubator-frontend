@@ -7,7 +7,7 @@ import {
     TradeType
 } from '@kbc-lib/coffee-trading-management-lib';
 import { createContext, ReactNode, useContext, useMemo, useState } from 'react';
-import { contractAddresses } from '@/constants/evm';
+import { CONTRACT_ADDRESSES } from '@/constants/evm';
 import { useSigner } from '@/providers/SignerProvider';
 import { useICP } from '@/providers/ICPProvider';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
@@ -47,16 +47,16 @@ export function EthRawTradeProvider(props: { children: ReactNode }) {
             new TradeManagerService({
                 tradeManagerDriver: new TradeManagerDriver(
                     signer,
-                    contractAddresses.TRADE(),
-                    contractAddresses.MATERIAL(),
-                    contractAddresses.PRODUCT_CATEGORY()
+                    CONTRACT_ADDRESSES.TRADE(),
+                    CONTRACT_ADDRESSES.MATERIAL(),
+                    CONTRACT_ADDRESSES.PRODUCT_CATEGORY()
                 ),
                 icpFileDriver: fileDriver
             }),
         [signer]
     );
     const documentDriver = useMemo(
-        () => new DocumentDriver(signer, contractAddresses.DOCUMENT()),
+        () => new DocumentDriver(signer, CONTRACT_ADDRESSES.DOCUMENT()),
         [signer]
     );
 
@@ -64,8 +64,8 @@ export function EthRawTradeProvider(props: { children: ReactNode }) {
         try {
             dispatch(addLoadingMessage(RAW_TRADE_MESSAGE.RETRIEVE.LOADING));
             const tradeIds = [
-                ...(await tradeManagerService.getTradeIdsOfSupplier(signer.address)),
-                ...(await tradeManagerService.getTradeIdsOfCommissioner(signer.address))
+                ...(await tradeManagerService.getTradeIdsOfSupplier(signer._address)),
+                ...(await tradeManagerService.getTradeIdsOfCommissioner(signer._address))
             ];
             const tradeAddresses: string[] = [];
             await Promise.allSettled(

@@ -6,7 +6,7 @@ import {
 import { createContext, ReactNode, useContext, useMemo, useState } from 'react';
 import { useSigner } from '@/providers/SignerProvider';
 import { useDispatch } from 'react-redux';
-import { contractAddresses } from '@/constants/evm';
+import { CONTRACT_ADDRESSES } from '@/constants/evm';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
 import { OFFER_MESSAGE } from '@/constants/message';
 import { NotificationType, openNotification } from '@/utils/notification';
@@ -37,7 +37,7 @@ export function EthRelationshipProvider(props: { children: ReactNode }) {
     const relationshipService = useMemo(
         () =>
             new RelationshipService(
-                new RelationshipDriver(signer, contractAddresses.RELATIONSHIP())
+                new RelationshipDriver(signer, CONTRACT_ADDRESSES.RELATIONSHIP())
             ),
         [signer]
     );
@@ -46,7 +46,7 @@ export function EthRelationshipProvider(props: { children: ReactNode }) {
         try {
             dispatch(addLoadingMessage(OFFER_MESSAGE.RETRIEVE.LOADING));
             const relationshipIds = await relationshipService.getRelationshipIdsByCompany(
-                signer.address
+                signer._address
             );
             const relationships: Relationship[] = [];
             await Promise.allSettled(

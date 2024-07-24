@@ -16,7 +16,7 @@ jest.mock('react-redux');
 jest.mock('@/utils/notification');
 
 describe('EthAssetOperationProvider', () => {
-    const signer = { address: '0x123' } as Wallet;
+    const signer = { _address: '0x123' } as JsonRpcSigner;
     const dispatch = jest.fn();
     const getAssetOperationsOfCreator = jest.fn();
     const registerAssetOperation = jest.fn();

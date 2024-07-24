@@ -17,7 +17,7 @@ import {
     URLStructure
 } from '@kbc-lib/coffee-trading-management-lib';
 import { useEthRawTrade } from '@/providers/entities/EthRawTradeProvider';
-import { contractAddresses } from '@/constants/evm';
+import { CONTRACT_ADDRESSES } from '@/constants/evm';
 import { useSigner } from '@/providers/SignerProvider';
 import { useICP } from '@/providers/ICPProvider';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
@@ -122,16 +122,16 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
             new TradeManagerService({
                 tradeManagerDriver: new TradeManagerDriver(
                     signer,
-                    contractAddresses.TRADE(),
-                    contractAddresses.MATERIAL(),
-                    contractAddresses.PRODUCT_CATEGORY()
+                    CONTRACT_ADDRESSES.TRADE(),
+                    CONTRACT_ADDRESSES.MATERIAL(),
+                    CONTRACT_ADDRESSES.PRODUCT_CATEGORY()
                 ),
                 icpFileDriver: fileDriver
             }),
         [signer]
     );
     const documentDriver = useMemo(
-        () => new DocumentDriver(signer, contractAddresses.DOCUMENT()),
+        () => new DocumentDriver(signer, CONTRACT_ADDRESSES.DOCUMENT()),
         [signer]
     );
 
@@ -180,8 +180,8 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
             new OrderTradeDriver(
                 signer,
                 address,
-                contractAddresses.MATERIAL(),
-                contractAddresses.PRODUCT_CATEGORY()
+                CONTRACT_ADDRESSES.MATERIAL(),
+                CONTRACT_ADDRESSES.PRODUCT_CATEGORY()
             ),
             documentDriver,
             fileDriver
@@ -194,7 +194,7 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
         orderStatus: OrderStatus,
         signatures: string[]
     ) => {
-        if (!signatures.includes(signer.address) && negotiationStatus === NegotiationStatus.PENDING)
+        if (!signatures.includes(signer._address) && negotiationStatus === NegotiationStatus.PENDING)
             return ACTION_MESSAGE.SIGNATURE_REQUIRED;
 
         const requiredDocuments = documentDetailMap.get(orderStatus);
@@ -436,7 +436,7 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
             const orderTrade = detailedOrderTrades.find((t) => t.trade.tradeId === orderId)?.trade;
             if (!orderTrade) return Promise.reject('Trade not found');
             const recipientCompanyName =
-                orderTrade.supplier === signer.address
+                orderTrade.supplier === signer._address
                     ? getName(orderTrade.commissioner)
                     : getName(orderTrade.supplier);
             const response = await fetch(`${requestPath.EMAIL_SENDER_URL}/email/deadline-expired`, {

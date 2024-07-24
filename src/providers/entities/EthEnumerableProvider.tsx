@@ -2,7 +2,7 @@ import { createContext, useContext, useMemo, useState } from 'react';
 import { useSigner } from '@/providers/SignerProvider';
 import { useDispatch } from 'react-redux';
 import { EnumerableTypeReadDriver, EnumerableTypeService } from '@blockchain-lib/common';
-import { contractAddresses } from '@/constants/evm';
+import { CONTRACT_ADDRESSES } from '@/constants/evm';
 import { FIAT_MESSAGE, PROCESS_TYPE_MESSAGE, UNIT_MESSAGE } from '@/constants/message';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
 import { NotificationType, openNotification } from '@/utils/notification';
@@ -37,21 +37,21 @@ export function EthEnumerableProvider(props: { children: React.ReactNode }) {
     const fiatService = useMemo(
         () =>
             new EnumerableTypeService(
-                new EnumerableTypeReadDriver(signer, contractAddresses.FIAT())
+                new EnumerableTypeReadDriver(signer, CONTRACT_ADDRESSES.FIAT())
             ),
         [signer]
     );
     const processTypeService = useMemo(
         () =>
             new EnumerableTypeService(
-                new EnumerableTypeReadDriver(signer, contractAddresses.PROCESS_TYPE())
+                new EnumerableTypeReadDriver(signer, CONTRACT_ADDRESSES.PROCESS_TYPE())
             ),
         [signer]
     );
     const unitService = useMemo(
         () =>
             new EnumerableTypeService(
-                new EnumerableTypeReadDriver(signer, contractAddresses.UNIT())
+                new EnumerableTypeReadDriver(signer, CONTRACT_ADDRESSES.UNIT())
             ),
         [signer]
     );

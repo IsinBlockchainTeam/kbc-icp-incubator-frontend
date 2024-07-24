@@ -23,9 +23,7 @@ jest.mock('@/providers/entities/ICPNameProvider');
 jest.mock('react-redux');
 
 describe('Offers New', () => {
-    const signer = {
-        address: '0x123'
-    } as Wallet;
+    const signer = { _address: '0x123' } as JsonRpcSigner;
     const userInfo = {
         role: credentials.ROLE_EXPORTER
     } as UserInfoState;

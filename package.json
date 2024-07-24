@@ -90,7 +90,8 @@
             "^@/pages(.*)$": "<rootDir>/src/pages$1",
             "^@/providers(.*)$": "<rootDir>/src/providers$1",
             "^@/redux(.*)$": "<rootDir>/src/redux$1",
-            "^@/utils(.*)$": "<rootDir>/src/utils$1"
+            "^@/utils(.*)$": "<rootDir>/src/utils$1",
+            "@web3modal/ethers5/react": "<rootDir>/__mocks__/@web3modal/ethers5/react.js"
         },
         "setupFiles": [
             "<rootDir>/setup.jest.ts"

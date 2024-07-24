@@ -38,7 +38,7 @@ jest.mock('@/providers/entities/EthMaterialProvider');
 jest.mock('@/providers/ICPProvider');
 
 describe('EthBasicTradeProvider', () => {
-    const signer = { address: '0x123' } as Wallet;
+    const signer = { _address: '0x123' } as JsonRpcSigner;
     const dispatch = jest.fn();
     const getTrade = jest.fn();
     const getDocumentsByType = jest.fn();

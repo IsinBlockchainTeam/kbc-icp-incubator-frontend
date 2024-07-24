@@ -2,7 +2,7 @@ import { Offer, OfferDriver, OfferService } from '@kbc-lib/coffee-trading-manage
 import { createContext, ReactNode, useContext, useMemo, useState } from 'react';
 import { useSigner } from '@/providers/SignerProvider';
 import { useDispatch } from 'react-redux';
-import { contractAddresses } from '@/constants/evm';
+import { CONTRACT_ADDRESSES } from '@/constants/evm';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
 import { OFFER_MESSAGE, SUPPLIER_MESSAGE } from '@/constants/message';
 import { NotificationType, openNotification } from '@/utils/notification';
@@ -35,8 +35,8 @@ export function EthOfferProvider(props: { children: ReactNode }) {
             new OfferService(
                 new OfferDriver(
                     signer,
-                    contractAddresses.OFFER(),
-                    contractAddresses.PRODUCT_CATEGORY()
+                    CONTRACT_ADDRESSES.OFFER(),
+                    CONTRACT_ADDRESSES.PRODUCT_CATEGORY()
                 )
             ),
         [signer]
