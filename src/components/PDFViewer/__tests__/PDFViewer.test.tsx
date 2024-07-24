@@ -2,7 +2,7 @@ import { fireEvent, render } from '@testing-library/react';
 import PDFViewer from '../PDFViewer';
 import { DocumentElement, FormElement, FormElementType } from '../../GenericForm/GenericForm';
 import { PDFUploaderProps } from '../../PDFUploader/PDFUploader';
-import { DocumentPresentable } from '@/api/types/DocumentPresentable';
+import { DocumentContent } from '@/providers/entities/EthDocumentProvider';
 
 jest.mock('antd', () => {
     return {
@@ -63,9 +63,9 @@ describe('PDFViewer', () => {
         label: 'Document 1',
         required: true,
         uploadable: true,
-        info: {
+        content: {
             content: mockedFile
-        } as DocumentPresentable,
+        } as DocumentContent,
         loading: false
     };
     beforeAll(() => {
@@ -94,7 +94,7 @@ describe('PDFViewer', () => {
     it('should render correctly with no content', () => {
         const emptyElement: FormElement = {
             ...element,
-            info: undefined
+            content: undefined
         };
         const tree = render(<PDFViewer element={emptyElement} onDocumentChange={jest.fn()} />);
 

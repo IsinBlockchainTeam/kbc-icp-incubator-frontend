@@ -71,24 +71,6 @@ export const OrderTradeView = ({
         return current && current <= dayjs().endOf('day');
     };
 
-    const validationCallback = (
-        tradeInfo: DetailedTradePresentable | undefined,
-        documentType: DocumentType
-    ) => {
-        if (!tradeInfo) return undefined;
-        const doc = tradeInfo.documents.get(documentType);
-        return doc &&
-            doc.status === DocumentStatus.NOT_EVALUATED &&
-            doc.uploadedBy !== signer?._address
-            ? {
-                  approve: () =>
-                      validateDocument(tradeInfo.trade.tradeId, doc.id, DocumentStatus.APPROVED),
-                  reject: () =>
-                      validateDocument(tradeInfo.trade.tradeId, doc.id, DocumentStatus.NOT_APPROVED)
-              }
-            : undefined;
-    };
-
     const onSubmit = async (values: any) => {
         try {
             dispatch(showLoading('Loading...'));
@@ -380,8 +362,8 @@ export const OrderTradeView = ({
             }
         );
         if (
-            (orderTrade.hasSupplierSigned && orderTrade.supplier !== signer?._address) ||
-            (orderTrade.hasCommissionerSigned && orderTrade.commissioner !== signer?._address)
+            (orderTrade.hasSupplierSigned && orderTrade.supplier !== signer?.address) ||
+            (orderTrade.hasCommissionerSigned && orderTrade.commissioner !== signer?.address)
         ) {
             elements.push({
                 type: FormElementType.BUTTON,

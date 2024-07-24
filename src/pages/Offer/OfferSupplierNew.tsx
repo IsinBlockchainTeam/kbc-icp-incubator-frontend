@@ -45,24 +45,10 @@ export const OfferSupplierNew = () => {
     ];
 
     const onSubmit = async (values: any) => {
-        try {
-            values['supplier-address'] = signer?._address || 'Unknown';
-            values['supplier-name'] = userInfo.legalName || 'Unknown';
-            dispatch(showLoading('Inserting offer supplier...'));
-            await ethOfferService.saveSupplier(values['supplier-address'], values['supplier-name']);
-            openNotification(
-                'Offer supplier registered',
-                `Offer supplier with address ${formatAddress(values['supplier-address'])} has been registered correctly!`,
-                NotificationType.SUCCESS,
-                NOTIFICATION_DURATION
-            );
-            navigate(paths.OFFERS);
-        } catch (e: any) {
-            console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR, NOTIFICATION_DURATION);
-        } finally {
-            dispatch(hideLoading());
-        }
+        values['supplier-address'] = signer?._address || 'Unknown';
+        values['supplier-name'] = userInfo.legalName || 'Unknown';
+        await saveSupplier(values['supplier-address'], values['supplier-name']);
+        navigate(paths.OFFERS);
     };
 
     useEffect(() => {

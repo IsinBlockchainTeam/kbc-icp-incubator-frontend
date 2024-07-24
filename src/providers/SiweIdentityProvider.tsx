@@ -15,7 +15,7 @@ import {
     selectSiweIdentity,
     updateSiweIdentity
 } from '@/redux/reducers/siweIdentitySlice';
-import { SignerContext } from './SignerProvider';
+import { useSigner } from './SignerProvider';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { RootState } from '@/redux/store';
 import { Typography } from 'antd';
@@ -69,7 +69,7 @@ export function SiweIdentityProvider({
 }) {
     const siweIdentity = useSelector(selectSiweIdentity);
     const dispatch = useDispatch();
-    const { signer } = useContext(SignerContext);
+    const { signer } = useSigner();
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const icpSiweDriver = new ICPSiweDriver(ICP.CANISTER_ID_IC_SIWE_PROVIDER);
 

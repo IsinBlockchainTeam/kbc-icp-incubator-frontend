@@ -9,7 +9,7 @@ describe('store', () => {
         const initialState: RootState = store.getState();
 
         expect(initialState.loading.isLoading).toBe(false);
-        expect(initialState.loading.loadingMessage).toBe('');
+        expect(initialState.loading.loadingMessages).toStrictEqual([]);
         expect(initialState.siweIdentity.isLogged).toBe(false);
         expect(initialState.siweIdentity.address).toBe('');
         expect(initialState.siweIdentity.sessionIdentity).toBe('');

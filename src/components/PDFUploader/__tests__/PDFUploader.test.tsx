@@ -2,6 +2,7 @@ import PDFUploader from '../PDFUploader';
 import { fireEvent, render } from '@testing-library/react';
 import { Upload } from 'antd';
 import { NotificationType, openNotification } from '@/utils/notification';
+import { NOTIFICATION_DURATION } from '@/constants/notification';
 
 jest.mock('antd', () => {
     return {
@@ -70,8 +71,9 @@ describe('PDFUploader', () => {
         expect(openNotification).toHaveBeenCalledTimes(1);
         expect(openNotification).toHaveBeenCalledWith(
             'File uploaded',
-            'file.pdf file has been uploaded successfully',
-            NotificationType.SUCCESS
+            'file.pdf file has been loaded successfully',
+            NotificationType.SUCCESS,
+            NOTIFICATION_DURATION
         );
     });
     it('should call onChange - status error', async () => {
@@ -85,7 +87,8 @@ describe('PDFUploader', () => {
         expect(openNotification).toHaveBeenCalledWith(
             'Error',
             'file.pdf file upload failed',
-            NotificationType.ERROR
+            NotificationType.ERROR,
+            NOTIFICATION_DURATION
         );
     });
     it('should call onRevert when button is clicked', () => {

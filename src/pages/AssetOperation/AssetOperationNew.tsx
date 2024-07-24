@@ -3,66 +3,23 @@ import { FormElement, FormElementType, GenericForm } from '@/components/GenericF
 import { Button } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
-import React, { useContext, useEffect, useState } from 'react';
-import { NotificationType, openNotification } from '@/utils/notification';
-import { regex } from '@/utils/regex';
-import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
-import { useDispatch } from 'react-redux';
-import { AssetOperationRequest } from '@/api/types/AssetOperationRequest';
-import { EthContext } from '@/providers/EthProvider';
-import { Material } from '@kbc-lib/coffee-trading-management-lib';
+import React, { useState } from 'react';
+import { regex } from '@/constants/regex';
 import { paths } from '@/constants/paths';
-import { NOTIFICATION_DURATION } from '@/constants/notification';
+import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
+import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
+import {
+    AssetOperationRequest,
+    useEthAssetOperation
+} from '@/providers/entities/EthAssetOperationProvider';
 
 export const AssetOperationNew = () => {
-    const { ethAssetOperationService, ethProcessTypeService, ethMaterialService } =
-        useContext(EthContext);
+    const { materials } = useEthMaterial();
+    const { processTypes } = useEthEnumerable();
+    const { saveAssetOperation } = useEthAssetOperation();
     const navigate = useNavigate();
-    const dispatch = useDispatch();
 
     const [inputMaterialsCount, setInputMaterialsCount] = useState<number>(1);
-    const [processTypes, setProcessTypes] = useState<string[]>([]);
-    const [materials, setMaterials] = useState<Material[]>([]);
-    const [loadingCount, setLoadingCount] = useState<number>(0);
-
-    useEffect(() => {
-        loadProcessTypes();
-        loadMaterials();
-        return () => {
-            dispatch(hideLoading());
-        };
-    }, []);
-
-    useEffect(() => {
-        if (loadingCount > 0) dispatch(showLoading('Loading process types and materials...'));
-        else dispatch(hideLoading());
-    }, [loadingCount]);
-
-    async function loadProcessTypes() {
-        try {
-            setLoadingCount((c) => c + 1);
-            const pT: string[] = await ethProcessTypeService.getAll();
-            setProcessTypes(pT);
-        } catch (e: any) {
-            console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR, NOTIFICATION_DURATION);
-        } finally {
-            setLoadingCount((c) => c - 1);
-        }
-    }
-
-    async function loadMaterials() {
-        try {
-            setLoadingCount((c) => c + 1);
-            const m = await ethMaterialService.getMaterials();
-            setMaterials(m);
-        } catch (e: any) {
-            console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR, NOTIFICATION_DURATION);
-        } finally {
-            setLoadingCount((c) => c - 1);
-        }
-    }
 
     const addInputMaterial = () => {
         setInputMaterialsCount((c) => c + 1);
@@ -72,38 +29,23 @@ export const AssetOperationNew = () => {
     };
 
     const onSubmit = async (values: any) => {
-        try {
-            dispatch(showLoading('Creating asset operation...'));
-
-            const inputMaterialIds: number[] = [];
-            for (const key in values) {
-                if (key.startsWith('input-material-id-')) {
-                    inputMaterialIds.push(parseInt(values[key]));
-                }
+        const inputMaterialIds: number[] = [];
+        for (const key in values) {
+            if (key.startsWith('input-material-id-')) {
+                inputMaterialIds.push(parseInt(values[key]));
             }
-            const newAssetOperation: AssetOperationRequest = {
-                name: values['name'],
-                inputMaterialIds,
-                outputMaterialId: parseInt(values['output-material-id']),
-                latitude: values['latitude'],
-                longitude: values['longitude'],
-                processTypes: values['process-types']
-            };
-
-            await ethAssetOperationService.saveAssetOperation(newAssetOperation);
-            openNotification(
-                'Asset operation registered',
-                `Asset operation "${newAssetOperation.name}" has been registered correctly!`,
-                NotificationType.SUCCESS,
-                NOTIFICATION_DURATION
-            );
-            navigate(paths.ASSET_OPERATIONS);
-        } catch (e: any) {
-            console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR, NOTIFICATION_DURATION);
-        } finally {
-            dispatch(hideLoading());
         }
+        const newAssetOperation: AssetOperationRequest = {
+            name: values['name'],
+            inputMaterialIds,
+            outputMaterialId: parseInt(values['output-material-id']),
+            latitude: values['latitude'],
+            longitude: values['longitude'],
+            processTypes: values['process-types']
+        };
+
+        await saveAssetOperation(newAssetOperation);
+        navigate(paths.ASSET_OPERATIONS);
     };
 
     const inputMaterials: FormElement[] = Array(inputMaterialsCount)

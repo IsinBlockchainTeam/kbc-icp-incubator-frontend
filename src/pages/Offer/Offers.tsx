@@ -1,61 +1,30 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { NotificationType, openNotification } from '@/utils/notification';
+import React, { useState } from 'react';
 import { ColumnsType } from 'antd/es/table';
 import { Button, Space, Table } from 'antd';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
 import Search from '@/components/Search/Search';
 import { PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
-import { EthContext } from '@/providers/EthProvider';
-import { OfferPresentable } from '@/api/types/OfferPresentable';
-import { ICPContext } from '@/providers/ICPProvider';
 import { paths } from '@/constants/paths';
-import { NOTIFICATION_DURATION } from '@/constants/notification';
-import { credentials, DID_METHOD } from '@/constants/ssi';
+import { credentials } from '@/constants/ssi';
+import { useEthOffer } from '@/providers/entities/EthOfferProvider';
+import { useICPName } from '@/providers/entities/ICPNameProvider';
+import { ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
 
+type OfferPresentable = {
+    id: number;
+    supplierAddress: string;
+    supplierName: string;
+    productCategory: ProductCategory;
+};
 export const Offers = () => {
-    const { ethOfferService } = useContext(EthContext);
-    const { getNameByDID } = useContext(ICPContext);
+    const { offers } = useEthOffer();
+    const { getName } = useICPName();
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const navigate = useNavigate();
-    const dispatch = useDispatch();
-    const [offers, setOffers] = useState<OfferPresentable[]>();
-    const [filteredOffers, setFilteredOffers] = useState<OfferPresentable[]>();
-    const loadData = async () => {
-        try {
-            dispatch(showLoading('Retrieving offers...'));
-            const offers = await ethOfferService.getAllOffers();
-            const offerPresentables: OfferPresentable[] = [];
-
-            const names: Map<string, string> = new Map<string, string>();
-
-            for (const offer of offers) {
-                let supplierName = names.get(offer.owner);
-                if (!supplierName) {
-                    supplierName =
-                        (await getNameByDID(DID_METHOD + ':' + offer.owner)) || 'Unknown';
-                    names.set(offer.owner, supplierName);
-                }
-                offerPresentables.push({
-                    id: offer.id,
-                    supplierName,
-                    supplierAddress: offer.owner,
-                    productCategory: offer.productCategory
-                });
-            }
-
-            setOffers(offerPresentables);
-            setFilteredOffers(offerPresentables);
-        } catch (e: any) {
-            console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR, NOTIFICATION_DURATION);
-        } finally {
-            dispatch(hideLoading());
-        }
-    };
+    const [productCategory, setProductCategory] = useState<string>('');
 
     const columns: ColumnsType<OfferPresentable> = [
         {
@@ -80,7 +49,7 @@ export const Offers = () => {
             title: 'Actions',
             key: 'action',
             render: (_, record) => {
-                if (userInfo.role === credentials.ROLE_IMPORTER) {
+                if (userInfo.role.toUpperCase() === credentials.ROLE_IMPORTER) {
                     return (
                         <Space size="middle">
                             <a
@@ -104,19 +73,16 @@ export const Offers = () => {
         }
     ];
 
-    const filterOffers = (productCategory: string) => {
-        const filtered = offers?.filter((o) =>
-            o.productCategory.name.toLowerCase().includes(productCategory.toLowerCase())
-        );
-        setFilteredOffers(filtered);
-    };
-
-    useEffect(() => {
-        loadData();
-        return () => {
-            dispatch(hideLoading());
-        };
-    }, []);
+    const filteredOffers = offers
+        .filter((offer) =>
+            offer.productCategory.name.toLowerCase().includes(productCategory.toLowerCase())
+        )
+        .map((offer) => ({
+            id: offer.id,
+            supplierName: getName(offer.owner),
+            supplierAddress: offer.owner,
+            productCategory: offer.productCategory
+        }));
 
     return (
         <CardPage
@@ -128,7 +94,7 @@ export const Offers = () => {
                         alignItems: 'center'
                     }}>
                     Offers
-                    {userInfo.role === credentials.ROLE_EXPORTER && (
+                    {userInfo.role.toUpperCase() === credentials.ROLE_EXPORTER && (
                         <div>
                             <Button
                                 type="primary"
@@ -147,7 +113,7 @@ export const Offers = () => {
                     )}
                 </div>
             }>
-            <Search placeholder="Search by product category" onSearchFn={filterOffers} />
+            <Search placeholder="Search by product category" onSearchFn={setProductCategory} />
             <Table columns={columns} dataSource={filteredOffers} rowKey="id" />
         </CardPage>
     );

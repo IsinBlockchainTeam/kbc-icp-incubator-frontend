@@ -1,10 +1,11 @@
 import { Button, Form, FormProps, Input, Modal } from 'antd';
 import { NotificationType, openNotification } from '@/utils/notification';
-import React, { useEffect } from 'react';
-import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
+import React from 'react';
+import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
 import { useDispatch } from 'react-redux';
 import { requestPath } from '@/constants/url';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
+import { COMPANY_MESSAGE } from '@/constants/message';
 
 type Props = {
     open: boolean;
@@ -18,7 +19,7 @@ export const InviteCompany = (props: Props) => {
     const dispatch = useDispatch();
     const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
         try {
-            dispatch(showLoading('Inviting company...'));
+            dispatch(addLoadingMessage(COMPANY_MESSAGE.INVITE.LOADING));
             const response = await fetch(requestPath.EMAIL_SENDER_URL + '/email/invitation', {
                 method: 'POST',
                 headers: {
@@ -29,7 +30,7 @@ export const InviteCompany = (props: Props) => {
             if (response.ok) {
                 openNotification(
                     'Success',
-                    'Company invited successfully',
+                    COMPANY_MESSAGE.INVITE.OK,
                     NotificationType.SUCCESS,
                     NOTIFICATION_DURATION
                 );
@@ -37,34 +38,22 @@ export const InviteCompany = (props: Props) => {
             } else {
                 openNotification(
                     'Error',
-                    'Failed to invite company',
+                    COMPANY_MESSAGE.INVITE.ERROR,
                     NotificationType.ERROR,
                     NOTIFICATION_DURATION
                 );
             }
         } catch (e: any) {
-            openNotification('Error', e.message, NotificationType.ERROR, NOTIFICATION_DURATION);
-        } finally {
-            dispatch(hideLoading());
-        }
-    };
-
-    const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
-        errorInfo.errorFields.forEach((field) => {
             openNotification(
                 'Error',
-                field.errors[0],
+                COMPANY_MESSAGE.INVITE.ERROR,
                 NotificationType.ERROR,
                 NOTIFICATION_DURATION
             );
-        });
+        } finally {
+            dispatch(removeLoadingMessage(COMPANY_MESSAGE.INVITE.LOADING));
+        }
     };
-
-    useEffect(() => {
-        return () => {
-            dispatch(hideLoading());
-        };
-    }, []);
 
     return (
         <Modal open={props.open} title="Invite a new Company" onCancel={props.onClose} footer={[]}>
@@ -74,7 +63,6 @@ export const InviteCompany = (props: Props) => {
                 wrapperCol={{ span: 16 }}
                 style={{ maxWidth: 600, paddingTop: 20 }}
                 onFinish={onFinish}
-                onFinishFailed={onFinishFailed}
                 autoComplete="off">
                 <Form.Item
                     name="name"

@@ -1,66 +1,49 @@
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import Offers from '../Offers';
-import { EthOfferService } from '@/api/services/EthOfferService';
 import userEvent from '@testing-library/user-event';
 import { paths } from '@/constants/paths';
-import configureStore from 'redux-mock-store';
-import { EthContext, EthContextState } from '@/providers/EthProvider';
 import { Offer, ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
-import { Provider } from 'react-redux';
-import { ICPContext, ICPContextState } from '@/providers/ICPProvider';
+import { useSelector } from 'react-redux';
 import { credentials } from '@/constants/ssi';
 import { useNavigate } from 'react-router-dom';
-import { NotificationType, openNotification } from '@/utils/notification';
+import { useICPName } from '@/providers/entities/ICPNameProvider';
+import { useEthOffer } from '@/providers/entities/EthOfferProvider';
+import { UserInfoState } from '@/redux/reducers/userInfoSlice';
 
 jest.mock('react-router-dom');
-jest.mock('@/providers/ICPProvider');
-jest.mock('@/providers/EthProvider');
 jest.mock('@/utils/notification');
-
-const mockStore = configureStore([]);
+jest.mock('@/providers/entities/EthOfferProvider');
+jest.mock('@/providers/entities/ICPNameProvider');
+jest.mock('react-redux');
 
 describe('Offers', () => {
-    const icpContextValue = {
-        getNameByDID: jest.fn()
-    } as unknown as ICPContextState;
-    const ethContextValue = {
-        ethOfferService: {
-            getAllOffers: jest.fn()
-        } as unknown as EthOfferService
-    } as EthContextState;
-    const store = mockStore({
-        userInfo: {
-            role: credentials.ROLE_EXPORTER
-        }
-    });
+    const userInfo = {
+        role: credentials.ROLE_EXPORTER
+    } as UserInfoState;
+    const getName = jest.fn();
+    const navigate = jest.fn();
 
     beforeEach(() => {
         jest.spyOn(console, 'log').mockImplementation(jest.fn());
         jest.spyOn(console, 'error').mockImplementation(jest.fn());
         jest.clearAllMocks();
 
-        (icpContextValue.getNameByDID as jest.Mock).mockResolvedValue('Supplier Name');
-        (ethContextValue.ethOfferService.getAllOffers as jest.Mock).mockResolvedValue([
-            new Offer(1, 'Owner 1', new ProductCategory(1, 'Product Category 1', 1, '')),
-            new Offer(2, 'Owner 2', new ProductCategory(2, 'Product Category 2', 2, ''))
-        ]);
+        getName.mockReturnValue('Supplier Name');
+        (useICPName as jest.Mock).mockReturnValue({
+            getName
+        });
+        (useEthOffer as jest.Mock).mockReturnValue({
+            offers: [
+                new Offer(1, 'Owner 1', new ProductCategory(1, 'Product Category 1', 1, '')),
+                new Offer(2, 'Owner 2', new ProductCategory(2, 'Product Category 2', 2, ''))
+            ]
+        });
+        (useSelector as jest.Mock).mockReturnValue(userInfo);
+        (useNavigate as jest.Mock).mockReturnValue(navigate);
     });
 
     it('should render correctly', async () => {
-        await act(async () => {
-            render(
-                <Provider store={store}>
-                    <ICPContext.Provider value={icpContextValue}>
-                        <EthContext.Provider value={ethContextValue}>
-                            <Offers />
-                        </EthContext.Provider>
-                    </ICPContext.Provider>
-                </Provider>
-            );
-        });
-        await waitFor(() => {
-            expect(screen.getByText('Product Category 1')).toBeInTheDocument();
-        });
+        render(<Offers />);
 
         expect(screen.getByText('Product Category 1')).toBeInTheDocument();
         expect(screen.getByText('Product Category 2')).toBeInTheDocument();
@@ -68,47 +51,8 @@ describe('Offers', () => {
         expect(screen.getByRole('button', { name: 'plus New Offer' })).toBeInTheDocument();
     });
 
-    it('should open notifications if load fails', async () => {
-        (ethContextValue.ethOfferService.getAllOffers as jest.Mock).mockRejectedValue(
-            new Error('Error loading offers')
-        );
-        await act(async () => {
-            render(
-                <Provider store={store}>
-                    <ICPContext.Provider value={icpContextValue}>
-                        <EthContext.Provider value={ethContextValue}>
-                            <Offers />
-                        </EthContext.Provider>
-                    </ICPContext.Provider>
-                </Provider>
-            );
-        });
-
-        expect(openNotification).toHaveBeenCalledTimes(1);
-        expect(openNotification).toHaveBeenCalledWith(
-            'Error',
-            'Error loading offers',
-            NotificationType.ERROR
-        );
-    });
-
     it("should call navigator functions when clicking on 'New' buttons", async () => {
-        const navigate = jest.fn();
-        (useNavigate as jest.Mock).mockReturnValue(navigate);
-        await act(async () => {
-            render(
-                <Provider store={store}>
-                    <ICPContext.Provider value={icpContextValue}>
-                        <EthContext.Provider value={ethContextValue}>
-                            <Offers />
-                        </EthContext.Provider>
-                    </ICPContext.Provider>
-                </Provider>
-            );
-        });
-        await waitFor(() => {
-            expect(screen.getByText('Product Category 1')).toBeInTheDocument();
-        });
+        render(<Offers />);
 
         act(() => {
             userEvent.click(screen.getByRole('button', { name: 'plus New Offer Supplier' }));
@@ -124,27 +68,11 @@ describe('Offers', () => {
     });
 
     it("should call navigator functions when clicking on 'Start a negotiation' buttons", async () => {
-        const store = mockStore({
-            userInfo: {
-                role: credentials.ROLE_IMPORTER
-            }
+        (useSelector as jest.Mock).mockReturnValue({
+            role: credentials.ROLE_IMPORTER
         });
-        const navigate = jest.fn();
-        (useNavigate as jest.Mock).mockReturnValue(navigate);
-        await act(async () => {
-            render(
-                <Provider store={store}>
-                    <ICPContext.Provider value={icpContextValue}>
-                        <EthContext.Provider value={ethContextValue}>
-                            <Offers />
-                        </EthContext.Provider>
-                    </ICPContext.Provider>
-                </Provider>
-            );
-        });
-        await waitFor(() => {
-            expect(screen.getByText('Product Category 1')).toBeInTheDocument();
-        });
+
+        render(<Offers />);
 
         act(() => {
             userEvent.click(screen.getAllByRole('start-negotiation')[0]);
@@ -156,20 +84,7 @@ describe('Offers', () => {
     });
 
     it('should call sorter function correctly when clicking on a table header', async () => {
-        await act(async () => {
-            render(
-                <Provider store={store}>
-                    <ICPContext.Provider value={icpContextValue}>
-                        <EthContext.Provider value={ethContextValue}>
-                            <Offers />
-                        </EthContext.Provider>
-                    </ICPContext.Provider>
-                </Provider>
-            );
-        });
-        await waitFor(() => {
-            expect(screen.getByText('Product Category 1')).toBeInTheDocument();
-        });
+        render(<Offers />);
 
         let tableRows = screen.getAllByRole('row');
         expect(tableRows).toHaveLength(3);
@@ -205,20 +120,7 @@ describe('Offers', () => {
     });
 
     it('should filter offers', async () => {
-        await act(async () => {
-            render(
-                <Provider store={store}>
-                    <ICPContext.Provider value={icpContextValue}>
-                        <EthContext.Provider value={ethContextValue}>
-                            <Offers />
-                        </EthContext.Provider>
-                    </ICPContext.Provider>
-                </Provider>
-            );
-        });
-        await waitFor(() => {
-            expect(screen.getByText('Product Category 1')).toBeInTheDocument();
-        });
+        render(<Offers />);
 
         let tableRows = screen.getAllByRole('row');
         expect(tableRows).toHaveLength(3);

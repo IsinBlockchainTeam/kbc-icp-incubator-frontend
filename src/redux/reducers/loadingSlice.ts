@@ -2,27 +2,29 @@ import { createSlice } from '@reduxjs/toolkit';
 
 export type LoadingState = {
     isLoading: boolean;
-    loadingMessage: string;
+    loadingMessages: string[];
 };
 
 const initialState: LoadingState = {
     isLoading: false,
-    loadingMessage: ''
+    loadingMessages: []
 };
 
 const loadingSlice = createSlice({
     name: 'loading',
     initialState,
     reducers: {
-        showLoading: (state: LoadingState, action: { payload: string; type: string }) => {
+        addLoadingMessage: (state: LoadingState, action: { payload: string; type: string }) => {
             state.isLoading = true;
-            state.loadingMessage = action.payload;
+            state.loadingMessages.push(action.payload);
         },
-        hideLoading: (state: LoadingState) => {
-            state.isLoading = false;
-            state.loadingMessage = '';
+        removeLoadingMessage: (state: LoadingState, action: { payload: string; type: string }) => {
+            state.loadingMessages = state.loadingMessages.filter((msg) => msg !== action.payload);
+            if (state.loadingMessages.length === 0) {
+                state.isLoading = false;
+            }
         }
     }
 });
-export const { showLoading, hideLoading } = loadingSlice.actions;
+export const { addLoadingMessage, removeLoadingMessage } = loadingSlice.actions;
 export default loadingSlice.reducer;

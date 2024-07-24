@@ -1,77 +1,52 @@
-import { BasicTradePresentable } from '@/api/types/TradePresentable';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
-import { BasicTrade, DocumentType, LineRequest } from '@kbc-lib/coffee-trading-management-lib';
+import { BasicTrade, LineRequest } from '@kbc-lib/coffee-trading-management-lib';
 import { Tooltip } from 'antd';
 import { CheckCircleOutlined, EditOutlined } from '@ant-design/icons';
-import React, { useContext, useEffect } from 'react';
-import useMaterial from '@/hooks/useMaterial';
-import useMeasure from '@/hooks/useMeasure';
-import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
-import { NotificationType, openNotification } from '@/utils/notification';
-import { BasicTradeRequest } from '@/api/types/TradeRequest';
+import React from 'react';
 import { paths } from '@/constants/paths';
 import { useNavigate } from 'react-router-dom';
-import { EthContext } from '@/providers/EthProvider';
-import { useDispatch } from 'react-redux';
-import { NOTIFICATION_DURATION } from '@/constants/notification';
+import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
+import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
+import { BasicTradeRequest, useEthBasicTrade } from '@/providers/entities/EthBasicTradeProvider';
+import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
 
 type BasicTradeViewProps = {
-    basicTradePresentable: BasicTradePresentable;
+    basicTrade: BasicTrade;
     disabled: boolean;
     toggleDisabled: () => void;
-    confirmNegotiation: () => void;
     commonElements: FormElement[];
 };
 export const BasicTradeView = ({
-    basicTradePresentable,
+    basicTrade,
     disabled,
     toggleDisabled,
-    confirmNegotiation,
     commonElements
 }: BasicTradeViewProps) => {
-    const { ethTradeService } = useContext(EthContext);
-    const { loadData, dataLoaded, productCategories } = useMaterial();
-    const { units } = useMeasure();
-    const dispatch = useDispatch();
+    const { productCategories } = useEthMaterial();
+    const { units } = useEthEnumerable();
+    const { updateBasicTrade } = useEthBasicTrade();
+    const { confirmNegotiation } = useEthOrderTrade();
     const navigate = useNavigate();
     const documentHeight = '45vh';
-    const basicTrade = basicTradePresentable.trade as BasicTrade;
-
-    useEffect(() => {
-        if (!dataLoaded) loadData();
-    }, [dataLoaded]);
 
     const onSubmit = async (values: any) => {
-        try {
-            dispatch(showLoading('Loading...'));
-            const supplier: string = values['supplier'];
-            const customer: string = values['customer'];
-            const commissioner: string = values['commissioner'];
-            const quantity: number = parseInt(values[`quantity-1`]);
-            const unit: string = values[`unit-1`];
-            const productCategoryId: number = parseInt(values['product-category-id-1']);
+        const quantity: number = parseInt(values[`quantity-1`]);
+        const unit: string = values[`unit-1`];
+        const productCategoryId: number = parseInt(values['product-category-id-1']);
 
-            const updatedBasicTrade: BasicTradeRequest = {
-                supplier,
-                customer,
-                commissioner,
-                lines: [new LineRequest(productCategoryId, quantity, unit)],
-                name: values['name']
-            };
-            await ethTradeService.putBasicTrade(basicTrade.tradeId, updatedBasicTrade);
+        const updatedBasicTrade: BasicTradeRequest = {
+            supplier: values['supplier'],
+            customer: values['customer'],
+            commissioner: values['commissioner'],
+            lines: [new LineRequest(productCategoryId, quantity, unit)],
+            name: values['name']
+        };
+        await updateBasicTrade(basicTrade.tradeId, updatedBasicTrade);
 
-            toggleDisabled();
-            navigate(paths.TRADES);
-        } catch (e: any) {
-            console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR, NOTIFICATION_DURATION);
-        } finally {
-            dispatch(hideLoading());
-        }
+        toggleDisabled();
+        navigate(paths.TRADES);
     };
-
-    if (!dataLoaded) return <></>;
 
     const elements: FormElement[] = [
         ...commonElements,
@@ -93,7 +68,8 @@ export const BasicTradeView = ({
             required: false,
             loading: false,
             uploadable: !disabled,
-            info: basicTradePresentable.documents.get(DocumentType.DELIVERY_NOTE),
+            // TODO: Fix this
+            // info: getBasicTradeDocuments(basicTrade.tradeId),
             height: documentHeight
         },
         { type: FormElementType.TITLE, span: 24, label: 'Line Item' }
@@ -152,8 +128,9 @@ export const BasicTradeView = ({
                             <EditOutlined style={{ marginLeft: '8px' }} onClick={toggleDisabled} />
                             <Tooltip title="Confirm the negotiation if everything is OK">
                                 <CheckCircleOutlined
+                                    role="confirm"
                                     style={{ marginLeft: '8px' }}
-                                    onClick={confirmNegotiation}
+                                    onClick={() => confirmNegotiation(basicTrade.tradeId)}
                                 />
                             </Tooltip>
                         </div>

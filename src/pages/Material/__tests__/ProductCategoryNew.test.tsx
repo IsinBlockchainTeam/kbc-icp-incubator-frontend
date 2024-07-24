@@ -2,43 +2,29 @@ import { useNavigate } from 'react-router-dom';
 import ProductCategoryNew from '../ProductCategoryNew';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { EthMaterialService } from '@/api/services/EthMaterialService';
 import { paths } from '@/constants/paths';
-import { EthContext, EthContextState } from '@/providers/EthProvider';
-import configureStore from 'redux-mock-store';
-import { Provider } from 'react-redux';
 import { GenericForm } from '@/components/GenericForm/GenericForm';
-import { NotificationType, openNotification } from '@/utils/notification';
+import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 
 jest.mock('react-router-dom');
-jest.mock('@/providers/EthProvider');
 jest.mock('@/components/GenericForm/GenericForm');
-jest.mock('@/utils/notification');
-
-const mockStore = configureStore([]);
+jest.mock('@/providers/entities/EthMaterialProvider');
 
 describe('Product Category New', () => {
-    const contextValue = {
-        ethMaterialService: {
-            saveProductCategory: jest.fn()
-        } as unknown as EthMaterialService
-    } as EthContextState;
-    const store = mockStore({});
+    const saveProductCategory = jest.fn();
 
     beforeEach(() => {
         jest.spyOn(console, 'log').mockImplementation(jest.fn());
         jest.spyOn(console, 'error').mockImplementation(jest.fn());
         jest.clearAllMocks();
+
+        (useEthMaterial as jest.Mock).mockReturnValue({
+            saveProductCategory
+        });
     });
 
     it('should render correctly', () => {
-        render(
-            <Provider store={store}>
-                <EthContext.Provider value={contextValue}>
-                    <ProductCategoryNew />
-                </EthContext.Provider>
-            </Provider>
-        );
+        render(<ProductCategoryNew />);
 
         expect(screen.getByText('New Product Category')).toBeInTheDocument();
         expect(
@@ -59,13 +45,7 @@ describe('Product Category New', () => {
     it('should call onSubmit function when clicking on submit button', async () => {
         const navigate = jest.fn();
         (useNavigate as jest.Mock).mockReturnValue(navigate);
-        render(
-            <Provider store={store}>
-                <EthContext.Provider value={contextValue}>
-                    <ProductCategoryNew />
-                </EthContext.Provider>
-            </Provider>
-        );
+        render(<ProductCategoryNew />);
 
         const values = {
             name: 'product category 1',
@@ -74,8 +54,8 @@ describe('Product Category New', () => {
         };
         await (GenericForm as jest.Mock).mock.calls[0][0].onSubmit(values);
 
-        expect(contextValue.ethMaterialService.saveProductCategory).toHaveBeenCalledTimes(1);
-        expect(contextValue.ethMaterialService.saveProductCategory).toHaveBeenCalledWith(
+        expect(saveProductCategory).toHaveBeenCalledTimes(1);
+        expect(saveProductCategory).toHaveBeenCalledWith(
             values.name,
             values.quality,
             values.description
@@ -84,46 +64,13 @@ describe('Product Category New', () => {
         expect(navigate).toHaveBeenCalledWith(paths.MATERIALS);
     });
 
-    it('should open notification if save fails', async () => {
-        const navigate = jest.fn();
-        (useNavigate as jest.Mock).mockReturnValue(navigate);
-        (contextValue.ethMaterialService.saveProductCategory as jest.Mock).mockRejectedValue(
-            new Error('Error saving product category')
-        );
-        render(
-            <Provider store={store}>
-                <EthContext.Provider value={contextValue}>
-                    <ProductCategoryNew />
-                </EthContext.Provider>
-            </Provider>
-        );
-
-        const values = {};
-        await (GenericForm as jest.Mock).mock.calls[0][0].onSubmit(values);
-
-        expect(contextValue.ethMaterialService.saveProductCategory).toHaveBeenCalledTimes(1);
-        expect(openNotification).toHaveBeenCalledTimes(1);
-        expect(openNotification).toHaveBeenCalledWith(
-            'Error',
-            'Error saving product category',
-            NotificationType.ERROR
-        );
-        expect(navigate).not.toHaveBeenCalled();
-    });
-
     it("should navigate to 'Materials' when clicking on 'Delete Product Category' button", async () => {
         const navigate = jest.fn();
         (useNavigate as jest.Mock).mockReturnValue(navigate);
-        (contextValue.ethMaterialService.saveProductCategory as jest.Mock).mockRejectedValue(
+        (saveProductCategory as jest.Mock).mockRejectedValue(
             new Error('Error saving product category')
         );
-        render(
-            <Provider store={store}>
-                <EthContext.Provider value={contextValue}>
-                    <ProductCategoryNew />
-                </EthContext.Provider>
-            </Provider>
-        );
+        render(<ProductCategoryNew />);
 
         act(() => {
             userEvent.click(screen.getByRole('button', { name: 'delete Delete Product Category' }));

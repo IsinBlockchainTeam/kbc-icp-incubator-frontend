@@ -1,43 +1,48 @@
-import React, { useContext, useEffect } from 'react';
+import React from 'react';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
-import { Table, TableProps, Tag, Tooltip } from 'antd';
+import { Table, Tag, Tooltip } from 'antd';
 import { CheckCircleOutlined, ExclamationCircleOutlined, SettingOutlined } from '@ant-design/icons';
 import { ColumnsType } from 'antd/es/table';
-import { NotificationType, openNotification } from '@/utils/notification';
-import { TradePreviewPresentable } from '@/api/types/TradePresentable';
 import { Link } from 'react-router-dom';
 import { NegotiationStatus, OrderStatus, TradeType } from '@kbc-lib/coffee-trading-management-lib';
-import { useDispatch } from 'react-redux';
-import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
-import { EthContext } from '@/providers/EthProvider';
 import { setParametersPath } from '@/utils/page';
 import { paths } from '@/constants/paths';
-import { NOTIFICATION_DURATION } from '@/constants/notification';
+import { useICPName } from '@/providers/entities/ICPNameProvider';
+import { useEthBasicTrade } from '@/providers/entities/EthBasicTradeProvider';
+import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
 
+type TradePreviewPresentable = {
+    id: number;
+    supplier: string;
+    commissioner: string;
+    type: TradeType;
+    negotiationStatus?: NegotiationStatus;
+    orderStatus?: OrderStatus;
+    actionRequired?: string;
+};
 export const Trades = () => {
-    const { ethTradeService } = useContext(EthContext);
-    const [trades, setTrades] = React.useState<TradePreviewPresentable[]>();
-    const dispatch = useDispatch();
+    const { basicTrades } = useEthBasicTrade();
+    const { orderTrades, getActionRequired, getNegotiationStatus, getOrderStatus } =
+        useEthOrderTrade();
+    const { getName } = useICPName();
 
-    const loadData = async () => {
-        try {
-            dispatch(showLoading('Retrieving trades...'));
-            const trades = await ethTradeService.getGeneralTrades();
-
-            setTrades(
-                trades.map((t) => {
-                    // @ts-ignore
-                    t['key'] = `${t.id}_${t.supplier}`;
-                    return t;
-                })
-            );
-        } catch (e: any) {
-            console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR, NOTIFICATION_DURATION);
-        } finally {
-            dispatch(hideLoading());
-        }
-    };
+    const tradesPresentable: TradePreviewPresentable[] = basicTrades.map((t) => ({
+        id: t.tradeId,
+        supplier: getName(t.supplier),
+        commissioner: getName(t.commissioner),
+        type: TradeType.BASIC
+    }));
+    tradesPresentable.push(
+        ...orderTrades.map((o) => ({
+            id: o.tradeId,
+            supplier: getName(o.supplier),
+            commissioner: getName(o.commissioner),
+            type: TradeType.ORDER,
+            actionRequired: getActionRequired(o.tradeId),
+            negotiationStatus: getNegotiationStatus(o.tradeId),
+            orderStatus: getOrderStatus(o.tradeId)
+        }))
+    );
 
     const columns: ColumnsType<TradePreviewPresentable> = [
         {
@@ -108,23 +113,6 @@ export const Trades = () => {
         }
     ];
 
-    const onChange: TableProps<TradePreviewPresentable>['onChange'] = (
-        pagination,
-        filters,
-        sorter,
-        extra
-    ) => {
-        console.log('params', pagination, filters, sorter, extra);
-    };
-
-    useEffect(() => {
-        loadData();
-
-        return () => {
-            dispatch(hideLoading());
-        };
-    }, []);
-
     return (
         <CardPage
             title={
@@ -137,7 +125,7 @@ export const Trades = () => {
                     Trades
                 </div>
             }>
-            <Table columns={columns} dataSource={trades} onChange={onChange} />
+            <Table columns={columns} dataSource={tradesPresentable} />
         </CardPage>
     );
 };

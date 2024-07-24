@@ -1,65 +1,49 @@
 import { useNavigate } from 'react-router-dom';
-import { EthOfferService } from '@/api/services/EthOfferService';
 import OfferSupplierNew from '../OfferSupplierNew';
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-
 import { paths } from '@/constants/paths';
-import { SignerContext, SignerContextState } from '@/providers/SignerProvider';
-import { EthContext, EthContextState } from '@/providers/EthProvider';
+import { useSigner } from '@/providers/SignerProvider';
 import { credentials } from '@/constants/ssi';
-import configureStore from 'redux-mock-store';
-import { Provider } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { GenericForm } from '@/components/GenericForm/GenericForm';
-import { NotificationType, openNotification } from '@/utils/notification';
+import { useEthOffer } from '@/providers/entities/EthOfferProvider';
+import { Wallet } from 'ethers';
+import { UserInfoState } from '@/redux/reducers/userInfoSlice';
 
 jest.mock('react-router-dom');
 jest.mock('@/providers/SignerProvider');
-jest.mock('@/providers/EthProvider');
 jest.mock('@/components/GenericForm/GenericForm');
-jest.mock('@/utils/notification');
-
-const mockStore = configureStore([]);
+jest.mock('@/providers/entities/EthOfferProvider');
+jest.mock('react-redux');
 
 describe('Offers Supplier New', () => {
-    const signerContextValue = {
-        signer: {
-            address: '0x123'
-        }
-    } as unknown as SignerContextState;
-    const ethContextValue = {
-        ethOfferService: {
-            saveSupplier: jest.fn()
-        } as unknown as EthOfferService
-    } as EthContextState;
-    const store = mockStore({
-        userInfo: {
-            legalName: 'Legal Name',
-            role: credentials.ROLE_EXPORTER
-        }
-    });
+    const signer = {
+        address: '0x123'
+    } as Wallet;
+    const userInfo = {
+        legalName: 'Legal Name',
+        role: credentials.ROLE_EXPORTER
+    } as UserInfoState;
+    const saveSupplier = jest.fn();
+    const navigate = jest.fn();
 
     beforeEach(() => {
         jest.spyOn(console, 'log').mockImplementation(jest.fn());
         jest.spyOn(console, 'error').mockImplementation(jest.fn());
         jest.clearAllMocks();
+
+        (useNavigate as jest.Mock).mockReturnValue(navigate);
+        (useEthOffer as jest.Mock).mockReturnValue({
+            saveSupplier
+        });
+        (useSigner as jest.Mock).mockReturnValue({ signer });
+        (useSelector as jest.Mock).mockReturnValue(userInfo);
     });
 
     it('should render correctly', async () => {
-        await act(async () => {
-            render(
-                <Provider store={store}>
-                    <SignerContext.Provider value={signerContextValue}>
-                        <EthContext.Provider value={ethContextValue}>
-                            <OfferSupplierNew />
-                        </EthContext.Provider>
-                    </SignerContext.Provider>
-                </Provider>
-            );
-        });
-        await waitFor(() => {
-            expect(GenericForm).toHaveBeenCalledTimes(1);
-        });
+        render(<OfferSupplierNew />);
+        expect(GenericForm).toHaveBeenCalledTimes(1);
 
         expect(screen.getByText('New Offer Supplier')).toBeInTheDocument();
         expect(
@@ -78,107 +62,29 @@ describe('Offers Supplier New', () => {
     });
 
     it("should navigate to 'Home' if user is an importer", async () => {
-        const store = mockStore({
-            userInfo: {
-                legalName: 'Legal Name',
-                role: credentials.ROLE_IMPORTER
-            }
-        });
-        await act(async () => {
-            render(
-                <Provider store={store}>
-                    <SignerContext.Provider value={signerContextValue}>
-                        <EthContext.Provider value={ethContextValue}>
-                            <OfferSupplierNew />
-                        </EthContext.Provider>
-                    </SignerContext.Provider>
-                </Provider>
-            );
-        });
+        const userInfo = {
+            legalName: 'Legal Name',
+            role: credentials.ROLE_IMPORTER
+        } as UserInfoState;
+        (useSelector as jest.Mock).mockReturnValue(userInfo);
+        render(<OfferSupplierNew />);
         expect(GenericForm).not.toHaveBeenCalled();
     });
 
     it('should call onSubmit function when clicking on submit button', async () => {
-        const navigate = jest.fn();
-        (useNavigate as jest.Mock).mockReturnValue(navigate);
-        await act(async () => {
-            render(
-                <Provider store={store}>
-                    <SignerContext.Provider value={signerContextValue}>
-                        <EthContext.Provider value={ethContextValue}>
-                            <OfferSupplierNew />
-                        </EthContext.Provider>
-                    </SignerContext.Provider>
-                </Provider>
-            );
-        });
-        await waitFor(() => {
-            expect(GenericForm).toHaveBeenCalledTimes(1);
-        });
+        render(<OfferSupplierNew />);
 
         const values = {};
         await (GenericForm as jest.Mock).mock.calls[0][0].onSubmit(values);
 
-        expect(ethContextValue.ethOfferService.saveSupplier).toHaveBeenCalledTimes(1);
-        expect(ethContextValue.ethOfferService.saveSupplier).toHaveBeenCalledWith(
-            '0x123',
-            'Legal Name'
-        );
+        expect(saveSupplier).toHaveBeenCalledTimes(1);
+        expect(saveSupplier).toHaveBeenCalledWith('0x123', 'Legal Name');
         expect(navigate).toHaveBeenCalledTimes(1);
         expect(navigate).toHaveBeenCalledWith(paths.OFFERS);
     });
 
-    it('should open notification if save fails', async () => {
-        const navigate = jest.fn();
-        (useNavigate as jest.Mock).mockReturnValue(navigate);
-        (ethContextValue.ethOfferService.saveSupplier as jest.Mock).mockRejectedValue(
-            new Error('Error saving offer supplier')
-        );
-        await act(async () => {
-            render(
-                <Provider store={store}>
-                    <SignerContext.Provider value={signerContextValue}>
-                        <EthContext.Provider value={ethContextValue}>
-                            <OfferSupplierNew />
-                        </EthContext.Provider>
-                    </SignerContext.Provider>
-                </Provider>
-            );
-        });
-        await waitFor(() => {
-            expect(GenericForm).toHaveBeenCalledTimes(1);
-        });
-
-        const values = {};
-        await (GenericForm as jest.Mock).mock.calls[0][0].onSubmit(values);
-
-        expect(ethContextValue.ethOfferService.saveSupplier).toHaveBeenCalledTimes(1);
-        expect(openNotification).toHaveBeenCalledTimes(1);
-        expect(openNotification).toHaveBeenCalledWith(
-            'Error',
-            'Error saving offer supplier',
-            NotificationType.ERROR
-        );
-        expect(navigate).not.toHaveBeenCalled();
-    });
-
     it("should navigate to 'Offers' when clicking on 'Delete Offer Supplier' button", async () => {
-        const navigate = jest.fn();
-        (useNavigate as jest.Mock).mockReturnValue(navigate);
-        await act(async () => {
-            render(
-                <Provider store={store}>
-                    <SignerContext.Provider value={signerContextValue}>
-                        <EthContext.Provider value={ethContextValue}>
-                            <OfferSupplierNew />
-                        </EthContext.Provider>
-                    </SignerContext.Provider>
-                </Provider>
-            );
-        });
-        await waitFor(() => {
-            expect(GenericForm).toHaveBeenCalledTimes(1);
-        });
+        render(<OfferSupplierNew />);
 
         act(() =>
             userEvent.click(screen.getByRole('button', { name: 'delete Delete Offer Supplier' }))

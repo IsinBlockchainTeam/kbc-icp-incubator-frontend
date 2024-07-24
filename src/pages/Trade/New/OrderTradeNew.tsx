@@ -51,16 +51,11 @@ export const OrderTradeNew = ({ commonElements, validateDates }: OrderTradeNewPr
     };
 
     const onSubmit = async (values: any) => {
-        try {
-            //FIXME: This is a workaround to get data instead of the form
-            values['supplier'] = location?.state?.supplierAddress || 'Unknown';
-            values['customer'] = signer?._address || 'Unknown';
-            values['commissioner'] = signer?._address || 'Unknown';
-            values['product-category-id-1'] = location?.state?.productCategoryId || '0';
-            dispatch(showLoading('Creating trade...'));
-            const supplier: string = values['supplier'];
-            const customer: string = values['customer'];
-            const commissioner: string = values['commissioner'];
+        //FIXME: This is a workaround to get data instead of the form
+        values['supplier'] = supplierAddress;
+        values['customer'] = customerAddress;
+        values['commissioner'] = customerAddress;
+        values['product-category-id-1'] = productCategoryId;
 
             const tradeLines: LineRequest[] = [];
             for (const key in values) {

@@ -22,6 +22,15 @@ import { persistor, store } from '@/redux/store';
 import { PersistGate } from 'redux-persist/integration/react';
 import { MenuLayout } from '@/components/structure/MenuLayout/MenuLayout';
 import { paths } from '@/constants/paths';
+import DataLoader from './DataLoader';
+import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
+import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
+import { useEthOffer } from '@/providers/entities/EthOfferProvider';
+import { useICPName } from '@/providers/entities/ICPNameProvider';
+import { useEthRawTrade } from '@/providers/entities/EthRawTradeProvider';
+import { useEthAssetOperation } from '@/providers/entities/EthAssetOperationProvider';
+import { useEthRelationship } from '@/providers/entities/EthRelationshipProvider';
+import { useEthGraph } from '@/providers/entities/EthGraphProvider';
 
 import { createWeb3Modal, defaultConfig } from '@web3modal/ethers5/react';
 import { PROJECT_ID } from '@/constants/walletConnect';
@@ -76,31 +85,137 @@ export const App = () => {
                             <Route element={<MenuLayout />}>
                                 <Route element={<PrivateRoutes />}>
                                     <Route index path={paths.PROFILE} element={<Profile />} />
-                                    <Route path={paths.PARTNERS} element={<Partners />} />
-                                    <Route path={paths.OFFERS} element={<Offers />} />
-                                    <Route path={paths.OFFERS_NEW} element={<OfferNew />} />
+                                    <Route
+                                        path={paths.PARTNERS}
+                                        element={
+                                            <DataLoader customUseContext={useEthRelationship}>
+                                                <Partners />
+                                            </DataLoader>
+                                        }
+                                    />
+                                    <Route
+                                        path={paths.OFFERS}
+                                        element={
+                                            <DataLoader customUseContext={useICPName}>
+                                                <DataLoader customUseContext={useEthOffer}>
+                                                    <Offers />
+                                                </DataLoader>
+                                            </DataLoader>
+                                        }
+                                    />
+                                    <Route
+                                        path={paths.OFFERS_NEW}
+                                        element={
+                                            <DataLoader customUseContext={useICPName}>
+                                                <DataLoader customUseContext={useEthMaterial}>
+                                                    <DataLoader customUseContext={useEthOffer}>
+                                                        <OfferNew />
+                                                    </DataLoader>
+                                                </DataLoader>
+                                            </DataLoader>
+                                        }
+                                    />
                                     <Route
                                         path={paths.OFFERS_SUPPLIER_NEW}
-                                        element={<OfferSupplierNew />}
+                                        element={
+                                            <DataLoader customUseContext={useEthOffer}>
+                                                <OfferSupplierNew />
+                                            </DataLoader>
+                                        }
                                     />
-                                    <Route path={paths.MATERIALS} element={<Materials />} />
-                                    <Route path={paths.MATERIAL_NEW} element={<MaterialNew />} />
+                                    <Route
+                                        path={paths.MATERIALS}
+                                        element={
+                                            <DataLoader customUseContext={useEthMaterial}>
+                                                <Materials />
+                                            </DataLoader>
+                                        }
+                                    />
+                                    <Route
+                                        path={paths.MATERIAL_NEW}
+                                        element={
+                                            <DataLoader customUseContext={useEthMaterial}>
+                                                <MaterialNew />
+                                            </DataLoader>
+                                        }
+                                    />
                                     <Route
                                         path={paths.PRODUCT_CATEGORY_NEW}
-                                        element={<ProductCategoryNew />}
+                                        element={
+                                            <DataLoader customUseContext={useEthMaterial}>
+                                                <ProductCategoryNew />
+                                            </DataLoader>
+                                        }
                                     />
-                                    <Route path={paths.TRADES} element={<Trades />} />
-                                    <Route path={paths.TRADE_NEW} element={<TradeNew />} />
-                                    <Route path={paths.TRADE_VIEW} element={<TradeView />} />
+                                    <Route
+                                        path={paths.TRADES}
+                                        element={
+                                            <DataLoader customUseContext={useICPName}>
+                                                <DataLoader customUseContext={useEthRawTrade}>
+                                                    <Trades />
+                                                </DataLoader>
+                                            </DataLoader>
+                                        }
+                                    />
+                                    <Route
+                                        path={paths.TRADE_NEW}
+                                        element={
+                                            <DataLoader customUseContext={useICPName}>
+                                                <DataLoader customUseContext={useEthMaterial}>
+                                                    <DataLoader customUseContext={useEthEnumerable}>
+                                                        <DataLoader
+                                                            customUseContext={useEthRawTrade}>
+                                                            <TradeNew />
+                                                        </DataLoader>
+                                                    </DataLoader>
+                                                </DataLoader>
+                                            </DataLoader>
+                                        }
+                                    />
+                                    <Route
+                                        path={paths.TRADE_VIEW}
+                                        element={
+                                            <DataLoader customUseContext={useICPName}>
+                                                <DataLoader customUseContext={useEthEnumerable}>
+                                                    <DataLoader customUseContext={useEthMaterial}>
+                                                        <DataLoader
+                                                            customUseContext={useEthRawTrade}>
+                                                            <TradeView />
+                                                        </DataLoader>
+                                                    </DataLoader>
+                                                </DataLoader>
+                                            </DataLoader>
+                                        }
+                                    />
                                     <Route
                                         path={paths.ASSET_OPERATIONS}
-                                        element={<AssetOperations />}
+                                        element={
+                                            <DataLoader customUseContext={useEthAssetOperation}>
+                                                <AssetOperations />
+                                            </DataLoader>
+                                        }
                                     />
                                     <Route
                                         path={paths.ASSET_OPERATIONS_NEW}
-                                        element={<AssetOperationNew />}
+                                        element={
+                                            <DataLoader customUseContext={useEthMaterial}>
+                                                <DataLoader customUseContext={useEthEnumerable}>
+                                                    <DataLoader
+                                                        customUseContext={useEthAssetOperation}>
+                                                        <AssetOperationNew />
+                                                    </DataLoader>
+                                                </DataLoader>
+                                            </DataLoader>
+                                        }
                                     />
-                                    <Route path={paths.GRAPH} element={<GraphPage />} />
+                                    <Route
+                                        path={paths.GRAPH}
+                                        element={
+                                            <DataLoader customUseContext={useEthGraph}>
+                                                <GraphPage />
+                                            </DataLoader>
+                                        }
+                                    />
                                 </Route>
                                 <Route path={paths.LOGIN} element={<Login />} />
                                 <Route path="*" element={<Navigate to={paths.LOGIN} />} />

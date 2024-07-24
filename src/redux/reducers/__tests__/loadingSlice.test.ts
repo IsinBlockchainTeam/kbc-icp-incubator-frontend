@@ -1,30 +1,30 @@
 import loadingReducer, {
-    hideLoading,
+    removeLoadingMessage,
     LoadingState,
-    showLoading
+    addLoadingMessage
 } from '@/redux/reducers/loadingSlice';
 
 describe('loadingSlice', () => {
-    test('should update state for showing loading', () => {
+    test('should update state for adding a loading message', () => {
         const initialState: LoadingState = {
             isLoading: false,
-            loadingMessage: ''
+            loadingMessages: []
         };
-        const action = showLoading('loading message');
+        const action = addLoadingMessage('loading message');
         const nextState = loadingReducer(initialState, action);
 
         expect(nextState.isLoading).toBe(true);
-        expect(nextState.loadingMessage).toBe('loading message');
+        expect(nextState.loadingMessages).toStrictEqual(['loading message']);
     });
     test('should update state for hiding loading', () => {
         const initialState: LoadingState = {
             isLoading: true,
-            loadingMessage: 'loading message'
+            loadingMessages: ['loading message']
         };
-        const action = hideLoading();
+        const action = removeLoadingMessage('loading message');
         const nextState = loadingReducer(initialState, action);
 
         expect(nextState.isLoading).toBe(false);
-        expect(nextState.loadingMessage).toBe('');
+        expect(nextState.loadingMessages).toStrictEqual([]);
     });
 });

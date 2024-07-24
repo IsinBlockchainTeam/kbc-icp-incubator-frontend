@@ -19,72 +19,57 @@ import { EthContext } from '@/providers/EthProvider';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
 
 type BasicTradeNewProps = {
+    supplierAddress: string;
+    customerAddress: string;
+    productCategoryId: number;
     commonElements: FormElement[];
 };
-export const BasicTradeNew = ({ commonElements }: BasicTradeNewProps) => {
-    const { signer } = useContext(SignerContext);
-    const { ethTradeService } = useContext(EthContext);
-    const { loadData, dataLoaded, productCategories } = useMaterial();
-    const { units } = useMeasure();
-    const dispatch = useDispatch();
+export const BasicTradeNew = ({
+    supplierAddress,
+    customerAddress,
+    productCategoryId,
+    commonElements
+}: BasicTradeNewProps) => {
+    const { saveBasicTrade } = useEthBasicTrade();
+    const { productCategories } = useEthMaterial();
+    const { units } = useEthEnumerable();
 
     const navigate = useNavigate();
     const location = useLocation();
     const documentHeight = '45vh';
 
-    useEffect(() => {
-        if (!dataLoaded) loadData();
-    }, [dataLoaded]);
-
     const onSubmit = async (values: any) => {
-        try {
-            //FIXME: This is a workaround to get data instead of the form
-            values['supplier'] = location?.state?.supplierAddress || 'Unknown';
-            values['customer'] = signer?._address || 'Unknown';
-            values['commissioner'] = signer?._address || 'Unknown';
-            values['product-category-id-1'] = location?.state?.productCategoryId || '0';
-            dispatch(showLoading('Creating trade...'));
-            const supplier: string = values['supplier'];
-            const customer: string = values['customer'];
-            const commissioner: string = values['commissioner'];
+        //FIXME: This is a workaround to get data instead of the form
+        values['supplier'] = supplierAddress;
+        values['customer'] = customerAddress;
+        values['commissioner'] = customerAddress;
+        values['product-category-id-1'] = productCategoryId;
 
-            const tradeLines: LineRequest[] = [];
-            for (const key in values) {
-                let id: string;
-                if (key.startsWith('product-category-id-')) {
-                    id = key.split('-')[3];
-                    const quantity: number = parseInt(values[`quantity-${id}`]);
-                    const unit: string = values[`unit-${id}`];
-                    const productCategoryId: number = parseInt(values[key]);
-                    tradeLines.push(new LineRequest(productCategoryId, quantity, unit));
-                }
+        const tradeLines: LineRequest[] = [];
+        for (const key in values) {
+            let id: string;
+            if (key.startsWith('product-category-id-')) {
+                id = key.split('-')[3];
+                const quantity: number = parseInt(values[`quantity-${id}`]);
+                const unit: string = values[`unit-${id}`];
+                const productCategoryId: number = parseInt(values[key]);
+                tradeLines.push(new LineRequest(productCategoryId, quantity, unit));
             }
-            const basicTrade: BasicTradeRequest = {
-                supplier,
-                customer,
-                commissioner,
-                lines: tradeLines as LineRequest[],
-                name: values['name']
-            };
-            const deliveryNote: DocumentRequest = {
-                content: values['certificate-of-shipping'],
-                filename: values['certificate-of-shipping'].name,
-                documentType: DocumentType.DELIVERY_NOTE
-            };
-            await ethTradeService.saveBasicTrade(basicTrade, [deliveryNote]);
-            openNotification(
-                'Basic trade registered',
-                `Basic trade "${values.name}" has been registered correctly!`,
-                NotificationType.SUCCESS,
-                NOTIFICATION_DURATION
-            );
-            navigate(paths.TRADES);
-        } catch (e: any) {
-            console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR, NOTIFICATION_DURATION);
-        } finally {
-            dispatch(hideLoading());
         }
+        const basicTrade: BasicTradeRequest = {
+            supplier: supplierAddress,
+            customer: customerAddress,
+            commissioner: customerAddress,
+            lines: tradeLines as LineRequest[],
+            name: values['name']
+        };
+        const deliveryNote: DocumentRequest = {
+            content: values['certificate-of-shipping'],
+            filename: values['certificate-of-shipping'].name,
+            documentType: DocumentType.DELIVERY_NOTE
+        };
+        await saveBasicTrade(basicTrade, [deliveryNote]);
+        navigate(paths.TRADES);
     };
 
     if (!dataLoaded) {

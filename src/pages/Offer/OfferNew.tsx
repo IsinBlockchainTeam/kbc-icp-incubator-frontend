@@ -55,77 +55,31 @@ export const OfferNew = () => {
         }
     }
 
-    async function loadElements() {
-        try {
-            dispatch(showLoading('Loading elements...'));
-            const supplierName =
-                (await getNameByDID(DID_METHOD + ':' + signer?._address)) || 'Unknown';
-            setElements([
-                { type: FormElementType.TITLE, span: 24, label: 'Data' },
-                {
-                    type: FormElementType.INPUT,
-                    span: 8,
-                    name: 'offeror',
-                    label: 'Offeror Company Address',
-                    required: true,
-                    defaultValue: supplierName,
-                    disabled: true
-                },
-                {
-                    type: FormElementType.SELECT,
-                    span: 8,
-                    name: 'product-category-id',
-                    label: 'Product Category ID',
-                    required: true,
-                    options: productCategories.map((productCategory) => ({
-                        label: productCategory.name,
-                        value: productCategory.id
-                    })),
-                    defaultValue: '',
-                    disabled: false
-                }
-            ]);
-        } catch (e: any) {
-            console.log('error: ', e);
-            openNotification(
-                'Error',
-                'Error loading elements',
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
-        } finally {
-            dispatch(hideLoading());
+    const elements: FormElement[] = [
+        { type: FormElementType.TITLE, span: 24, label: 'Data' },
+        {
+            type: FormElementType.INPUT,
+            span: 8,
+            name: 'offeror',
+            label: 'Offeror Company Address',
+            required: true,
+            defaultValue: getName(signer.address),
+            disabled: true
+        },
+        {
+            type: FormElementType.SELECT,
+            span: 8,
+            name: 'product-category-id',
+            label: 'Product Category ID',
+            required: true,
+            options: productCategories.map((productCategory) => ({
+                label: productCategory.name,
+                value: productCategory.id
+            })),
+            defaultValue: '',
+            disabled: false
         }
-    }
-
-    const onSubmit = async (values: any) => {
-        try {
-            values['offeror'] = signer?._address || 'Unknown';
-            dispatch(showLoading('Creating offer...'));
-            await ethOfferService.saveOffer(values.offeror, values['product-category-id']);
-            openNotification(
-                'Offer registered',
-                `Offer for product category with ID "${values['product-category-id']}" has been registered correctly!`,
-                NotificationType.SUCCESS,
-                NOTIFICATION_DURATION
-            );
-            navigate(paths.OFFERS);
-        } catch (e: any) {
-            console.log('error: ', e);
-            openNotification(
-                'Error',
-                'Error saving offer',
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
-        } finally {
-            dispatch(hideLoading());
-        }
-    };
-
-    if (userInfo.role !== credentials.ROLE_EXPORTER) {
-        return <Navigate to={paths.HOME} />;
-    }
+    ];
 
     return (
         <CardPage

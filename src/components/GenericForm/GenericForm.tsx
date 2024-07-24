@@ -14,10 +14,9 @@ import {
 } from 'antd';
 import PDFViewer from '../PDFViewer/PDFViewer';
 import { DownloadOutlined } from '@ant-design/icons';
-import { DocumentPresentable } from '@/api/types/DocumentPresentable';
-import { FormItemInputProps } from 'antd/es/form/FormItemInput';
-import dayjs from 'dayjs';
 import { createDownloadWindow } from '@/utils/page';
+import { DocumentContent } from '@/providers/entities/EthDocumentProvider';
+import { DocumentStatus } from '@kbc-lib/coffee-trading-management-lib';
 
 export enum FormElementType {
     TITLE = 'title',
@@ -102,18 +101,20 @@ type EditableElement = Omit<LabeledElement, 'type'> & {
     validationCallback?: (form: FormInstance) => Promise<void>;
 };
 
+export type DocumentValidationCallback = {
+    onApprove: () => Promise<void>;
+    onReject: () => Promise<void>;
+};
 export type DocumentElement = Omit<LabeledElement, 'type'> & {
     type: FormElementType.DOCUMENT;
     name: string;
     uploadable: boolean;
     required: boolean;
     loading: boolean;
-    info?: DocumentPresentable;
+    content?: DocumentContent;
+    status?: DocumentStatus;
     height?: `${number}px` | `${number}%` | `${number}vh` | 'auto';
-    validationCallback?: {
-        approve: (...args: any[]) => Promise<void>;
-        reject: (...args: any[]) => Promise<void>;
-    };
+    validationCallbacks?: DocumentValidationCallback;
 };
 
 type Props = {
@@ -121,22 +122,6 @@ type Props = {
     submittable?: boolean;
     onSubmit?: (values: any) => void;
 };
-
-const showTextWithHtmlLinebreaks = (text: string): ReactNode => {
-    return (
-        <>
-            {text.split('\n').map((str, index) => (
-                <React.Fragment key={index}>
-                    {' '}
-                    {str}
-                    <br />{' '}
-                </React.Fragment>
-            ))}
-        </>
-    );
-};
-
-export type ElementStatus = { type: FormItemInputProps['status']; message: ReactNode };
 
 export const GenericForm = (props: Props) => {
     const [form] = Form.useForm();
@@ -147,8 +132,8 @@ export const GenericForm = (props: Props) => {
         props.elements.forEach((element) => {
             if (element.type === FormElementType.DOCUMENT) {
                 const doc = element as DocumentElement;
-                if (doc?.info?.content) {
-                    documents.set(doc.name, doc.info.content);
+                if (doc?.content?.content) {
+                    documents.set(doc.name, doc.content.content);
                 }
             }
         });
@@ -345,7 +330,8 @@ export const GenericForm = (props: Props) => {
         },
         [FormElementType.DOCUMENT]: (element: FormElement, index: number) => {
             element = element as DocumentElement;
-            const docInfo = element.info!;
+            const docInfo = element.content!;
+            const status = element.status!;
 
             return (
                 <Col
@@ -362,9 +348,9 @@ export const GenericForm = (props: Props) => {
                         <PDFViewer
                             element={element}
                             onDocumentChange={addDocument}
-                            validationStatus={docInfo?.status}
+                            validationStatus={status}
                         />
-                        {element.validationCallback && (
+                        {element.validationCallbacks && (
                             <Popover
                                 title="Validate the document"
                                 trigger="click"
@@ -391,7 +377,7 @@ export const GenericForm = (props: Props) => {
                                             <Button
                                                 type="primary"
                                                 style={{ width: '100%' }}
-                                                onClick={element.validationCallback.approve}>
+                                                onClick={element.validationCallbacks.onApprove}>
                                                 Approve
                                             </Button>
                                         </Col>
@@ -400,7 +386,7 @@ export const GenericForm = (props: Props) => {
                                                 danger
                                                 type="primary"
                                                 style={{ width: '100%' }}
-                                                onClick={element.validationCallback.reject}>
+                                                onClick={element.validationCallbacks.onReject}>
                                                 Reject
                                             </Button>
                                         </Col>
