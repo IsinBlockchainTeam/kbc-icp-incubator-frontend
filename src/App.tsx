@@ -31,6 +31,7 @@ import { useEthRawTrade } from '@/providers/entities/EthRawTradeProvider';
 import { useEthAssetOperation } from '@/providers/entities/EthAssetOperationProvider';
 import { useEthRelationship } from '@/providers/entities/EthRelationshipProvider';
 import { useEthGraph } from '@/providers/entities/EthGraphProvider';
+import { AssetOperationView } from '@/pages/AssetOperation/AssetOperationView';
 
 export const App = () => {
     return (
@@ -160,6 +161,19 @@ export const App = () => {
                                                     <DataLoader
                                                         customUseContext={useEthAssetOperation}>
                                                         <AssetOperationNew />
+                                                    </DataLoader>
+                                                </DataLoader>
+                                            </DataLoader>
+                                        }
+                                    />
+                                    <Route
+                                        path={paths.ASSET_OPERATIONS_VIEW}
+                                        element={
+                                            <DataLoader customUseContext={useEthMaterial}>
+                                                <DataLoader customUseContext={useEthEnumerable}>
+                                                    <DataLoader
+                                                        customUseContext={useEthAssetOperation}>
+                                                        <AssetOperationView />
                                                     </DataLoader>
                                                 </DataLoader>
                                             </DataLoader>
