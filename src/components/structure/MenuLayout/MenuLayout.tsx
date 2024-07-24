@@ -20,6 +20,7 @@ import { resetUserInfo } from '@/redux/reducers/userInfoSlice';
 import { clearSiweIdentity } from '@/redux/reducers/siweIdentitySlice';
 import { paths } from '@/constants/paths';
 const { Content, Footer, Sider } = Layout;
+import { useDisconnect } from '@web3modal/ethers5/react';
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -55,6 +56,7 @@ const settingItems: MenuItem[] = [
     ])
 ];
 
+const { disconnect } = useDisconnect();
 const getUserItemLoggedIn = (name: string, picture: string, dispatch: any) => [
     getItem(
         `${name}`,
@@ -65,6 +67,7 @@ const getUserItemLoggedIn = (name: string, picture: string, dispatch: any) => [
             getItem('Logout', paths.LOGIN, <LogoutOutlined />, undefined, undefined, () => {
                 dispatch(resetUserInfo());
                 dispatch(clearSiweIdentity());
+                disconnect();
             })
         ]
     )
