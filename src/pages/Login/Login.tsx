@@ -14,7 +14,7 @@ function WalletConnectLogin() {
 
 export const Login = () => {
     const { isConnected } = useWeb3ModalAccount();
-    const current = isConnected ? 1 : 0;
+    const [current, setCurrent] = useState<number>(isConnected ? 1 : 0);
     const steps = [
         {
             title: 'WalletConnect Login',
@@ -26,12 +26,22 @@ export const Login = () => {
         }
     ];
 
+    const onChange = (current: number) => {
+        if (!isConnected) return;
+        setCurrent(current);
+    };
+
+    useEffect(() => {
+        if (isConnected) setCurrent(1);
+    }, [isConnected]);
+
     return (
         <div className={styles.LoginContainer}>
             <Card style={{ width: '100%', padding: 20 }}>
                 <Steps
                     current={current}
                     items={steps}
+                    onChange={onChange}
                     style={{ paddingLeft: '10%', paddingRight: '10%' }}
                 />
                 <div style={{ padding: 30 }}>{steps[current].content}</div>

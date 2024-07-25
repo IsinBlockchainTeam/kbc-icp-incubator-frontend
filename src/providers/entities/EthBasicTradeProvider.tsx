@@ -2,6 +2,7 @@ import { createContext, ReactNode, useContext, useEffect, useMemo, useState } fr
 import {
     BasicTrade,
     BasicTradeDriver,
+    BasicTradeMetadata,
     BasicTradeService,
     DocumentDriver,
     DocumentInfo,
@@ -148,8 +149,8 @@ export function EthBasicTradeProvider(props: { children: ReactNode }) {
                 prefix: getICPCanisterURL(ICP.CANISTER_ID_ORGANIZATION),
                 organizationId
             };
-            const metadata = {
-                date: new Date()
+            const metadata: BasicTradeMetadata = {
+                issueDate: new Date()
             };
             const [, newTradeAddress, transactionHash] =
                 await tradeManagerService.registerBasicTrade(
