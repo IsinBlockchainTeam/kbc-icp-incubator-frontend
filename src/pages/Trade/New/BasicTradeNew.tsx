@@ -19,11 +19,11 @@ type BasicTradeNewProps = {
     commonElements: FormElement[];
 };
 export const BasicTradeNew = ({
-                                  supplierAddress,
-                                  customerAddress,
-                                  productCategoryId,
-                                  commonElements
-                              }: BasicTradeNewProps) => {
+    supplierAddress,
+    customerAddress,
+    productCategoryId,
+    commonElements
+}: BasicTradeNewProps) => {
     const { saveBasicTrade } = useEthBasicTrade();
     const { productCategories } = useEthMaterial();
     const { units } = useEthEnumerable();

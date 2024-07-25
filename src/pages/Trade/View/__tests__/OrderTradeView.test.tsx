@@ -8,11 +8,11 @@ import {
     OrderLineRequest,
     OrderTrade
 } from '@kbc-lib/coffee-trading-management-lib';
-import { SignerContextState, useSigner } from '@/providers/SignerProvider';
+import { useSigner } from '@/providers/SignerProvider';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
-import { Wallet } from 'ethers';
 import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
+import { JsonRpcSigner } from '@ethersproject/providers';
 
 jest.mock('react-router-dom');
 jest.mock('@/providers/SignerProvider');
@@ -72,7 +72,7 @@ describe('Basic Trade View', () => {
         jest.clearAllMocks();
 
         (useNavigate as jest.Mock).mockReturnValue(navigate);
-        (useSigner as jest.Mock).mockReturnValue(signer);
+        (useSigner as jest.Mock).mockReturnValue({ signer });
         (useEthMaterial as jest.Mock).mockReturnValue({ productCategories });
         (useEthEnumerable as jest.Mock).mockReturnValue({ fiats, units });
         (useEthOrderTrade as jest.Mock).mockReturnValue({

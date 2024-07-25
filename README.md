@@ -49,14 +49,14 @@ To deploy the project on the ICP mainnet, follow these steps:
 ### `npmrc` Configuration
 
 | Registry name              | Description                                                                                                                                                                                                                                                          |
-|----------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `@kbc-lib:registry`        | Needed for **installing** dependencies. It's an access token with read access to the [Coffee Trading Management Lib](https://gitlab-core.supsi.ch/dti-isin/giuliano.gremlich/blockchain/one-lib-to-rule-them-all/coffee-trading-management-lib) private npm registry |
 | `@blockchain-lib:registry` | Needed for **installing** dependencies. It's an access token with read access to the [common](https://gitlab-core.supsi.ch/dti-isin/giuliano.gremlich/blockchain/one_lib_to_rule_them_all) private npm registry                                                      |
 
 ### Environment Variables Configuration
 
 | Variable                                       | Description                                                                                                                                                                                              |
-|------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `REACT_APP_VERIFIER_BACKEND_URL`               | The URL where the `verifier_backend` project is running                                                                                                                                                  |
 | `REACT_APP_EMAIL_SENDER_URL`                   | The URL where the `email_sender` project is running                                                                                                                                                      |
 | `REACT_APP_RPC_URL`                            | The URL where the ethereum network is running                                                                                                                                                            |

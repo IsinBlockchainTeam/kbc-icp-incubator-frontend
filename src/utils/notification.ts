@@ -1,5 +1,5 @@
 import { notification } from 'antd';
-import {ReactNode} from "react";
+import { ReactNode } from 'react';
 
 export enum NotificationType {
     SUCCESS = 'success',

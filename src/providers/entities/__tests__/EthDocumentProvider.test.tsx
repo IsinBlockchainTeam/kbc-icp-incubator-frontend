@@ -17,10 +17,10 @@ import {
 } from '@kbc-lib/coffee-trading-management-lib';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSigner } from '@/providers/SignerProvider';
-import { Wallet } from 'ethers';
 import { useICP } from '@/providers/ICPProvider';
 import { UserInfoState } from '@/redux/reducers/userInfoSlice';
 import { openNotification } from '@/utils/notification';
+import { JsonRpcSigner } from '@ethersproject/providers';
 
 jest.mock('@kbc-lib/coffee-trading-management-lib');
 jest.mock('@/providers/SignerProvider');
@@ -221,22 +221,22 @@ describe('EthDocumentProvider', () => {
     });
 
     it.each([
-        [signer.address, '0xother', null, DOCUMENT_DUTY.UPLOAD_NEEDED],
+        [signer._address, '0xother', null, DOCUMENT_DUTY.UPLOAD_NEEDED],
         [
-            signer.address,
+            signer._address,
             '0xother',
             { status: DocumentStatus.NOT_APPROVED } as DocumentDetail,
             DOCUMENT_DUTY.UPLOAD_POSSIBLE
         ],
         [
             '0xother',
-            signer.address,
+            signer._address,
             { status: DocumentStatus.NOT_EVALUATED } as DocumentDetail,
             DOCUMENT_DUTY.APPROVAL_NEEDED
         ],
         [
             '0xother',
-            signer.address,
+            signer._address,
             { status: DocumentStatus.APPROVED } as DocumentDetail,
             DOCUMENT_DUTY.NO_ACTION_NEEDED
         ]

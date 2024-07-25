@@ -23,7 +23,6 @@ import {
 } from '@kbc-lib/coffee-trading-management-lib';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSigner } from '@/providers/SignerProvider';
-import { Wallet } from 'ethers';
 import { openNotification } from '@/utils/notification';
 import { RawTrade, useEthRawTrade } from '@/providers/entities/EthRawTradeProvider';
 import { UserInfoState } from '@/redux/reducers/userInfoSlice';
@@ -39,7 +38,7 @@ import { useICP } from '@/providers/ICPProvider';
 import { useICPName } from '@/providers/entities/ICPNameProvider';
 import { ACTION_MESSAGE } from '@/constants/message';
 import { requestPath } from '@/constants/url';
-import {JsonRpcSigner} from "@ethersproject/providers";
+import { JsonRpcSigner } from '@ethersproject/providers';
 
 jest.mock('@kbc-lib/coffee-trading-management-lib');
 jest.mock('@/providers/SignerProvider');
@@ -91,7 +90,7 @@ describe('EthOrderTradeProvider', () => {
             } as Line
         ],
         negotiationStatus: NegotiationStatus.PENDING,
-        commissioner: signer.address,
+        commissioner: signer._address,
         supplier: '0x456'
     } as OrderTrade;
     const productCategories = [{ id: 1 } as ProductCategory];
@@ -195,7 +194,7 @@ describe('EthOrderTradeProvider', () => {
             expect(requiredAction).toEqual(ACTION_MESSAGE.SIGNATURE_REQUIRED);
         });
         it('should return the correct required action - NO_ACTION', async () => {
-            getWhoSigned.mockResolvedValue([signer.address]);
+            getWhoSigned.mockResolvedValue([signer._address]);
             const { result } = renderHook(() => useEthOrderTrade(), {
                 wrapper: EthOrderTradeProvider
             });
@@ -207,7 +206,7 @@ describe('EthOrderTradeProvider', () => {
             expect(requiredAction).toEqual(ACTION_MESSAGE.NO_ACTION);
         });
         it('should return the correct required action - UPLOAD_REQUIRED', async () => {
-            getWhoSigned.mockResolvedValue([signer.address]);
+            getWhoSigned.mockResolvedValue([signer._address]);
             const map = new Map<OrderStatus, Map<DocumentType, DocumentDetail>>();
             const requiredDocuments = new Map<DocumentType, DocumentDetail>();
             requiredDocuments.set(DocumentType.DELIVERY_NOTE, {} as DocumentDetail);
@@ -226,7 +225,7 @@ describe('EthOrderTradeProvider', () => {
             expect(requiredAction).toEqual(ACTION_MESSAGE.UPLOAD_REQUIRED);
         });
         it('should return the correct required action - VALIDATION_REQUIRED', async () => {
-            getWhoSigned.mockResolvedValue([signer.address]);
+            getWhoSigned.mockResolvedValue([signer._address]);
             const map = new Map<OrderStatus, Map<DocumentType, DocumentDetail>>();
             const requiredDocuments = new Map<DocumentType, DocumentDetail>();
             requiredDocuments.set(DocumentType.DELIVERY_NOTE, {} as DocumentDetail);
@@ -245,7 +244,7 @@ describe('EthOrderTradeProvider', () => {
             expect(requiredAction).toEqual(ACTION_MESSAGE.VALIDATION_REQUIRED);
         });
         it('should return the correct required action - NO_ACTION fallback', async () => {
-            getWhoSigned.mockResolvedValue([signer.address]);
+            getWhoSigned.mockResolvedValue([signer._address]);
             const map = new Map<OrderStatus, Map<DocumentType, DocumentDetail>>();
             const requiredDocuments = new Map<DocumentType, DocumentDetail>();
             requiredDocuments.set(DocumentType.DELIVERY_NOTE, {} as DocumentDetail);

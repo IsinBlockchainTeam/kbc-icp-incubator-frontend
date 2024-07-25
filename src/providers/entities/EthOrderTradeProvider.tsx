@@ -194,7 +194,10 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
         orderStatus: OrderStatus,
         signatures: string[]
     ) => {
-        if (!signatures.includes(signer._address) && negotiationStatus === NegotiationStatus.PENDING)
+        if (
+            !signatures.includes(signer._address) &&
+            negotiationStatus === NegotiationStatus.PENDING
+        )
             return ACTION_MESSAGE.SIGNATURE_REQUIRED;
 
         const requiredDocuments = documentDetailMap.get(orderStatus);

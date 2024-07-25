@@ -106,7 +106,10 @@ export function EthDocumentProvider(props: { children: ReactNode }) {
     ) => {
         if (signer._address == uploaderAddress && documentDetail == null)
             return DOCUMENT_DUTY.UPLOAD_NEEDED;
-        if (signer._address == uploaderAddress && documentDetail?.status !== DocumentStatus.APPROVED)
+        if (
+            signer._address == uploaderAddress &&
+            documentDetail?.status !== DocumentStatus.APPROVED
+        )
             return DOCUMENT_DUTY.UPLOAD_POSSIBLE;
         if (
             signer._address == approverAddress &&

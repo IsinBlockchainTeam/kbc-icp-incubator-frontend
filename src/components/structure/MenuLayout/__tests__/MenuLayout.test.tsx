@@ -13,6 +13,11 @@ jest.mock('antd', () => ({
     ...jest.requireActual('antd'),
     Menu: jest.fn(() => <div>Menu</div>)
 }));
+jest.mock('@web3modal/ethers5/react', () => ({
+    useDisconnect: jest.fn().mockReturnValue({
+        disconnect: jest.fn()
+    })
+}));
 
 describe('MenuLayout', () => {
     it('should render menu when user is not logged in', () => {

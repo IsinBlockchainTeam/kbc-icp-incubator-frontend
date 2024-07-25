@@ -26,11 +26,11 @@ type OrderTradeNewProps = {
     commonElements: FormElement[];
 };
 export const OrderTradeNew = ({
-                                  supplierAddress,
-                                  customerAddress,
-                                  productCategoryId,
-                                  commonElements
-                              }: OrderTradeNewProps) => {
+    supplierAddress,
+    customerAddress,
+    productCategoryId,
+    commonElements
+}: OrderTradeNewProps) => {
     const navigate = useNavigate();
     const location = useLocation();
 

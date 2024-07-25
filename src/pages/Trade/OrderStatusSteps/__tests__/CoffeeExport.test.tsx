@@ -3,12 +3,12 @@ import { useSigner } from '@/providers/SignerProvider';
 import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
 import { DOCUMENT_DUTY, useEthDocument } from '@/providers/entities/EthDocumentProvider';
 import { CoffeeExport } from '@/pages/Trade/OrderStatusSteps/CoffeeExport';
-import { Wallet } from 'ethers';
 import { useNavigate } from 'react-router-dom';
 import { DocumentStatus, DocumentType, OrderTrade } from '@kbc-lib/coffee-trading-management-lib';
 import { GenericForm } from '@/components/GenericForm/GenericForm';
 import { paths } from '@/constants/paths';
 import TradeDutiesWaiting from '@/pages/Trade/OrderStatusSteps/TradeDutiesWaiting';
+import { JsonRpcSigner } from '@ethersproject/providers';
 
 jest.mock('react-redux');
 jest.mock('react-router-dom');
@@ -53,7 +53,7 @@ describe('CoffeeExport', () => {
         getDocumentDetail.mockReturnValue({
             content: null,
             status: DocumentStatus.APPROVED,
-            info: { uploadedBy: signer.address }
+            info: { uploadedBy: signer._address }
         });
         getDocumentDuty.mockReturnValue(DOCUMENT_DUTY.NO_ACTION_NEEDED);
 
@@ -72,7 +72,7 @@ describe('CoffeeExport', () => {
         getDocumentDetail.mockReturnValue({
             content: 'content',
             status: DocumentStatus.NOT_EVALUATED,
-            info: { uploadedBy: signer.address }
+            info: { uploadedBy: signer._address }
         });
         getDocumentDuty.mockReturnValue(DOCUMENT_DUTY.UPLOAD_NEEDED);
 
