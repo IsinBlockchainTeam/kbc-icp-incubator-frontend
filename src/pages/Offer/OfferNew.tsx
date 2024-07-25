@@ -76,7 +76,14 @@ export const OfferNew = () => {
                     </Button>
                 </div>
             }>
-            {elements && <GenericForm elements={elements} submittable={true} onSubmit={onSubmit} />}
+            {elements && (
+                <GenericForm
+                    elements={elements}
+                    confirmText="Are you sure you want to create this offer?"
+                    submittable={true}
+                    onSubmit={onSubmit}
+                />
+            )}
         </CardPage>
     );
 };

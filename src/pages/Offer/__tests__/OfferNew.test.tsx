@@ -11,8 +11,8 @@ import { ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useICPName } from '@/providers/entities/ICPNameProvider';
 import { useEthOffer } from '@/providers/entities/EthOfferProvider';
-import { Wallet } from 'ethers';
 import { UserInfoState } from '@/redux/reducers/userInfoSlice';
+import { JsonRpcSigner } from '@ethersproject/providers';
 
 jest.mock('react-router-dom');
 jest.mock('@/providers/SignerProvider');
@@ -64,6 +64,7 @@ describe('Offers New', () => {
         expect(GenericForm).toHaveBeenCalledWith(
             {
                 elements: expect.any(Array),
+                confirmText: 'Are you sure you want to create this offer?',
                 submittable: true,
                 onSubmit: expect.any(Function)
             },

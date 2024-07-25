@@ -8,8 +8,8 @@ import { credentials } from '@/constants/ssi';
 import { useSelector } from 'react-redux';
 import { GenericForm } from '@/components/GenericForm/GenericForm';
 import { useEthOffer } from '@/providers/entities/EthOfferProvider';
-import { Wallet } from 'ethers';
 import { UserInfoState } from '@/redux/reducers/userInfoSlice';
+import { JsonRpcSigner } from '@ethersproject/providers';
 
 jest.mock('react-router-dom');
 jest.mock('@/providers/SignerProvider');
@@ -51,6 +51,7 @@ describe('Offers Supplier New', () => {
         expect(GenericForm).toHaveBeenCalledWith(
             {
                 elements: expect.any(Array),
+                confirmText: 'Are you sure you want to create this offer supplier?',
                 submittable: true,
                 onSubmit: expect.any(Function)
             },

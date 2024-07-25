@@ -53,7 +53,12 @@ export const MaterialNew = () => {
                     </Button>
                 </div>
             }>
-            <GenericForm elements={elements} submittable={true} onSubmit={onSubmit} />
+            <GenericForm
+                elements={elements}
+                confirmText="Are you sure you want to create this material?"
+                submittable={true}
+                onSubmit={onSubmit}
+            />
         </CardPage>
     );
 };

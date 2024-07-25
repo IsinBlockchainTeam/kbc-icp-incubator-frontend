@@ -145,7 +145,12 @@ export const BasicTradeNew = ({
                     </Button>
                 </div>
             }>
-            <GenericForm elements={elements} submittable={true} onSubmit={onSubmit} />
+            <GenericForm
+                elements={elements}
+                confirmText="Are you sure you want to create this trade?"
+                submittable={true}
+                onSubmit={onSubmit}
+            />
         </CardPage>
     );
 };

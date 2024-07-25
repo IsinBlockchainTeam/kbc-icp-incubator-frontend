@@ -1,13 +1,13 @@
 import { renderHook, act } from '@testing-library/react';
 import { useDispatch } from 'react-redux';
 import { useSigner } from '@/providers/SignerProvider';
-import { Wallet } from 'ethers';
 import { openNotification } from '@/utils/notification';
 import {
     EthEnumerableProvider,
     useEthEnumerable
 } from '@/providers/entities/EthEnumerableProvider';
 import { EnumerableTypeService } from '@blockchain-lib/common';
+import { JsonRpcSigner } from '@ethersproject/providers';
 
 jest.mock('@kbc-lib/coffee-trading-management-lib');
 jest.mock('@blockchain-lib/common');

@@ -122,7 +122,12 @@ export const CoffeeShipment = ({ orderTrade }: Props) => {
 
     if (canSeeDocuments) {
         return (
-            <GenericForm elements={elements} submittable={isDocumentEditable} onSubmit={onSubmit} />
+            <GenericForm
+                elements={elements}
+                confirmText="Are you sure you want to proceed?"
+                submittable={isDocumentEditable}
+                onSubmit={onSubmit}
+            />
         );
     }
     return (
