@@ -148,7 +148,6 @@ export const MenuLayout = () => {
                                 }}
                             />
                         }
-                        size={'large'}
                         spinning={loading.isLoading}
                         size="large"
                         tip={loading.loadingMessages.map((msg) => (
