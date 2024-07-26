@@ -137,7 +137,12 @@ export const BasicTradeView = ({
                     </div>
                 </div>
             }>
-            <GenericForm elements={elements} submittable={!disabled} onSubmit={onSubmit} />
+            <GenericForm
+                elements={elements}
+                confirmText="Are you sure you want to proceed?"
+                submittable={!disabled}
+                onSubmit={onSubmit}
+            />
         </CardPage>
     );
 };

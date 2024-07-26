@@ -10,6 +10,7 @@ jest.mock('antd', () => {
             {children}
         </form>
     );
+    MockForm.useWatch = antd.Form.useWatch;
     MockForm.useForm = antd.Form.useForm;
     MockForm.Item = ({ children, ...props }: any) => (
         <div {...props} data-testid="form-item">
@@ -72,6 +73,7 @@ jest.mock('../../PDFViewer/PDFViewer', () => ({ onDocumentChange }: PDFViewerPro
         </button>
     </div>
 ));
+jest.mock('@/components/ConfirmButton/ConfirmButton');
 
 describe('GenericForm', () => {
     beforeEach(() => {

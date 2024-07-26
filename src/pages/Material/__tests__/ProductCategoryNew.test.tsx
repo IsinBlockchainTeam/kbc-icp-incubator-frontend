@@ -34,6 +34,7 @@ describe('Product Category New', () => {
         expect(GenericForm).toHaveBeenCalledWith(
             {
                 elements: expect.any(Array),
+                confirmText: 'Are you sure you want to create this product category?',
                 submittable: true,
                 onSubmit: expect.any(Function)
             },

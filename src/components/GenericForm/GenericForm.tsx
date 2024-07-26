@@ -17,6 +17,7 @@ import { DownloadOutlined } from '@ant-design/icons';
 import { createDownloadWindow } from '@/utils/page';
 import { DocumentContent } from '@/providers/entities/EthDocumentProvider';
 import { DocumentStatus } from '@kbc-lib/coffee-trading-management-lib';
+import { ConfirmButton } from '@/components/ConfirmButton/ConfirmButton';
 
 export enum FormElementType {
     TITLE = 'title',
@@ -119,14 +120,17 @@ export type DocumentElement = Omit<LabeledElement, 'type'> & {
 
 type Props = {
     elements: FormElement[];
+    confirmText?: string;
     submittable?: boolean;
     onSubmit?: (values: any) => void;
 };
 
 export const GenericForm = (props: Props) => {
     const [form] = Form.useForm();
+    const [areFieldsValid, setAreFieldsValid] = React.useState<boolean>(false);
     const documents: Map<string, Blob | undefined> = new Map<string, Blob>();
     const dateFormat = 'DD/MM/YYYY';
+    const values = Form.useWatch([], form);
 
     useEffect(() => {
         props.elements.forEach((element) => {
@@ -137,7 +141,14 @@ export const GenericForm = (props: Props) => {
                 }
             }
         });
+        form.resetFields();
     }, [props.elements]);
+
+    useEffect(() => {
+        form.validateFields({ validateOnly: true })
+            .then(() => setAreFieldsValid(true))
+            .catch(() => setAreFieldsValid(false));
+    }, [form, values]);
 
     const addDocument = (name: string, file?: Blob) => {
         documents.set(name, file);
@@ -430,9 +441,16 @@ export const GenericForm = (props: Props) => {
                 {props.submittable && (
                     <Col span={24}>
                         <Form.Item>
-                            <Button type="primary" htmlType="submit" block>
-                                Submit
-                            </Button>
+                            <ConfirmButton
+                                text="Submit"
+                                disabled={!areFieldsValid}
+                                confirmText={
+                                    props.confirmText || 'Are you sure you want to submit?'
+                                }
+                                onConfirm={form.submit}
+                                type="primary"
+                                block
+                            />
                         </Form.Item>
                     </Col>
                 )}

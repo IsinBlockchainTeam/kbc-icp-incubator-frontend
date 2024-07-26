@@ -168,6 +168,7 @@ export const CoffeeExport = ({ orderTrade }: Props) => {
         return (
             <GenericForm
                 elements={elements}
+                confirmText="Are you sure you want to proceed?"
                 submittable={isDocumentsEditable}
                 onSubmit={onSubmit}
             />
