@@ -13,12 +13,62 @@ import { requestPath } from '@/constants/url';
 import { paths } from '@/constants/paths';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { LOGIN_MESSAGE } from '@/constants/message';
+import { createEthereumProvider } from '@/utils/walletConnect';
+import { useWalletConnect } from '@/providers/WalletConnectProvider';
 
 export default function VeramoLogin() {
+    const { provider, setProvider, setConnected } = useWalletConnect();
     const [qrCodeURL, setQrCodeURL] = useState<string>('');
+    const [walletConnectURI, setWalletConnectURI] = useState<string>();
+    const [verifiablePresentationURL, setVerifiablePresentationURL] = useState<string>();
     const [challengeId, setChallengeId] = useState<string>('');
+    // const [initialized, setInitialized] = useState<boolean>(false);
     const dispatch = useDispatch();
     const userInfo = useSelector((state: RootState) => state.userInfo);
+
+    useEffect(() => {
+        if (!walletConnectURI || !verifiablePresentationURL) return;
+        const message = JSON.stringify({
+            wc_uri: walletConnectURI,
+            vp_url: verifiablePresentationURL
+        });
+        setQrCodeURL(message);
+    }, [walletConnectURI, verifiablePresentationURL]);
+
+    // const init = async () => {
+    //     const provider = await createEthereumProvider();
+    //
+    //     setProvider(provider);
+    //     setInitialized(true);
+    // };
+    //
+    // useEffect(() => {
+    //     if (!initialized) init();
+    // }, [initialized]);
+
+    const onConnect = async () => {
+        setConnected(true);
+        console.log('session', provider?.session);
+    };
+
+    useEffect(() => {
+        // if (!provider) return;
+
+        provider.on('display_uri', (uri: string) => {
+            console.log('display_uri', uri);
+            setWalletConnectURI(uri);
+        });
+        provider.on('connect', (args: any) => {
+            console.log('event connect');
+            console.log('args', args);
+            onConnect();
+        });
+
+        (async () => {
+            await provider.connect();
+            console.log('connected!!!');
+        })();
+    }, [provider]);
 
     const requestAuthPresentation = async () => {
         try {
@@ -35,7 +85,7 @@ export default function VeramoLogin() {
                     })
                 }
             );
-            setQrCodeURL(response.qrcode);
+            setVerifiablePresentationURL(response.qrcode);
             setChallengeId(id);
         } catch (e: any) {
             openNotification(

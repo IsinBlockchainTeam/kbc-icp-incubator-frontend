@@ -21,33 +21,35 @@ import { EthGraphProvider } from '@/providers/entities/EthGraphProvider';
 const PrivateRoutes = () => {
     const { isLogged } = useSelector((state: RootState) => state.userInfo);
     return isLogged ? (
-        <SiweIdentityProvider>
-            <ICPProvider>
-                <EthRelationshipProvider>
-                    <ICPNameProvider>
-                        <EthEnumerableProvider>
-                            <EthMaterialProvider>
-                                <EthOfferProvider>
-                                    <EthAssetOperationProvider>
-                                        <EthDocumentProvider>
-                                            <EthRawTradeProvider>
-                                                <EthBasicTradeProvider>
-                                                    <EthOrderTradeProvider>
-                                                        <EthGraphProvider>
-                                                            <Outlet />
-                                                        </EthGraphProvider>
-                                                    </EthOrderTradeProvider>
-                                                </EthBasicTradeProvider>
-                                            </EthRawTradeProvider>
-                                        </EthDocumentProvider>
-                                    </EthAssetOperationProvider>
-                                </EthOfferProvider>
-                            </EthMaterialProvider>
-                        </EthEnumerableProvider>
-                    </ICPNameProvider>
-                </EthRelationshipProvider>
-            </ICPProvider>
-        </SiweIdentityProvider>
+        <SignerProvider>
+            <SiweIdentityProvider>
+                <ICPProvider>
+                    <EthRelationshipProvider>
+                        <ICPNameProvider>
+                            <EthEnumerableProvider>
+                                <EthMaterialProvider>
+                                    <EthOfferProvider>
+                                        <EthAssetOperationProvider>
+                                            <EthDocumentProvider>
+                                                <EthRawTradeProvider>
+                                                    <EthBasicTradeProvider>
+                                                        <EthOrderTradeProvider>
+                                                            <EthGraphProvider>
+                                                                <Outlet />
+                                                            </EthGraphProvider>
+                                                        </EthOrderTradeProvider>
+                                                    </EthBasicTradeProvider>
+                                                </EthRawTradeProvider>
+                                            </EthDocumentProvider>
+                                        </EthAssetOperationProvider>
+                                    </EthOfferProvider>
+                                </EthMaterialProvider>
+                            </EthEnumerableProvider>
+                        </ICPNameProvider>
+                    </EthRelationshipProvider>
+                </ICPProvider>
+            </SiweIdentityProvider>
+        </SignerProvider>
     ) : (
         <Navigate to={paths.LOGIN} />
     );

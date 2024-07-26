@@ -1,13 +1,12 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { createContext, type ReactNode } from 'react';
-import { ethers, Wallet } from 'ethers';
+import { ethers } from 'ethers';
 import { Typography } from 'antd';
 import { JsonRpcSigner } from '@ethersproject/providers';
-import { useWeb3ModalAccount, useWeb3ModalProvider } from '@web3modal/ethers5/react';
+import { useWalletConnect } from '@/providers/WalletConnectProvider';
 
 export type SignerContextState = {
     signer: JsonRpcSigner;
-    setSigner: (signer: JsonRpcSigner) => void;
     waitForTransactions: (transactionHash: string, confirmations: number) => Promise<void>;
 };
 export const SignerContext = createContext<SignerContextState>({} as SignerContextState);
@@ -19,18 +18,33 @@ export const useSigner = (): SignerContextState => {
     return context;
 };
 export function SignerProvider({ children }: { children: ReactNode }) {
-    const { address } = useWeb3ModalAccount();
-    const { walletProvider } = useWeb3ModalProvider();
-    const [signer, setSigner] = useState<JsonRpcSigner | null>();
+    const { provider, connected } = useWalletConnect();
+    const [signer, setSigner] = useState<JsonRpcSigner>();
+
+    useEffect(() => {
+        if (!provider || !connected) return;
+
+        (async () => {
+            const ethersProvider = new ethers.providers.Web3Provider(provider);
+            const account = await ethersProvider.getSigner().getAddress();
+            setSigner(ethersProvider.getSigner(account));
+        })();
+    }, [provider, connected]);
+
+    useEffect(() => {
+        if (!connected) setSigner(undefined);
+    }, [connected]);
 
     const waitForTransactions = async (transactionHash: string, confirmations: number) => {
         await signer!.provider.waitForTransaction(transactionHash, confirmations);
     };
+
+    if (!signer) return <Typography.Text>Signer not initialized</Typography.Text>;
+
     return (
         <SignerContext.Provider
             value={{
-                signer: signer as JsonRpcSigner,
-                setSigner,
+                signer: signer,
                 waitForTransactions
             }}>
             {children}

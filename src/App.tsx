@@ -34,7 +34,7 @@ import { useEthGraph } from '@/providers/entities/EthGraphProvider';
 
 import { createWeb3Modal, defaultConfig } from '@web3modal/ethers5/react';
 import { PROJECT_ID } from '@/constants/walletConnect';
-import { SignerProvider } from '@/providers/SignerProvider';
+import { WalletConnectProvider } from '@/providers/WalletConnectProvider';
 
 // 1. Get projectId
 const projectId = PROJECT_ID;
@@ -82,7 +82,7 @@ export const App = () => {
             <ReduxProvider store={store}>
                 <PersistGate loading={null} persistor={persistor}>
                     <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.10.111/build/pdf.worker.js">
-                        <SignerProvider>
+                        <WalletConnectProvider>
                             <Routes>
                                 <Route element={<MenuLayout />}>
                                     <Route element={<PrivateRoutes />}>
@@ -225,7 +225,7 @@ export const App = () => {
                                     <Route path="*" element={<Navigate to={paths.LOGIN} />} />
                                 </Route>
                             </Routes>
-                        </SignerProvider>
+                        </WalletConnectProvider>
                     </Worker>
                 </PersistGate>
             </ReduxProvider>
