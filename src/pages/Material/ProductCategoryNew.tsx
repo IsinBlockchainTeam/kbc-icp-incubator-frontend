@@ -68,7 +68,12 @@ export const ProductCategoryNew = () => {
                     </Button>
                 </div>
             }>
-            <GenericForm elements={elements} submittable={true} onSubmit={onSubmit} />
+            <GenericForm
+                elements={elements}
+                confirmText="Are you sure you want to create this product category?"
+                submittable={true}
+                onSubmit={onSubmit}
+            />
         </CardPage>
     );
 };

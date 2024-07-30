@@ -42,6 +42,7 @@ export default function OrderStatusSteps(props: Props) {
             content: (
                 <GenericForm
                     elements={negotiationElements}
+                    confirmText="Are you sure you want to proceed?"
                     submittable={submittable}
                     onSubmit={props.onSubmit}
                 />

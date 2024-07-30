@@ -21,6 +21,7 @@ import { clearSiweIdentity } from '@/redux/reducers/siweIdentitySlice';
 import { paths } from '@/constants/paths';
 const { Content, Footer, Sider } = Layout;
 import { useDisconnect } from '@web3modal/ethers5/react';
+import loadingLogo from '@/assets/coffee-loading.gif';
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -134,8 +135,20 @@ export const MenuLayout = () => {
             <Layout>
                 <Content className={styles.MainContent} style={{ background: colorBgContainer }}>
                     <Spin
+                        indicator={
+                            <img
+                                src={loadingLogo}
+                                alt="loading..."
+                                style={{
+                                    width: 150,
+                                    height: 'auto',
+                                    marginLeft: -70,
+                                    marginTop: -100
+                                }}
+                            />
+                        }
+                        size={'large'}
                         spinning={loading.isLoading}
-                        size="large"
                         tip={loading.loadingMessages.map((msg) => (
                             <div key={msg}>{msg}</div>
                         ))}>

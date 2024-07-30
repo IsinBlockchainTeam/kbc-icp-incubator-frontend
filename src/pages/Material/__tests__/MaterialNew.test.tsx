@@ -37,6 +37,7 @@ describe('Materials New', () => {
         expect(GenericForm).toHaveBeenCalledWith(
             {
                 elements: expect.any(Array),
+                confirmText: 'Are you sure you want to create this material?',
                 submittable: true,
                 onSubmit: expect.any(Function)
             },
