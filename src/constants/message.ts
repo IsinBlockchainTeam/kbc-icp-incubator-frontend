@@ -184,3 +184,27 @@ export const LOGIN_MESSAGE = {
         ERROR: 'Error while logging in.'
     }
 };
+export const ESCROW_MESSAGE = {
+    RETRIEVE: {
+        LOADING: 'Retrieving escrow details...',
+        OK: '',
+        ERROR: 'Error while retrieving escrow details.'
+    },
+    DEPOSIT: {
+        LOADING: 'Depositing...',
+        OK: 'Deposit successful.',
+        ERROR: 'Error while depositing.'
+    },
+    WITHDRAW: {
+        LOADING: 'Withdrawing...',
+        OK: 'Withdrawal successful.',
+        ERROR: 'Error while withdrawing.'
+    }
+};
+export const TOKEN_MESSAGE = {
+    RETRIEVE: {
+        LOADING: 'Retrieving token details...',
+        OK: '',
+        ERROR: 'Error while retrieving token details.'
+    }
+};

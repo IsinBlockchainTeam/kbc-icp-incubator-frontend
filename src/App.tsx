@@ -31,6 +31,7 @@ import { useEthRawTrade } from '@/providers/entities/EthRawTradeProvider';
 import { useEthAssetOperation } from '@/providers/entities/EthAssetOperationProvider';
 import { useEthRelationship } from '@/providers/entities/EthRelationshipProvider';
 import { useEthGraph } from '@/providers/entities/EthGraphProvider';
+import { useEthEscrow } from '@/providers/entities/EthEscrowProvider';
 import { AssetOperationView } from '@/pages/AssetOperation/AssetOperationView';
 
 import { createWeb3Modal, defaultConfig } from '@web3modal/ethers5/react';
@@ -181,7 +182,10 @@ export const App = () => {
                                                     <DataLoader customUseContext={useEthMaterial}>
                                                         <DataLoader
                                                             customUseContext={useEthRawTrade}>
-                                                            <TradeView />
+                                                            <DataLoader
+                                                                customUseContext={useEthEscrow}>
+                                                                <TradeView />
+                                                            </DataLoader>
                                                         </DataLoader>
                                                     </DataLoader>
                                                 </DataLoader>

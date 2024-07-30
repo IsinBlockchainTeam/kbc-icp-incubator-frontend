@@ -13,6 +13,7 @@ import { CoffeeProduction } from '@/pages/Trade/OrderStatusSteps/CoffeeProductio
 import { CoffeeExport } from '@/pages/Trade/OrderStatusSteps/CoffeeExport';
 import { CoffeeShipment } from '@/pages/Trade/OrderStatusSteps/CoffeeShipment';
 import { CoffeeImport } from '@/pages/Trade/OrderStatusSteps/CoffeeImport';
+import { EscrowPanel } from '@/components/EscrowPanel/EscrowPanel';
 
 type Props = {
     status: OrderStatus;
@@ -78,6 +79,9 @@ export default function OrderStatusSteps(props: Props) {
                 className="order-status"
                 items={steps.map((item) => ({ title: item.title, icon: item.icon }))}
             />
+            <div style={{ marginTop: 10 }}>
+                <EscrowPanel />
+            </div>
             <React.Fragment>{steps[current].content}</React.Fragment>
         </>
     );
