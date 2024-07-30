@@ -31,6 +31,7 @@ import { useEthRawTrade } from '@/providers/entities/EthRawTradeProvider';
 import { useEthAssetOperation } from '@/providers/entities/EthAssetOperationProvider';
 import { useEthRelationship } from '@/providers/entities/EthRelationshipProvider';
 import { useEthGraph } from '@/providers/entities/EthGraphProvider';
+import { AssetOperationView } from '@/pages/AssetOperation/AssetOperationView';
 
 import { createWeb3Modal, defaultConfig } from '@web3modal/ethers5/react';
 import { PROJECT_ID } from '@/constants/walletConnect';
@@ -203,6 +204,19 @@ export const App = () => {
                                                     <DataLoader
                                                         customUseContext={useEthAssetOperation}>
                                                         <AssetOperationNew />
+                                                    </DataLoader>
+                                                </DataLoader>
+                                            </DataLoader>
+                                        }
+                                    />
+                                    <Route
+                                        path={paths.ASSET_OPERATIONS_VIEW}
+                                        element={
+                                            <DataLoader customUseContext={useEthMaterial}>
+                                                <DataLoader customUseContext={useEthEnumerable}>
+                                                    <DataLoader
+                                                        customUseContext={useEthAssetOperation}>
+                                                        <AssetOperationView />
                                                     </DataLoader>
                                                 </DataLoader>
                                             </DataLoader>

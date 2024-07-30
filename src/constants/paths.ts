@@ -19,7 +19,7 @@ export const paths = {
     PRODUCT_CATEGORY_NEW: '/product-categories/new',
     ASSET_OPERATIONS: '/asset-operations',
     ASSET_OPERATIONS_NEW: '/asset-operations/new',
-    TRANSFORMATION_VIEW: '/transformations/:id',
+    ASSET_OPERATIONS_VIEW: '/asset-operations/:id',
     CERTIFICATIONS: '/certifications',
     CERTIFICATION_VIEW: '/certifications/:type/:id',
     TRADES: '/trades',
