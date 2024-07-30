@@ -47,13 +47,11 @@ export function ICPNameProvider(props: { children: React.ReactNode }) {
                     method: 'GET'
                 }
             );
-            console.log(did, didDocument);
             serviceUrl = didDocument.didDocument.service[0].serviceEndpoint;
         } catch (e) {
             return 'Unknown';
         }
         const canisterId = serviceUrl.split('/')[URL_SEGMENT_INDEXES.CANISTER_ID].split('.')[0];
-        console.log(serviceUrl.split('/')[URL_SEGMENT_INDEXES.CANISTER_ID].split('.'));
         if (canisterId != ICP.CANISTER_ID_ORGANIZATION) {
             return 'Unknown';
         }

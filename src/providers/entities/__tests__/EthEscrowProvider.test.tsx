@@ -1,11 +1,11 @@
 import { renderHook, act } from '@testing-library/react';
 import { useDispatch } from 'react-redux';
 import { useSigner } from '@/providers/SignerProvider';
-import { Wallet } from 'ethers';
 import { openNotification } from '@/utils/notification';
 import { EthEscrowProvider, useEthEscrow } from '@/providers/entities/EthEscrowProvider';
 import { EscrowService, EscrowStatus, TokenService } from '@kbc-lib/coffee-trading-management-lib';
-import { contractAddresses } from '@/constants/evm';
+import { CONTRACT_ADDRESSES } from '@/constants/evm';
+import { JsonRpcSigner } from '@ethersproject/providers';
 
 jest.mock('@kbc-lib/coffee-trading-management-lib');
 jest.mock('@blockchain-lib/common');
@@ -15,7 +15,7 @@ jest.mock('@/utils/notification');
 jest.mock('@/constants/evm');
 
 describe('EthEscrowProvider', () => {
-    const signer = { address: '0x123' } as Wallet;
+    const signer = { _address: '0x123' } as JsonRpcSigner;
     const dispatch = jest.fn();
     const getState = jest.fn();
     const getDepositedAmount = jest.fn();
@@ -49,8 +49,8 @@ describe('EthEscrowProvider', () => {
             getSymbol,
             approve
         }));
-        (contractAddresses.ESCROW as jest.Mock).mockReturnValue('0x123');
-        (contractAddresses.TOKEN as jest.Mock).mockReturnValue('0x456');
+        (CONTRACT_ADDRESSES.ESCROW as jest.Mock).mockReturnValue('0x123');
+        (CONTRACT_ADDRESSES.TOKEN as jest.Mock).mockReturnValue('0x456');
         (useDispatch as jest.Mock).mockReturnValue(dispatch);
         (useSigner as jest.Mock).mockReturnValue({ signer });
     });

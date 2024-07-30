@@ -12,7 +12,7 @@ import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadin
 import { ESCROW_MESSAGE, TOKEN_MESSAGE } from '@/constants/message';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
-import { contractAddresses } from '@/constants/evm';
+import { CONTRACT_ADDRESSES } from '@/constants/evm';
 
 export type EthEscrowContextState = {
     dataLoaded: boolean;
@@ -64,11 +64,11 @@ export function EthEscrowProvider(props: { children: ReactNode }) {
     const dispatch = useDispatch();
 
     const escrowService = useMemo(
-        () => new EscrowService(new EscrowDriver(signer, contractAddresses.ESCROW())),
+        () => new EscrowService(new EscrowDriver(signer, CONTRACT_ADDRESSES.ESCROW())),
         [signer]
     );
     const tokenService = useMemo(
-        () => new TokenService(new TokenDriver(signer, contractAddresses.TOKEN())),
+        () => new TokenService(new TokenDriver(signer, CONTRACT_ADDRESSES.TOKEN())),
         [signer]
     );
 
@@ -104,7 +104,7 @@ export function EthEscrowProvider(props: { children: ReactNode }) {
     const loadTokenDetails = async () => {
         try {
             dispatch(addLoadingMessage(TOKEN_MESSAGE.RETRIEVE.LOADING));
-            const balance = await tokenService.balanceOf(signer.address);
+            const balance = await tokenService.balanceOf(signer._address);
             const symbol = await tokenService.getSymbol();
             setTokenDetails({
                 balance,
@@ -125,7 +125,7 @@ export function EthEscrowProvider(props: { children: ReactNode }) {
     const deposit = async (amount: number) => {
         try {
             dispatch(addLoadingMessage(ESCROW_MESSAGE.DEPOSIT.LOADING));
-            await tokenService.approve(contractAddresses.ESCROW(), amount);
+            await tokenService.approve(CONTRACT_ADDRESSES.ESCROW(), amount);
             await escrowService.deposit(amount);
             openNotification(
                 'Success',
