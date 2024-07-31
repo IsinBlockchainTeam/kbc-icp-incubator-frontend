@@ -60,21 +60,21 @@ describe('Asset Operations', () => {
 
         let tableRows = screen.getAllByRole('row');
         expect(tableRows).toHaveLength(3);
-        expect(tableRows[1]).toHaveTextContent('1Asset Operation 1Product Category 1');
-        expect(tableRows[2]).toHaveTextContent('2Asset Operation 2Product Category 2');
+        expect(tableRows[1]).toHaveTextContent('Asset Operation 1Product Category 1');
+        expect(tableRows[2]).toHaveTextContent('Asset Operation 2Product Category 2');
 
         userEvent.click(screen.getByText('Id'));
 
         tableRows = screen.getAllByRole('row');
         expect(tableRows).toHaveLength(3);
-        expect(tableRows[1]).toHaveTextContent('2Asset Operation 2Product Category 2');
-        expect(tableRows[2]).toHaveTextContent('1Asset Operation 1Product Category 1');
+        expect(tableRows[1]).toHaveTextContent('Asset Operation 2Product Category 2');
+        expect(tableRows[2]).toHaveTextContent('Asset Operation 1Product Category 1');
 
         userEvent.click(screen.getByText('Name'));
 
         tableRows = screen.getAllByRole('row');
         expect(tableRows).toHaveLength(3);
-        expect(tableRows[1]).toHaveTextContent('2Asset Operation 2Product Category 2');
-        expect(tableRows[2]).toHaveTextContent('1Asset Operation 1Product Category 1');
+        expect(tableRows[1]).toHaveTextContent('Asset Operation 2Product Category 2');
+        expect(tableRows[2]).toHaveTextContent('Asset Operation 1Product Category 1');
     });
 });

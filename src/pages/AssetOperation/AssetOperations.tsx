@@ -4,9 +4,10 @@ import { Button, Table } from 'antd';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
 import { AssetOperation } from '@kbc-lib/coffee-trading-management-lib';
 import { PlusOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { paths } from '@/constants/paths';
 import { useEthAssetOperation } from '@/providers/entities/EthAssetOperationProvider';
+import { setParametersPath } from '@/utils/page';
 
 export const AssetOperations = () => {
     const { assetOperations } = useEthAssetOperation();
@@ -17,7 +18,14 @@ export const AssetOperations = () => {
             title: 'Id',
             dataIndex: 'id',
             sorter: (a, b) => a.id - b.id,
-            sortDirections: ['descend']
+            sortDirections: ['descend'],
+            render: (id) => {
+                return (
+                    <Link to={setParametersPath(`${paths.ASSET_OPERATIONS_VIEW}`, { id })}>
+                        {id}
+                    </Link>
+                );
+            }
         },
         {
             title: 'Name',

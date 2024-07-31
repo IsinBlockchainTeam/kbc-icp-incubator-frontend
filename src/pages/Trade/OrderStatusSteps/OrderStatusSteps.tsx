@@ -79,6 +79,9 @@ export default function OrderStatusSteps(props: Props) {
                 className="order-status"
                 items={steps.map((item) => ({ title: item.title, icon: item.icon }))}
             />
+            {/*<div style={{ marginTop: 10 }}>*/}
+            {/*    <EscrowPanel />*/}
+            {/*</div>*/}
             <React.Fragment>{steps[current].content}</React.Fragment>
         </>
     );

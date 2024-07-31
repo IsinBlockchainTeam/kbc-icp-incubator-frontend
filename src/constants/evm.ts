@@ -77,5 +77,15 @@ export const CONTRACT_ADDRESSES = {
         checkAndGetEnvironmentVariable(
             process.env.REACT_APP_CONTRACT_OFFER,
             'Offer contract address must be defined'
+        ),
+    ESCROW: () =>
+        checkAndGetEnvironmentVariable(
+            process.env.REACT_APP_ESCROW,
+            'Escrow contract address must be defined'
+        ),
+    TOKEN: () =>
+        checkAndGetEnvironmentVariable(
+            process.env.REACT_APP_TOKEN,
+            'Token contract address must be defined'
         )
 };

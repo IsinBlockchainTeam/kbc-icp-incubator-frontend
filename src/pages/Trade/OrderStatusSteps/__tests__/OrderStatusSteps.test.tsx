@@ -8,6 +8,7 @@ import { CoffeeImport } from '@/pages/Trade/OrderStatusSteps/CoffeeImport';
 import { GenericForm } from '@/components/GenericForm/GenericForm';
 
 jest.mock('@/components/GenericForm/GenericForm');
+jest.mock('@/components/EscrowPanel/EscrowPanel');
 jest.mock('@/pages/Trade/OrderStatusSteps/CoffeeProduction');
 jest.mock('@/pages/Trade/OrderStatusSteps/CoffeeExport');
 jest.mock('@/pages/Trade/OrderStatusSteps/CoffeeShipment');

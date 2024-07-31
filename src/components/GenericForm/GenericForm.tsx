@@ -83,7 +83,7 @@ type SelectableElement = Omit<LabeledElement, 'type'> & {
     name: string;
     options: { label: string; value: string | number }[];
     required: boolean;
-    defaultValue?: string | number;
+    defaultValue?: string | number | string[];
     mode?: 'multiple';
     disabled?: boolean;
     block?: boolean;
