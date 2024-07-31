@@ -14,7 +14,7 @@ export const TradeView = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
-    const { getName } = useICPName();
+    const { getOrganization } = useICPName();
     const { basicTrades } = useEthBasicTrade();
     const { orderTrades } = useEthOrderTrade();
     const [disabled, setDisabled] = useState<boolean>(true);
@@ -30,8 +30,8 @@ export const TradeView = () => {
     }
     if (!trade) return <div>Trade not available</div>;
 
-    const supplierName = getName(trade.supplier);
-    const commissionerName = getName(trade.commissioner);
+    const supplierName = getOrganization(trade.supplier);
+    const commissionerName = getOrganization(trade.commissioner);
 
     const toggleDisabled = () => {
         setDisabled((d) => !d);

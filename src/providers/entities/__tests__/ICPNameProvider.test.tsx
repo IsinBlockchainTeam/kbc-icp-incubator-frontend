@@ -54,9 +54,9 @@ describe('ICPNameProvider', () => {
         expect(request).toHaveBeenCalled();
         expect(getVerifiablePresentation).toHaveBeenCalled();
         expect(result.current.dataLoaded).toBe(true);
-        expect(result.current.getName('0xa1f48005f183780092E0E277B282dC1934AE3308')).toEqual(
-            verifiablePresentation.legalName
-        );
+        expect(
+            result.current.getOrganization('0xa1f48005f183780092E0E277B282dC1934AE3308')
+        ).toEqual(verifiablePresentation.legalName);
     });
 
     it('should handle load failure - request fails', async () => {
@@ -71,9 +71,9 @@ describe('ICPNameProvider', () => {
         expect(dispatch).toHaveBeenCalledTimes(2);
         expect(request).toHaveBeenCalled();
         expect(result.current.dataLoaded).toBe(true);
-        expect(result.current.getName('0xa1f48005f183780092E0E277B282dC1934AE3308')).toEqual(
-            'Unknown'
-        );
+        expect(
+            result.current.getOrganization('0xa1f48005f183780092E0E277B282dC1934AE3308')
+        ).toEqual('Unknown');
     });
 
     it('should handle load failure - canisterId not found', async () => {
@@ -90,9 +90,9 @@ describe('ICPNameProvider', () => {
         expect(dispatch).toHaveBeenCalledTimes(2);
         expect(request).toHaveBeenCalled();
         expect(result.current.dataLoaded).toBe(true);
-        expect(result.current.getName('0xa1f48005f183780092E0E277B282dC1934AE3308')).toEqual(
-            'Unknown'
-        );
+        expect(
+            result.current.getOrganization('0xa1f48005f183780092E0E277B282dC1934AE3308')
+        ).toEqual('Unknown');
     });
     it('should handle load failure - getVerifiablePresentation fails', async () => {
         getVerifiablePresentation.mockRejectedValue(new Error('Test error'));
@@ -106,8 +106,8 @@ describe('ICPNameProvider', () => {
         expect(dispatch).toHaveBeenCalledTimes(2);
         expect(request).toHaveBeenCalled();
         expect(result.current.dataLoaded).toBe(true);
-        expect(result.current.getName('0xa1f48005f183780092E0E277B282dC1934AE3308')).toEqual(
-            'Unknown'
-        );
+        expect(
+            result.current.getOrganization('0xa1f48005f183780092E0E277B282dC1934AE3308')
+        ).toEqual('Unknown');
     });
 });

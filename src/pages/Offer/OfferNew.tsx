@@ -16,7 +16,7 @@ import { useICPName } from '@/providers/entities/ICPNameProvider';
 export const OfferNew = () => {
     const { productCategories } = useEthMaterial();
     const { saveOffer } = useEthOffer();
-    const { getName } = useICPName();
+    const { getOrganization } = useICPName();
     const { signer } = useSigner();
     const navigate = useNavigate();
     const userInfo = useSelector((state: RootState) => state.userInfo);
@@ -39,7 +39,7 @@ export const OfferNew = () => {
             name: 'offeror',
             label: 'Offeror Company Address',
             required: true,
-            defaultValue: getName(signer._address),
+            defaultValue: getOrganization(signer._address),
             disabled: true
         },
         {

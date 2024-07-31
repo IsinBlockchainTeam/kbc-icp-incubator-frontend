@@ -14,14 +14,27 @@ const ADDRESSES = [
     '0xa1f48005f183780092E0E277B282dC1934AE3308',
     '0x319FFED7a71D3CD22aEEb5C815C88f0d2b19D123'
 ];
-export type ICPNameContextState = {
+
+export type OrganizationInfo = {
+    legalName: string;
+    address: string;
+    nation: string;
+    role: string;
+    telephone: string;
+    email: string;
+    image: string;
+};
+
+export type ICPOrganizationContextState = {
     dataLoaded: boolean;
-    getName: (address: string) => string;
+    getOrganization: (address: string) => OrganizationInfo;
     loadData: () => Promise<void>;
 };
-export const ICPNameContext = createContext<ICPNameContextState>({} as ICPNameContextState);
-export const useICPName = (): ICPNameContextState => {
-    const context = useContext(ICPNameContext);
+export const ICPOrganizationContext = createContext<ICPOrganizationContextState>(
+    {} as ICPOrganizationContextState
+);
+export const useICPName = (): ICPOrganizationContextState => {
+    const context = useContext(ICPOrganizationContext);
     if (!context || Object.keys(context).length === 0) {
         throw new Error('useICPName must be used within an ICPNameProvider.');
     }
@@ -29,17 +42,29 @@ export const useICPName = (): ICPNameContextState => {
 };
 export function ICPNameProvider(props: { children: React.ReactNode }) {
     const [dataLoaded, setDataLoaded] = useState<boolean>(false);
-    const [names, setNames] = useState<Map<string, string>>(new Map<string, string>());
+    const [organizations, setOrganizations] = useState<Map<string, OrganizationInfo>>(
+        new Map<string, OrganizationInfo>()
+    );
+    const emptyOrganization: OrganizationInfo = {
+        legalName: 'Unknown',
+        address: 'Unknown',
+        nation: 'Unknown',
+        role: 'Unknown',
+        telephone: 'Unknown',
+        email: 'Unknown',
+        image: 'Unknown'
+    };
 
     const { organizationDriver } = useICP();
     const dispatch = useDispatch();
 
-    const getName = (address: string) => {
-        return names.get(address) || 'Unknown';
+    const getOrganization = (address: string): OrganizationInfo => {
+        return organizations.get(address) || emptyOrganization;
     };
 
-    const getNameByDID = async (did: string) => {
+    const getOrganizationsByDID = async (did: string): Promise<OrganizationInfo> => {
         let serviceUrl;
+
         try {
             const didDocument = await request(
                 `${requestPath.VERIFIER_BACKEND_URL}/identifiers/resolve?did-url=${did}`,
@@ -49,11 +74,11 @@ export function ICPNameProvider(props: { children: React.ReactNode }) {
             );
             serviceUrl = didDocument.didDocument.service[0].serviceEndpoint;
         } catch (e) {
-            return 'Unknown';
+            return emptyOrganization;
         }
         const canisterId = serviceUrl.split('/')[URL_SEGMENT_INDEXES.CANISTER_ID].split('.')[0];
         if (canisterId != ICP.CANISTER_ID_ORGANIZATION) {
-            return 'Unknown';
+            return emptyOrganization;
         }
         const organizationId = serviceUrl.split('/')[URL_SEGMENT_INDEXES.ORGANIZATION_ID];
         let verifiablePresentation;
@@ -61,29 +86,37 @@ export function ICPNameProvider(props: { children: React.ReactNode }) {
             verifiablePresentation =
                 await organizationDriver.getVerifiablePresentation(organizationId);
         } catch (e) {
-            return 'Unknown';
+            return emptyOrganization;
         }
-        return verifiablePresentation.legalName;
+        return {
+            legalName: verifiablePresentation.legalName,
+            address: 'fake address',
+            nation: 'fake nation',
+            role: 'fake role',
+            telephone: 'fake telephone',
+            email: 'fake_email@email.ch',
+            image: 'company logo'
+        };
     };
 
-    const loadNames = async () => {
+    const loadOrganizations = async () => {
         dispatch(addLoadingMessage(NAME_MESSAGE.RETRIEVE.LOADING));
-        const names = new Map<string, string>();
+        const organizations = new Map<string, OrganizationInfo>();
         for (const address of ADDRESSES) {
-            names.set(address, await getNameByDID(DID_METHOD + ':' + address));
+            organizations.set(address, await getOrganizationsByDID(DID_METHOD + ':' + address));
         }
-        setNames(names);
+        setOrganizations(organizations);
         dispatch(removeLoadingMessage(NAME_MESSAGE.RETRIEVE.LOADING));
     };
 
     const loadData = async () => {
-        await loadNames();
+        await loadOrganizations();
         setDataLoaded(true);
     };
 
     return (
-        <ICPNameContext.Provider value={{ dataLoaded, getName, loadData }}>
+        <ICPOrganizationContext.Provider value={{ dataLoaded, getOrganization, loadData }}>
             {props.children}
-        </ICPNameContext.Provider>
+        </ICPOrganizationContext.Provider>
     );
 }

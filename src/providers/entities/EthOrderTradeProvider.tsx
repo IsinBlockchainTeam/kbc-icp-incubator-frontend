@@ -110,7 +110,7 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
     const { productCategories } = useEthMaterial();
     const { validateDocument, uploadDocument, getDocumentDuty, getDocumentDetailMap } =
         useEthDocument();
-    const { getName } = useICPName();
+    const { getOrganization } = useICPName();
     const dispatch = useDispatch();
     const [detailedOrderTrades, setDetailedOrderTrades] = useState<DetailedOrderTrade[]>([]);
     const { fileDriver } = useICP();
@@ -440,8 +440,8 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
             if (!orderTrade) return Promise.reject('Trade not found');
             const recipientCompanyName =
                 orderTrade.supplier === signer._address
-                    ? getName(orderTrade.commissioner)
-                    : getName(orderTrade.supplier);
+                    ? getOrganization(orderTrade.commissioner)
+                    : getOrganization(orderTrade.supplier);
             const response = await fetch(`${requestPath.EMAIL_SENDER_URL}/email/deadline-expired`, {
                 method: 'POST',
                 headers: {
