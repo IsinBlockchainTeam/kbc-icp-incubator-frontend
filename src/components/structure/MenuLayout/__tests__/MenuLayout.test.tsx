@@ -6,20 +6,23 @@ import { store } from '@/redux/store';
 import { MemoryRouter } from 'react-router-dom';
 import { updateUserInfo, UserInfoState } from '@/redux/reducers/userInfoSlice';
 import { Menu } from 'antd';
-
 import { paths } from '@/constants/paths';
+import { useWalletConnect } from '@/providers/WalletConnectProvider';
 
 jest.mock('antd', () => ({
     ...jest.requireActual('antd'),
     Menu: jest.fn(() => <div>Menu</div>)
 }));
-jest.mock('@web3modal/ethers5/react', () => ({
-    useDisconnect: jest.fn().mockReturnValue({
-        disconnect: jest.fn()
-    })
-}));
+jest.mock('@/providers/WalletConnectProvider');
 
 describe('MenuLayout', () => {
+    const mockDisconnect = jest.fn();
+    beforeEach(() => {
+        jest.clearAllMocks();
+        (useWalletConnect as jest.Mock).mockReturnValue({
+            disconnect: mockDisconnect
+        });
+    });
     it('should render menu when user is not logged in', () => {
         render(
             <MemoryRouter initialEntries={[{ pathname: '/test' }]}>
@@ -97,5 +100,6 @@ describe('MenuLayout', () => {
             sessionIdentity: '',
             delegationChain: ''
         });
+        expect(mockDisconnect).toHaveBeenCalledTimes(1);
     });
 });

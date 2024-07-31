@@ -33,50 +33,7 @@ import { useEthRelationship } from '@/providers/entities/EthRelationshipProvider
 import { useEthGraph } from '@/providers/entities/EthGraphProvider';
 import { useEthEscrow } from '@/providers/entities/EthEscrowProvider';
 import { AssetOperationView } from '@/pages/AssetOperation/AssetOperationView';
-
-import { createWeb3Modal, defaultConfig } from '@web3modal/ethers5/react';
-import { PROJECT_ID } from '@/constants/walletConnect';
 import { WalletConnectProvider } from '@/providers/WalletConnectProvider';
-
-// 1. Get projectId
-const projectId = PROJECT_ID;
-
-// 2. Set chains
-const chain = {
-    chainId: 222,
-    name: '3AChain',
-    currency: 'ETH',
-    explorerUrl: 'https://explorertest.3achain.org/',
-    rpcUrl: 'https://testnet-3achain-rpc.noku.io/'
-};
-
-// 3. Create a metadata object
-const metadata = {
-    name: 'KBC platform',
-    description: 'A portal to decentralized coffee trading',
-    url: 'https://xd4om-uqaaa-aaaam-aclya-cai.icp0.io/',
-    icons: [
-        'https://media.licdn.com/dms/image/C4D0BAQFdvo0UQVHVOQ/company-logo_200_200/0/1630488712072?e=2147483647&v=beta&t=2eNF5yIqHWYMfYGWa5IZ4fb-qMwCiJ2wgMiazq_OLa0'
-    ]
-};
-
-// 4. Create Ethers config
-const ethersConfig = defaultConfig({
-    /*Required*/
-    metadata,
-
-    /*Optional*/
-    enableEIP6963: true, // true by default
-    enableInjected: true, // true by default
-    enableCoinbase: true // true by default
-});
-
-// 5. Create a Web3Modal instance
-createWeb3Modal({
-    ethersConfig,
-    chains: [chain],
-    projectId
-});
 
 export const App = () => {
     return (
@@ -166,7 +123,8 @@ export const App = () => {
                                             element={
                                                 <DataLoader customUseContext={useICPName}>
                                                     <DataLoader customUseContext={useEthMaterial}>
-                                                        <DataLoader customUseContext={useEthEnumerable}>
+                                                        <DataLoader
+                                                            customUseContext={useEthEnumerable}>
                                                             <DataLoader
                                                                 customUseContext={useEthRawTrade}>
                                                                 <TradeNew />
@@ -181,7 +139,8 @@ export const App = () => {
                                             element={
                                                 <DataLoader customUseContext={useICPName}>
                                                     <DataLoader customUseContext={useEthEnumerable}>
-                                                        <DataLoader customUseContext={useEthMaterial}>
+                                                        <DataLoader
+                                                            customUseContext={useEthMaterial}>
                                                             <DataLoader
                                                                 customUseContext={useEthRawTrade}>
                                                                 <DataLoader
@@ -241,7 +200,7 @@ export const App = () => {
                                     <Route path="*" element={<Navigate to={paths.LOGIN} />} />
                                 </Route>
                             </Routes>
-                            </WalletConnectProvider>
+                        </WalletConnectProvider>
                     </Worker>
                 </PersistGate>
             </ReduxProvider>

@@ -18,22 +18,21 @@ export const useSigner = (): SignerContextState => {
     return context;
 };
 export function SignerProvider({ children }: { children: ReactNode }) {
-    const { provider, connected } = useWalletConnect();
+    const { provider } = useWalletConnect();
     const [signer, setSigner] = useState<JsonRpcSigner>();
 
     useEffect(() => {
-        if (!provider || !connected) return;
+        if (!provider) {
+            setSigner(undefined);
+            return;
+        }
 
         (async () => {
             const ethersProvider = new ethers.providers.Web3Provider(provider);
             const account = await ethersProvider.getSigner().getAddress();
             setSigner(ethersProvider.getSigner(account));
         })();
-    }, [provider, connected]);
-
-    useEffect(() => {
-        if (!connected) setSigner(undefined);
-    }, [connected]);
+    }, [provider]);
 
     const waitForTransactions = async (transactionHash: string, confirmations: number) => {
         await signer!.provider.waitForTransaction(transactionHash, confirmations);

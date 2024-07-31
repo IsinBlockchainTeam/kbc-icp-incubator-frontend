@@ -19,7 +19,6 @@ import {
 } from '@kbc-lib/coffee-trading-management-lib';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSigner } from '@/providers/SignerProvider';
-import { Wallet } from 'ethers';
 import { openNotification } from '@/utils/notification';
 import { RawTrade, useEthRawTrade } from '@/providers/entities/EthRawTradeProvider';
 import { UserInfoState } from '@/redux/reducers/userInfoSlice';
@@ -27,6 +26,7 @@ import { getICPCanisterURL } from '@/utils/icp';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { DocumentRequest } from '@/providers/entities/EthDocumentProvider';
 import { useICP } from '@/providers/ICPProvider';
+import { JsonRpcSigner } from '@ethersproject/providers';
 
 jest.mock('@kbc-lib/coffee-trading-management-lib');
 jest.mock('@/providers/SignerProvider');

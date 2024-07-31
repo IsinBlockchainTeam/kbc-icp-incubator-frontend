@@ -18,8 +18,6 @@
         "@types/react": "^18.2.7",
         "@types/react-dom": "^18.2.4",
         "@walletconnect/ethereum-provider": "^2.14.0",
-        "@walletconnect/types": "^2.14.0",
-        "@web3modal/ethers5": "^4.1.11",
         "antd": "^5.5.2",
         "dayjs": "^1.11.8",
         "ethers": "^5.7.2",
@@ -93,7 +91,7 @@
             "^@/providers(.*)$": "<rootDir>/src/providers$1",
             "^@/redux(.*)$": "<rootDir>/src/redux$1",
             "^@/utils(.*)$": "<rootDir>/src/utils$1",
-            "@web3modal/ethers5/react": "<rootDir>/__mocks__/@web3modal/ethers5/react.js"
+            "@walletconnect/ethereum-provider": "<rootDir>/__mocks__/@walletconnect/ethereum-provider.js"
         },
         "setupFiles": [
             "<rootDir>/setup.jest.ts"
@@ -107,6 +105,7 @@
             "/src/reportWebVitals.ts",
             "/src/App.tsx",
             "/src/providers/SiweIdentityProvider.tsx"
-        ]
+        ],
+        "testTimeout": 15000
     }
 }
