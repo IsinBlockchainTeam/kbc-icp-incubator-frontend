@@ -5,9 +5,9 @@ import { Typography } from 'antd';
 
 export type WalletConnectContextState = {
     provider: EthereumProvider;
-    setProvider: (provider: EthereumProvider) => void;
     connected: boolean;
-    setConnected: (connected: boolean) => void;
+    connect: () => void;
+    disconnect: () => void;
 };
 export const WalletConnectContext = createContext<WalletConnectContextState>(
     {} as WalletConnectContextState
@@ -20,20 +20,38 @@ export const useWalletConnect = (): WalletConnectContextState => {
     return context;
 };
 export function WalletConnectProvider({ children }: { children: ReactNode }) {
-    // TODO: persist this data between sections
     const [provider, setProvider] = useState<EthereumProvider>();
     const [connected, setConnected] = useState<boolean>(false);
 
     useEffect(() => {
         (async () => {
-            console.log('restoring session');
             const provider = await createEthereumProvider();
-            console.log('established provider', provider);
             setProvider(provider);
-            setConnected(true);
-            console.log('session restored');
         })();
     }, []);
+
+    useEffect(() => {
+        if (!provider) return;
+        provider.on('disconnect', (args: any) => {
+            console.log('disconnect', args);
+        });
+        provider.on('connect', (args: any) => {
+            console.log('event connect');
+            console.log('args', args);
+            connect();
+        });
+    }, [provider]);
+
+    const connect = () => {
+        setConnected(true);
+    };
+
+    const disconnect = async () => {
+        if (!provider) return;
+        await provider.disconnect();
+        setProvider(await createEthereumProvider());
+        setConnected(false);
+    };
 
     if (!provider) return <Typography.Text>Rumore di grilli</Typography.Text>;
 
@@ -41,9 +59,9 @@ export function WalletConnectProvider({ children }: { children: ReactNode }) {
         <WalletConnectContext.Provider
             value={{
                 provider,
-                setProvider,
                 connected,
-                setConnected
+                connect,
+                disconnect
             }}>
             {children}
         </WalletConnectContext.Provider>

@@ -57,9 +57,12 @@ const settingItems: MenuItem[] = [
     ])
 ];
 
-// TODO: fix this. Pass it as a prop
-// const { setConnected } = useWalletConnect();
-const getUserItemLoggedIn = (name: string, picture: string, dispatch: any) => [
+const getUserItemLoggedIn = (
+    name: string,
+    picture: string,
+    dispatch: any,
+    disconnect: () => void
+) => [
     getItem(
         `${name}`,
         'profile',
@@ -69,13 +72,14 @@ const getUserItemLoggedIn = (name: string, picture: string, dispatch: any) => [
             getItem('Logout', paths.LOGIN, <LogoutOutlined />, undefined, undefined, () => {
                 dispatch(resetUserInfo());
                 dispatch(clearSiweIdentity());
-                // setConnected(false);
+                disconnect();
             })
         ]
     )
 ];
 
 export const MenuLayout = () => {
+    const { disconnect } = useWalletConnect();
     const location = useLocation();
     const navigate = useNavigate();
     const [collapsed, setCollapsed] = useState<boolean>(false);
@@ -124,7 +128,8 @@ export const MenuLayout = () => {
                                     ? getUserItemLoggedIn(
                                           userInfo.legalName,
                                           userInfo.image || defaultPictureURL,
-                                          dispatch
+                                          dispatch,
+                                          disconnect
                                       )
                                     : settingItems
                             }
