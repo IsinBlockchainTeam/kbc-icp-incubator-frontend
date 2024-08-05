@@ -1,71 +1,80 @@
-import { Card, Col, Divider, Flex, Image, Row, Typography } from 'antd';
-import { DownloadOutlined, UploadOutlined } from '@ant-design/icons';
+import { Card, Col, Divider, Flex, Image, Row, Tag, Typography } from 'antd';
+import { DownloadOutlined, LockOutlined, UploadOutlined } from '@ant-design/icons';
 import React from 'react';
 import { useEthEscrow } from '@/providers/entities/EthEscrowProvider';
-import { EscrowStatus } from '@kbc-lib/coffee-trading-management-lib';
 import { DepositModal } from '@/components/EscrowPanel/DepositModal';
 import { WithdrawModal } from '@/components/EscrowPanel/WithdrawModal';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/redux/store';
+import { credentials } from '@/constants/ssi';
+import { LockModal } from '@/components/EscrowPanel/LockModal';
+import { useParams } from 'react-router-dom';
+import { useEthShipment } from '@/providers/entities/EthShipmentProvider';
+import { FundsStatus } from '@kbc-lib/coffee-trading-management-lib';
 
 const { Paragraph, Text } = Typography;
 
 export const EscrowPanel = () => {
+    const { shipmentId } = useParams();
+    const { shipments } = useEthShipment();
     const { escrowDetails, tokenDetails } = useEthEscrow();
+    const userInfo = useSelector((state: RootState) => state.userInfo);
+    const isImporter = userInfo.role.toUpperCase() === credentials.ROLE_IMPORTER;
+
+    const shipment = shipments.find((s) => s.id === Number(shipmentId));
+    if (!shipment) {
+        return <>Shipment not found</>;
+    }
+
     const [isDepositModalOpen, setIsDepositModalOpen] = React.useState(false);
     const [isWithdrawModalOpen, setIsWithdrawModalOpen] = React.useState(false);
+    const [isLockModalOpen, setIsLockModalOpen] = React.useState(false);
 
     const openDepositModal = () => setIsDepositModalOpen(true);
     const closeDepositModal = () => setIsDepositModalOpen(false);
     const openWithdrawModal = () => setIsWithdrawModalOpen(true);
     const closeWithdrawModal = () => setIsWithdrawModalOpen(false);
+    const openLockModal = () => setIsLockModalOpen(true);
+    const closeLockModal = () => setIsLockModalOpen(false);
 
-    const actions: React.ReactNode[] = [
-        <Flex
-            gap="middle"
-            align="center"
-            justify="center"
-            style={{ fontSize: 16 }}
-            onClick={openWithdrawModal}>
-            <UploadOutlined key="withdraw" />
-            Withdraw
-        </Flex>,
-        <Flex
-            gap="middle"
-            align="center"
-            justify="center"
-            style={{ fontSize: 16 }}
-            onClick={openDepositModal}>
-            <DownloadOutlined key="edit" />
-            Deposit
-        </Flex>
-    ];
-
-    const getDescription = (escrowStatus: EscrowStatus) => {
-        switch (escrowStatus) {
-            case EscrowStatus.ACTIVE:
-                return (
-                    <>
-                        Status: <Text strong>Active</Text>. Funds have been securely deposited and
-                        are held in the escrow account. The funds will remain locked in the escrow
-                        until all terms are met and verified.
-                    </>
-                );
-            case EscrowStatus.REFUNDING:
-                return (
-                    <>
-                        Status: <Text strong>Refunding</Text>. The conditions of the agreement were
-                        not met, and the process of returning the funds to the original sender has
-                        been initiated.
-                    </>
-                );
-            case EscrowStatus.WITHDRAWING:
-                return (
-                    <>
-                        Status: <Text strong>Withdrawing</Text>. The agreed-upon conditions have
-                        been met, and the process of releasing the funds to the recipient has begun.
-                    </>
-                );
-        }
-    };
+    const actions: React.ReactNode[] = [];
+    if (isImporter) {
+        actions.push(
+            <Flex
+                gap="middle"
+                align="center"
+                justify="center"
+                style={{ fontSize: 16 }}
+                onClick={openWithdrawModal}>
+                <UploadOutlined key="withdraw" />
+                Withdraw
+            </Flex>
+        );
+        actions.push(
+            <Flex
+                gap="middle"
+                align="center"
+                justify="center"
+                style={{ fontSize: 16 }}
+                onClick={openDepositModal}>
+                <DownloadOutlined key="edit" />
+                Deposit
+            </Flex>
+        );
+        shipment.fundsStatus == FundsStatus.NOT_LOCKED &&
+            escrowDetails.totalDepositedAmount >= escrowDetails.lockedAmount + shipment.price &&
+            actions.push(
+                <Flex
+                    gap="middle"
+                    align="center"
+                    justify="center"
+                    style={{ fontSize: 16 }}
+                    onClick={openLockModal}>
+                    <LockOutlined key="withdraw" />
+                    Lock funds
+                </Flex>
+            );
+    }
 
     return (
         <>
@@ -84,8 +93,9 @@ export const EscrowPanel = () => {
                             and security between parties.
                         </Paragraph>
                         <Divider plain>Details</Divider>
-                        <Paragraph style={{ marginTop: 20 }}>
-                            {getDescription(escrowDetails.state)}
+                        <Paragraph>
+                            Shipping funds status:{' '}
+                            <Tag color="blue">{FundsStatus[shipment.fundsStatus]}</Tag>
                         </Paragraph>
                         <Paragraph>
                             Your deposits:{' '}
@@ -97,6 +107,18 @@ export const EscrowPanel = () => {
                             Total deposits:{' '}
                             <Text strong>
                                 {escrowDetails.totalDepositedAmount} {tokenDetails.symbol}
+                            </Text>
+                        </Paragraph>
+                        <Paragraph>
+                            Already locked funds:{' '}
+                            <Text strong>
+                                {escrowDetails.lockedAmount} {tokenDetails.symbol}
+                            </Text>
+                        </Paragraph>
+                        <Paragraph>
+                            Escrow balance:{' '}
+                            <Text strong>
+                                {escrowDetails.balance} {tokenDetails.symbol}
                             </Text>
                         </Paragraph>
                         <Paragraph>
@@ -113,6 +135,7 @@ export const EscrowPanel = () => {
             </Card>
             <WithdrawModal isOpen={isWithdrawModalOpen} onClose={closeWithdrawModal} />
             <DepositModal isOpen={isDepositModalOpen} onClose={closeDepositModal} />
+            <LockModal isOpen={isLockModalOpen} onClose={closeLockModal} />
         </>
     );
 };

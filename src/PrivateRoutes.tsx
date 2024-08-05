@@ -18,6 +18,7 @@ import { EthAssetOperationProvider } from '@/providers/entities/EthAssetOperatio
 import { EthRelationshipProvider } from '@/providers/entities/EthRelationshipProvider';
 import { EthGraphProvider } from '@/providers/entities/EthGraphProvider';
 import { EthEscrowProvider } from '@/providers/entities/EthEscrowProvider';
+import { EthShipmentProvider } from '@/providers/entities/EthShipmentProvider';
 
 const PrivateRoutes = () => {
     const { isLogged } = useSelector((state: RootState) => state.userInfo);
@@ -35,11 +36,13 @@ const PrivateRoutes = () => {
                                                 <EthRawTradeProvider>
                                                     <EthBasicTradeProvider>
                                                         <EthOrderTradeProvider>
-                                                            <EthEscrowProvider>
-                                                                <EthGraphProvider>
-                                                                    <Outlet />
-                                                                </EthGraphProvider>
-                                                            </EthEscrowProvider>
+                                                            <EthShipmentProvider>
+                                                                <EthEscrowProvider>
+                                                                    <EthGraphProvider>
+                                                                        <Outlet />
+                                                                    </EthGraphProvider>
+                                                                </EthEscrowProvider>
+                                                            </EthShipmentProvider>
                                                         </EthOrderTradeProvider>
                                                     </EthBasicTradeProvider>
                                                 </EthRawTradeProvider>

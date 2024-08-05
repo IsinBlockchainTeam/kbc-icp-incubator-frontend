@@ -208,3 +208,25 @@ export const TOKEN_MESSAGE = {
         ERROR: 'Error while retrieving token details.'
     }
 };
+export const SHIPMENT_MESSAGE = {
+    RETRIEVE: {
+        LOADING: 'Retrieving shipments...',
+        OK: '',
+        ERROR: 'Error while retrieving shipments.'
+    },
+    SAVE: {
+        LOADING: 'Saving shipment...',
+        OK: 'Shipment saved successfully.',
+        ERROR: 'Error while saving shipment.'
+    },
+    APPROVE: {
+        LOADING: 'Approving shipment...',
+        OK: 'Shipment approved successfully.',
+        ERROR: 'Error while approving shipment.'
+    },
+    LOCK: {
+        LOADING: 'Locking funds...',
+        OK: 'Funds locked successfully.',
+        ERROR: 'Error while locking funds.'
+    }
+};

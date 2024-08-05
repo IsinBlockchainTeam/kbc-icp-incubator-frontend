@@ -1,7 +1,6 @@
 import React from 'react';
 import { Button, InputNumber, InputNumberProps, Modal, Skeleton } from 'antd';
 import { useEthEscrow } from '@/providers/entities/EthEscrowProvider';
-import { EscrowStatus } from '@kbc-lib/coffee-trading-management-lib';
 
 type WithdrawModalProps = {
     isOpen: boolean;
@@ -12,13 +11,12 @@ export const WithdrawModal = ({ isOpen, onClose }: WithdrawModalProps) => {
     const [fees, setFees] = React.useState<number>(0);
     const [feesLoading, setFeesLoading] = React.useState<boolean>(false);
 
-    const { escrowDetails, tokenDetails, payerWithdraw, getFees } = useEthEscrow();
+    const { escrowDetails, tokenDetails, withdraw, getFees } = useEthEscrow();
 
     const onChange: InputNumberProps['onChange'] = async (value) => {
         const amount = value as number;
         setAmount(amount);
-        console.log(amount, escrowDetails.state);
-        if (amount && escrowDetails.state !== EscrowStatus.ACTIVE) {
+        if (amount) {
             setFeesLoading(true);
             const fees = await getFees(amount);
             setFees(fees);
@@ -28,13 +26,8 @@ export const WithdrawModal = ({ isOpen, onClose }: WithdrawModalProps) => {
 
     const onWithdraw = async () => {
         onClose();
-        await payerWithdraw(amount);
+        await withdraw(amount);
     };
-
-    const withdrawableAmount =
-        escrowDetails.state == EscrowStatus.ACTIVE
-            ? escrowDetails.depositedAmount
-            : escrowDetails.withdrawableAmount;
 
     const feesElement = feesLoading ? (
         <Skeleton.Input active size="small" />
@@ -66,7 +59,7 @@ export const WithdrawModal = ({ isOpen, onClose }: WithdrawModalProps) => {
             />
             <p style={{ height: 25 }}>Fees: {feesElement}</p>
             <p>
-                Withdrawable amount: {withdrawableAmount} {tokenDetails.symbol}
+                Withdrawable amount: {escrowDetails.withdrawableAmount} {tokenDetails.symbol}
             </p>
         </Modal>
     );

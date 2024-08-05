@@ -1,12 +1,12 @@
 import {
     NegotiationStatus,
-    OrderTrade,
-    OrderLineRequest,
-    OrderLinePrice,
     OrderLine,
-    OrderStatus
+    OrderLinePrice,
+    OrderLineRequest,
+    OrderStatus,
+    OrderTrade
 } from '@kbc-lib/coffee-trading-management-lib';
-import { Tag, Tooltip } from 'antd';
+import { Tabs, TabsProps, Tag, Tooltip } from 'antd';
 import OrderStatusSteps from '@/pages/Trade/OrderStatusSteps/OrderStatusSteps';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
 import React, { useState } from 'react';
@@ -16,11 +16,18 @@ import dayjs from 'dayjs';
 import { useSigner } from '@/providers/SignerProvider';
 import { paths } from '@/constants/paths';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircleOutlined, EditOutlined, RollbackOutlined } from '@ant-design/icons';
+import {
+    CheckCircleOutlined,
+    EditOutlined,
+    FormOutlined,
+    RollbackOutlined,
+    SendOutlined
+} from '@ant-design/icons';
 import { validateDates } from '@/utils/date';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 import { OrderTradeRequest, useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
+import { Shipments } from '@/pages/Shipment/Shipments';
 
 type OrderTradeViewProps = {
     orderTrade: OrderTrade;
@@ -340,6 +347,30 @@ export const OrderTradeView = ({
             });
         }
     }
+
+    const items: TabsProps['items'] = [
+        {
+            key: 'order',
+            label: 'Order',
+            icon: <FormOutlined />,
+            children: (
+                <OrderStatusSteps
+                    status={getOrderStatus(orderTrade.tradeId)}
+                    orderTrade={orderTrade}
+                    submittable={!disabled}
+                    negotiationElements={elements}
+                    onSubmit={onSubmit}
+                />
+            )
+        },
+        {
+            key: 'shipments',
+            label: 'Shipments',
+            icon: <SendOutlined />,
+            children: <Shipments />
+        }
+    ];
+
     return (
         <CardPage
             title={
@@ -360,13 +391,7 @@ export const OrderTradeView = ({
                     </div>
                 </div>
             }>
-            <OrderStatusSteps
-                status={getOrderStatus(orderTrade.tradeId)}
-                orderTrade={orderTrade}
-                submittable={!disabled}
-                negotiationElements={elements}
-                onSubmit={onSubmit}
-            />
+            <Tabs items={items} centered size={'large'} />
         </CardPage>
     );
 };

@@ -85,6 +85,8 @@ export type EthOrderTradeContextState = {
         externalUrl: string
     ) => Promise<void>;
     notifyExpiration: (orderId: number, email: string, message: string) => Promise<void>;
+    getShipmentManagerAddress: (orderId: number) => string;
+    getEscrowAddress: (orderId: number) => string;
 };
 export const EthOrderTradeContext = createContext<EthOrderTradeContextState>(
     {} as EthOrderTradeContextState
@@ -103,6 +105,8 @@ type DetailedOrderTrade = {
     actionRequired: string;
     negotiationStatus: NegotiationStatus;
     orderStatus: OrderStatus;
+    shipmentManagerAddress: string;
+    escrowAddress: string;
 };
 export function EthOrderTradeProvider(props: { children: ReactNode }) {
     const { signer, waitForTransactions } = useSigner();
@@ -160,6 +164,8 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
                         orderStatus,
                         signatures
                     );
+                    const shipmentManagerAddress = await service.getShipmentManagerAddress();
+                    const escrowAddress = await service.getEscrowAddress();
 
                     detailedOrderTrades.push({
                         trade,
@@ -167,7 +173,9 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
                         documentDetailMap,
                         actionRequired,
                         negotiationStatus,
-                        orderStatus
+                        orderStatus,
+                        shipmentManagerAddress,
+                        escrowAddress
                     });
                 })
         );
@@ -291,13 +299,13 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
             for (const line of orderTradeRequest.lines) {
                 await orderTradeService.addLine(line);
             }
+            await loadDetailedTrades();
             openNotification(
                 'Success',
                 ORDER_TRADE_MESSAGE.SAVE.OK,
                 NotificationType.SUCCESS,
                 NOTIFICATION_DURATION
             );
-            await loadDetailedTrades();
         } catch (e: any) {
             openNotification(
                 'Error',
@@ -512,6 +520,16 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
         if (documentDetail === undefined) throw new Error('Document type not found.');
         return documentDetail;
     };
+    const getShipmentManagerAddress = (orderId: number) => {
+        const detailedOrderTrade = detailedOrderTrades.find((t) => t.trade.tradeId === orderId);
+        if (!detailedOrderTrade) throw new Error('Order trade not found.');
+        return detailedOrderTrade.shipmentManagerAddress;
+    };
+    const getEscrowAddress = (orderId: number) => {
+        const detailedOrderTrade = detailedOrderTrades.find((t) => t.trade.tradeId === orderId);
+        if (!detailedOrderTrade) throw new Error('Order trade not found.');
+        return detailedOrderTrade.escrowAddress;
+    };
     return (
         <EthOrderTradeContext.Provider
             value={{
@@ -526,7 +544,9 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
                 confirmNegotiation,
                 validateOrderDocument,
                 uploadOrderDocument,
-                notifyExpiration
+                notifyExpiration,
+                getShipmentManagerAddress,
+                getEscrowAddress
             }}>
             {props.children}
         </EthOrderTradeContext.Provider>

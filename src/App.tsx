@@ -31,22 +31,31 @@ import { useEthRawTrade } from '@/providers/entities/EthRawTradeProvider';
 import { useEthAssetOperation } from '@/providers/entities/EthAssetOperationProvider';
 import { useEthRelationship } from '@/providers/entities/EthRelationshipProvider';
 import { useEthGraph } from '@/providers/entities/EthGraphProvider';
-import { useEthEscrow } from '@/providers/entities/EthEscrowProvider';
+// import { useEthEscrow } from '@/providers/entities/EthEscrowProvider';
 import { AssetOperationView } from '@/pages/AssetOperation/AssetOperationView';
 
 import { createWeb3Modal, defaultConfig } from '@web3modal/ethers5/react';
 import { PROJECT_ID } from '@/constants/walletConnect';
+import { ShipmentNew } from '@/pages/Shipment/ShipmentNew';
+import { ShipmentView } from '@/pages/Shipment/ShipmentView';
 
 // 1. Get projectId
 const projectId = PROJECT_ID;
 
 // 2. Set chains
+// const chain = {
+//     chainId: 222,
+//     name: '3AChain',
+//     currency: 'ETH',
+//     explorerUrl: 'https://explorertest.3achain.org/',
+//     rpcUrl: 'https://testnet-3achain-rpc.noku.io/'
+// };
 const chain = {
-    chainId: 222,
-    name: '3AChain',
+    chainId: 31337,
+    name: 'Hardhat',
     currency: 'ETH',
-    explorerUrl: 'https://explorertest.3achain.org/',
-    rpcUrl: 'https://testnet-3achain-rpc.noku.io/'
+    explorerUrl: 'xxx',
+    rpcUrl: 'http://localhost:8545/'
 };
 
 // 3. Create a metadata object
@@ -182,10 +191,37 @@ export const App = () => {
                                                     <DataLoader customUseContext={useEthMaterial}>
                                                         <DataLoader
                                                             customUseContext={useEthRawTrade}>
-                                                            <DataLoader
-                                                                customUseContext={useEthEscrow}>
-                                                                <TradeView />
-                                                            </DataLoader>
+                                                            <TradeView />
+                                                        </DataLoader>
+                                                    </DataLoader>
+                                                </DataLoader>
+                                            </DataLoader>
+                                        }
+                                    />
+                                    <Route
+                                        path={paths.SHIPMENT_NEW}
+                                        element={
+                                            <DataLoader customUseContext={useICPName}>
+                                                <DataLoader customUseContext={useEthEnumerable}>
+                                                    <DataLoader customUseContext={useEthMaterial}>
+                                                        <DataLoader
+                                                            customUseContext={useEthRawTrade}>
+                                                            <ShipmentNew />
+                                                        </DataLoader>
+                                                    </DataLoader>
+                                                </DataLoader>
+                                            </DataLoader>
+                                        }
+                                    />
+                                    <Route
+                                        path={paths.SHIPMENT_VIEW}
+                                        element={
+                                            <DataLoader customUseContext={useICPName}>
+                                                <DataLoader customUseContext={useEthEnumerable}>
+                                                    <DataLoader customUseContext={useEthMaterial}>
+                                                        <DataLoader
+                                                            customUseContext={useEthRawTrade}>
+                                                            <ShipmentView />
                                                         </DataLoader>
                                                     </DataLoader>
                                                 </DataLoader>

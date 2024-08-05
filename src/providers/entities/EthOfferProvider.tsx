@@ -98,6 +98,7 @@ export function EthOfferProvider(props: { children: ReactNode }) {
                 NOTIFICATION_DURATION
             );
         } catch (e: any) {
+            console.error(e);
             openNotification(
                 'Error',
                 SUPPLIER_MESSAGE.SAVE.ERROR,
