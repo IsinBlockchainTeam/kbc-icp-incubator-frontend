@@ -3,6 +3,9 @@ import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider
 import { OrderExported } from '../templates/transaction/OrderExported';
 import { VAT_TAX } from '@/constants/misc';
 import { incotermsMap } from '@/constants/trade';
+import {BLANK_PDF, Template} from '@pdfme/common';
+import { generate } from '@pdfme/generator';
+import {OrderExportedSchema} from "../templates/transaction/pdf-schemas/OrderExportedSchema";
 
 const incotermsKeys = Array.from(incotermsMap.keys());
 
@@ -142,6 +145,25 @@ export default () => {
             }
         };
     }, []);
+
+    const generatePdf = useCallback((orderSpec: OrderSpec): void => {
+        const template: Template = {
+            basePdf: BLANK_PDF,
+            schemas: [
+                OrderExportedSchema
+            ],
+        };
+
+        const inputs = [{ a: 'a1', b: 'b1', c: 'c1' }];
+
+        generate({ template, inputs }).then((pdf) => {
+            console.log(pdf);
+
+            // Browser
+            const blob = new Blob([pdf.buffer], { type: 'application/pdf' });
+            window.open(URL.createObjectURL(blob));
+        });
+    }
 
     return {
         generateJsonSpec
