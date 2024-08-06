@@ -18,6 +18,7 @@ import { validateDates } from '@/utils/date';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 import { OrderTradeRequest, useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
+import { incotermsMap } from '@/constants/trade';
 
 type OrderTradeNewProps = {
     supplierAddress: string;
@@ -94,12 +95,16 @@ export const OrderTradeNew = ({
         ...commonElements,
         { type: FormElementType.TITLE, span: 24, label: 'Constraints' },
         {
-            type: FormElementType.INPUT,
+            type: FormElementType.SELECT,
             span: 12,
             name: 'incoterms',
             label: 'Incoterms',
             required: true,
             defaultValue: '',
+            options: Array.from(incotermsMap.keys()).map((incoterm) => ({
+                label: incoterm,
+                value: incoterm
+            })),
             disabled: false
         },
         {

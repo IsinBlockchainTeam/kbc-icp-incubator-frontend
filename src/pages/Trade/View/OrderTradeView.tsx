@@ -6,7 +6,7 @@ import {
     OrderLine,
     OrderStatus
 } from '@kbc-lib/coffee-trading-management-lib';
-import { Tag, Tooltip } from 'antd';
+import { Button, Tag, Tooltip } from 'antd';
 import OrderStatusSteps from '@/pages/Trade/OrderStatusSteps/OrderStatusSteps';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
 import React, { useState } from 'react';
@@ -367,6 +367,7 @@ export const OrderTradeView = ({
                 negotiationElements={elements}
                 onSubmit={onSubmit}
             />
+            <Button>Generate PDF</Button>
         </CardPage>
     );
 };

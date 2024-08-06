@@ -9,7 +9,7 @@ import { useSigner } from '@/providers/SignerProvider';
 import { GenericForm } from '@/components/GenericForm/GenericForm';
 import { ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
-import { useICPName } from '@/providers/entities/ICPNameProvider';
+import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
 import { useEthOffer } from '@/providers/entities/EthOfferProvider';
 import { UserInfoState } from '@/redux/reducers/userInfoSlice';
 import { JsonRpcSigner } from '@ethersproject/providers';
@@ -19,7 +19,7 @@ jest.mock('@/providers/SignerProvider');
 jest.mock('@/components/GenericForm/GenericForm');
 jest.mock('@/providers/entities/EthMaterialProvider');
 jest.mock('@/providers/entities/EthOfferProvider');
-jest.mock('@/providers/entities/ICPNameProvider');
+jest.mock('@/providers/entities/ICPOrganizationProvider');
 jest.mock('react-redux');
 
 describe('Offers New', () => {
@@ -38,7 +38,7 @@ describe('Offers New', () => {
 
         (useNavigate as jest.Mock).mockReturnValue(navigate);
         getName.mockReturnValue('Supplier Name');
-        (useICPName as jest.Mock).mockReturnValue({
+        (useICPOrganization as jest.Mock).mockReturnValue({
             getName
         });
         (useEthMaterial as jest.Mock).mockReturnValue({

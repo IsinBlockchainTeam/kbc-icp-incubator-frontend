@@ -5,13 +5,13 @@ import { TradeNew } from '@/pages/Trade/New/TradeNew';
 import { OrderTradeNew } from '@/pages/Trade/New/OrderTradeNew';
 import { paths } from '@/constants/paths';
 import { Wallet } from 'ethers';
-import { useICPName } from '@/providers/entities/ICPNameProvider';
+import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
 
 jest.mock('react-router-dom');
 jest.mock('@/providers/SignerProvider');
 jest.mock('@/pages/Trade/New/BasicTradeNew');
 jest.mock('@/pages/Trade/New/OrderTradeNew');
-jest.mock('@/providers/entities/ICPNameProvider');
+jest.mock('@/providers/entities/ICPOrganizationProvider');
 
 describe('Trade New', () => {
     const signer = { _address: '0x123' } as JsonRpcSigner;
@@ -27,7 +27,7 @@ describe('Trade New', () => {
             state: { supplierAddress: '0xaddress', productCategoryId: 1 }
         });
         (useSigner as jest.Mock).mockReturnValue({ signer });
-        (useICPName as jest.Mock).mockReturnValue({ getName });
+        (useICPOrganization as jest.Mock).mockReturnValue({ getName });
         (useNavigate as jest.Mock).mockReturnValue(navigate);
         getName.mockReturnValue('actor');
     });

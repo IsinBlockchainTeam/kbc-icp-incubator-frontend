@@ -20,6 +20,7 @@
         "@web3modal/ethers5": "^4.1.11",
         "antd": "^5.5.2",
         "dayjs": "^1.11.8",
+        "ejs": "^3.1.10",
         "ethers": "^5.7.2",
         "http-proxy-middleware": "^3.0.0",
         "ic-use-actor": "^0.0.9",

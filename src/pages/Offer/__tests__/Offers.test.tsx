@@ -6,14 +6,14 @@ import { Offer, ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
 import { useSelector } from 'react-redux';
 import { credentials } from '@/constants/ssi';
 import { useNavigate } from 'react-router-dom';
-import { useICPName } from '@/providers/entities/ICPNameProvider';
+import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
 import { useEthOffer } from '@/providers/entities/EthOfferProvider';
 import { UserInfoState } from '@/redux/reducers/userInfoSlice';
 
 jest.mock('react-router-dom');
 jest.mock('@/utils/notification');
 jest.mock('@/providers/entities/EthOfferProvider');
-jest.mock('@/providers/entities/ICPNameProvider');
+jest.mock('@/providers/entities/ICPOrganizationProvider');
 jest.mock('react-redux');
 
 describe('Offers', () => {
@@ -29,7 +29,7 @@ describe('Offers', () => {
         jest.clearAllMocks();
 
         getName.mockReturnValue('Supplier Name');
-        (useICPName as jest.Mock).mockReturnValue({
+        (useICPOrganization as jest.Mock).mockReturnValue({
             getName
         });
         (useEthOffer as jest.Mock).mockReturnValue({

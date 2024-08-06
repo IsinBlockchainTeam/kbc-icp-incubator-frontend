@@ -11,23 +11,24 @@
 
 
 <div class="row expanded">
-    <main class="columns">
+    <main>
         <div class="inner-container">
             <section class="row">
                 <table class="invoice">
                     <tr class="header">
-                        <td class="">
-                            <img src="http://www.travelerie.com/wp-content/uploads/2014/04/PlaceholderLogoBlue.jpg"
-                                 alt="Company Name"/>
+                        <td>
+                            <img src="./generic_company_logo.png" alt="Company Logo"/>
                         </td>
                         <td class="align-right">
-                            <h2>Contract</h2>
+                            <h2>Order</h2>
                         </td>
                     </tr>
                     <tr class="intro">
-                        <td class="">
-                            Hello, Philip Brooks.<br>
-                            Thank you for your order.
+                        <td>
+                            <%= Seller.Address.StreetOne %><br>
+                            <%= Seller.Address.PostalCode - Seller.Address.City, Seller.Address.CountryCode %><br>
+                            <%= Seller.Contact.Phone %><br>
+                            <%= Seller.Contact.Email %>
                         </td>
                         <td class="text-right">
                             <span class="num">Order #00302</span><br>
@@ -83,19 +84,22 @@
 
                 <section class="additional-info">
                     <div class="row">
-                        <div class="columns">
-                            <h5>Billing Information</h5>
-                            <p>Philip Brooks<br>
-                                134 Madison Ave.<br>
-                                New York NY 00102<br>
-                                United States</p>
+                        <div class="column">
+                            <h3>Deadlines</h3>
+                            <hr>
+                            <h4>Documents upload: </h4><span>October 25, 2017</span>
+                            <h4>Payment: </h4><span>October 25, 2017</span>
+                            <h4>Shipping: </h4><span>October 25, 2017</span>
+                            <h4>Delivery: </h4><span>October 25, 2017</span>
                         </div>
-                        <div class="columns">
-                            <h5>Payment Information</h5>
-                            <p>Credit Card<br>
-                                Card Type: Visa<br>
-                                &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; 1234
-                            </p>
+                        <div class="column">
+                            <h3>Constraints</h3>
+                            <hr>
+                            <h4>Arbiter: </h4><span>Arbiter 1234</span>
+                            <h4>Incoterms: </h4><span>FOB</span>
+                            <h4>Shipper: </h4><span>MSC</span>
+                            <h4>Shipping Port: </h4><span>Bari</span>
+                            <h4>Delivery Port: </h4><span>Genova</span>
                         </div>
                     </div>
                 </section>

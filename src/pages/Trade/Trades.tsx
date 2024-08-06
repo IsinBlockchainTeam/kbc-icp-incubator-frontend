@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import { NegotiationStatus, OrderStatus, TradeType } from '@kbc-lib/coffee-trading-management-lib';
 import { setParametersPath } from '@/utils/page';
 import { paths } from '@/constants/paths';
-import { useICPName } from '@/providers/entities/ICPNameProvider';
+import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
 import { useEthBasicTrade } from '@/providers/entities/EthBasicTradeProvider';
 import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
 
@@ -24,19 +24,19 @@ export const Trades = () => {
     const { basicTrades } = useEthBasicTrade();
     const { orderTrades, getActionRequired, getNegotiationStatus, getOrderStatus } =
         useEthOrderTrade();
-    const { getOrganization } = useICPName();
+    const { getOrganization } = useICPOrganization();
 
     const tradesPresentable: TradePreviewPresentable[] = basicTrades.map((t) => ({
         id: t.tradeId,
-        supplier: getOrganization(t.supplier),
-        commissioner: getOrganization(t.commissioner),
+        supplier: getOrganization(t.supplier).legalName,
+        commissioner: getOrganization(t.commissioner).legalName,
         type: TradeType.BASIC
     }));
     tradesPresentable.push(
         ...orderTrades.map((o) => ({
             id: o.tradeId,
-            supplier: getOrganization(o.supplier),
-            commissioner: getOrganization(o.commissioner),
+            supplier: getOrganization(o.supplier).legalName,
+            commissioner: getOrganization(o.commissioner).legalName,
             type: TradeType.ORDER,
             actionRequired: getActionRequired(o.tradeId),
             negotiationStatus: getNegotiationStatus(o.tradeId),

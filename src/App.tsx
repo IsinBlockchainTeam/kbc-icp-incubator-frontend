@@ -26,7 +26,7 @@ import DataLoader from './DataLoader';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 import { useEthOffer } from '@/providers/entities/EthOfferProvider';
-import { useICPName } from '@/providers/entities/ICPNameProvider';
+import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
 import { useEthRawTrade } from '@/providers/entities/EthRawTradeProvider';
 import { useEthAssetOperation } from '@/providers/entities/EthAssetOperationProvider';
 import { useEthRelationship } from '@/providers/entities/EthRelationshipProvider';
@@ -98,7 +98,7 @@ export const App = () => {
                                     <Route
                                         path={paths.OFFERS}
                                         element={
-                                            <DataLoader customUseContext={useICPName}>
+                                            <DataLoader customUseContext={useICPOrganization}>
                                                 <DataLoader customUseContext={useEthOffer}>
                                                     <Offers />
                                                 </DataLoader>
@@ -108,7 +108,7 @@ export const App = () => {
                                     <Route
                                         path={paths.OFFERS_NEW}
                                         element={
-                                            <DataLoader customUseContext={useICPName}>
+                                            <DataLoader customUseContext={useICPOrganization}>
                                                 <DataLoader customUseContext={useEthMaterial}>
                                                     <DataLoader customUseContext={useEthOffer}>
                                                         <OfferNew />
@@ -152,7 +152,7 @@ export const App = () => {
                                     <Route
                                         path={paths.TRADES}
                                         element={
-                                            <DataLoader customUseContext={useICPName}>
+                                            <DataLoader customUseContext={useICPOrganization}>
                                                 <DataLoader customUseContext={useEthRawTrade}>
                                                     <Trades />
                                                 </DataLoader>
@@ -162,7 +162,7 @@ export const App = () => {
                                     <Route
                                         path={paths.TRADE_NEW}
                                         element={
-                                            <DataLoader customUseContext={useICPName}>
+                                            <DataLoader customUseContext={useICPOrganization}>
                                                 <DataLoader customUseContext={useEthMaterial}>
                                                     <DataLoader customUseContext={useEthEnumerable}>
                                                         <DataLoader
@@ -177,7 +177,7 @@ export const App = () => {
                                     <Route
                                         path={paths.TRADE_VIEW}
                                         element={
-                                            <DataLoader customUseContext={useICPName}>
+                                            <DataLoader customUseContext={useICPOrganization}>
                                                 <DataLoader customUseContext={useEthEnumerable}>
                                                     <DataLoader customUseContext={useEthMaterial}>
                                                         <DataLoader

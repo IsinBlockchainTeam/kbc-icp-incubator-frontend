@@ -5,7 +5,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import OrderTradeView from '@/pages/Trade/View/OrderTradeView';
 import { BasicTradeView } from '@/pages/Trade/View/BasicTradeView';
 import { paths } from '@/constants/paths';
-import { useICPName } from '@/providers/entities/ICPNameProvider';
+import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
 import { useEthBasicTrade } from '@/providers/entities/EthBasicTradeProvider';
 import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
 
@@ -14,7 +14,7 @@ export const TradeView = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
-    const { getOrganization } = useICPName();
+    const { getOrganization } = useICPOrganization();
     const { basicTrades } = useEthBasicTrade();
     const { orderTrades } = useEthOrderTrade();
     const [disabled, setDisabled] = useState<boolean>(true);
@@ -30,8 +30,8 @@ export const TradeView = () => {
     }
     if (!trade) return <div>Trade not available</div>;
 
-    const supplierName = getOrganization(trade.supplier);
-    const commissionerName = getOrganization(trade.commissioner);
+    const supplierName = getOrganization(trade.supplier).legalName;
+    const commissionerName = getOrganization(trade.commissioner).legalName;
 
     const toggleDisabled = () => {
         setDisabled((d) => !d);

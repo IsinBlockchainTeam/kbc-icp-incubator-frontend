@@ -1,5 +1,5 @@
 import { renderHook, act } from '@testing-library/react';
-import { ICPNameProvider, useICPName } from '../ICPNameProvider';
+import { ICPOrganizationProvider, useICPOrganization } from '../ICPOrganizationProvider';
 import { useDispatch } from 'react-redux';
 import { useSigner } from '@/providers/SignerProvider';
 import { Wallet } from 'ethers';
@@ -39,12 +39,12 @@ describe('ICPNameProvider', () => {
     });
 
     it('should throw error if hook is used outside the provider', async () => {
-        expect(() => renderHook(() => useICPName())).toThrow();
+        expect(() => renderHook(() => useICPOrganization())).toThrow();
     });
 
     it('should load names', async () => {
-        const { result } = renderHook(() => useICPName(), {
-            wrapper: ICPNameProvider
+        const { result } = renderHook(() => useICPOrganization(), {
+            wrapper: ICPOrganizationProvider
         });
         await act(async () => {
             await result.current.loadData();
@@ -55,14 +55,14 @@ describe('ICPNameProvider', () => {
         expect(getVerifiablePresentation).toHaveBeenCalled();
         expect(result.current.dataLoaded).toBe(true);
         expect(
-            result.current.getOrganization('0xa1f48005f183780092E0E277B282dC1934AE3308')
+            result.current.getOrganization('0xa1f48005f183780092E0E277B282dC1934AE3308').legalName
         ).toEqual(verifiablePresentation.legalName);
     });
 
     it('should handle load failure - request fails', async () => {
         (request as jest.Mock).mockRejectedValue(new Error('Test error'));
-        const { result } = renderHook(() => useICPName(), {
-            wrapper: ICPNameProvider
+        const { result } = renderHook(() => useICPOrganization(), {
+            wrapper: ICPOrganizationProvider
         });
         await act(async () => {
             await result.current.loadData();
@@ -72,7 +72,7 @@ describe('ICPNameProvider', () => {
         expect(request).toHaveBeenCalled();
         expect(result.current.dataLoaded).toBe(true);
         expect(
-            result.current.getOrganization('0xa1f48005f183780092E0E277B282dC1934AE3308')
+            result.current.getOrganization('0xa1f48005f183780092E0E277B282dC1934AE3308').legalName
         ).toEqual('Unknown');
     });
 
@@ -80,8 +80,8 @@ describe('ICPNameProvider', () => {
         (request as jest.Mock).mockResolvedValue({
             didDocument: { service: [{ serviceEndpoint: `//unknown//0` }] }
         });
-        const { result } = renderHook(() => useICPName(), {
-            wrapper: ICPNameProvider
+        const { result } = renderHook(() => useICPOrganization(), {
+            wrapper: ICPOrganizationProvider
         });
         await act(async () => {
             await result.current.loadData();
@@ -91,13 +91,13 @@ describe('ICPNameProvider', () => {
         expect(request).toHaveBeenCalled();
         expect(result.current.dataLoaded).toBe(true);
         expect(
-            result.current.getOrganization('0xa1f48005f183780092E0E277B282dC1934AE3308')
+            result.current.getOrganization('0xa1f48005f183780092E0E277B282dC1934AE3308').legalName
         ).toEqual('Unknown');
     });
     it('should handle load failure - getVerifiablePresentation fails', async () => {
         getVerifiablePresentation.mockRejectedValue(new Error('Test error'));
-        const { result } = renderHook(() => useICPName(), {
-            wrapper: ICPNameProvider
+        const { result } = renderHook(() => useICPOrganization(), {
+            wrapper: ICPOrganizationProvider
         });
         await act(async () => {
             await result.current.loadData();
@@ -107,7 +107,7 @@ describe('ICPNameProvider', () => {
         expect(request).toHaveBeenCalled();
         expect(result.current.dataLoaded).toBe(true);
         expect(
-            result.current.getOrganization('0xa1f48005f183780092E0E277B282dC1934AE3308')
+            result.current.getOrganization('0xa1f48005f183780092E0E277B282dC1934AE3308').legalName
         ).toEqual('Unknown');
     });
 });

@@ -5,7 +5,7 @@ import { OrderTradeView } from '@/pages/Trade/View/OrderTradeView';
 import { BasicTrade, OrderTrade, TradeType } from '@kbc-lib/coffee-trading-management-lib';
 import { paths } from '@/constants/paths';
 import { BasicTradeView } from '@/pages/Trade/View/BasicTradeView';
-import { useICPName } from '@/providers/entities/ICPNameProvider';
+import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
 import { useEthBasicTrade } from '@/providers/entities/EthBasicTradeProvider';
 import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
 
@@ -15,7 +15,7 @@ jest.mock('@/pages/Trade/View/BasicTradeView');
 jest.mock('@/pages/Trade/View/OrderTradeView');
 jest.mock('@/providers/entities/EthBasicTradeProvider');
 jest.mock('@/providers/entities/EthOrderTradeProvider');
-jest.mock('@/providers/entities/ICPNameProvider');
+jest.mock('@/providers/entities/ICPOrganizationProvider');
 jest.mock('@/utils/notification');
 
 describe('Trade View', () => {
@@ -38,7 +38,7 @@ describe('Trade View', () => {
         });
         (useEthBasicTrade as jest.Mock).mockReturnValue({ basicTrades });
         (useEthOrderTrade as jest.Mock).mockReturnValue({ orderTrades });
-        (useICPName as jest.Mock).mockReturnValue({ getName });
+        (useICPOrganization as jest.Mock).mockReturnValue({ getName });
         getName.mockReturnValue('actor');
     });
 

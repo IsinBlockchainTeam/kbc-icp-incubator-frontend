@@ -11,7 +11,7 @@ import {
 import { Link } from 'react-router-dom';
 import { useEthBasicTrade } from '@/providers/entities/EthBasicTradeProvider';
 import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
-import { useICPName } from '@/providers/entities/ICPNameProvider';
+import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
 
 jest.mock('antd', () => {
     return {
@@ -23,7 +23,7 @@ jest.mock('antd', () => {
 });
 jest.mock('@/providers/entities/EthBasicTradeProvider');
 jest.mock('@/providers/entities/EthOrderTradeProvider');
-jest.mock('@/providers/entities/ICPNameProvider');
+jest.mock('@/providers/entities/ICPOrganizationProvider');
 jest.mock('@/utils/page');
 jest.mock('react-router-dom', () => {
     return {
@@ -51,7 +51,7 @@ describe('Trades', () => {
             getNegotiationStatus,
             getOrderStatus
         });
-        (useICPName as jest.Mock).mockReturnValue({ getName });
+        (useICPOrganization as jest.Mock).mockReturnValue({ getName });
         getName.mockReturnValue('actor');
         getActionRequired.mockReturnValue('actionRequired');
         getNegotiationStatus.mockReturnValue(NegotiationStatus.CONFIRMED);

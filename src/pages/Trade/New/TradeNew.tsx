@@ -6,13 +6,13 @@ import { paths } from '@/constants/paths';
 import { useSigner } from '@/providers/SignerProvider';
 import { BasicTradeNew } from '@/pages/Trade/New/BasicTradeNew';
 import { OrderTradeNew } from '@/pages/Trade/New/OrderTradeNew';
-import { useICPName } from '@/providers/entities/ICPNameProvider';
+import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
 
 export const TradeNew = () => {
     const { signer } = useSigner();
     const navigate = useNavigate();
     const location = useLocation();
-    const { getOrganization } = useICPName();
+    const { getOrganization } = useICPOrganization();
 
     const type = TradeType.ORDER;
 
@@ -20,8 +20,8 @@ export const TradeNew = () => {
     const supplierAddress: string = location?.state?.supplierAddress;
     const customerAddress: string = signer._address;
     const productCategoryId: number = location?.state?.productCategoryId;
-    const supplierName = getOrganization(supplierAddress);
-    const commissionerName = getOrganization(customerAddress);
+    const supplierName = getOrganization(supplierAddress).legalName;
+    const commissionerName = getOrganization(customerAddress).legalName;
 
     elements.push(
         { type: FormElementType.TITLE, span: 24, label: 'Actors' },

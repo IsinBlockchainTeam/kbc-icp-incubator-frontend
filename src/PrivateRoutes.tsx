@@ -9,7 +9,7 @@ import { paths } from '@/constants/paths';
 import { EthMaterialProvider } from '@/providers/entities/EthMaterialProvider';
 import { EthEnumerableProvider } from '@/providers/entities/EthEnumerableProvider';
 import { EthOfferProvider } from '@/providers/entities/EthOfferProvider';
-import { ICPNameProvider } from '@/providers/entities/ICPNameProvider';
+import { ICPOrganizationProvider } from '@/providers/entities/ICPOrganizationProvider';
 import { EthRawTradeProvider } from '@/providers/entities/EthRawTradeProvider';
 import { EthDocumentProvider } from '@/providers/entities/EthDocumentProvider';
 import { EthBasicTradeProvider } from '@/providers/entities/EthBasicTradeProvider';
@@ -26,7 +26,7 @@ const PrivateRoutes = () => {
             <SiweIdentityProvider>
                 <ICPProvider>
                     <EthRelationshipProvider>
-                        <ICPNameProvider>
+                        <ICPOrganizationProvider>
                             <EthEnumerableProvider>
                                 <EthMaterialProvider>
                                     <EthOfferProvider>
@@ -48,7 +48,7 @@ const PrivateRoutes = () => {
                                     </EthOfferProvider>
                                 </EthMaterialProvider>
                             </EthEnumerableProvider>
-                        </ICPNameProvider>
+                        </ICPOrganizationProvider>
                     </EthRelationshipProvider>
                 </ICPProvider>
             </SiweIdentityProvider>

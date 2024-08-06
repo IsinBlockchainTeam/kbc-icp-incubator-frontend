@@ -35,7 +35,7 @@ import {
     useEthDocument
 } from '@/providers/entities/EthDocumentProvider';
 import { useICP } from '@/providers/ICPProvider';
-import { useICPName } from '@/providers/entities/ICPNameProvider';
+import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
 import { ACTION_MESSAGE } from '@/constants/message';
 import { requestPath } from '@/constants/url';
 import { JsonRpcSigner } from '@ethersproject/providers';
@@ -49,7 +49,7 @@ jest.mock('@/utils/icp');
 jest.mock('@/providers/entities/EthMaterialProvider');
 jest.mock('@/providers/ICPProvider');
 jest.mock('@/providers/entities/EthDocumentProvider');
-jest.mock('@/providers/entities/ICPNameProvider');
+jest.mock('@/providers/entities/ICPOrganizationProvider');
 
 describe('EthOrderTradeProvider', () => {
     const signer = { _address: '0x123' } as JsonRpcSigner;
@@ -126,7 +126,7 @@ describe('EthOrderTradeProvider', () => {
             getDocumentDuty,
             getDocumentDetailMap
         });
-        (useICPName as jest.Mock).mockReturnValue({
+        (useICPOrganization as jest.Mock).mockReturnValue({
             getName
         });
         (useDispatch as jest.Mock).mockReturnValue(dispatch);

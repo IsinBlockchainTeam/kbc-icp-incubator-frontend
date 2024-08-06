@@ -37,7 +37,7 @@ import {
     DocumentRequest,
     useEthDocument
 } from '@/providers/entities/EthDocumentProvider';
-import { useICPName } from '@/providers/entities/ICPNameProvider';
+import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
 import { requestPath } from '@/constants/url';
 
 export type OrderTradeRequest = {
@@ -110,7 +110,7 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
     const { productCategories } = useEthMaterial();
     const { validateDocument, uploadDocument, getDocumentDuty, getDocumentDetailMap } =
         useEthDocument();
-    const { getOrganization } = useICPName();
+    const { getOrganization } = useICPOrganization();
     const dispatch = useDispatch();
     const [detailedOrderTrades, setDetailedOrderTrades] = useState<DetailedOrderTrade[]>([]);
     const { fileDriver } = useICP();
@@ -440,8 +440,8 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
             if (!orderTrade) return Promise.reject('Trade not found');
             const recipientCompanyName =
                 orderTrade.supplier === signer._address
-                    ? getOrganization(orderTrade.commissioner)
-                    : getOrganization(orderTrade.supplier);
+                    ? getOrganization(orderTrade.commissioner).legalName
+                    : getOrganization(orderTrade.supplier).legalName;
             const response = await fetch(`${requestPath.EMAIL_SENDER_URL}/email/deadline-expired`, {
                 method: 'POST',
                 headers: {

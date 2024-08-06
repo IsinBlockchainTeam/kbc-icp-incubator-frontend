@@ -26,6 +26,7 @@ main .inner-container {
 table.invoice {
     background: #fff;
     width: 100%;
+    margin-bottom: 2rem;
 }
 table.invoice .num {
     font-weight: 200;
@@ -127,10 +128,21 @@ table.invoice tr.totals table tr.total td:last-child {
     font-weight: 700;
 }
 
-.additional-info h5 {
-    font-size: 0.8em;
+.additional-info h3 {
+    /*font-size: 1em;*/
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 2px;
     color: #1779ba;
+    margin-bottom: 1rem;
+}
+
+.additional-info h4 {
+    margin-bottom: 0.5rem;
+}
+
+.additional-info .row {
+    display: grid;
+    grid-template-columns: 50% 50%;
+    gap: 1rem;
 }
