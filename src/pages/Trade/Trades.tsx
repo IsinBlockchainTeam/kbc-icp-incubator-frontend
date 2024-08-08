@@ -24,19 +24,19 @@ export const Trades = () => {
     const { basicTrades } = useEthBasicTrade();
     const { orderTrades, getActionRequired, getNegotiationStatus, getOrderStatus } =
         useEthOrderTrade();
-    const { getOrganization } = useICPOrganization();
+    const { getCompany } = useICPOrganization();
 
     const tradesPresentable: TradePreviewPresentable[] = basicTrades.map((t) => ({
         id: t.tradeId,
-        supplier: getOrganization(t.supplier).legalName,
-        commissioner: getOrganization(t.commissioner).legalName,
+        supplier: getCompany(t.supplier).legalName,
+        commissioner: getCompany(t.commissioner).legalName,
         type: TradeType.BASIC
     }));
     tradesPresentable.push(
         ...orderTrades.map((o) => ({
             id: o.tradeId,
-            supplier: getOrganization(o.supplier).legalName,
-            commissioner: getOrganization(o.commissioner).legalName,
+            supplier: getCompany(o.supplier).legalName,
+            commissioner: getCompany(o.commissioner).legalName,
             type: TradeType.ORDER,
             actionRequired: getActionRequired(o.tradeId),
             negotiationStatus: getNegotiationStatus(o.tradeId),

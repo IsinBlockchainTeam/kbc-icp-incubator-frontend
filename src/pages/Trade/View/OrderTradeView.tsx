@@ -21,6 +21,8 @@ import { validateDates } from '@/utils/date';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 import { OrderTradeRequest, useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
+import useOrderGenerator, { OrderSpec } from '@/hooks/useOrderGenerator';
+import PDFGenerationView from '@/components/PDFViewer/PDFGenerationView';
 
 type OrderTradeViewProps = {
     orderTrade: OrderTrade;
@@ -34,13 +36,41 @@ export const OrderTradeView = ({
     toggleDisabled,
     commonElements
 }: OrderTradeViewProps) => {
+    const navigate = useNavigate();
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const { signer } = useSigner();
     const { productCategories } = useEthMaterial();
     const { units, fiats } = useEthEnumerable();
     const { updateOrderTrade, confirmNegotiation, getOrderStatus } = useEthOrderTrade();
     const negotiationStatus = NegotiationStatus[orderTrade.negotiationStatus];
-    const navigate = useNavigate();
+    const [showGeneratedDocument, setShowGeneratedDocument] = useState(false);
+    // TODO: in general, remove hardcoded values and add input in the form of the negotiation
+    const orderSpec: OrderSpec = {
+        id: `order_info#${orderTrade.tradeId}`,
+        // TODO: add issueDate to order entity, so that also in the future (not today) I know when the order has been issued
+        issueDate: new Date(),
+        supplierAddress: orderTrade.supplier,
+        commissionerAddress: orderTrade.commissioner,
+        // TODO: define the currency directly in the negotiation terms, not in lines
+        currency: 'USDC',
+        items: orderTrade.lines.map((line) => ({
+            id: `order_info_line#${line.id}`,
+            productCategory: line.productCategory.name || '',
+            productTypology: 'Green coffee beans',
+            quality: line.productCategory.quality,
+            quantity: line.quantity,
+            moisture: 12,
+            weight: 900,
+            unitCode: line.unit
+        })),
+        constraints: {
+            incoterms: orderTrade.metadata?.incoterms || '',
+            arbiterAddress: orderTrade.arbiter,
+            shipper: orderTrade.metadata?.shipper || '',
+            shippingPort: orderTrade.metadata?.shippingPort || '',
+            deliveryPort: orderTrade.metadata?.deliveryPort || ''
+        }
+    };
 
     const toggleEditing = () => {
         toggleDisabled();
@@ -367,7 +397,11 @@ export const OrderTradeView = ({
                 negotiationElements={elements}
                 onSubmit={onSubmit}
             />
-            <Button>Generate PDF</Button>
+            <Button onClick={() => setShowGeneratedDocument(true)}>Generate PDF</Button>
+            <PDFGenerationView
+                visible={showGeneratedDocument}
+                useGeneration={useOrderGenerator(orderSpec)}
+            />
         </CardPage>
     );
 };

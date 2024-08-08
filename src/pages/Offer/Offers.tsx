@@ -21,7 +21,7 @@ type OfferPresentable = {
 };
 export const Offers = () => {
     const { offers } = useEthOffer();
-    const { getOrganization } = useICPOrganization();
+    const { getCompany } = useICPOrganization();
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const navigate = useNavigate();
     const [productCategory, setProductCategory] = useState<string>('');
@@ -79,7 +79,7 @@ export const Offers = () => {
         )
         .map((offer) => ({
             id: offer.id,
-            supplierName: getOrganization(offer.owner).legalName,
+            supplierName: getCompany(offer.owner).legalName,
             supplierAddress: offer.owner,
             productCategory: offer.productCategory
         }));

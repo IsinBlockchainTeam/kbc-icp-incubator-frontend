@@ -55,7 +55,7 @@ describe('ICPNameProvider', () => {
         expect(getVerifiablePresentation).toHaveBeenCalled();
         expect(result.current.dataLoaded).toBe(true);
         expect(
-            result.current.getOrganization('0xa1f48005f183780092E0E277B282dC1934AE3308').legalName
+            result.current.getCompany('0xa1f48005f183780092E0E277B282dC1934AE3308').legalName
         ).toEqual(verifiablePresentation.legalName);
     });
 
@@ -72,7 +72,7 @@ describe('ICPNameProvider', () => {
         expect(request).toHaveBeenCalled();
         expect(result.current.dataLoaded).toBe(true);
         expect(
-            result.current.getOrganization('0xa1f48005f183780092E0E277B282dC1934AE3308').legalName
+            result.current.getCompany('0xa1f48005f183780092E0E277B282dC1934AE3308').legalName
         ).toEqual('Unknown');
     });
 
@@ -91,7 +91,7 @@ describe('ICPNameProvider', () => {
         expect(request).toHaveBeenCalled();
         expect(result.current.dataLoaded).toBe(true);
         expect(
-            result.current.getOrganization('0xa1f48005f183780092E0E277B282dC1934AE3308').legalName
+            result.current.getCompany('0xa1f48005f183780092E0E277B282dC1934AE3308').legalName
         ).toEqual('Unknown');
     });
     it('should handle load failure - getVerifiablePresentation fails', async () => {
@@ -107,7 +107,7 @@ describe('ICPNameProvider', () => {
         expect(request).toHaveBeenCalled();
         expect(result.current.dataLoaded).toBe(true);
         expect(
-            result.current.getOrganization('0xa1f48005f183780092E0E277B282dC1934AE3308').legalName
+            result.current.getCompany('0xa1f48005f183780092E0E277B282dC1934AE3308').legalName
         ).toEqual('Unknown');
     });
 });

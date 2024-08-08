@@ -1,4 +1,6 @@
-export type OrderExported = {
+import { JSONTemplate } from '../JSONTemplate';
+
+export interface JSONOrderTemplate extends JSONTemplate {
     Header: {
         ContractID: string;
         IssueDate: string;
@@ -68,7 +70,6 @@ export type OrderExported = {
                 Email: string;
                 Phone: string;
             };
-            GoverningLaw: string;
         };
         Shipper: string;
         ShippingPort: string;
@@ -80,9 +81,8 @@ export type OrderExported = {
         };
         PriceFixing: {
             // if a fixed date is not specified, it must be specified directly the price of the item. One of two fields must be present
-            FixedPrice?: number;
-            FixingDate?: string;
-            CalculationMechanism?: string;
+            Mode: string; // could be "Seller's Call", "Buyer's Call" or "Forward Contract" (price is defined during the negotiation)
+            Value?: string; // in case of the first 2 modes, it is a description that explains the calculation mechanism, otherwise it is not defined (and the price is defined directly in the LineItem)
             PriceSources: string[];
             Currency: string;
             SettlementConditions: string;
@@ -110,4 +110,4 @@ export type OrderExported = {
     AdditionalInformation?: {
         [key: string]: string;
     };
-};
+}

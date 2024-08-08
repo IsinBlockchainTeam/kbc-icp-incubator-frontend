@@ -1,52 +1,63 @@
 import { useCallback } from 'react';
 import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
-import { OrderExported } from '../templates/transaction/OrderExported';
+import { JSONOrderTemplate } from '../templates/transaction/JSONOrderTemplate';
 import { VAT_TAX } from '@/constants/misc';
 import { incotermsMap } from '@/constants/trade';
-import {BLANK_PDF, Template} from '@pdfme/common';
+import { text, image, barcodes } from '@pdfme/schemas';
 import { generate } from '@pdfme/generator';
-import {OrderExportedSchema} from "../templates/transaction/pdf-schemas/OrderExportedSchema";
+import OrderTemplateSchema from '../templates/transaction/pdf-schemas/OrderTemplateSchema.json';
 
 const incotermsKeys = Array.from(incotermsMap.keys());
 
 export type OrderSpec = {
     id: string;
+    issueDate: Date;
     supplierAddress: string;
     commissionerAddress: string;
-    issueDate: Date;
-    fiat: string;
+    currency: string;
     items: {
         id: string;
         productCategory: string;
+        productTypology: string;
         quality: number;
+        moisture: number;
         quantity: number;
         weight: number;
         unitCode: string;
-        price: number;
+        price?: number;
     }[];
     constraints: {
         incoterms: (typeof incotermsKeys)[number];
-        governingLaw: string;
         arbiterAddress: string;
         shipper: string;
         shippingPort: string;
         deliveryPort: string;
-        paymentDeadline: Date;
-        documentDeadline: Date;
-        shippingDeadline: Date;
-        deliveryDeadline: Date;
     };
 };
 
-// TODO: una volta ricavate le informazioni complete delle compagnie partner, posso andare a creare l'oggetto json standard per le fatture (su discord) insieme alle altre informazioni negoziate
-// ora ICP non ritornerà più solamente il nome della compagnia ma anche le altre informazioni che mi servono
-export default () => {
-    const { getOrganization } = useICPOrganization();
+export default (orderSpec: OrderSpec) => {
+    const { getCompany } = useICPOrganization();
 
-    const generateJsonSpec = useCallback((orderSpec: OrderSpec): OrderExported => {
-        const supplier = getOrganization(orderSpec.supplierAddress);
-        const commissioner = getOrganization(orderSpec.commissionerAddress);
-        const arbiter = getOrganization(orderSpec.constraints.arbiterAddress);
+    const fixYPositions = (schemas: any[]): any => {
+        return schemas.map((schema) => {
+            const updatedSchema: any = {};
+            for (const key in schema) {
+                if (schema.hasOwnProperty(key)) {
+                    const element = JSON.parse(JSON.stringify(schema[key]));
+                    if (element.position && typeof element.position.y === 'number') {
+                        element.position.y -= 3;
+                    }
+                    updatedSchema[key] = element;
+                }
+            }
+            return updatedSchema;
+        });
+    };
+
+    const generateJsonSpec = useCallback((): JSONOrderTemplate => {
+        const supplier = getCompany(orderSpec.supplierAddress);
+        const commissioner = getCompany(orderSpec.commissionerAddress);
+        const arbiter = getCompany(orderSpec.constraints.arbiterAddress);
 
         return {
             Header: {
@@ -113,8 +124,7 @@ export default () => {
                         Name: arbiter.legalName,
                         Email: arbiter.email,
                         Phone: arbiter.telephone
-                    },
-                    GoverningLaw: orderSpec.constraints.governingLaw
+                    }
                 },
                 Shipper: orderSpec.constraints.shipper,
                 ShippingPort: orderSpec.constraints.shippingPort,
@@ -124,8 +134,8 @@ export default () => {
                     RateApplicablePercent: VAT_TAX
                 },
                 PriceFixing: {
-                    FixedPrice: orderSpec.items.reduce((acc, item) => acc + item.price, 0),
-                    Currency: orderSpec.fiat,
+                    Mode: "Seller's Call",
+                    Currency: orderSpec.currency,
                     // TODO: remove this hardcoded values
                     PriceSources: [
                         'New York Mercantile Exchange (NYMEX)',
@@ -146,26 +156,80 @@ export default () => {
         };
     }, []);
 
-    const generatePdf = useCallback((orderSpec: OrderSpec): void => {
-        const template: Template = {
-            basePdf: BLANK_PDF,
-            schemas: [
-                OrderExportedSchema
+    const generatePdf = useCallback(async (jsonSpec: JSONOrderTemplate): Promise<Blob> => {
+        const plugins = { text, image, qrcode: barcodes.qrcode };
+        const inputs = [
+            {
+                sellerLegalName: 'Café Brasil Exportações Ltda',
+                sellerContactName: 'João Silva Oliveira',
+                sellerPhoneNumber: '+55 11 98765-4321',
+                orderID: '12345',
+                itemQuantity1: '500',
+                itemUnit1: '60kg Bags',
+                itemWeight: '30000',
+                priceMode: "Seller's Call",
+                currency: 'USDC',
+                escrowPercentage: '20%',
+                escrowTaxPercentage: '0,05%',
+                arbiter: 'Arbiter 12345',
+                shipper: 'MSC Cruise',
+                shippingPort: 'Paranaguá Port',
+                deliveryDate: '15/10/2024',
+                deliveryPort: 'Genova',
+                sampleYes: 'X',
+                sampleNo: '',
+                sellerAddress: 'Avenida das Palmeiras, 1234',
+                sellerCity: '03506-000 - São Paulo',
+                sellerEmail: 'joao.oliveira@cafebrasilexport.com.br',
+                buyerLegalName: 'EuroCoffee Imports Ltd',
+                buyerContactName: 'Marie Dupont\n',
+                buyerPhoneNumber: '+32 2 123 4567',
+                buyerAddress: 'Rue des Commerçants, 567',
+                buyerCity: '1040 Bruxelles',
+                buyerEmail: 'marie.dupont@eurocoffeeimports.eu',
+                itemCategory: 'Arabica',
+                itemTypology: 'Green beans / not roasted',
+                itemQuality: '15',
+                itemMoisture: '12%',
+                priceValue: 'Average of daily closing prices from the previous month',
+                insuranceResponsible: 'Buyer',
+                insuranceDetails:
+                    'The buyer assumes all risks and costs once the goods are on board the vessel.\n',
+                issueDate: 'August 10, 2024',
+                'priceValue copy':
+                    'Payment due within 30 days of price fixing date\n.... could be free text more lines ...\n... ... ....',
+                sellerRegion: 'Goiás GO, BRA',
+                buyerRegion: 'Bruxelles-Capitale, Région de - BRU, BE',
+                itemQuantity2: '3',
+                itemUnit2: "40' Dry containers",
+                incoterms: 'FOB',
+                standards: 'RFA (Rain Forest Alliance),   ICO (Certificate of Origin)',
+                sampleDescription: '1 lb shipping sample to be provided prior shipment',
+                otherConditions:
+                    '1) Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua\n2) Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris\n...\n....\n.....\n6) Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident'
+            }
+        ];
+
+        return new Blob(
+            [
+                (
+                    await generate({
+                        template: {
+                            ...OrderTemplateSchema,
+                            schemas: fixYPositions(OrderTemplateSchema.schemas)
+                        },
+                        inputs,
+                        plugins
+                    })
+                ).buffer
             ],
-        };
-
-        const inputs = [{ a: 'a1', b: 'b1', c: 'c1' }];
-
-        generate({ template, inputs }).then((pdf) => {
-            console.log(pdf);
-
-            // Browser
-            const blob = new Blob([pdf.buffer], { type: 'application/pdf' });
-            window.open(URL.createObjectURL(blob));
-        });
-    }
+            { type: 'application/pdf' }
+        );
+        // window.open(URL.createObjectURL(blob));
+    }, []);
 
     return {
-        generateJsonSpec
+        generateJsonSpec,
+        generatePdf
     };
 };

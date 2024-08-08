@@ -1,4 +1,6 @@
-export type InvoiceExported = {
+import { JSONTemplate } from '../JSONTemplate';
+
+export interface JSONInvoiceTemplate extends JSONTemplate {
     Header: {
         TransactionID: string;
         IssueDate: string;
@@ -76,4 +78,4 @@ export type InvoiceExported = {
     AdditionalInformation?: {
         [key: string]: string;
     };
-};
+}

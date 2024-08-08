@@ -12,7 +12,7 @@ export const TradeNew = () => {
     const { signer } = useSigner();
     const navigate = useNavigate();
     const location = useLocation();
-    const { getOrganization } = useICPOrganization();
+    const { getCompany } = useICPOrganization();
 
     const type = TradeType.ORDER;
 
@@ -20,8 +20,8 @@ export const TradeNew = () => {
     const supplierAddress: string = location?.state?.supplierAddress;
     const customerAddress: string = signer._address;
     const productCategoryId: number = location?.state?.productCategoryId;
-    const supplierName = getOrganization(supplierAddress).legalName;
-    const commissionerName = getOrganization(customerAddress).legalName;
+    const supplierName = getCompany(supplierAddress).legalName;
+    const commissionerName = getCompany(customerAddress).legalName;
 
     elements.push(
         { type: FormElementType.TITLE, span: 24, label: 'Actors' },
