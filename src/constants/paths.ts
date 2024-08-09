@@ -25,5 +25,5 @@ export const paths = {
     TRADE_NEW: '/trades/new',
     TRADE_VIEW: '/trades/:id',
     SHIPMENT_NEW: '/trades/:id/shipments/new',
-    SHIPMENT_VIEW: '/trades/:id/shipments/:shipmentId'
+    SHIPMENT: '/trades/:id/shipment'
 };

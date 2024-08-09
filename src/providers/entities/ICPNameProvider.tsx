@@ -10,9 +10,9 @@ import { URL_SEGMENT_INDEXES } from '@kbc-lib/coffee-trading-management-lib';
 import { ICP } from '@/constants/icp';
 
 // TODO: fix this by retrieving the names from the blockchain
-const ADDRESSES = [
-    '0xa1f48005f183780092E0E277B282dC1934AE3308',
-    '0x319FFED7a71D3CD22aEEb5C815C88f0d2b19D123'
+const ADDRESSES: string[] = [
+    // '0xa1f48005f183780092E0E277B282dC1934AE3308',
+    // '0x319FFED7a71D3CD22aEEb5C815C88f0d2b19D123'
 ];
 export type ICPNameContextState = {
     dataLoaded: boolean;

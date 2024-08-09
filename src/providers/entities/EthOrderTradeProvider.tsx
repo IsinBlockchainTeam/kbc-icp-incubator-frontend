@@ -85,7 +85,14 @@ export type EthOrderTradeContextState = {
         externalUrl: string
     ) => Promise<void>;
     notifyExpiration: (orderId: number, email: string, message: string) => Promise<void>;
-    getShipmentManagerAddress: (orderId: number) => string;
+    createShipment: (
+        orderId: number,
+        expirationDate: Date,
+        quantity: number,
+        weight: number,
+        price: number
+    ) => Promise<void>;
+    getShipmentAddress: (orderId: number) => string;
     getEscrowAddress: (orderId: number) => string;
 };
 export const EthOrderTradeContext = createContext<EthOrderTradeContextState>(
@@ -105,7 +112,7 @@ type DetailedOrderTrade = {
     actionRequired: string;
     negotiationStatus: NegotiationStatus;
     orderStatus: OrderStatus;
-    shipmentManagerAddress: string;
+    shipmentAddress: string;
     escrowAddress: string;
 };
 export function EthOrderTradeProvider(props: { children: ReactNode }) {
@@ -164,7 +171,7 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
                         orderStatus,
                         signatures
                     );
-                    const shipmentManagerAddress = await service.getShipmentManagerAddress();
+                    const shipmentAddress = await service.getShipmentAddress();
                     const escrowAddress = await service.getEscrowAddress();
 
                     detailedOrderTrades.push({
@@ -174,7 +181,7 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
                         actionRequired,
                         negotiationStatus,
                         orderStatus,
-                        shipmentManagerAddress,
+                        shipmentAddress,
                         escrowAddress
                     });
                 })
@@ -520,10 +527,45 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
         if (documentDetail === undefined) throw new Error('Document type not found.');
         return documentDetail;
     };
-    const getShipmentManagerAddress = (orderId: number) => {
+    const createShipment = async (
+        orderId: number,
+        expirationDate: Date,
+        quantity: number,
+        weight: number,
+        price: number
+    ) => {
         const detailedOrderTrade = detailedOrderTrades.find((t) => t.trade.tradeId === orderId);
         if (!detailedOrderTrade) throw new Error('Order trade not found.');
-        return detailedOrderTrade.shipmentManagerAddress;
+        try {
+            dispatch(addLoadingMessage(ORDER_TRADE_MESSAGE.CREATE_SHIPMENT.LOADING));
+            await detailedOrderTrade.service.createShipment(
+                expirationDate,
+                quantity,
+                weight,
+                price
+            );
+            await loadDetailedTrades();
+            openNotification(
+                'Success',
+                ORDER_TRADE_MESSAGE.CREATE_SHIPMENT.OK,
+                NotificationType.SUCCESS,
+                NOTIFICATION_DURATION
+            );
+        } catch (e) {
+            openNotification(
+                'Error',
+                ORDER_TRADE_MESSAGE.CREATE_SHIPMENT.ERROR,
+                NotificationType.ERROR,
+                NOTIFICATION_DURATION
+            );
+        } finally {
+            dispatch(removeLoadingMessage(ORDER_TRADE_MESSAGE.CREATE_SHIPMENT.LOADING));
+        }
+    };
+    const getShipmentAddress = (orderId: number) => {
+        const detailedOrderTrade = detailedOrderTrades.find((t) => t.trade.tradeId === orderId);
+        if (!detailedOrderTrade) throw new Error('Order trade not found.');
+        return detailedOrderTrade.shipmentAddress;
     };
     const getEscrowAddress = (orderId: number) => {
         const detailedOrderTrade = detailedOrderTrades.find((t) => t.trade.tradeId === orderId);
@@ -545,7 +587,8 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
                 validateOrderDocument,
                 uploadOrderDocument,
                 notifyExpiration,
-                getShipmentManagerAddress,
+                createShipment,
+                getShipmentAddress,
                 getEscrowAddress
             }}>
             {props.children}

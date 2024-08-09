@@ -8,6 +8,9 @@ import { paths } from '@/constants/paths';
 import { useICPName } from '@/providers/entities/ICPNameProvider';
 import { useEthBasicTrade } from '@/providers/entities/EthBasicTradeProvider';
 import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
+import { Collapse } from 'antd';
+import { Shipment } from '@/pages/Shipment/Shipment';
+import { CardPage } from '@/components/structure/CardPage/CardPage';
 
 export const TradeView = () => {
     const { id } = useParams();
@@ -70,12 +73,36 @@ export const TradeView = () => {
 
     if (type === TradeType.ORDER) {
         return (
-            <OrderTradeView
-                orderTrade={trade as OrderTrade}
-                disabled={disabled}
-                toggleDisabled={toggleDisabled}
-                commonElements={elements}
-            />
+            <CardPage title={'Order'}>
+                <Collapse
+                    size="large"
+                    defaultActiveKey={['1']}
+                    items={[
+                        {
+                            key: '1',
+                            label: 'Details',
+                            children: (
+                                <OrderTradeView
+                                    orderTrade={trade as OrderTrade}
+                                    disabled={disabled}
+                                    toggleDisabled={toggleDisabled}
+                                    commonElements={elements}
+                                />
+                            )
+                        },
+                        {
+                            key: '2',
+                            label: 'Shipment',
+                            children: <Shipment />
+                        },
+                        {
+                            key: '3',
+                            label: 'Documents',
+                            children: <></>
+                        }
+                    ]}
+                />
+            </CardPage>
         );
     }
     return (

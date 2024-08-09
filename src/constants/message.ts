@@ -142,6 +142,11 @@ export const ORDER_TRADE_MESSAGE = {
         LOADING: 'Notifying expiration...',
         OK: 'The expiration has been notified.',
         ERROR: 'Error while notifying expiration.'
+    },
+    CREATE_SHIPMENT: {
+        LOADING: 'Creating shipment...',
+        OK: 'Shipment created successfully.',
+        ERROR: 'Error while creating shipment.'
     }
 };
 export const DOCUMENT_MESSAGE = {
@@ -210,9 +215,9 @@ export const TOKEN_MESSAGE = {
 };
 export const SHIPMENT_MESSAGE = {
     RETRIEVE: {
-        LOADING: 'Retrieving shipments...',
+        LOADING: 'Retrieving shipment...',
         OK: '',
-        ERROR: 'Error while retrieving shipments.'
+        ERROR: 'Error while retrieving shipment.'
     },
     SAVE: {
         LOADING: 'Saving shipment...',
@@ -224,9 +229,39 @@ export const SHIPMENT_MESSAGE = {
         OK: 'Shipment approved successfully.',
         ERROR: 'Error while approving shipment.'
     },
-    LOCK: {
-        LOADING: 'Locking funds...',
-        OK: 'Funds locked successfully.',
-        ERROR: 'Error while locking funds.'
+    DEPOSIT: {
+        LOADING: 'Depositing funds...',
+        OK: 'Funds deposited successfully.',
+        ERROR: 'Error while depositing funds.'
+    },
+    GET_DOCUMENT: {
+        LOADING: 'Retrieving document...',
+        OK: '',
+        ERROR: 'Error while retrieving document.'
+    },
+    ADD_DOCUMENT: {
+        LOADING: 'Adding document...',
+        OK: 'Document added successfully.',
+        ERROR: 'Error while adding document.'
+    },
+    APPROVE_DOCUMENT: {
+        LOADING: 'Approving document...',
+        OK: 'Document approved successfully.',
+        ERROR: 'Error while approving document.'
+    },
+    REJECT_DOCUMENT: {
+        LOADING: 'Rejecting document...',
+        OK: 'Document rejected successfully.',
+        ERROR: 'Error while rejecting document.'
+    },
+    CONFIRM: {
+        LOADING: 'Confirming shipment...',
+        OK: 'Shipment confirmed successfully.',
+        ERROR: 'Error while confirming shipment.'
+    },
+    START_ARBITRATION: {
+        LOADING: 'Starting arbitration...',
+        OK: 'Arbitration started successfully.',
+        ERROR: 'Error while starting arbitration.'
     }
 };

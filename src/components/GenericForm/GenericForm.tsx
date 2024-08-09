@@ -94,6 +94,7 @@ type EditableElement = Omit<LabeledElement, 'type'> & {
     name: string;
     defaultValue: any;
     required: boolean;
+    addOnAfter?: string;
     disabled?: boolean;
     disableValues?: (...args: any[]) => boolean;
     block?: boolean;
@@ -122,6 +123,7 @@ type Props = {
     elements: FormElement[];
     confirmText?: string;
     submittable?: boolean;
+    submitText?: string;
     onSubmit?: (values: any) => void;
 };
 
@@ -293,9 +295,11 @@ export const GenericForm = (props: Props) => {
                             type={element.type}
                             disabled={disabled}
                             placeholder={`Enter ${element.label}`}
+                            addonAfter={element.addOnAfter}
                             // defaultValue={element.defaultValue}
                             // value={element.defaultValue}
                             className="ant-input"
+                            style={{ padding: element.addOnAfter ? 0 : undefined }}
                         />
                     </Form.Item>
                 </Col>
@@ -442,7 +446,7 @@ export const GenericForm = (props: Props) => {
                     <Col span={24}>
                         <Form.Item>
                             <ConfirmButton
-                                text="Submit"
+                                text={props.submitText || 'Submit'}
                                 disabled={!areFieldsValid}
                                 confirmText={
                                     props.confirmText || 'Are you sure you want to submit?'

@@ -8,21 +8,18 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { credentials } from '@/constants/ssi';
 import { LockModal } from '@/components/EscrowPanel/LockModal';
-import { useParams } from 'react-router-dom';
 import { useEthShipment } from '@/providers/entities/EthShipmentProvider';
 import { FundsStatus } from '@kbc-lib/coffee-trading-management-lib';
 
 const { Paragraph, Text } = Typography;
 
 export const EscrowPanel = () => {
-    const { shipmentId } = useParams();
-    const { shipments } = useEthShipment();
+    const { detailedShipment } = useEthShipment();
     const { escrowDetails, tokenDetails } = useEthEscrow();
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const isImporter = userInfo.role.toUpperCase() === credentials.ROLE_IMPORTER;
 
-    const shipment = shipments.find((s) => s.id === Number(shipmentId));
-    if (!shipment) {
+    if (!detailedShipment) {
         return <>Shipment not found</>;
     }
 
@@ -61,8 +58,9 @@ export const EscrowPanel = () => {
                 Deposit
             </Flex>
         );
-        shipment.fundsStatus == FundsStatus.NOT_LOCKED &&
-            escrowDetails.totalDepositedAmount >= escrowDetails.lockedAmount + shipment.price &&
+        detailedShipment.shipment.fundsStatus == FundsStatus.NOT_LOCKED &&
+            escrowDetails.totalDepositedAmount >=
+                escrowDetails.lockedAmount + detailedShipment.shipment.price &&
             actions.push(
                 <Flex
                     gap="middle"
@@ -95,7 +93,9 @@ export const EscrowPanel = () => {
                         <Divider plain>Details</Divider>
                         <Paragraph>
                             Shipping funds status:{' '}
-                            <Tag color="blue">{FundsStatus[shipment.fundsStatus]}</Tag>
+                            <Tag color="blue">
+                                {FundsStatus[detailedShipment.shipment.fundsStatus]}
+                            </Tag>
                         </Paragraph>
                         <Paragraph>
                             Your deposits:{' '}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Outlet, Navigate } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { SignerProvider } from '@/providers/SignerProvider';
@@ -36,13 +36,13 @@ const PrivateRoutes = () => {
                                                 <EthRawTradeProvider>
                                                     <EthBasicTradeProvider>
                                                         <EthOrderTradeProvider>
-                                                            <EthShipmentProvider>
-                                                                <EthEscrowProvider>
+                                                            <EthEscrowProvider>
+                                                                <EthShipmentProvider>
                                                                     <EthGraphProvider>
                                                                         <Outlet />
                                                                     </EthGraphProvider>
-                                                                </EthEscrowProvider>
-                                                            </EthShipmentProvider>
+                                                                </EthShipmentProvider>
+                                                            </EthEscrowProvider>
                                                         </EthOrderTradeProvider>
                                                     </EthBasicTradeProvider>
                                                 </EthRawTradeProvider>

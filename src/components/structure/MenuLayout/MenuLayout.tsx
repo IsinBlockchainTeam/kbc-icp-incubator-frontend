@@ -1,14 +1,14 @@
 import { Avatar, Layout, Menu, MenuProps, Spin, theme } from 'antd';
 import React, { useState } from 'react';
 import {
+    AuditOutlined,
     ExperimentOutlined,
     GoldOutlined,
+    LogoutOutlined,
     SettingOutlined,
     SwapOutlined,
     TeamOutlined,
-    LogoutOutlined,
-    UserOutlined,
-    AuditOutlined
+    UserOutlined
 } from '@ant-design/icons';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { defaultPictureURL } from '@/constants/misc';
@@ -19,9 +19,10 @@ import { RootState } from '@/redux/store';
 import { resetUserInfo } from '@/redux/reducers/userInfoSlice';
 import { clearSiweIdentity } from '@/redux/reducers/siweIdentitySlice';
 import { paths } from '@/constants/paths';
-const { Content, Footer, Sider } = Layout;
 import { useDisconnect } from '@web3modal/ethers5/react';
 import loadingLogo from '@/assets/coffee-loading.gif';
+
+const { Content, Footer, Sider } = Layout;
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -156,7 +157,7 @@ export const MenuLayout = () => {
                     </Spin>
                 </Content>
                 <Footer style={{ textAlign: 'center' }}>
-                    Coffe Trading platform ©2024 Created by ISIN
+                    Coffe Trading platform ©{new Date().getFullYear()} Created by ISIN
                 </Footer>
             </Layout>
         </Layout>

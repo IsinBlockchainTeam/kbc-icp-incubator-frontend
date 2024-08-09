@@ -3,31 +3,21 @@ import {
     OrderLine,
     OrderLinePrice,
     OrderLineRequest,
-    OrderStatus,
     OrderTrade
 } from '@kbc-lib/coffee-trading-management-lib';
-import { Tabs, TabsProps, Tag, Tooltip } from 'antd';
-import OrderStatusSteps from '@/pages/Trade/OrderStatusSteps/OrderStatusSteps';
-import { CardPage } from '@/components/structure/CardPage/CardPage';
+import { Tooltip } from 'antd';
 import React, { useState } from 'react';
-import { FormElement, FormElementType } from '@/components/GenericForm/GenericForm';
+import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
 import { regex } from '@/constants/regex';
 import dayjs from 'dayjs';
 import { useSigner } from '@/providers/SignerProvider';
 import { paths } from '@/constants/paths';
 import { useNavigate } from 'react-router-dom';
-import {
-    CheckCircleOutlined,
-    EditOutlined,
-    FormOutlined,
-    RollbackOutlined,
-    SendOutlined
-} from '@ant-design/icons';
+import { CheckCircleOutlined, EditOutlined, RollbackOutlined } from '@ant-design/icons';
 import { validateDates } from '@/utils/date';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 import { OrderTradeRequest, useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
-import { Shipments } from '@/pages/Shipment/Shipments';
 
 type OrderTradeViewProps = {
     orderTrade: OrderTrade;
@@ -45,7 +35,7 @@ export const OrderTradeView = ({
     const { signer } = useSigner();
     const { productCategories } = useEthMaterial();
     const { units, fiats } = useEthEnumerable();
-    const { updateOrderTrade, confirmNegotiation, getOrderStatus } = useEthOrderTrade();
+    const { updateOrderTrade, confirmNegotiation } = useEthOrderTrade();
     const negotiationStatus = NegotiationStatus[orderTrade.negotiationStatus];
     const navigate = useNavigate();
 
@@ -96,20 +86,6 @@ export const OrderTradeView = ({
     };
 
     const elements: FormElement[] = [
-        {
-            type: FormElementType.TIP,
-            span: 24,
-            label: (
-                <p>
-                    This is the first stage, where the involved parties can negotiate the terms of
-                    the trade. <br />
-                    Once the negotiation is confirmed by both parties, the implementation phase will
-                    begin in which all the necessary documents must be uploaded in order to
-                    successfully complete the transaction.{' '}
-                </p>
-            ),
-            marginVertical: '1rem'
-        },
         ...commonElements,
         { type: FormElementType.TITLE, span: 24, label: 'Constraints' },
         {
@@ -348,51 +324,13 @@ export const OrderTradeView = ({
         }
     }
 
-    const items: TabsProps['items'] = [
-        {
-            key: 'order',
-            label: 'Order',
-            icon: <FormOutlined />,
-            children: (
-                <OrderStatusSteps
-                    status={getOrderStatus(orderTrade.tradeId)}
-                    orderTrade={orderTrade}
-                    submittable={!disabled}
-                    negotiationElements={elements}
-                    onSubmit={onSubmit}
-                />
-            )
-        },
-        {
-            key: 'shipments',
-            label: 'Shipments',
-            icon: <SendOutlined />,
-            children: <Shipments />
-        }
-    ];
-
     return (
-        <CardPage
-            title={
-                <div
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                        alignItems: 'center'
-                    }}>
-                    Order
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                        <Tag color="green">
-                            {negotiationStatus !== NegotiationStatus[NegotiationStatus.CONFIRMED]
-                                ? negotiationStatus
-                                : OrderStatus[getOrderStatus(orderTrade.tradeId)]}
-                        </Tag>
-                    </div>
-                </div>
-            }>
-            <Tabs items={items} centered size={'large'} />
-        </CardPage>
+        <GenericForm
+            elements={elements}
+            confirmText="Are you sure you want to proceed?"
+            submittable={!disabled}
+            onSubmit={onSubmit}
+        />
     );
 };
 export default OrderTradeView;

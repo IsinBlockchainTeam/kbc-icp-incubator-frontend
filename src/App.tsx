@@ -36,8 +36,7 @@ import { AssetOperationView } from '@/pages/AssetOperation/AssetOperationView';
 
 import { createWeb3Modal, defaultConfig } from '@web3modal/ethers5/react';
 import { PROJECT_ID } from '@/constants/walletConnect';
-import { ShipmentNew } from '@/pages/Shipment/ShipmentNew';
-import { ShipmentView } from '@/pages/Shipment/ShipmentView';
+import { Shipment } from '@/pages/Shipment/Shipment';
 
 // 1. Get projectId
 const projectId = PROJECT_ID;
@@ -199,29 +198,14 @@ export const App = () => {
                                         }
                                     />
                                     <Route
-                                        path={paths.SHIPMENT_NEW}
+                                        path={paths.SHIPMENT}
                                         element={
                                             <DataLoader customUseContext={useICPName}>
                                                 <DataLoader customUseContext={useEthEnumerable}>
                                                     <DataLoader customUseContext={useEthMaterial}>
                                                         <DataLoader
                                                             customUseContext={useEthRawTrade}>
-                                                            <ShipmentNew />
-                                                        </DataLoader>
-                                                    </DataLoader>
-                                                </DataLoader>
-                                            </DataLoader>
-                                        }
-                                    />
-                                    <Route
-                                        path={paths.SHIPMENT_VIEW}
-                                        element={
-                                            <DataLoader customUseContext={useICPName}>
-                                                <DataLoader customUseContext={useEthEnumerable}>
-                                                    <DataLoader customUseContext={useEthMaterial}>
-                                                        <DataLoader
-                                                            customUseContext={useEthRawTrade}>
-                                                            <ShipmentView />
+                                                            <Shipment />
                                                         </DataLoader>
                                                     </DataLoader>
                                                 </DataLoader>

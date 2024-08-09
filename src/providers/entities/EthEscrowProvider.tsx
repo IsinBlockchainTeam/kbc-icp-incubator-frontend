@@ -19,9 +19,10 @@ import { ethers } from 'ethers';
 export type EthEscrowContextState = {
     escrowDetails: EscrowDetails;
     tokenDetails: TokenDetails;
-    deposit: (amount: number) => Promise<void>;
     withdraw: (amount: number) => Promise<void>;
     getFees: (amount: number) => Promise<number>;
+    loadEscrowDetails: () => Promise<void>;
+    loadTokenDetails: () => Promise<void>;
 };
 type EscrowDetails = {
     depositedAmount: number;
@@ -144,33 +145,6 @@ export function EthEscrowProvider(props: { children: ReactNode }) {
         }
     };
 
-    const deposit = async (amount: number) => {
-        if (!escrowService || !escrowAddress) throw new Error('Escrow service not initialized');
-        try {
-            dispatch(addLoadingMessage(ESCROW_MESSAGE.DEPOSIT.LOADING));
-            await tokenService.approve(escrowAddress, amount);
-            await escrowService.deposit(amount);
-            openNotification(
-                'Success',
-                ESCROW_MESSAGE.DEPOSIT.OK,
-                NotificationType.SUCCESS,
-                NOTIFICATION_DURATION
-            );
-            await loadEscrowDetails();
-            await loadTokenDetails();
-        } catch (e) {
-            console.error(e);
-            openNotification(
-                'Error',
-                ESCROW_MESSAGE.DEPOSIT.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
-        } finally {
-            dispatch(removeLoadingMessage(ESCROW_MESSAGE.DEPOSIT.LOADING));
-        }
-    };
-
     const withdraw = async (amount: number) => {
         if (!escrowService) throw new Error('Escrow service not initialized');
         try {
@@ -216,9 +190,10 @@ export function EthEscrowProvider(props: { children: ReactNode }) {
             value={{
                 escrowDetails,
                 tokenDetails,
-                deposit,
                 withdraw,
-                getFees
+                getFees,
+                loadEscrowDetails,
+                loadTokenDetails
             }}>
             {props.children}
         </EthEscrowContext.Provider>
