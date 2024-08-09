@@ -16,12 +16,11 @@ const { Paragraph } = Typography;
 export const Approval = () => {
     const { id } = useParams();
     const { detailedShipment, updateShipment, approveShipment } = useEthShipment();
-    const { orderTrades, createShipment } = useEthOrderTrade();
+    const { detailedOrderTrade, createShipment } = useEthOrderTrade();
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const isExporter = userInfo.role.toUpperCase() === credentials.ROLE_EXPORTER;
 
-    const orderTrade = orderTrades.find((trade) => trade.tradeId === Number(id));
-    if (!orderTrade) {
+    if (!detailedOrderTrade) {
         return <>Order not found</>;
     }
 
@@ -44,7 +43,6 @@ export const Approval = () => {
                       values['price']
                   )
                 : await createShipment(
-                      Number(id),
                       new Date(values['date']),
                       values['quantity'],
                       values['weight'],
@@ -77,7 +75,7 @@ export const Approval = () => {
             name: 'quantity',
             label: 'Quantity',
             required: true,
-            addOnAfter: orderTrade.lines[0].unit,
+            addOnAfter: detailedOrderTrade.trade.lines[0].unit,
             defaultValue: detailedShipment && detailedShipment.shipment.quantity,
             regex: regex.ONLY_DIGITS,
             disabled: !isEditable
@@ -99,7 +97,7 @@ export const Approval = () => {
             name: 'price',
             label: 'Price',
             required: true,
-            addOnAfter: (orderTrade.lines[0] as OrderLine).price.fiat,
+            addOnAfter: (detailedOrderTrade.trade.lines[0] as OrderLine).price.fiat,
             defaultValue: detailedShipment && detailedShipment.shipment.price,
             regex: regex.ONLY_DIGITS,
             disabled: !isEditable

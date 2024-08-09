@@ -1,9 +1,6 @@
-import { useParams } from 'react-router-dom';
-import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
 import React from 'react';
 import { useEthShipment } from '@/providers/entities/EthShipmentProvider';
 import { Card, Col, Row, Tag, Typography } from 'antd';
-import { EscrowPanel } from '@/components/EscrowPanel/EscrowPanel';
 import { ShipmentEvaluationStatus } from '@kbc-lib/coffee-trading-management-lib';
 import { ConfirmButton } from '@/components/ConfirmButton/ConfirmButton';
 import { useSelector } from 'react-redux';
@@ -13,16 +10,10 @@ import { credentials } from '@/constants/ssi';
 const { Paragraph } = Typography;
 
 export const Comparison = () => {
-    const { id } = useParams();
     const { detailedShipment, confirmShipment, startShipmentArbitration } = useEthShipment();
-    const { orderTrades } = useEthOrderTrade();
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const isImporter = userInfo.role.toUpperCase() === credentials.ROLE_IMPORTER;
 
-    const orderTrade = orderTrades.find((trade) => trade.tradeId === Number(id));
-    if (!orderTrade) {
-        return <>Order not found</>;
-    }
     if (!detailedShipment) {
         return <>Shipment not found</>;
     }
@@ -82,7 +73,6 @@ export const Comparison = () => {
                         </Col>
                     </Row>
                 )}
-            <EscrowPanel />
         </>
     );
 };

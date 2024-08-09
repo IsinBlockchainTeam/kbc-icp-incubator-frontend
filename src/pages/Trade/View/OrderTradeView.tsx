@@ -80,7 +80,7 @@ export const OrderTradeView = ({
             shippingPort: values['shipping-port'],
             deliveryPort: values['delivery-port']
         };
-        await updateOrderTrade(orderTrade.tradeId, updatedOrderTrade);
+        await updateOrderTrade(updatedOrderTrade);
         toggleDisabled();
         navigate(paths.TRADES);
     };
@@ -319,7 +319,7 @@ export const OrderTradeView = ({
                 ),
                 buttonType: 'primary',
                 hidden: isEditing,
-                onClick: () => confirmNegotiation(orderTrade.tradeId)
+                onClick: () => confirmNegotiation()
             });
         }
     }

@@ -1,46 +1,28 @@
 import React from 'react';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
-import { Table, Tag, Tooltip } from 'antd';
-import { CheckCircleOutlined, ExclamationCircleOutlined, SettingOutlined } from '@ant-design/icons';
+import { Table, Tag } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { Link } from 'react-router-dom';
-import { NegotiationStatus, TradeType } from '@kbc-lib/coffee-trading-management-lib';
+import {
+    NegotiationStatus,
+    ShipmentPhase,
+    TradeType
+} from '@kbc-lib/coffee-trading-management-lib';
 import { setParametersPath } from '@/utils/page';
 import { paths } from '@/constants/paths';
 import { useICPName } from '@/providers/entities/ICPNameProvider';
-import { useEthBasicTrade } from '@/providers/entities/EthBasicTradeProvider';
 import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
+import { useEthShipment } from '@/providers/entities/EthShipmentProvider';
+import { RawTrade, useEthRawTrade } from '@/providers/entities/EthRawTradeProvider';
+import { AsyncComponent } from '@/components/AsyncComponent/AsyncComponent';
 
-type TradePreviewPresentable = {
-    id: number;
-    supplier: string;
-    commissioner: string;
-    type: TradeType;
-    negotiationStatus?: NegotiationStatus;
-    actionRequired?: string;
-};
 export const Trades = () => {
-    const { basicTrades } = useEthBasicTrade();
-    const { orderTrades, getNegotiationStatus } = useEthOrderTrade();
+    const { rawTrades } = useEthRawTrade();
+    const { getSupplierAsync, getCustomerAsync, getNegotiationStatusAsync } = useEthOrderTrade();
+    const { getShipmentPhaseAsync } = useEthShipment();
     const { getName } = useICPName();
 
-    const tradesPresentable: TradePreviewPresentable[] = basicTrades.map((t) => ({
-        id: t.tradeId,
-        supplier: getName(t.supplier),
-        commissioner: getName(t.commissioner),
-        type: TradeType.BASIC
-    }));
-    tradesPresentable.push(
-        ...orderTrades.map((o) => ({
-            id: o.tradeId,
-            supplier: getName(o.supplier),
-            commissioner: getName(o.commissioner),
-            type: TradeType.ORDER,
-            negotiationStatus: getNegotiationStatus(o.tradeId)
-        }))
-    );
-
-    const columns: ColumnsType<TradePreviewPresentable> = [
+    const columns: ColumnsType<RawTrade> = [
         {
             title: 'Id',
             dataIndex: 'id',
@@ -58,15 +40,22 @@ export const Trades = () => {
         {
             title: 'Supplier',
             dataIndex: 'supplier',
-            sorter: (a, b) => a.supplier.localeCompare(b.supplier)
+            render: (_, { id }) => (
+                <AsyncComponent
+                    asyncFunction={async () => getName(await getSupplierAsync(id))}
+                    defaultElement={<>Unknown</>}
+                />
+            )
         },
         {
             title: 'Commissioner',
             dataIndex: 'commissioner',
-            sorter: (a, b) => (a.commissioner || '').localeCompare(b.commissioner || ''),
-            render: (customer) => {
-                return customer ? customer : '-';
-            }
+            render: (_, { id }) => (
+                <AsyncComponent
+                    asyncFunction={async () => getName(await getCustomerAsync(id))}
+                    defaultElement={<>Unknown</>}
+                />
+            )
         },
         {
             title: 'Type',
@@ -78,32 +67,28 @@ export const Trades = () => {
         {
             title: 'Negotiation status',
             dataIndex: 'negotiationStatus',
-            sorter: (a, b) =>
-                (a.negotiationStatus?.toString() || '').localeCompare(
-                    b.negotiationStatus?.toString() || ''
-                ),
-            render: (_, { negotiationStatus }) => (
-                <Tag color="geekblue" key={negotiationStatus}>
-                    {negotiationStatus && NegotiationStatus[negotiationStatus]}
+            render: (_, { id }) => (
+                <Tag color="geekblue">
+                    <AsyncComponent
+                        asyncFunction={async () =>
+                            NegotiationStatus[await getNegotiationStatusAsync(id)]
+                        }
+                        defaultElement={<>UNKNOWN</>}
+                    />
                 </Tag>
             )
         },
         {
-            title: <SettingOutlined />,
-            dataIndex: 'actionRequired',
-            render: (_, { actionRequired }) => {
-                return actionRequired ? (
-                    <Tooltip title={actionRequired}>
-                        <ExclamationCircleOutlined
-                            style={{ fontSize: '1.5rem', color: 'orange' }}
-                        />
-                    </Tooltip>
-                ) : (
-                    <Tooltip title={'There are no operations charged to you at this time'}>
-                        <CheckCircleOutlined style={{ fontSize: '1.5rem', color: 'green' }} />
-                    </Tooltip>
-                );
-            }
+            title: 'Shipment phase',
+            dataIndex: 'shipmentPhase',
+            render: (_, { id }) => (
+                <Tag color="geekblue">
+                    <AsyncComponent
+                        asyncFunction={async () => ShipmentPhase[await getShipmentPhaseAsync(id)]}
+                        defaultElement={<>NOT CREATED</>}
+                    />
+                </Tag>
+            )
         }
     ];
 
@@ -119,7 +104,7 @@ export const Trades = () => {
                     Trades
                 </div>
             }>
-            <Table columns={columns} dataSource={tradesPresentable} />
+            <Table columns={columns} dataSource={rawTrades} />
         </CardPage>
     );
 };

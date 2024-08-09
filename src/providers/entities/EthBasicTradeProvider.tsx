@@ -27,6 +27,7 @@ import { getICPCanisterURL } from '@/utils/icp';
 import { ICP } from '@/constants/icp';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { RootState } from '@/redux/store';
+import { useParams } from 'react-router-dom';
 
 export type BasicTradeRequest = {
     supplier: string;
@@ -36,10 +37,9 @@ export type BasicTradeRequest = {
     name: string;
 };
 export type EthBasicTradeContextState = {
-    basicTrades: BasicTrade[];
+    detailedBasicTrade: DetailedBasicTrade | null;
     saveBasicTrade: (basicTradeRequest: BasicTradeRequest) => Promise<void>;
-    updateBasicTrade: (tradeId: number, basicTradeRequest: BasicTradeRequest) => Promise<void>;
-    getBasicTradeDocuments: (tradeId: number) => DocumentInfo[];
+    updateBasicTrade: (basicTradeRequest: BasicTradeRequest) => Promise<void>;
 };
 export const EthBasicTradeContext = createContext<EthBasicTradeContextState>(
     {} as EthBasicTradeContextState
@@ -57,15 +57,23 @@ type DetailedBasicTrade = {
     documents: DocumentInfo[];
 };
 export function EthBasicTradeProvider(props: { children: ReactNode }) {
+    const { id } = useParams();
     const { signer, waitForTransactions } = useSigner();
-    const { rawTrades } = useEthRawTrade();
+    const { rawTrades, loadData: loadRawTrades } = useEthRawTrade();
     const { productCategories } = useEthMaterial();
     const dispatch = useDispatch();
-    const [detailedBasicTrades, setDetailedBasicTrades] = useState<DetailedBasicTrade[]>([]);
+    const [detailedBasicTrade, setDetailedBasicTrade] = useState<DetailedBasicTrade | null>(null);
     const { fileDriver } = useICP();
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const organizationId = parseInt(userInfo.organizationId);
 
+    const rawTrade = useMemo(
+        () =>
+            rawTrades.find(
+                (t) => id !== undefined && t.id === Number(id) && t.type == TradeType.BASIC
+            ),
+        [rawTrades, id]
+    );
     const tradeManagerService = useMemo(
         () =>
             new TradeManagerService({
@@ -84,42 +92,6 @@ export function EthBasicTradeProvider(props: { children: ReactNode }) {
         [signer]
     );
 
-    // Update basic trades if raw trades change
-    useEffect(() => {
-        loadDetailedTrades();
-    }, [rawTrades]);
-
-    const loadDetailedTrades = async () => {
-        try {
-            dispatch(addLoadingMessage(BASIC_TRADE_MESSAGE.RETRIEVE.LOADING));
-            const detailedBasicTrades: DetailedBasicTrade[] = [];
-            await Promise.allSettled(
-                rawTrades
-                    .filter((rT) => rT.type === TradeType.BASIC)
-                    .map(async (rT) => {
-                        const concreteService = getBasicTradeService(rT.address);
-                        detailedBasicTrades.push({
-                            trade: await concreteService.getTrade(),
-                            service: concreteService,
-                            documents: await concreteService.getDocumentsByType(
-                                DocumentType.DELIVERY_NOTE
-                            )
-                        });
-                    })
-            );
-            setDetailedBasicTrades(detailedBasicTrades);
-        } catch (e) {
-            openNotification(
-                'Error',
-                BASIC_TRADE_MESSAGE.RETRIEVE.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
-        } finally {
-            dispatch(removeLoadingMessage(BASIC_TRADE_MESSAGE.RETRIEVE.LOADING));
-        }
-    };
-
     const getBasicTradeService = (address: string) =>
         new BasicTradeService(
             new BasicTradeDriver(
@@ -131,6 +103,38 @@ export function EthBasicTradeProvider(props: { children: ReactNode }) {
             documentDriver,
             fileDriver
         );
+
+    const basicTradeService = useMemo(() => {
+        if (!rawTrade) return undefined;
+        return getBasicTradeService(rawTrade.address);
+    }, [signer, rawTrade]);
+
+    // Update basic trades if raw trades change
+    useEffect(() => {
+        if (rawTrade) loadData();
+    }, [rawTrade]);
+
+    const loadData = async () => {
+        if (!basicTradeService) return;
+        try {
+            dispatch(addLoadingMessage(BASIC_TRADE_MESSAGE.RETRIEVE.LOADING));
+            const detailedBasicTrade = {
+                trade: await basicTradeService.getTrade(),
+                service: basicTradeService,
+                documents: await basicTradeService.getDocumentsByType(DocumentType.DELIVERY_NOTE)
+            };
+            setDetailedBasicTrade(detailedBasicTrade);
+        } catch (e) {
+            openNotification(
+                'Error',
+                BASIC_TRADE_MESSAGE.RETRIEVE.ERROR,
+                NotificationType.ERROR,
+                NOTIFICATION_DURATION
+            );
+        } finally {
+            dispatch(removeLoadingMessage(BASIC_TRADE_MESSAGE.RETRIEVE.LOADING));
+        }
+    };
 
     const saveBasicTrade = async (basicTradeRequest: BasicTradeRequest) => {
         try {
@@ -162,7 +166,7 @@ export function EthBasicTradeProvider(props: { children: ReactNode }) {
             for (const line of basicTradeRequest.lines) {
                 await basicTradeService.addLine(line);
             }
-            await loadDetailedTrades();
+            await loadRawTrades();
             openNotification(
                 'Success',
                 BASIC_TRADE_MESSAGE.SAVE.OK,
@@ -181,11 +185,12 @@ export function EthBasicTradeProvider(props: { children: ReactNode }) {
         }
     };
 
-    const updateBasicTrade = async (tradeId: number, basicTradeRequest: BasicTradeRequest) => {
+    const updateBasicTrade = async (basicTradeRequest: BasicTradeRequest) => {
+        if (!basicTradeService) return Promise.reject('Basic trade service not initialized');
+        if (!detailedBasicTrade) return Promise.reject('Trade not found');
         try {
             dispatch(addLoadingMessage(BASIC_TRADE_MESSAGE.UPDATE.LOADING));
-            const detailedBasicTrade = detailedBasicTrades.find((t) => t.trade.tradeId === tradeId);
-            if (!detailedBasicTrade) return Promise.reject('Trade not found');
+
             const oldTrade = detailedBasicTrade.trade;
             const basicTradeService = detailedBasicTrade.service;
 
@@ -217,7 +222,7 @@ export function EthBasicTradeProvider(props: { children: ReactNode }) {
                     )
                 );
             }
-            await loadDetailedTrades();
+            await loadData();
             openNotification(
                 'Success',
                 BASIC_TRADE_MESSAGE.UPDATE.OK,
@@ -236,13 +241,9 @@ export function EthBasicTradeProvider(props: { children: ReactNode }) {
         }
     };
 
-    const basicTrades = detailedBasicTrades.map((detailedTrade) => detailedTrade.trade);
-    const getBasicTradeDocuments = (tradeId: number) =>
-        detailedBasicTrades.find((t) => t.trade.tradeId === tradeId)?.documents || [];
-
     return (
         <EthBasicTradeContext.Provider
-            value={{ basicTrades, saveBasicTrade, updateBasicTrade, getBasicTradeDocuments }}>
+            value={{ detailedBasicTrade, saveBasicTrade, updateBasicTrade }}>
             {props.children}
         </EthBasicTradeContext.Provider>
     );

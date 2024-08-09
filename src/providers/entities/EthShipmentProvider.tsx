@@ -15,7 +15,6 @@ import {
     TokenDriver,
     TokenService
 } from '@kbc-lib/coffee-trading-management-lib';
-import { useParams } from 'react-router-dom';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { ethers } from 'ethers';
@@ -25,6 +24,7 @@ import { RootState } from '@/redux/store';
 import { ICPResourceSpec } from '@blockchain-lib/common';
 import { getMimeType } from '@/utils/file';
 import { useEthEscrow } from '@/providers/entities/EthEscrowProvider';
+import { useEthRawTrade } from '@/providers/entities/EthRawTradeProvider';
 
 export type EthShipmentContextState = {
     detailedShipment: DetailedShipment | null;
@@ -46,6 +46,8 @@ export type EthShipmentContextState = {
     rejectDocument: (documentId: number) => Promise<void>;
     confirmShipment: () => Promise<void>;
     startShipmentArbitration: () => Promise<void>;
+    // Call these functions only if the order is not already loaded
+    getShipmentPhaseAsync: (orderId: number) => Promise<ShipmentPhase>;
 };
 export const EthShipmentContext = createContext<EthShipmentContextState>(
     {} as EthShipmentContextState
@@ -105,40 +107,37 @@ export const ShipmentDocumentRules: {
     }
 };
 export function EthShipmentProvider(props: { children: ReactNode }) {
-    const { id } = useParams();
     const { signer } = useSigner();
-    const { orderTrades, getShipmentAddress, getEscrowAddress } = useEthOrderTrade();
+    const { rawTrades } = useEthRawTrade();
+    const { detailedOrderTrade, getOrderTradeService } = useEthOrderTrade();
     const { loadEscrowDetails, loadTokenDetails } = useEthEscrow();
     const { fileDriver } = useICP();
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const [detailedShipment, setDetailedShipment] = useState<DetailedShipment | null>(null);
     const dispatch = useDispatch();
 
-    const orderTrade = useMemo(
-        () => orderTrades.find((t) => t.tradeId === parseInt(id || '')),
-        [orderTrades, id]
-    );
     const tokenService = useMemo(
         () => new TokenService(new TokenDriver(signer, CONTRACT_ADDRESSES.TOKEN())),
         [signer]
     );
 
-    const shipmentAddress = orderTrade ? getShipmentAddress(orderTrade.tradeId) : undefined;
-    const escrowAddress = orderTrade ? getEscrowAddress(orderTrade.tradeId) : undefined;
-
     const shipmentManagerService = useMemo(() => {
-        if (!shipmentAddress || shipmentAddress == ethers.constants.AddressZero) return undefined;
+        if (
+            !detailedOrderTrade ||
+            detailedOrderTrade.shipmentAddress == ethers.constants.AddressZero
+        )
+            return undefined;
         return new ShipmentService(
-            new ShipmentDriver(signer, shipmentAddress),
+            new ShipmentDriver(signer, detailedOrderTrade.shipmentAddress),
             new DocumentDriver(signer, CONTRACT_ADDRESSES.DOCUMENT()),
             fileDriver
         );
-    }, [signer, shipmentAddress]);
+    }, [signer, detailedOrderTrade]);
 
     // Update shipments when order trades change
     useEffect(() => {
-        if (orderTrade) loadData();
-    }, [orderTrade]);
+        if (detailedOrderTrade) loadData();
+    }, [detailedOrderTrade]);
 
     const loadData = async () => {
         if (!shipmentManagerService) return;
@@ -226,10 +225,10 @@ export function EthShipmentProvider(props: { children: ReactNode }) {
 
     const depositFunds = async (amount: number) => {
         if (!shipmentManagerService) throw new Error('ShipmentManager service not initialized');
-        if (!escrowAddress) throw new Error('Escrow address not found');
+        if (!detailedOrderTrade) throw new Error('Order trade not found');
         try {
             dispatch(addLoadingMessage(SHIPMENT_MESSAGE.DEPOSIT.LOADING));
-            await tokenService.approve(escrowAddress, amount);
+            await tokenService.approve(detailedOrderTrade.escrowAddress, amount);
             await shipmentManagerService.depositFunds(amount);
             await loadEscrowDetails();
             await loadTokenDetails();
@@ -417,6 +416,21 @@ export function EthShipmentProvider(props: { children: ReactNode }) {
         }
     };
 
+    const getShipmentPhaseAsync = async (orderId: number) => {
+        const rawTrade = rawTrades.find((t) => t.id === orderId);
+        if (!rawTrade) throw new Error('Trade not found');
+        const orderTradeService = getOrderTradeService(rawTrade.address);
+        const shipmentAddress = await orderTradeService.getShipmentAddress();
+        if (shipmentAddress == ethers.constants.AddressZero)
+            throw new Error('Shipment address not found.');
+        const service = new ShipmentService(
+            new ShipmentDriver(signer, shipmentAddress),
+            new DocumentDriver(signer, CONTRACT_ADDRESSES.DOCUMENT()),
+            fileDriver
+        );
+        return service.getPhase();
+    };
+
     return (
         <EthShipmentContext.Provider
             value={{
@@ -429,7 +443,8 @@ export function EthShipmentProvider(props: { children: ReactNode }) {
                 approveDocument,
                 rejectDocument,
                 confirmShipment,
-                startShipmentArbitration
+                startShipmentArbitration,
+                getShipmentPhaseAsync
             }}>
             {props.children}
         </EthShipmentContext.Provider>

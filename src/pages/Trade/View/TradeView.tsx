@@ -1,36 +1,35 @@
 import React, { useState } from 'react';
-import { BasicTrade, OrderTrade, TradeType } from '@kbc-lib/coffee-trading-management-lib';
+import { Trade, TradeType } from '@kbc-lib/coffee-trading-management-lib';
 import { FormElement, FormElementType } from '@/components/GenericForm/GenericForm';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import OrderTradeView from '@/pages/Trade/View/OrderTradeView';
 import { BasicTradeView } from '@/pages/Trade/View/BasicTradeView';
 import { paths } from '@/constants/paths';
 import { useICPName } from '@/providers/entities/ICPNameProvider';
-import { useEthBasicTrade } from '@/providers/entities/EthBasicTradeProvider';
 import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
 import { Collapse } from 'antd';
 import { Shipment } from '@/pages/Shipment/Shipment';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
+import { EscrowPanel } from '@/components/EscrowPanel/EscrowPanel';
+import { useEthBasicTrade } from '@/providers/entities/EthBasicTradeProvider';
 
 export const TradeView = () => {
-    const { id } = useParams();
     const location = useLocation();
     const navigate = useNavigate();
 
     const { getName } = useICPName();
-    const { basicTrades } = useEthBasicTrade();
-    const { orderTrades } = useEthOrderTrade();
+    const { detailedOrderTrade } = useEthOrderTrade();
+    const { detailedBasicTrade } = useEthBasicTrade();
     const [disabled, setDisabled] = useState<boolean>(true);
 
     const type = parseInt(new URLSearchParams(location.search).get('type')!);
-    const trade =
-        type === TradeType.ORDER
-            ? orderTrades.find((t) => t.tradeId === parseInt(id || ''))
-            : basicTrades.find((t) => t.tradeId === parseInt(id || ''));
 
     if (!Object.values(TradeType).includes(type)) {
         navigate(paths.HOME);
     }
+    const trade: Trade | undefined =
+        type === TradeType.ORDER ? detailedOrderTrade?.trade : detailedBasicTrade?.trade;
+
     if (!trade) return <div>Trade not available</div>;
 
     const supplierName = getName(trade.supplier);
@@ -72,6 +71,7 @@ export const TradeView = () => {
     ];
 
     if (type === TradeType.ORDER) {
+        if (!detailedOrderTrade) return <div>Order not found</div>;
         return (
             <CardPage title={'Order'}>
                 <Collapse
@@ -83,7 +83,7 @@ export const TradeView = () => {
                             label: 'Details',
                             children: (
                                 <OrderTradeView
-                                    orderTrade={trade as OrderTrade}
+                                    orderTrade={detailedOrderTrade.trade}
                                     disabled={disabled}
                                     toggleDisabled={toggleDisabled}
                                     commonElements={elements}
@@ -95,8 +95,14 @@ export const TradeView = () => {
                             label: 'Shipment',
                             children: <Shipment />
                         },
+
                         {
                             key: '3',
+                            label: 'Escrow',
+                            children: <EscrowPanel />
+                        },
+                        {
+                            key: '4',
                             label: 'Documents',
                             children: <></>
                         }
@@ -105,9 +111,10 @@ export const TradeView = () => {
             </CardPage>
         );
     }
+    if (!detailedBasicTrade) return <div>Trade not found</div>;
     return (
         <BasicTradeView
-            basicTrade={trade as BasicTrade}
+            basicTrade={detailedBasicTrade.trade}
             disabled={disabled}
             toggleDisabled={toggleDisabled}
             commonElements={elements}

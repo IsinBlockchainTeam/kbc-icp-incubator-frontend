@@ -102,9 +102,9 @@ export const RAW_TRADE_MESSAGE = {
 };
 export const BASIC_TRADE_MESSAGE = {
     RETRIEVE: {
-        LOADING: 'Retrieving basic trades...',
+        LOADING: 'Retrieving basic trade...',
         OK: '',
-        ERROR: 'Error while retrieving basic trades.'
+        ERROR: 'Error while retrieving basic trade.'
     },
     SAVE: {
         LOADING: 'Creating basic trade...',
@@ -119,9 +119,9 @@ export const BASIC_TRADE_MESSAGE = {
 };
 export const ORDER_TRADE_MESSAGE = {
     RETRIEVE: {
-        LOADING: 'Retrieving order trades...',
+        LOADING: 'Retrieving order trade...',
         OK: '',
-        ERROR: 'Error while retrieving order trades.'
+        ERROR: 'Error while retrieving order trade.'
     },
     SAVE: {
         LOADING: 'Creating order trade...',

@@ -13,7 +13,6 @@ import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { CONTRACT_ADDRESSES } from '@/constants/evm';
 import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
-import { useParams } from 'react-router-dom';
 import { ethers } from 'ethers';
 
 export type EthEscrowContextState = {
@@ -59,8 +58,7 @@ export const useEthEscrow = (): EthEscrowContextState => {
     return context;
 };
 export function EthEscrowProvider(props: { children: ReactNode }) {
-    const { id } = useParams();
-    const { orderTrades, getEscrowAddress } = useEthOrderTrade();
+    const { detailedOrderTrade } = useEthOrderTrade();
 
     const [escrowDetails, setEscrowDetails] = useState<EscrowDetails>(defaultEscrowDetails);
     const [tokenDetails, setTokenDetails] = useState<TokenDetails>(defaultTokenDetails);
@@ -68,17 +66,12 @@ export function EthEscrowProvider(props: { children: ReactNode }) {
     const { signer } = useSigner();
     const dispatch = useDispatch();
 
-    const orderTrade = useMemo(
-        () => orderTrades.find((t) => t.tradeId === parseInt(id || '')),
-        [orderTrades, id]
-    );
-
-    const escrowAddress = orderTrade ? getEscrowAddress(orderTrade.tradeId) : undefined;
-
     const escrowService = useMemo(() => {
-        if (!escrowAddress || escrowAddress == ethers.constants.AddressZero) return undefined;
-        return new EscrowService(new EscrowDriver(signer, escrowAddress));
-    }, [signer, escrowAddress]);
+        if (!detailedOrderTrade || detailedOrderTrade.escrowAddress == ethers.constants.AddressZero)
+            return undefined;
+        return new EscrowService(new EscrowDriver(signer, detailedOrderTrade.escrowAddress));
+    }, [signer, detailedOrderTrade]);
+
     const tokenService = useMemo(
         () => new TokenService(new TokenDriver(signer, CONTRACT_ADDRESSES.TOKEN())),
         [signer]
@@ -86,11 +79,11 @@ export function EthEscrowProvider(props: { children: ReactNode }) {
 
     // Update escrow when order trades change
     useEffect(() => {
-        if (orderTrade) {
+        if (detailedOrderTrade) {
             loadEscrowDetails();
             loadTokenDetails();
         }
-    }, [orderTrade]);
+    }, [detailedOrderTrade]);
 
     const loadEscrowDetails = async () => {
         if (!escrowService) return;

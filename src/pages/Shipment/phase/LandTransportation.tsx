@@ -1,5 +1,3 @@
-import { useParams } from 'react-router-dom';
-import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
 import React from 'react';
 import { ShipmentDocumentRules, useEthShipment } from '@/providers/entities/EthShipmentProvider';
 import { Button, Card, Space, Table, TableProps, Tag, Typography, Upload } from 'antd';
@@ -10,7 +8,6 @@ import {
 } from '@kbc-lib/coffee-trading-management-lib';
 import { UploadOutlined } from '@ant-design/icons';
 import { UploadChangeParam } from 'antd/es/upload';
-import { EscrowPanel } from '@/components/EscrowPanel/EscrowPanel';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { credentials } from '@/constants/ssi';
@@ -23,18 +20,12 @@ interface DataType {
     info: ShipmentDocumentInfo | null;
 }
 export const LandTransportation = () => {
-    const { id } = useParams();
     const { detailedShipment, addDocument, getDocument, approveDocument, rejectDocument } =
         useEthShipment();
-    const { orderTrades } = useEthOrderTrade();
     const [previewDocumentId, setPreviewDocumentId] = React.useState<number | null>(null);
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const isExporter = userInfo.role.toUpperCase() === credentials.ROLE_EXPORTER;
 
-    const orderTrade = orderTrades.find((trade) => trade.tradeId === Number(id));
-    if (!orderTrade) {
-        return <>Order not found</>;
-    }
     if (!detailedShipment) {
         return <>Shipment not found</>;
     }
@@ -169,7 +160,6 @@ export const LandTransportation = () => {
                 </Paragraph>
             </Card>
             <Table columns={columns} dataSource={data} />
-            <EscrowPanel />
         </>
     );
 };

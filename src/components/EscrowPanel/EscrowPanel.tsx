@@ -19,13 +19,13 @@ export const EscrowPanel = () => {
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const isImporter = userInfo.role.toUpperCase() === credentials.ROLE_IMPORTER;
 
-    if (!detailedShipment) {
-        return <>Shipment not found</>;
-    }
-
     const [isDepositModalOpen, setIsDepositModalOpen] = React.useState(false);
     const [isWithdrawModalOpen, setIsWithdrawModalOpen] = React.useState(false);
     const [isLockModalOpen, setIsLockModalOpen] = React.useState(false);
+
+    if (!detailedShipment) {
+        return <>Shipment not created</>;
+    }
 
     const openDepositModal = () => setIsDepositModalOpen(true);
     const closeDepositModal = () => setIsDepositModalOpen(false);
