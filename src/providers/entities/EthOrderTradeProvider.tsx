@@ -1,13 +1,10 @@
 import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 import {
     DocumentDriver,
-    DocumentStatus,
-    DocumentType,
     NegotiationStatus,
     OrderLine,
     OrderLinePrice,
     OrderLineRequest,
-    OrderStatus,
     OrderTrade,
     OrderTradeDriver,
     OrderTradeService,
@@ -21,22 +18,14 @@ import { CONTRACT_ADDRESSES } from '@/constants/evm';
 import { useSigner } from '@/providers/SignerProvider';
 import { useICP } from '@/providers/ICPProvider';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
-import { ACTION_MESSAGE, ORDER_TRADE_MESSAGE } from '@/constants/message';
+import { ORDER_TRADE_MESSAGE } from '@/constants/message';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { useDispatch, useSelector } from 'react-redux';
 import { getICPCanisterURL } from '@/utils/icp';
 import { ICP } from '@/constants/icp';
-import { ICPResourceSpec } from '@blockchain-lib/common';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { RootState } from '@/redux/store';
-import {
-    DOCUMENT_DUTY,
-    DocumentDetail,
-    DocumentDetailMap,
-    DocumentRequest,
-    useEthDocument
-} from '@/providers/entities/EthDocumentProvider';
 import { useICPName } from '@/providers/entities/ICPNameProvider';
 import { requestPath } from '@/constants/url';
 
@@ -59,31 +48,10 @@ export type OrderTradeRequest = {
 };
 export type EthOrderTradeContextState = {
     orderTrades: OrderTrade[];
-    saveOrderTrade: (
-        orderTradeRequest: OrderTradeRequest,
-        documentRequests: DocumentRequest[]
-    ) => Promise<void>;
+    saveOrderTrade: (orderTradeRequest: OrderTradeRequest) => Promise<void>;
     updateOrderTrade: (orderId: number, orderTradeRequest: OrderTradeRequest) => Promise<void>;
-    getActionRequired: (orderId: number) => string;
     getNegotiationStatus: (orderId: number) => NegotiationStatus;
-    getRequiredDocumentTypes: (orderId: number, orderStatus: OrderStatus) => DocumentType[];
-    getDocumentDetail: (
-        orderId: number,
-        orderStatus: OrderStatus,
-        documentType: DocumentType
-    ) => DocumentDetail | null;
-    getOrderStatus: (orderId: number) => OrderStatus;
     confirmNegotiation: (orderId: number) => Promise<void>;
-    validateOrderDocument: (
-        orderId: number,
-        documentId: number,
-        validationStatus: DocumentStatus
-    ) => Promise<void>;
-    uploadOrderDocument: (
-        orderId: number,
-        documentRequest: DocumentRequest,
-        externalUrl: string
-    ) => Promise<void>;
     notifyExpiration: (orderId: number, email: string, message: string) => Promise<void>;
     createShipment: (
         orderId: number,
@@ -108,10 +76,7 @@ export const useEthOrderTrade = (): EthOrderTradeContextState => {
 type DetailedOrderTrade = {
     trade: OrderTrade;
     service: OrderTradeService;
-    documentDetailMap: DocumentDetailMap;
-    actionRequired: string;
     negotiationStatus: NegotiationStatus;
-    orderStatus: OrderStatus;
     shipmentAddress: string;
     escrowAddress: string;
 };
@@ -119,8 +84,6 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
     const { signer, waitForTransactions } = useSigner();
     const { rawTrades } = useEthRawTrade();
     const { productCategories } = useEthMaterial();
-    const { validateDocument, uploadDocument, getDocumentDuty, getDocumentDetailMap } =
-        useEthDocument();
     const { getName } = useICPName();
     const dispatch = useDispatch();
     const [detailedOrderTrades, setDetailedOrderTrades] = useState<DetailedOrderTrade[]>([]);
@@ -161,26 +124,13 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
                     const service = getOrderTradeService(rT.address);
                     const trade = await service.getCompleteTrade();
                     const negotiationStatus = trade.negotiationStatus;
-                    const orderStatus = await service.getOrderStatus();
-                    const signatures = await service.getWhoSigned();
-                    const documentDetailMap = await getDocumentDetailMap(service);
-                    const actionRequired = await getActionMessage(
-                        trade,
-                        documentDetailMap,
-                        negotiationStatus,
-                        orderStatus,
-                        signatures
-                    );
                     const shipmentAddress = await service.getShipmentAddress();
                     const escrowAddress = await service.getEscrowAddress();
 
                     detailedOrderTrades.push({
                         trade,
                         service,
-                        documentDetailMap,
-                        actionRequired,
                         negotiationStatus,
-                        orderStatus,
                         shipmentAddress,
                         escrowAddress
                     });
@@ -202,52 +152,7 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
             fileDriver
         );
 
-    const getActionMessage = async (
-        orderTrade: OrderTrade,
-        documentDetailMap: DocumentDetailMap,
-        negotiationStatus: NegotiationStatus,
-        orderStatus: OrderStatus,
-        signatures: string[]
-    ) => {
-        if (
-            !signatures.includes(signer._address) &&
-            negotiationStatus === NegotiationStatus.PENDING
-        )
-            return ACTION_MESSAGE.SIGNATURE_REQUIRED;
-
-        const requiredDocuments = documentDetailMap.get(orderStatus);
-        if (!requiredDocuments) return ACTION_MESSAGE.NO_ACTION;
-
-        const uploader =
-            orderStatus !== OrderStatus.SHIPPED ? orderTrade.supplier : orderTrade.commissioner;
-        const approver =
-            orderStatus !== OrderStatus.SHIPPED ? orderTrade.commissioner : orderTrade.supplier;
-        const requiredDocumentsTypes = Array.from(requiredDocuments.keys());
-        if (
-            requiredDocumentsTypes.some(
-                (docType) =>
-                    getDocumentDuty(uploader, approver, requiredDocuments.get(docType)!) ==
-                    DOCUMENT_DUTY.UPLOAD_NEEDED
-            )
-        )
-            return ACTION_MESSAGE.UPLOAD_REQUIRED;
-
-        if (
-            requiredDocumentsTypes.some(
-                (docType) =>
-                    getDocumentDuty(uploader, approver, requiredDocuments.get(docType)!) ==
-                    DOCUMENT_DUTY.APPROVAL_NEEDED
-            )
-        )
-            return ACTION_MESSAGE.VALIDATION_REQUIRED;
-
-        return ACTION_MESSAGE.NO_ACTION;
-    };
-
-    const saveOrderTrade = async (
-        orderTradeRequest: OrderTradeRequest,
-        documentRequests: DocumentRequest[]
-    ) => {
+    const saveOrderTrade = async (orderTradeRequest: OrderTradeRequest) => {
         try {
             dispatch(addLoadingMessage(ORDER_TRADE_MESSAGE.SAVE.LOADING));
             // TODO: remove this harcoded value
@@ -283,26 +188,6 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
                 Number(process.env.REACT_APP_BC_CONFIRMATION_NUMBER || 0)
             );
             const orderTradeService = getOrderTradeService(newTradeAddress);
-            const paymentInvoice = documentRequests?.find(
-                (doc) => doc.documentType === DocumentType.PAYMENT_INVOICE
-            );
-            if (paymentInvoice) {
-                const externalUrl = (await orderTradeService.getTrade()).externalUrl;
-                const resourceSpec: ICPResourceSpec = {
-                    name: paymentInvoice.filename,
-                    type: paymentInvoice.content.type
-                };
-                const bytes = new Uint8Array(
-                    await new Response(paymentInvoice.content).arrayBuffer()
-                );
-                await orderTradeService.addDocument(
-                    paymentInvoice.documentType,
-                    bytes,
-                    externalUrl,
-                    resourceSpec,
-                    delegatedOrganizationIds
-                );
-            }
             for (const line of orderTradeRequest.lines) {
                 await orderTradeService.addLine(line);
             }
@@ -426,28 +311,6 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
         }
     };
 
-    const validateOrderDocument = async (
-        orderId: number,
-        documentId: number,
-        validationStatus: DocumentStatus
-    ) => {
-        const orderService = detailedOrderTrades.find((t) => t.trade.tradeId === orderId)?.service;
-        if (!orderService) return Promise.reject('Trade not found');
-        await validateDocument(documentId, validationStatus, orderService);
-        await loadDetailedTrades();
-    };
-
-    const uploadOrderDocument = async (
-        orderId: number,
-        documentRequest: DocumentRequest,
-        externalUrl: string
-    ) => {
-        const orderService = detailedOrderTrades.find((t) => t.trade.tradeId === orderId)?.service;
-        if (!orderService) return Promise.reject('Trade not found');
-        await uploadDocument(documentRequest, externalUrl, orderService);
-        await loadDetailedTrades();
-    };
-
     const notifyExpiration = async (orderId: number, email: string, message: string) => {
         try {
             dispatch(addLoadingMessage(ORDER_TRADE_MESSAGE.NOTIFY_EXPIRATION.LOADING));
@@ -491,42 +354,12 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
     };
 
     const orderTrades = detailedOrderTrades.map((detailedTrade) => detailedTrade.trade);
-    const getActionRequired = (orderId: number) => {
-        const detailedOrderTrade = detailedOrderTrades.find((t) => t.trade.tradeId === orderId);
-        if (!detailedOrderTrade) throw new Error('Order trade not found.');
-        return detailedOrderTrade.actionRequired;
-    };
     const getNegotiationStatus = (orderId: number) => {
         const detailedOrderTrade = detailedOrderTrades.find((t) => t.trade.tradeId === orderId);
         if (!detailedOrderTrade) throw new Error('Order trade not found.');
         return detailedOrderTrade.negotiationStatus;
     };
-    const getOrderStatus = (orderId: number) => {
-        const detailedOrderTrade = detailedOrderTrades.find((t) => t.trade.tradeId === orderId);
-        if (!detailedOrderTrade) throw new Error('Order trade not found.');
-        return detailedOrderTrade.orderStatus;
-    };
 
-    const getRequiredDocumentTypes = (orderId: number, orderStatus: OrderStatus) => {
-        const detailedOrderTrade = detailedOrderTrades.find((t) => t.trade.tradeId === orderId);
-        if (!detailedOrderTrade) throw new Error('Order trade not found.');
-        const documentTypeMap = detailedOrderTrade.documentDetailMap.get(orderStatus);
-        if (documentTypeMap === undefined) throw new Error('Order status not found.');
-        return Array.from(documentTypeMap.keys());
-    };
-    const getDocumentDetail = (
-        orderId: number,
-        orderStatus: OrderStatus,
-        documentType: DocumentType
-    ) => {
-        const detailedOrderTrade = detailedOrderTrades.find((t) => t.trade.tradeId === orderId);
-        if (!detailedOrderTrade) throw new Error('Order trade not found.');
-        const documentTypeMap = detailedOrderTrade.documentDetailMap.get(orderStatus);
-        if (documentTypeMap === undefined) throw new Error('Order status not found.');
-        const documentDetail = documentTypeMap.get(documentType);
-        if (documentDetail === undefined) throw new Error('Document type not found.');
-        return documentDetail;
-    };
     const createShipment = async (
         orderId: number,
         expirationDate: Date,
@@ -576,16 +409,10 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
         <EthOrderTradeContext.Provider
             value={{
                 orderTrades,
-                getActionRequired,
                 getNegotiationStatus,
-                getOrderStatus,
-                getRequiredDocumentTypes,
-                getDocumentDetail,
                 saveOrderTrade,
                 updateOrderTrade,
                 confirmNegotiation,
-                validateOrderDocument,
-                uploadOrderDocument,
                 notifyExpiration,
                 createShipment,
                 getShipmentAddress,

@@ -15,7 +15,6 @@ import {
 import PDFViewer from '../PDFViewer/PDFViewer';
 import { DownloadOutlined } from '@ant-design/icons';
 import { createDownloadWindow } from '@/utils/page';
-import { DocumentContent } from '@/providers/entities/EthDocumentProvider';
 import { DocumentStatus } from '@kbc-lib/coffee-trading-management-lib';
 import { ConfirmButton } from '@/components/ConfirmButton/ConfirmButton';
 
@@ -48,6 +47,13 @@ type LabeledElement = Omit<BasicElement, 'type'> & {
     type: FormElementType.TITLE | FormElementType.TIP;
     label: ReactNode;
     marginVertical?: string;
+};
+
+export type DocumentContent = {
+    contentType: string;
+    content: Blob;
+    filename: string;
+    date: Date;
 };
 
 // type DisableableElement = Omit<LabeledElement, 'type'> & {

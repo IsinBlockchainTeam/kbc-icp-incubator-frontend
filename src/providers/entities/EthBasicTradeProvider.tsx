@@ -25,10 +25,8 @@ import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { useDispatch, useSelector } from 'react-redux';
 import { getICPCanisterURL } from '@/utils/icp';
 import { ICP } from '@/constants/icp';
-import { ICPResourceSpec } from '@blockchain-lib/common';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { RootState } from '@/redux/store';
-import { DocumentRequest } from '@/providers/entities/EthDocumentProvider';
 
 export type BasicTradeRequest = {
     supplier: string;
@@ -39,10 +37,7 @@ export type BasicTradeRequest = {
 };
 export type EthBasicTradeContextState = {
     basicTrades: BasicTrade[];
-    saveBasicTrade: (
-        basicTradeRequest: BasicTradeRequest,
-        documentRequests: DocumentRequest[]
-    ) => Promise<void>;
+    saveBasicTrade: (basicTradeRequest: BasicTradeRequest) => Promise<void>;
     updateBasicTrade: (tradeId: number, basicTradeRequest: BasicTradeRequest) => Promise<void>;
     getBasicTradeDocuments: (tradeId: number) => DocumentInfo[];
 };
@@ -137,10 +132,7 @@ export function EthBasicTradeProvider(props: { children: ReactNode }) {
             fileDriver
         );
 
-    const saveBasicTrade = async (
-        basicTradeRequest: BasicTradeRequest,
-        documentRequests: DocumentRequest[]
-    ) => {
+    const saveBasicTrade = async (basicTradeRequest: BasicTradeRequest) => {
         try {
             dispatch(addLoadingMessage(BASIC_TRADE_MESSAGE.SAVE.LOADING));
             // TODO: remove this harcoded value
@@ -167,26 +159,6 @@ export function EthBasicTradeProvider(props: { children: ReactNode }) {
                 Number(process.env.REACT_APP_BC_CONFIRMATION_NUMBER || 0)
             );
             const basicTradeService = getBasicTradeService(newTradeAddress);
-            const deliveryNote = documentRequests?.find(
-                (doc) => doc.documentType === DocumentType.DELIVERY_NOTE
-            );
-            if (deliveryNote) {
-                const externalUrl = (await basicTradeService.getTrade()).externalUrl;
-                const resourceSpec: ICPResourceSpec = {
-                    name: deliveryNote.filename,
-                    type: deliveryNote.content.type
-                };
-                const bytes = new Uint8Array(
-                    await new Response(deliveryNote.content).arrayBuffer()
-                );
-                await basicTradeService.addDocument(
-                    deliveryNote.documentType,
-                    bytes,
-                    externalUrl,
-                    resourceSpec,
-                    delegatedOrganizationIds
-                );
-            }
             for (const line of basicTradeRequest.lines) {
                 await basicTradeService.addLine(line);
             }

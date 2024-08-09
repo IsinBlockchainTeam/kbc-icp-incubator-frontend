@@ -11,7 +11,6 @@ import { EthEnumerableProvider } from '@/providers/entities/EthEnumerableProvide
 import { EthOfferProvider } from '@/providers/entities/EthOfferProvider';
 import { ICPNameProvider } from '@/providers/entities/ICPNameProvider';
 import { EthRawTradeProvider } from '@/providers/entities/EthRawTradeProvider';
-import { EthDocumentProvider } from '@/providers/entities/EthDocumentProvider';
 import { EthBasicTradeProvider } from '@/providers/entities/EthBasicTradeProvider';
 import { EthOrderTradeProvider } from '@/providers/entities/EthOrderTradeProvider';
 import { EthAssetOperationProvider } from '@/providers/entities/EthAssetOperationProvider';
@@ -32,21 +31,19 @@ const PrivateRoutes = () => {
                                 <EthMaterialProvider>
                                     <EthOfferProvider>
                                         <EthAssetOperationProvider>
-                                            <EthDocumentProvider>
-                                                <EthRawTradeProvider>
-                                                    <EthBasicTradeProvider>
-                                                        <EthOrderTradeProvider>
-                                                            <EthEscrowProvider>
-                                                                <EthShipmentProvider>
-                                                                    <EthGraphProvider>
-                                                                        <Outlet />
-                                                                    </EthGraphProvider>
-                                                                </EthShipmentProvider>
-                                                            </EthEscrowProvider>
-                                                        </EthOrderTradeProvider>
-                                                    </EthBasicTradeProvider>
-                                                </EthRawTradeProvider>
-                                            </EthDocumentProvider>
+                                            <EthRawTradeProvider>
+                                                <EthBasicTradeProvider>
+                                                    <EthOrderTradeProvider>
+                                                        <EthEscrowProvider>
+                                                            <EthShipmentProvider>
+                                                                <EthGraphProvider>
+                                                                    <Outlet />
+                                                                </EthGraphProvider>
+                                                            </EthShipmentProvider>
+                                                        </EthEscrowProvider>
+                                                    </EthOrderTradeProvider>
+                                                </EthBasicTradeProvider>
+                                            </EthRawTradeProvider>
                                         </EthAssetOperationProvider>
                                     </EthOfferProvider>
                                 </EthMaterialProvider>

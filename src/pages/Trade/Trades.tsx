@@ -4,7 +4,7 @@ import { Table, Tag, Tooltip } from 'antd';
 import { CheckCircleOutlined, ExclamationCircleOutlined, SettingOutlined } from '@ant-design/icons';
 import { ColumnsType } from 'antd/es/table';
 import { Link } from 'react-router-dom';
-import { NegotiationStatus, OrderStatus, TradeType } from '@kbc-lib/coffee-trading-management-lib';
+import { NegotiationStatus, TradeType } from '@kbc-lib/coffee-trading-management-lib';
 import { setParametersPath } from '@/utils/page';
 import { paths } from '@/constants/paths';
 import { useICPName } from '@/providers/entities/ICPNameProvider';
@@ -17,13 +17,11 @@ type TradePreviewPresentable = {
     commissioner: string;
     type: TradeType;
     negotiationStatus?: NegotiationStatus;
-    orderStatus?: OrderStatus;
     actionRequired?: string;
 };
 export const Trades = () => {
     const { basicTrades } = useEthBasicTrade();
-    const { orderTrades, getActionRequired, getNegotiationStatus, getOrderStatus } =
-        useEthOrderTrade();
+    const { orderTrades, getNegotiationStatus } = useEthOrderTrade();
     const { getName } = useICPName();
 
     const tradesPresentable: TradePreviewPresentable[] = basicTrades.map((t) => ({
@@ -38,9 +36,7 @@ export const Trades = () => {
             supplier: getName(o.supplier),
             commissioner: getName(o.commissioner),
             type: TradeType.ORDER,
-            actionRequired: getActionRequired(o.tradeId),
-            negotiationStatus: getNegotiationStatus(o.tradeId),
-            orderStatus: getOrderStatus(o.tradeId)
+            negotiationStatus: getNegotiationStatus(o.tradeId)
         }))
     );
 
@@ -80,17 +76,15 @@ export const Trades = () => {
             }
         },
         {
-            title: 'Status',
-            dataIndex: 'orderStatus',
+            title: 'Negotiation status',
+            dataIndex: 'negotiationStatus',
             sorter: (a, b) =>
-                (a.orderStatus?.toString() || '').localeCompare(b.orderStatus?.toString() || ''),
-            render: (_, { negotiationStatus, orderStatus }) => (
+                (a.negotiationStatus?.toString() || '').localeCompare(
+                    b.negotiationStatus?.toString() || ''
+                ),
+            render: (_, { negotiationStatus }) => (
                 <Tag color="geekblue" key={negotiationStatus}>
-                    {negotiationStatus
-                        ? negotiationStatus !== NegotiationStatus.CONFIRMED
-                            ? NegotiationStatus[negotiationStatus]?.toString().toUpperCase()
-                            : OrderStatus[orderStatus!]?.toString().toUpperCase()
-                        : '-'}
+                    {negotiationStatus && NegotiationStatus[negotiationStatus]}
                 </Tag>
             )
         },
