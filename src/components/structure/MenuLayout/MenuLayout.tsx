@@ -126,8 +126,10 @@ export const MenuLayout = () => {
                             items={
                                 userInfo.isLogged
                                     ? getUserItemLoggedIn(
-                                          userInfo.legalName,
-                                          userInfo.image || defaultPictureURL,
+                                          userInfo.employeeClaims.lastName +
+                                              ', ' +
+                                              userInfo.companyClaims.legalName,
+                                          userInfo.employeeClaims.image || defaultPictureURL,
                                           dispatch,
                                           disconnect
                                       )

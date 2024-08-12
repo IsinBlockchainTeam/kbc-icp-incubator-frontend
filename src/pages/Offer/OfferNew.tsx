@@ -27,7 +27,7 @@ export const OfferNew = () => {
         navigate(paths.OFFERS);
     };
 
-    if (userInfo.role !== credentials.ROLE_EXPORTER) {
+    if (userInfo.companyClaims.role !== credentials.ROLE_EXPORTER) {
         return <Navigate to={paths.HOME} />;
     }
 

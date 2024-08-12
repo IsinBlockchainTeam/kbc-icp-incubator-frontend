@@ -90,7 +90,7 @@ export function SiweIdentityProvider({
             await login();
             openNotification(
                 'Authenticated',
-                `Login succeed. Welcome ${userInfo.legalName}!`,
+                `Login succeed. Welcome ${userInfo.employeeClaims.firstName}!`,
                 NotificationType.SUCCESS,
                 NOTIFICATION_DURATION
             );

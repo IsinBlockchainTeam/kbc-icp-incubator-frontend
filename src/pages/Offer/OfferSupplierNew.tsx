@@ -34,19 +34,19 @@ export const OfferSupplierNew = () => {
             name: 'supplier-name',
             label: 'Supplier Name',
             required: false,
-            defaultValue: userInfo.legalName || 'Unknown',
+            defaultValue: userInfo.companyClaims.legalName || 'Unknown',
             disabled: true
         }
     ];
 
     const onSubmit = async (values: any) => {
         values['supplier-address'] = signer._address || 'Unknown';
-        values['supplier-name'] = userInfo.legalName || 'Unknown';
+        values['supplier-name'] = userInfo.companyClaims.legalName || 'Unknown';
         await saveSupplier(values['supplier-address'], values['supplier-name']);
         navigate(paths.OFFERS);
     };
 
-    if (userInfo.role !== credentials.ROLE_EXPORTER) {
+    if (userInfo.companyClaims.role !== credentials.ROLE_EXPORTER) {
         return <Navigate to={paths.HOME} />;
     }
 

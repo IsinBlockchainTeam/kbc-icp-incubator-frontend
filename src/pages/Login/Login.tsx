@@ -112,19 +112,21 @@ export const Login = () => {
                     );
                     return;
                 }
-                const userInfo = message.body.verifiableCredential[0].credentialSubject;
+                const {
+                    id: companyId,
+                    subjectDid: companyDid,
+                    ...companyClaims
+                } = message.body.verifiableCredential[0].credentialSubject;
+                const {
+                    id: employeeId,
+                    subjectDid: employeeDid,
+                    ...employeeClaims
+                } = message.body.verifiableCredential[1].credentialSubject;
                 dispatch(
                     updateUserInfo({
-                        id: userInfo.id || '',
-                        legalName: userInfo.legalName || '',
-                        email: userInfo.email || '',
-                        address: userInfo.address || '',
-                        nation: userInfo.nation || '',
-                        telephone: userInfo.telephone || '',
-                        image: userInfo.image || '',
-                        role: userInfo.role || '',
-                        organizationId: userInfo.organizationId || '',
-                        privateKey: userInfo.privateKey || ''
+                        subjectDid: employeeDid,
+                        companyClaims,
+                        employeeClaims
                     })
                 );
             }

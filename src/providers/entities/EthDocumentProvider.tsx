@@ -244,7 +244,7 @@ export function EthDocumentProvider(props: { children: ReactNode }) {
             dispatch(addLoadingMessage(DOCUMENT_MESSAGE.UPLOAD.LOADING));
             // TODO: remove this harcoded value
             const delegatedOrganizationIds: number[] =
-                parseInt(userInfo.organizationId) === 0 ? [1] : [0];
+                parseInt(userInfo.companyClaims.organizationId) === 0 ? [1] : [0];
             const resourceSpec: ICPResourceSpec = {
                 name: documentRequest.filename,
                 type: documentRequest.content.type
