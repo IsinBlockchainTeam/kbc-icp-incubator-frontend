@@ -77,7 +77,7 @@ describe('EthOrderTradeProvider', () => {
     const waitForTransactions = jest.fn();
     const getName = jest.fn();
     const rawTrades = [{ address: '0x123', type: TradeType.ORDER } as RawTrade];
-    const userInfo = { organizationId: '1' } as UserInfoState;
+    const userInfo = { companyClaims: { organizationId: '1' } } as UserInfoState;
     const orderTrade = {
         tradeId: 1,
         externalUrl: 'externalUrl',
@@ -801,8 +801,8 @@ describe('EthOrderTradeProvider', () => {
                     body: JSON.stringify({
                         email: 'email',
                         recipientCompanyName: 'recipientCompanyName',
-                        senderCompanyName: userInfo.legalName,
-                        senderEmailAddress: userInfo.email,
+                        senderCompanyName: userInfo.companyClaims.legalName,
+                        senderEmailAddress: userInfo.companyClaims.email,
                         message: 'message',
                         transactionUrl: 'http://localhost/'
                     })

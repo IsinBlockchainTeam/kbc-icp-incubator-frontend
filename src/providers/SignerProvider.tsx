@@ -39,11 +39,11 @@ export function SignerProvider({ children }: { children: ReactNode }) {
         })();
     }, [provider]);
 
-    const waitForTransactions = async (transactionHash: string, confirmations: number) => {
-        await signer!.provider.waitForTransaction(transactionHash, confirmations);
-    };
-
     if (!signer) return <Typography.Text>Signer not initialized</Typography.Text>;
+
+    const waitForTransactions = async (transactionHash: string, confirmations: number) => {
+        await signer.provider.waitForTransaction(transactionHash, confirmations);
+    };
 
     return (
         <SignerContext.Provider

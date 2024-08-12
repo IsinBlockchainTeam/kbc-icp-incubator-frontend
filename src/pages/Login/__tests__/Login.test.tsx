@@ -42,7 +42,7 @@ describe('Login', () => {
     };
 
     beforeEach(() => {
-        // jest.spyOn(console, 'log').mockImplementation(jest.fn());
+        jest.spyOn(console, 'log').mockImplementation(jest.fn());
         jest.spyOn(console, 'error').mockImplementation(jest.fn());
         jest.clearAllMocks();
         (useWalletConnect as jest.Mock).mockReturnValue({ provider: mockProvider });
@@ -133,6 +133,7 @@ describe('Login', () => {
                         {
                             credentialSubject: {
                                 id: 'id',
+                                subjectDid: 'subjectDid',
                                 legalName: 'name',
                                 email: 'email',
                                 address: 'address',
@@ -140,8 +141,18 @@ describe('Login', () => {
                                 telephone: 'telephone',
                                 image: 'image',
                                 role: 'role',
-                                organizationId: 'organizationId',
-                                privateKey: 'privateKey'
+                                organizationId: 'organizationId'
+                            }
+                        },
+                        {
+                            credentialSubject: {
+                                id: 'id',
+                                subjectDid: 'subjectDid',
+                                firstName: 'firstName',
+                                lastName: 'lastName',
+                                email: 'email',
+                                address: 'address',
+                                birthDate: 'birthDate'
                             }
                         }
                     ]
@@ -161,9 +172,21 @@ describe('Login', () => {
                 `${requestPath.VERIFIER_BACKEND_URL}/presentations/callback/validated?challengeId=uuid`,
                 { method: 'GET' }
             );
-            expect(updateUserInfo).toHaveBeenCalledWith(
-                message.body.verifiableCredential[0].credentialSubject
-            );
+            const {
+                id: companyId,
+                subjectDid: companyDid,
+                ...companyClaims
+            } = message.body.verifiableCredential[0].credentialSubject;
+            const {
+                id: employeeId,
+                subjectDid: employeeDid,
+                ...employeeClaims
+            } = message.body.verifiableCredential[1].credentialSubject;
+            expect(updateUserInfo).toHaveBeenCalledWith({
+                subjectDid: employeeDid,
+                companyClaims,
+                employeeClaims
+            });
             jest.useRealTimers();
         });
 

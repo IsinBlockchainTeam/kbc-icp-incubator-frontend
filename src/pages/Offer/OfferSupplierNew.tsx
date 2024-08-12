@@ -25,7 +25,7 @@ export const OfferSupplierNew = () => {
             name: 'supplier-address',
             label: 'Supplier Address',
             required: false,
-            defaultValue: signer._address || 'Unknown',
+            defaultValue: signer._address,
             disabled: true
         },
         {
@@ -40,7 +40,7 @@ export const OfferSupplierNew = () => {
     ];
 
     const onSubmit = async (values: any) => {
-        values['supplier-address'] = signer._address || 'Unknown';
+        values['supplier-address'] = signer._address;
         values['supplier-name'] = userInfo.companyClaims.legalName || 'Unknown';
         await saveSupplier(values['supplier-address'], values['supplier-name']);
         navigate(paths.OFFERS);

@@ -4,7 +4,7 @@ import { MenuLayout } from '../MenuLayout';
 import { Provider } from 'react-redux';
 import { store } from '@/redux/store';
 import { MemoryRouter } from 'react-router-dom';
-import { updateUserInfo, UserInfoState } from '@/redux/reducers/userInfoSlice';
+import { initialState, updateUserInfo, UserInfoState } from '@/redux/reducers/userInfoSlice';
 import { Menu } from 'antd';
 import { paths } from '@/constants/paths';
 import { useWalletConnect } from '@/providers/WalletConnectProvider';
@@ -51,8 +51,13 @@ describe('MenuLayout', () => {
     it('should render menu when user is logged in', () => {
         store.dispatch(
             updateUserInfo({
-                id: '1',
-                legalName: 'Test User'
+                subjectDid: '1',
+                companyClaims: {
+                    legalName: 'Test Company'
+                },
+                employeeClaims: {
+                    lastName: 'Test User'
+                }
             } as UserInfoState)
         );
         render(
@@ -81,19 +86,7 @@ describe('MenuLayout', () => {
         expect(secondaryMenuItems[0].children[1].key).toBe(paths.LOGIN);
 
         act(() => secondaryMenuItems[0].children[1].onClick());
-        expect(store.getState().userInfo).toEqual({
-            isLogged: false,
-            id: '',
-            legalName: '',
-            email: '',
-            address: '',
-            nation: '',
-            telephone: '',
-            image: '',
-            role: '',
-            organizationId: '',
-            privateKey: ''
-        });
+        expect(store.getState().userInfo).toEqual(initialState);
         expect(store.getState().siweIdentity).toEqual({
             isLogged: false,
             address: '',

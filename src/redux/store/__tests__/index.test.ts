@@ -1,4 +1,5 @@
 import { store, RootState } from '../index';
+import { initialState as userInfoInitialState } from '@/redux/reducers/userInfoSlice';
 
 describe('store', () => {
     test('configures store', () => {
@@ -15,15 +16,8 @@ describe('store', () => {
         expect(initialState.siweIdentity.sessionIdentity).toBe('');
         expect(initialState.siweIdentity.delegationChain).toBe('');
         expect(initialState.userInfo.isLogged).toBe(false);
-        expect(initialState.userInfo.id).toBe('');
-        expect(initialState.userInfo.legalName).toBe('');
-        expect(initialState.userInfo.email).toBe('');
-        expect(initialState.userInfo.address).toBe('');
-        expect(initialState.userInfo.nation).toBe('');
-        expect(initialState.userInfo.telephone).toBe('');
-        expect(initialState.userInfo.image).toBe('');
-        expect(initialState.userInfo.role).toBe('');
-        expect(initialState.userInfo.organizationId).toBe('');
-        expect(initialState.userInfo.privateKey).toBe('');
+        expect(initialState.userInfo.subjectDid).toBe(userInfoInitialState.subjectDid);
+        expect(initialState.userInfo.companyClaims).toBe(userInfoInitialState.companyClaims);
+        expect(initialState.userInfo.employeeClaims).toBe(userInfoInitialState.employeeClaims);
     });
 });

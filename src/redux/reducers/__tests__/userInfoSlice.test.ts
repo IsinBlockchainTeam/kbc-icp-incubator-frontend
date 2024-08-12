@@ -1,77 +1,57 @@
 import userInfoReducer, {
+    initialState,
     resetUserInfo,
     updateUserInfo,
     UserInfoState
 } from '@/redux/reducers/userInfoSlice';
 
 describe('userInfoSlice', () => {
-    it('should update user info', () => {
-        const initialState: UserInfoState = {
-            isLogged: false,
-            id: '',
-            legalName: '',
-            email: '',
-            address: '',
-            nation: '',
-            telephone: '',
-            image: '',
-            role: '',
-            organizationId: '',
-            privateKey: ''
-        };
-        const action = updateUserInfo({
-            id: 'id',
+    const userInfo: UserInfoState = {
+        isLogged: true,
+        subjectDid: 'subjectDid',
+        companyClaims: {
             legalName: 'legalName',
-            email: 'email',
+            industrialSector: 'industrialSector',
             address: 'address',
+            email: 'email',
             nation: 'nation',
+            latitude: 'latitude',
+            longitude: 'longitude',
             telephone: 'telephone',
             image: 'image',
             role: 'role',
-            organizationId: 'organizationId',
-            privateKey: 'privateKey'
+            organizationId: 'organizationId'
+        },
+        employeeClaims: {
+            firstName: 'firstName',
+            lastName: 'lastName',
+            address: 'address',
+            birthDate: 'birthDate',
+            email: 'email',
+            telephone: 'telephone',
+            role: 'role',
+            image: 'image'
+        }
+    };
+    it('should update user info', () => {
+        const { isLogged, ...rest } = userInfo;
+        const action = updateUserInfo({
+            ...rest
         });
         const nextState = userInfoReducer(initialState, action);
 
         expect(nextState.isLogged).toBe(true);
-        expect(nextState.id).toBe('id');
-        expect(nextState.legalName).toBe('legalName');
-        expect(nextState.email).toBe('email');
-        expect(nextState.address).toBe('address');
-        expect(nextState.nation).toBe('nation');
-        expect(nextState.telephone).toBe('telephone');
-        expect(nextState.image).toBe('image');
-        expect(nextState.role).toBe('role');
-        expect(nextState.organizationId).toBe('organizationId');
-        expect(nextState.privateKey).toBe('privateKey');
+        expect(nextState.subjectDid).toBe(userInfo.subjectDid);
+        expect(nextState.companyClaims).toBe(userInfo.companyClaims);
+        expect(nextState.employeeClaims).toBe(userInfo.employeeClaims);
     });
     it('should reset user info', () => {
-        const initialState = {
-            isLogged: true,
-            id: 'id',
-            legalName: 'legalName',
-            email: 'email',
-            address: 'address',
-            nation: 'nation',
-            telephone: 'telephone',
-            image: 'image',
-            role: 'role',
-            organizationId: 'organizationId',
-            privateKey: 'privateKey'
-        };
         const action = resetUserInfo();
-        const nextState = userInfoReducer(initialState, action);
+        const nextState = userInfoReducer(userInfo, action);
 
         expect(nextState.isLogged).toBe(false);
-        expect(nextState.id).toBe('');
-        expect(nextState.legalName).toBe('');
-        expect(nextState.email).toBe('');
-        expect(nextState.address).toBe('');
-        expect(nextState.nation).toBe('');
-        expect(nextState.telephone).toBe('');
-        expect(nextState.image).toBe('');
-        expect(nextState.role).toBe('');
-        expect(nextState.organizationId).toBe('');
-        expect(nextState.privateKey).toBe('');
+        expect(nextState.subjectDid).toBe(initialState.subjectDid);
+        expect(nextState.companyClaims).toBe(initialState.companyClaims);
+        expect(nextState.employeeClaims).toBe(initialState.employeeClaims);
     });
 });

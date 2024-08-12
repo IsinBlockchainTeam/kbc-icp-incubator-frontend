@@ -106,7 +106,7 @@ export function SiweIdentityProvider({
     }
 
     const signMessageEthers = async (message: string) => {
-        return signer?.signMessage(message);
+        return signer.signMessage(message);
     };
 
     async function updateState(newState: Partial<State>) {
@@ -127,7 +127,7 @@ export function SiweIdentityProvider({
      * is optional, as it will be called automatically on login if not called manually.
      */
     async function prepareLogin(): Promise<string | undefined> {
-        const connectedEthAddress = (signer?._address || '0xabc') as `0x${string}`;
+        const connectedEthAddress = signer._address as `0x${string}`;
         if (!state.anonymousActor) {
             throw new Error(
                 'Hook not initialized properly. Make sure to supply all required props to the SiweIdentityProvider.'
@@ -187,7 +187,7 @@ export function SiweIdentityProvider({
         loginSignature: `0x${string}` | undefined,
         error: Error | null
     ) {
-        const connectedEthAddress = (signer?._address || '0xabc') as `0x${string}`;
+        const connectedEthAddress = signer._address as `0x${string}`;
         if (error) {
             rejectLoginWithError(error, 'An error occurred while signing the login message.');
             return;
@@ -278,7 +278,7 @@ export function SiweIdentityProvider({
      */
 
     async function login() {
-        const connectedEthAddress = signer?._address || '';
+        const connectedEthAddress = signer._address;
         const promise = new Promise<DelegationIdentity>((resolve, reject) => {
             loginPromiseHandlers.current = { resolve, reject };
         });

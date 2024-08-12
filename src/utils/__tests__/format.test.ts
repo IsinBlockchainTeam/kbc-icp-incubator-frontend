@@ -1,4 +1,4 @@
-import { formatDid, formatClaimName, formatAddress } from '@/utils/format';
+import { formatDid, formatClaimName, formatAddress, formatICPPrincipal } from '@/utils/format';
 
 describe('Format utility functions', () => {
     describe('formatDid', () => {
@@ -28,6 +28,18 @@ describe('Format utility functions', () => {
 
         it('returns a formatted address when length is more than 8', () => {
             expect(formatAddress('longAddress1234567890')).toEqual('longAd...7890');
+        });
+    });
+
+    describe('formatICPPrincipal', () => {
+        it('returns the same address when length is 20 or less', () => {
+            expect(formatICPPrincipal('principal')).toEqual('principal');
+        });
+
+        it('returns a formatted address when length is more than 20', () => {
+            expect(formatICPPrincipal('longPrincipal12345678901234567890')).toEqual(
+                'longPrincipa...1234567890'
+            );
         });
     });
 });

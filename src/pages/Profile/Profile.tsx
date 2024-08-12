@@ -73,7 +73,6 @@ export default function Profile() {
                                         {companyClaims.email}
                                     </span>
                                 </Descriptions.Item>
-
                                 <Descriptions.Item label="Phone">
                                     <span style={{ display: 'flex', alignItems: 'center' }}>
                                         <PhoneOutlined style={{ marginRight: 4 }} />
@@ -115,6 +114,12 @@ export default function Profile() {
                                         {employeeClaims.telephone}
                                     </span>
                                 </Descriptions.Item>
+                                <Descriptions.Item label="Address">
+                                    <span style={{ display: 'flex', alignItems: 'center' }}>
+                                        <EnvironmentOutlined style={{ marginRight: 4 }} />
+                                        {employeeClaims.address}
+                                    </span>
+                                </Descriptions.Item>
                                 <Descriptions.Item label="Birth Date">
                                     {employeeClaims.birthDate}
                                 </Descriptions.Item>
@@ -126,61 +131,18 @@ export default function Profile() {
                                         <Descriptions.Item label="ICP Principal">
                                             {formatICPPrincipal(principal)}
                                         </Descriptions.Item>
-                                        {showButton && (
-                                            <Button size="large" onClick={createOrganization}>
-                                                <Text>Create organization</Text>
-                                            </Button>
-                                        )}
                                     </>
                                 )}
                             </Descriptions>
                         </Card>
                     </Col>
                 </Row>
+                {showButton && (
+                    <Button size="large" onClick={createOrganization}>
+                        <Text>Create organization</Text>
+                    </Button>
+                )}
             </Card>
         </div>
     );
-
-    // return (
-    //     <div className={styles.ProfileContainer}>
-    //         <Card
-    //             style={{ width: '100%' }}
-    //             cover={
-    //                 <img
-    //                     alt="example"
-    //                     src={userInfo.companyClaims.image}
-    //                     style={{
-    //                         marginTop: '10px',
-    //                         height: '200px',
-    //                         width: '100%',
-    //                         objectFit: 'contain'
-    //                     }}
-    //                 />
-    //             }>
-    //             <Title>Welcome {userInfo.companyClaims.legalName}!</Title>
-    //             <Title level={5}>Your information:</Title>
-    //             <Paragraph>
-    //                 Role:{' '}
-    //                 {userInfo.companyClaims.role.length !== 0
-    //                     ? userInfo.companyClaims.role
-    //                     : 'Unknown'}
-    //             </Paragraph>
-    //             <Paragraph>Email: {userInfo.companyClaims.email}</Paragraph>
-    //             <Paragraph>Address: {userInfo.companyClaims.address}</Paragraph>
-    //             <Paragraph>Nation: {userInfo.companyClaims.nation}</Paragraph>
-    //             <Paragraph>Telephone: {userInfo.companyClaims.telephone}</Paragraph>
-    //             <Paragraph>Ethereum Address: {signer?._address || 'undefined'}</Paragraph>
-    //             {identity && (
-    //                 <>
-    //                     <Paragraph>ICP principal: {principal}</Paragraph>
-    //                     {showButton && (
-    //                         <Button size="large" onClick={createOrganization}>
-    //                             <Text>Create organization</Text>
-    //                         </Button>
-    //                     )}
-    //                 </>
-    //             )}
-    //         </Card>
-    //     </div>
-    // );
 }

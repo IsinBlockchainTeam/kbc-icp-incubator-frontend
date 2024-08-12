@@ -22,7 +22,7 @@ export const OfferNew = () => {
     const userInfo = useSelector((state: RootState) => state.userInfo);
 
     const onSubmit = async (values: any) => {
-        values['offeror'] = signer?._address || 'Unknown';
+        values['offeror'] = signer._address;
         await saveOffer(values.offeror, values['product-category-id']);
         navigate(paths.OFFERS);
     };

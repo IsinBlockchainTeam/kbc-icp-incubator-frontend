@@ -16,6 +16,7 @@ export type CompanyClaimsState = {
 export type EmployeeClaimsState = {
     firstName: string;
     lastName: string;
+    address: string;
     birthDate: string;
     email: string;
     telephone: string;
@@ -48,6 +49,7 @@ export const initialState: UserInfoState = {
     employeeClaims: {
         firstName: '',
         lastName: '',
+        address: '',
         birthDate: '',
         email: '',
         telephone: '',

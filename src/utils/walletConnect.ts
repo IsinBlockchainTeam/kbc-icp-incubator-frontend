@@ -13,13 +13,6 @@ export async function createEthereumProvider(): Promise<EthereumProvider> {
             ]
         },
         showQrModal: false,
-        // namespaces: {
-        //     eip155: {
-        //         methods: ['eth_sendTransaction', 'eth_signTransaction', 'personal_sign'],
-        //         chains: [222],
-        //         events: ['accountsChanged', 'networkChanged']
-        //     }
-        // },
         optionalChains: [222],
         rpcMap: {
             222: 'https://testnet-3achain-rpc.noku.io'

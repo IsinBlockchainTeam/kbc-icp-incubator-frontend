@@ -49,7 +49,7 @@ describe('EthBasicTradeProvider', () => {
     const registerBasicTrade = jest.fn();
     const waitForTransactions = jest.fn();
     const rawTrades = [{ address: '0x123', type: TradeType.BASIC } as RawTrade];
-    const userInfo = { organizationId: '1' } as UserInfoState;
+    const userInfo = { companyClaims: { organizationId: '1' } } as UserInfoState;
     const basicTrade = {
         tradeId: 1,
         externalUrl: 'externalUrl',
