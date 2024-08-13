@@ -26,7 +26,8 @@ const mockedCompanies = new Map<string, CompanyInfo>([
             address: 'Rue des Commerçants, 567',
             city: 'Bruxelles',
             postalCode: '1040',
-            countryCode: 'CH',
+            region: '1040 Bruxelles',
+            countryCode: 'BE',
             role: 'Importer',
             telephone: '123456789',
             email: 'importer@coffe.com',
@@ -41,6 +42,7 @@ const mockedCompanies = new Map<string, CompanyInfo>([
             address: 'Exporter Street 2',
             city: 'Sao Paulo',
             postalCode: '12345',
+            region: '03506-000 - São Paulo',
             countryCode: 'BRA',
             role: 'Exporter',
             telephone: '987654321',
@@ -56,11 +58,42 @@ const mockedCompanies = new Map<string, CompanyInfo>([
             address: 'Arbiter Street 3',
             city: 'Luzern',
             postalCode: '6005',
+            region: '6005 Luzern',
             countryCode: 'CH',
             role: 'Arbiter',
             telephone: '123456789',
             email: 'arbiter@coffe.com',
             image: 'arbiter.jpg'
+        }
+    ]
+]);
+
+const mockedEmployees = new Map<string, EmployeeInfo>([
+    [
+        ADDRESSES[0],
+        {
+            name: 'Marie',
+            surname: 'Dupont',
+            telephone: '+32 2 123 4567',
+            email: 'marie.dupont@eurocoffeeimports.eu'
+        }
+    ],
+    [
+        ADDRESSES[1],
+        {
+            name: 'João Silva',
+            surname: 'Oliveira',
+            telephone: '+55 11 98765-4321',
+            email: 'joao.oliveira@cafebrasilexport.com.br'
+        }
+    ],
+    [
+        ADDRESSES[2],
+        {
+            name: 'Arbiter',
+            surname: 'Doe',
+            telephone: '123456789',
+            email: 'employee1_arbiter@coffe.com'
         }
     ]
 ]);
@@ -71,6 +104,7 @@ export type CompanyInfo = {
     address: string;
     postalCode: string;
     city: string;
+    region: string; // region name with region code
     countryCode: string;
     role: string;
     telephone: string;
@@ -78,9 +112,18 @@ export type CompanyInfo = {
     image: string;
 };
 
+// TODO: dato un employee ho delle informazioni che mi permettono di recuperare la company?
+export type EmployeeInfo = {
+    name: string;
+    surname: string;
+    telephone: string;
+    email: string;
+};
+
 export type ICPOrganizationContextState = {
     dataLoaded: boolean;
     getCompany: (address: string) => CompanyInfo;
+    getEmployee: (address: string) => EmployeeInfo;
     loadData: () => Promise<void>;
 };
 export const ICPOrganizationContext = createContext<ICPOrganizationContextState>(
@@ -104,6 +147,7 @@ export function ICPOrganizationProvider(props: { children: React.ReactNode }) {
         address: 'Unknown',
         city: 'Unknown',
         postalCode: 'Unknown',
+        region: 'Unknown',
         countryCode: 'Unknown',
         role: 'Unknown',
         telephone: 'Unknown',
@@ -118,10 +162,17 @@ export function ICPOrganizationProvider(props: { children: React.ReactNode }) {
         return companies.get(address) || emptyCompany;
     };
 
-    // TODO: like for company, implement the function to get the employee information
-    const getEmployee = (address: string): EmployeeInfo => {};
+    const getEmployee = (address: string): EmployeeInfo => {
+        return mockedEmployees.get(address) || ({} as EmployeeInfo);
+    };
 
-    const getCompaniesByDID = async (did: string): Promise<CompanyInfo> => {
+    // TODO: le info degli employee vengono recuperate relative alla compagnia (recupero prima la credenziale della company e poi del dipendente)?
+    // oppure sono "slegate" e vengono recuperate direttamente dal DID del dipendente?
+    const getEmployeeByDID = async (did: string): Promise<EmployeeInfo> => {
+        return {} as EmployeeInfo;
+    };
+
+    const getCompanyByDID = async (did: string): Promise<CompanyInfo> => {
         let serviceUrl;
 
         try {
@@ -153,6 +204,7 @@ export function ICPOrganizationProvider(props: { children: React.ReactNode }) {
             address: verifiablePresentation.address,
             city: verifiablePresentation.city,
             postalCode: verifiablePresentation.postalCode,
+            region: verifiablePresentation.region,
             countryCode: verifiablePresentation.countryCode,
             role: verifiablePresentation.role,
             telephone: verifiablePresentation.telephone,
@@ -167,7 +219,7 @@ export function ICPOrganizationProvider(props: { children: React.ReactNode }) {
         for (const address of ADDRESSES) {
             // TODO: remove mocked organizations
             organizations.set(address, mockedCompanies.get(address) || emptyCompany);
-            // organizations.set(address, await getOrganizationsByDID(DID_METHOD + ':' + address));
+            // organizations.set(address, await getCompanyByDID(DID_METHOD + ':' + address));
         }
         setCompanies(organizations);
         dispatch(removeLoadingMessage(NAME_MESSAGE.RETRIEVE.LOADING));
@@ -179,7 +231,7 @@ export function ICPOrganizationProvider(props: { children: React.ReactNode }) {
     };
 
     return (
-        <ICPOrganizationContext.Provider value={{ dataLoaded, getCompany, loadData }}>
+        <ICPOrganizationContext.Provider value={{ dataLoaded, getCompany, getEmployee, loadData }}>
             {props.children}
         </ICPOrganizationContext.Provider>
     );

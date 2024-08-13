@@ -21,8 +21,9 @@ import { validateDates } from '@/utils/date';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 import { OrderTradeRequest, useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
-import useOrderGenerator, { OrderSpec } from '@/hooks/useOrderGenerator';
+import useOrderGenerator, { OrderSpec } from '@/hooks/documentGenerator/useOrderGenerator';
 import PDFGenerationView from '@/components/PDFViewer/PDFGenerationView';
+import { JSONOrderTemplate } from '../../../templates/transaction/JSONOrderTemplate';
 
 type OrderTradeViewProps = {
     orderTrade: OrderTrade;
@@ -46,9 +47,9 @@ export const OrderTradeView = ({
     const [showGeneratedDocument, setShowGeneratedDocument] = useState(false);
     // TODO: in general, remove hardcoded values and add input in the form of the negotiation
     const orderSpec: OrderSpec = {
-        id: `order_info#${orderTrade.tradeId}`,
+        id: `order_#${orderTrade.tradeId}`,
         // TODO: add issueDate to order entity, so that also in the future (not today) I know when the order has been issued
-        issueDate: new Date(),
+        issueDate: new Date().getTime(),
         supplierAddress: orderTrade.supplier,
         commissionerAddress: orderTrade.commissioner,
         // TODO: define the currency directly in the negotiation terms, not in lines
@@ -58,17 +59,35 @@ export const OrderTradeView = ({
             productCategory: line.productCategory.name || '',
             productTypology: 'Green coffee beans',
             quality: line.productCategory.quality,
-            quantity: line.quantity,
             moisture: 12,
+            quantitySpecs: [
+                {
+                    value: line.quantity,
+                    unitCode: line.unit
+                },
+                {
+                    value: 3,
+                    unitCode: "40' Dry containers"
+                }
+            ],
             weight: 900,
-            unitCode: line.unit
+            sample: {
+                isNeeded: true,
+                description: '1 lb shipping sample to be provided prior shipment'
+            },
+            unitCode: line.unit,
+            standards: ['RFA (Rain Forest Alliance)', 'ICO (Certificate of Origin)']
         })),
         constraints: {
             incoterms: orderTrade.metadata?.incoterms || '',
+            guaranteePercentage: 20,
             arbiterAddress: orderTrade.arbiter,
             shipper: orderTrade.metadata?.shipper || '',
             shippingPort: orderTrade.metadata?.shippingPort || '',
-            deliveryPort: orderTrade.metadata?.deliveryPort || ''
+            deliveryPort: orderTrade.metadata?.deliveryPort || '',
+            deliveryDate: orderTrade.deliveryDeadline,
+            otherConditions:
+                '1) Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua\n2) Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris\n...\n....\n.....\n6) Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident'
         }
     };
 
@@ -399,8 +418,13 @@ export const OrderTradeView = ({
             />
             <Button onClick={() => setShowGeneratedDocument(true)}>Generate PDF</Button>
             <PDFGenerationView
+                title={'Generated Order'}
+                centered={true}
                 visible={showGeneratedDocument}
+                handleClose={() => setShowGeneratedDocument(false)}
                 useGeneration={useOrderGenerator(orderSpec)}
+                downloadable={true}
+                filename={`order_${orderTrade.tradeId}.pdf`}
             />
         </CardPage>
     );

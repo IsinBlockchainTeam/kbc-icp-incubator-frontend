@@ -7,9 +7,9 @@ export const utils = {
     DATE_FORMAT: 'DD/MM/YYYY'
 };
 
-export const VAT_TAX: number = Number(
+export const ESCROW_FEE: number = Number(
     checkAndGetEnvironmentVariable(
-        process.env.REACT_APP_VAT_AMOUNT,
-        'VAT tax amount must be defined'
+        process.env.REACT_APP_ESCROW_FEE_PERCENT,
+        'Escrow fee amount percent must be defined'
     )
 );

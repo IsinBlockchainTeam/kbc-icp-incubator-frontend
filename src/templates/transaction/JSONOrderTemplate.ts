@@ -2,21 +2,22 @@ import { JSONTemplate } from '../JSONTemplate';
 
 export interface JSONOrderTemplate extends JSONTemplate {
     Header: {
-        ContractID: string;
-        IssueDate: string;
+        OrderID: string;
+        IssueDate: number;
         Description?: string;
         Seller: {
             ID: string; // Unique identifier of a company, i.e. VAT number
             Name: string;
             Address: {
                 StreetOne: string;
-                StreetTwo?: string;
                 PostalCode: string;
                 City: string;
+                Region: string; // region name with region code
                 CountryCode: string;
             };
             Contact: {
                 Name: string;
+                Surname: string;
                 Email: string;
                 Phone: string;
             };
@@ -26,13 +27,14 @@ export interface JSONOrderTemplate extends JSONTemplate {
             Name: string;
             Address: {
                 StreetOne: string;
-                StreetTwo?: string;
                 PostalCode: string;
                 City: string;
+                Region: string; // region name with region code
                 CountryCode: string;
             };
             Contact: {
                 Name: string;
+                Surname: string;
                 Email: string;
                 Phone: string;
             };
@@ -40,11 +42,21 @@ export interface JSONOrderTemplate extends JSONTemplate {
     };
     LineItems: {
         ItemId: string;
-        Description: string; // product category i.e. Arabica
-        Quality: number; // i.e. 85
-        Quantity: number;
-        UnitCode: string;
+        Description: {
+            Category: string;
+            Typology: string;
+            Quality: number;
+            MoisturePercent: number;
+        };
+        QuantitySpecs: {
+            Value: number;
+            UnitCode: string;
+        }[];
         Weight: number; // KGs
+        Sample: {
+            IsNeeded: boolean;
+            Description?: string;
+        };
         UnitPrice?: number; // could not be present if the price is defined during the shipment
         Standards: string[]; // i.e. "ISO 9001", "Fair Trade"
     }[];
@@ -60,13 +72,14 @@ export interface JSONOrderTemplate extends JSONTemplate {
             Name: string;
             Address: {
                 StreetOne: string;
-                StreetTwo?: string;
                 PostalCode: string;
                 City: string;
+                Region: string; // region name with region code
                 CountryCode: string;
             };
             Contact: {
                 Name: string;
+                Surname: string;
                 Email: string;
                 Phone: string;
             };
@@ -74,10 +87,14 @@ export interface JSONOrderTemplate extends JSONTemplate {
         Shipper: string;
         ShippingPort: string;
         DeliveryPort: string;
-        // ExpiryDate: string;
-        Tax: {
-            TypeCode: string; // i.e. "VAT"
-            RateApplicablePercent: number;
+        DeliveryDate: number;
+        // Tax: {
+        //     TypeCode: string; // i.e. "VAT"
+        //     RateApplicablePercent: number;
+        // };
+        Guarantee: {
+            AmountPercent: number;
+            EscrowTaxPercent: number; // percentage of the guarantee that is paid as platform's fee
         };
         PriceFixing: {
             // if a fixed date is not specified, it must be specified directly the price of the item. One of two fields must be present
@@ -97,13 +114,15 @@ export interface JSONOrderTemplate extends JSONTemplate {
         BuyerSignature: {
             // initially it will be the name of the employee that has created the contract. After the signature it will be the name of the employee that has signed the contract
             Name: string; // this field is always present. It is the name of the latest employee of the company that has updated the contract
-            Date?: string;
+            Surname: string;
+            Date?: number;
             TransactionId?: string;
         };
         SellerSignature: {
             // initially it will be the name of the employee that has been engaged with the contract. After the signature it will be the name of the employee that has signed the contract
             Name: string; // this field is always present. It is the name of the latest employee of the company that has updated the contract
-            Date?: string;
+            Surname: string;
+            Date?: number;
             TransactionId?: string;
         };
     };
