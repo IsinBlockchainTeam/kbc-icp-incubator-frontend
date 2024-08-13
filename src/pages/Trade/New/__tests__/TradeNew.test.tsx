@@ -4,8 +4,8 @@ import { useSigner } from '@/providers/SignerProvider';
 import { TradeNew } from '@/pages/Trade/New/TradeNew';
 import { OrderTradeNew } from '@/pages/Trade/New/OrderTradeNew';
 import { paths } from '@/constants/paths';
-import { Wallet } from 'ethers';
 import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
+import { JsonRpcSigner } from '@ethersproject/providers';
 
 jest.mock('react-router-dom');
 jest.mock('@/providers/SignerProvider');
@@ -15,7 +15,7 @@ jest.mock('@/providers/entities/ICPOrganizationProvider');
 
 describe('Trade New', () => {
     const signer = { _address: '0x123' } as JsonRpcSigner;
-    const getName = jest.fn();
+    const getCompany = jest.fn();
     const navigate = jest.fn();
 
     beforeEach(() => {
@@ -27,9 +27,9 @@ describe('Trade New', () => {
             state: { supplierAddress: '0xaddress', productCategoryId: 1 }
         });
         (useSigner as jest.Mock).mockReturnValue({ signer });
-        (useICPOrganization as jest.Mock).mockReturnValue({ getName });
+        (useICPOrganization as jest.Mock).mockReturnValue({ getCompany });
         (useNavigate as jest.Mock).mockReturnValue(navigate);
-        getName.mockReturnValue('actor');
+        getCompany.mockReturnValue({ legalName: 'actor' });
     });
 
     it('should render correctly - ORDER', async () => {

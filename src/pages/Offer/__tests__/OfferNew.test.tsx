@@ -29,7 +29,7 @@ describe('Offers New', () => {
             role: credentials.ROLE_EXPORTER
         }
     } as UserInfoState;
-    const getName = jest.fn();
+    const getCompany = jest.fn();
     const saveOffer = jest.fn();
     const navigate = jest.fn();
 
@@ -39,9 +39,9 @@ describe('Offers New', () => {
         jest.clearAllMocks();
 
         (useNavigate as jest.Mock).mockReturnValue(navigate);
-        getName.mockReturnValue('Supplier Name');
+        getCompany.mockReturnValue({ legalName: 'Supplier Name' });
         (useICPOrganization as jest.Mock).mockReturnValue({
-            getName
+            getCompany
         });
         (useEthMaterial as jest.Mock).mockReturnValue({
             productCategories: [

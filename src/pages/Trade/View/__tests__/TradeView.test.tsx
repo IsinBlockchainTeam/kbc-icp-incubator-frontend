@@ -21,7 +21,7 @@ jest.mock('@/utils/notification');
 describe('Trade View', () => {
     const basicTrades = [{ tradeId: 1 } as BasicTrade];
     const orderTrades = [{ tradeId: 1 } as OrderTrade];
-    const getName = jest.fn();
+    const getCompany = jest.fn();
     const navigate = jest.fn();
 
     beforeEach(() => {
@@ -38,8 +38,8 @@ describe('Trade View', () => {
         });
         (useEthBasicTrade as jest.Mock).mockReturnValue({ basicTrades });
         (useEthOrderTrade as jest.Mock).mockReturnValue({ orderTrades });
-        (useICPOrganization as jest.Mock).mockReturnValue({ getName });
-        getName.mockReturnValue('actor');
+        (useICPOrganization as jest.Mock).mockReturnValue({ getCompany });
+        getCompany.mockReturnValue({ legalName: 'actor' });
     });
 
     it('should render correctly - ORDER', async () => {

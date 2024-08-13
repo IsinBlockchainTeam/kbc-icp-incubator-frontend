@@ -22,7 +22,7 @@ describe('Offers', () => {
             role: credentials.ROLE_EXPORTER
         }
     } as UserInfoState;
-    const getName = jest.fn();
+    const getCompany = jest.fn();
     const navigate = jest.fn();
 
     beforeEach(() => {
@@ -30,9 +30,9 @@ describe('Offers', () => {
         jest.spyOn(console, 'error').mockImplementation(jest.fn());
         jest.clearAllMocks();
 
-        getName.mockReturnValue('Supplier Name');
+        getCompany.mockReturnValue({ legalName: 'Supplier Name' });
         (useICPOrganization as jest.Mock).mockReturnValue({
-            getName
+            getCompany
         });
         (useEthOffer as jest.Mock).mockReturnValue({
             offers: [

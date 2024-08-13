@@ -35,7 +35,7 @@ jest.mock('react-router-dom', () => {
 describe('Trades', () => {
     const basicTrades = [{} as BasicTrade];
     const orderTrades = [{} as OrderTrade];
-    const getName = jest.fn();
+    const getCompany = jest.fn();
     const getActionRequired = jest.fn();
     const getNegotiationStatus = jest.fn();
     const getOrderStatus = jest.fn();
@@ -51,8 +51,8 @@ describe('Trades', () => {
             getNegotiationStatus,
             getOrderStatus
         });
-        (useICPOrganization as jest.Mock).mockReturnValue({ getName });
-        getName.mockReturnValue('actor');
+        (useICPOrganization as jest.Mock).mockReturnValue({ getCompany });
+        getCompany.mockReturnValue({ legalName: 'actor' });
         getActionRequired.mockReturnValue('actionRequired');
         getNegotiationStatus.mockReturnValue(NegotiationStatus.CONFIRMED);
         getOrderStatus.mockReturnValue(OrderStatus.CONTRACTING);
@@ -63,7 +63,7 @@ describe('Trades', () => {
         expect(Table).toHaveBeenCalledTimes(1);
         const dataSource = (Table as unknown as jest.Mock).mock.calls[0][0].dataSource;
         expect(dataSource).toHaveLength(2);
-        expect(getName).toHaveBeenCalledTimes(4);
+        expect(getCompany).toHaveBeenCalledTimes(4);
         expect(getActionRequired).toHaveBeenCalledTimes(1);
         expect(getNegotiationStatus).toHaveBeenCalledTimes(1);
         expect(getOrderStatus).toHaveBeenCalledTimes(1);

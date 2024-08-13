@@ -75,7 +75,7 @@ describe('EthOrderTradeProvider', () => {
     const getDocumentDetailMap = jest.fn();
     const registerOrderTrade = jest.fn();
     const waitForTransactions = jest.fn();
-    const getName = jest.fn();
+    const getCompany = jest.fn();
     const rawTrades = [{ address: '0x123', type: TradeType.ORDER } as RawTrade];
     const userInfo = { companyClaims: { organizationId: '1' } } as UserInfoState;
     const orderTrade = {
@@ -127,7 +127,7 @@ describe('EthOrderTradeProvider', () => {
             getDocumentDetailMap
         });
         (useICPOrganization as jest.Mock).mockReturnValue({
-            getName
+            getCompany
         });
         (useDispatch as jest.Mock).mockReturnValue(dispatch);
         (useICP as jest.Mock).mockReturnValue({
@@ -779,7 +779,7 @@ describe('EthOrderTradeProvider', () => {
     describe('notifyExpiration', () => {
         it('should notify order expiration', async () => {
             const fetchBackup = global.fetch;
-            getName.mockReturnValue('recipientCompanyName');
+            getCompany.mockReturnValue({ legalName: 'recipientCompanyName' });
             const mockedFetch = jest.fn().mockResolvedValueOnce({ ok: true });
             global.fetch = mockedFetch;
             const { result } = renderHook(() => useEthOrderTrade(), {
@@ -813,7 +813,7 @@ describe('EthOrderTradeProvider', () => {
         });
         it('should handle notify order expiration failure', async () => {
             const fetchBackup = global.fetch;
-            getName.mockReturnValue('recipientCompanyName');
+            getCompany.mockReturnValue({ legalName: 'recipientCompanyName' });
             const mockedFetch = jest.fn().mockRejectedValue(new Error('error'));
             global.fetch = mockedFetch;
             const { result } = renderHook(() => useEthOrderTrade(), {
