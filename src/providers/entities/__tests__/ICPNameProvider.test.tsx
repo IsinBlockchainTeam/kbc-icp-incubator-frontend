@@ -2,10 +2,10 @@ import { renderHook, act } from '@testing-library/react';
 import { ICPOrganizationProvider, useICPOrganization } from '../ICPOrganizationProvider';
 import { useDispatch } from 'react-redux';
 import { useSigner } from '@/providers/SignerProvider';
-import { Wallet } from 'ethers';
 import { request } from '@/utils/request';
 import { ICP } from '@/constants/icp';
 import { useICP } from '@/providers/ICPProvider';
+import { JsonRpcSigner } from '@ethersproject/providers';
 
 jest.mock('@kbc-lib/coffee-trading-management-lib');
 jest.mock('@/providers/SignerProvider');

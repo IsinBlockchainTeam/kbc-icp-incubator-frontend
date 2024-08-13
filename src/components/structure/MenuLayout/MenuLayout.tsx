@@ -19,8 +19,8 @@ import { RootState } from '@/redux/store';
 import { resetUserInfo } from '@/redux/reducers/userInfoSlice';
 import { clearSiweIdentity } from '@/redux/reducers/siweIdentitySlice';
 import { paths } from '@/constants/paths';
+import { useWalletConnect } from '@/providers/WalletConnectProvider';
 const { Content, Footer, Sider } = Layout;
-import { useDisconnect } from '@web3modal/ethers5/react';
 import loadingLogo from '@/assets/coffee-loading.gif';
 
 type MenuItem = Required<MenuProps>['items'][number];
@@ -57,8 +57,12 @@ const settingItems: MenuItem[] = [
     ])
 ];
 
-const { disconnect } = useDisconnect();
-const getUserItemLoggedIn = (name: string, picture: string, dispatch: any) => [
+const getUserItemLoggedIn = (
+    name: string,
+    picture: string,
+    dispatch: any,
+    disconnect: () => void
+) => [
     getItem(
         `${name}`,
         'profile',
@@ -75,6 +79,7 @@ const getUserItemLoggedIn = (name: string, picture: string, dispatch: any) => [
 ];
 
 export const MenuLayout = () => {
+    const { disconnect } = useWalletConnect();
     const location = useLocation();
     const navigate = useNavigate();
     const [collapsed, setCollapsed] = useState<boolean>(false);
@@ -121,9 +126,12 @@ export const MenuLayout = () => {
                             items={
                                 userInfo.isLogged
                                     ? getUserItemLoggedIn(
-                                          userInfo.legalName,
-                                          userInfo.image || defaultPictureURL,
-                                          dispatch
+                                          userInfo.employeeClaims.lastName +
+                                              ', ' +
+                                              userInfo.companyClaims.legalName,
+                                          userInfo.employeeClaims.image || defaultPictureURL,
+                                          dispatch,
+                                          disconnect
                                       )
                                     : settingItems
                             }
@@ -147,8 +155,8 @@ export const MenuLayout = () => {
                                 }}
                             />
                         }
-                        size={'large'}
                         spinning={loading.isLoading}
+                        size="large"
                         tip={loading.loadingMessages.map((msg) => (
                             <div key={msg}>{msg}</div>
                         ))}>

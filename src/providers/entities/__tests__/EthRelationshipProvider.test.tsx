@@ -3,8 +3,8 @@ import { EthRelationshipProvider, useEthRelationship } from '../EthRelationshipP
 import { Relationship, RelationshipService } from '@kbc-lib/coffee-trading-management-lib';
 import { useDispatch } from 'react-redux';
 import { useSigner } from '@/providers/SignerProvider';
-import { Wallet } from 'ethers';
 import { openNotification } from '@/utils/notification';
+import { JsonRpcSigner } from '@ethersproject/providers';
 
 jest.mock('@kbc-lib/coffee-trading-management-lib');
 jest.mock('@/providers/SignerProvider');

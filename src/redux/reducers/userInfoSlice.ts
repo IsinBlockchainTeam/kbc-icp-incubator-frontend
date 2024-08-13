@@ -1,31 +1,61 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-export type UserInfoState = {
-    isLogged: boolean;
-    id: string;
+export type CompanyClaimsState = {
     legalName: string;
-    email: string;
+    industrialSector: string;
     address: string;
+    email: string;
     nation: string;
+    latitude: string;
+    longitude: string;
     telephone: string;
     image: string;
     role: string;
     organizationId: string;
-    privateKey: string;
+};
+export type EmployeeClaimsState = {
+    firstName: string;
+    lastName: string;
+    address: string;
+    birthDate: string;
+    email: string;
+    telephone: string;
+    role: string;
+    image: string;
+};
+export type UserInfoState = {
+    isLogged: boolean;
+    subjectDid: string;
+    companyClaims: CompanyClaimsState;
+    employeeClaims: EmployeeClaimsState;
 };
 
 export const initialState: UserInfoState = {
     isLogged: false,
-    id: '',
-    legalName: '',
-    email: '',
-    address: '',
-    nation: '',
-    telephone: '',
-    image: '',
-    role: '',
-    organizationId: '',
-    privateKey: ''
+    subjectDid: '',
+    companyClaims: {
+        legalName: '',
+        industrialSector: '',
+        address: '',
+        email: '',
+        nation: '',
+        latitude: '',
+        longitude: '',
+        telephone: '',
+        image: '',
+        role: '',
+        organizationId: ''
+    },
+    employeeClaims: {
+        firstName: '',
+        lastName: '',
+        address: '',
+        birthDate: '',
+        email: '',
+        telephone: '',
+        role: '',
+        image: ''
+    }
 };
 export type UpdatableUserInfoState = Omit<UserInfoState, 'isLogged'>;
 
@@ -38,29 +68,15 @@ const userInfoSlice = createSlice({
             action: { payload: UpdatableUserInfoState; type: string }
         ) => {
             state.isLogged = true;
-            state.id = action.payload.id;
-            state.legalName = action.payload.legalName;
-            state.email = action.payload.email;
-            state.address = action.payload.address;
-            state.nation = action.payload.nation;
-            state.telephone = action.payload.telephone;
-            state.image = action.payload.image;
-            state.role = action.payload.role;
-            state.organizationId = action.payload.organizationId;
-            state.privateKey = action.payload.privateKey;
+            state.subjectDid = action.payload.subjectDid;
+            state.companyClaims = action.payload.companyClaims;
+            state.employeeClaims = action.payload.employeeClaims;
         },
         resetUserInfo: (state: UserInfoState) => {
             state.isLogged = false;
-            state.id = '';
-            state.legalName = '';
-            state.email = '';
-            state.address = '';
-            state.nation = '';
-            state.telephone = '';
-            state.image = '';
-            state.role = '';
-            state.organizationId = '';
-            state.privateKey = '';
+            state.subjectDid = initialState.subjectDid;
+            state.companyClaims = initialState.companyClaims;
+            state.employeeClaims = initialState.employeeClaims;
         }
     }
 });

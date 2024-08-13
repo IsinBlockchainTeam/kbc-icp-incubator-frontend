@@ -3,9 +3,9 @@ import { EthGraphProvider, useEthGraph } from '../EthGraphProvider';
 import { GraphService, ICPFileDriver } from '@kbc-lib/coffee-trading-management-lib';
 import { useDispatch } from 'react-redux';
 import { useSigner } from '@/providers/SignerProvider';
-import { Wallet } from 'ethers';
 import { openNotification } from '@/utils/notification';
 import { useICP } from '@/providers/ICPProvider';
+import { JsonRpcSigner } from '@ethersproject/providers';
 
 jest.mock('@kbc-lib/coffee-trading-management-lib');
 jest.mock('@/providers/SignerProvider');

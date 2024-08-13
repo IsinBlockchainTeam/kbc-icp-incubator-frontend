@@ -115,7 +115,7 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
     const [detailedOrderTrades, setDetailedOrderTrades] = useState<DetailedOrderTrade[]>([]);
     const { fileDriver } = useICP();
     const userInfo = useSelector((state: RootState) => state.userInfo);
-    const organizationId = parseInt(userInfo.organizationId);
+    const organizationId = parseInt(userInfo.companyClaims.organizationId);
 
     const tradeManagerService = useMemo(
         () =>
@@ -450,8 +450,8 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
                 body: JSON.stringify({
                     email,
                     recipientCompanyName,
-                    senderCompanyName: userInfo.legalName,
-                    senderEmailAddress: userInfo.email,
+                    senderCompanyName: userInfo.companyClaims.legalName,
+                    senderEmailAddress: userInfo.companyClaims.email,
                     message,
                     transactionUrl: window.location.href
                 })

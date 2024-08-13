@@ -18,7 +18,9 @@ jest.mock('react-redux');
 
 describe('Offers', () => {
     const userInfo = {
-        role: credentials.ROLE_EXPORTER
+        companyClaims: {
+            role: credentials.ROLE_EXPORTER
+        }
     } as UserInfoState;
     const getName = jest.fn();
     const navigate = jest.fn();
@@ -69,7 +71,9 @@ describe('Offers', () => {
 
     it("should call navigator functions when clicking on 'Start a negotiation' buttons", async () => {
         (useSelector as jest.Mock).mockReturnValue({
-            role: credentials.ROLE_IMPORTER
+            companyClaims: {
+                role: credentials.ROLE_IMPORTER
+            }
         });
 
         render(<Offers />);
