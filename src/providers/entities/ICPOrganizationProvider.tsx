@@ -73,7 +73,7 @@ const mockedEmployees = new Map<string, EmployeeInfo>([
         ADDRESSES[0],
         {
             name: 'Marie',
-            surname: 'Dupont',
+            lastname: 'Dupont',
             telephone: '+32 2 123 4567',
             email: 'marie.dupont@eurocoffeeimports.eu'
         }
@@ -82,7 +82,7 @@ const mockedEmployees = new Map<string, EmployeeInfo>([
         ADDRESSES[1],
         {
             name: 'João Silva',
-            surname: 'Oliveira',
+            lastname: 'Oliveira',
             telephone: '+55 11 98765-4321',
             email: 'joao.oliveira@cafebrasilexport.com.br'
         }
@@ -91,7 +91,7 @@ const mockedEmployees = new Map<string, EmployeeInfo>([
         ADDRESSES[2],
         {
             name: 'Arbiter',
-            surname: 'Doe',
+            lastname: 'Doe',
             telephone: '123456789',
             email: 'employee1_arbiter@coffe.com'
         }
@@ -115,7 +115,7 @@ export type CompanyInfo = {
 // TODO: dato un employee ho delle informazioni che mi permettono di recuperare la company?
 export type EmployeeInfo = {
     name: string;
-    surname: string;
+    lastname: string;
     telephone: string;
     email: string;
 };
@@ -132,7 +132,7 @@ export const ICPOrganizationContext = createContext<ICPOrganizationContextState>
 export const useICPOrganization = (): ICPOrganizationContextState => {
     const context = useContext(ICPOrganizationContext);
     if (!context || Object.keys(context).length === 0) {
-        throw new Error('useICPName must be used within an ICPNameProvider.');
+        throw new Error('useICPOrganization must be used within an ICPOrganizationProvider.');
     }
     return context;
 };

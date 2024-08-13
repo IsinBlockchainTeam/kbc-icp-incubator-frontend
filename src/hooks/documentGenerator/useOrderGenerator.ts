@@ -80,7 +80,7 @@ export default (
                     },
                     Contact: {
                         Name: supplierContact.name,
-                        Surname: supplierContact.surname,
+                        Surname: supplierContact.lastname,
                         Email: supplierContact.email,
                         Phone: supplierContact.telephone
                     }
@@ -97,7 +97,7 @@ export default (
                     },
                     Contact: {
                         Name: commissionerContact.name,
-                        Surname: commissionerContact.surname,
+                        Surname: commissionerContact.lastname,
                         Email: commissionerContact.email,
                         Phone: commissionerContact.telephone
                     }
@@ -142,7 +142,7 @@ export default (
                     },
                     Contact: {
                         Name: arbiterContact.name,
-                        Surname: arbiterContact.surname,
+                        Surname: arbiterContact.lastname,
                         Email: arbiterContact.email,
                         Phone: arbiterContact.telephone
                     }
@@ -171,11 +171,11 @@ export default (
                 // TODO: these signatures will refer to the actual employee that has signed the negotiation and after the document is ready, the two signs will be updated with the signatures of the employee of the responsible office
                 BuyerSignature: {
                     Name: commissionerContact.name,
-                    Surname: commissionerContact.surname
+                    Surname: commissionerContact.lastname
                 },
                 SellerSignature: {
                     Name: supplierContact.name,
-                    Surname: supplierContact.surname
+                    Surname: supplierContact.lastname
                 }
             },
             AdditionalInformation: {

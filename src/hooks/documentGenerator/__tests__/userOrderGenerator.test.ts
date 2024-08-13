@@ -40,7 +40,7 @@ describe('userOrderGenerator', () => {
     });
     const mockedEmployee = (address: string): EmployeeInfo => ({
         name: `Name - ${address}`,
-        surname: `Surname - ${address}`,
+        lastname: `Surname - ${address}`,
         email: `employee@email.com`,
         telephone: '123-456-7890'
     });
@@ -114,7 +114,7 @@ describe('userOrderGenerator', () => {
         });
         expect(jsonSpec.Header.Seller.Contact).toEqual({
             Name: mockedEmployee(orderSpec.supplierAddress).name,
-            Surname: mockedEmployee(orderSpec.supplierAddress).surname,
+            Surname: mockedEmployee(orderSpec.supplierAddress).lastname,
             Email: mockedEmployee(orderSpec.supplierAddress).email,
             Phone: mockedEmployee(orderSpec.supplierAddress).telephone
         });
@@ -132,7 +132,7 @@ describe('userOrderGenerator', () => {
         });
         expect(jsonSpec.Header.Buyer.Contact).toEqual({
             Name: mockedEmployee(orderSpec.commissionerAddress).name,
-            Surname: mockedEmployee(orderSpec.commissionerAddress).surname,
+            Surname: mockedEmployee(orderSpec.commissionerAddress).lastname,
             Email: mockedEmployee(orderSpec.commissionerAddress).email,
             Phone: mockedEmployee(orderSpec.commissionerAddress).telephone
         });
@@ -196,18 +196,18 @@ describe('userOrderGenerator', () => {
         });
         expect(jsonSpec.Terms.Arbiter.Contact).toEqual({
             Name: mockedEmployee(orderSpec.constraints.arbiterAddress).name,
-            Surname: mockedEmployee(orderSpec.constraints.arbiterAddress).surname,
+            Surname: mockedEmployee(orderSpec.constraints.arbiterAddress).lastname,
             Email: mockedEmployee(orderSpec.constraints.arbiterAddress).email,
             Phone: mockedEmployee(orderSpec.constraints.arbiterAddress).telephone
         });
         // signatures
         expect(jsonSpec.Signatures.BuyerSignature).toEqual({
             Name: mockedEmployee(orderSpec.commissionerAddress).name,
-            Surname: mockedEmployee(orderSpec.commissionerAddress).surname
+            Surname: mockedEmployee(orderSpec.commissionerAddress).lastname
         });
         expect(jsonSpec.Signatures.SellerSignature).toEqual({
             Name: mockedEmployee(orderSpec.supplierAddress).name,
-            Surname: mockedEmployee(orderSpec.supplierAddress).surname
+            Surname: mockedEmployee(orderSpec.supplierAddress).lastname
         });
         expect(jsonSpec.AdditionalInformation).toEqual({
             OtherConditions: orderSpec.constraints.otherConditions

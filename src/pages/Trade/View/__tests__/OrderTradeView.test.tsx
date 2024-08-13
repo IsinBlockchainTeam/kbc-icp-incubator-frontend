@@ -20,6 +20,7 @@ jest.mock('@/pages/Trade/OrderStatusSteps/OrderStatusSteps');
 jest.mock('@/providers/entities/EthMaterialProvider');
 jest.mock('@/providers/entities/EthEnumerableProvider');
 jest.mock('@/providers/entities/EthOrderTradeProvider');
+jest.mock('@/hooks/documentGenerator/useOrderGenerator');
 
 describe('Basic Trade View', () => {
     const supplierAddress = '0xsupplierAddress';

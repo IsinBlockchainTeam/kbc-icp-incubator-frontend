@@ -23,7 +23,6 @@ import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 import { OrderTradeRequest, useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
 import useOrderGenerator, { OrderSpec } from '@/hooks/documentGenerator/useOrderGenerator';
 import PDFGenerationView from '@/components/PDFViewer/PDFGenerationView';
-import { JSONOrderTemplate } from '../../../templates/transaction/JSONOrderTemplate';
 
 type OrderTradeViewProps = {
     orderTrade: OrderTrade;
