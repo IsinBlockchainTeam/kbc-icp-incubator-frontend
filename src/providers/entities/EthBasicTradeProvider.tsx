@@ -65,7 +65,7 @@ export function EthBasicTradeProvider(props: { children: ReactNode }) {
     const [detailedBasicTrade, setDetailedBasicTrade] = useState<DetailedBasicTrade | null>(null);
     const { fileDriver } = useICP();
     const userInfo = useSelector((state: RootState) => state.userInfo);
-    const organizationId = parseInt(userInfo.organizationId);
+    const organizationId = parseInt(userInfo.companyClaims.organizationId);
 
     const rawTrade = useMemo(
         () =>

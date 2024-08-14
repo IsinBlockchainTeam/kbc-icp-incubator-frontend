@@ -4,22 +4,25 @@ import { MenuLayout } from '../MenuLayout';
 import { Provider } from 'react-redux';
 import { store } from '@/redux/store';
 import { MemoryRouter } from 'react-router-dom';
-import { updateUserInfo, UserInfoState } from '@/redux/reducers/userInfoSlice';
+import { initialState, updateUserInfo, UserInfoState } from '@/redux/reducers/userInfoSlice';
 import { Menu } from 'antd';
-
 import { paths } from '@/constants/paths';
+import { useWalletConnect } from '@/providers/WalletConnectProvider';
 
 jest.mock('antd', () => ({
     ...jest.requireActual('antd'),
     Menu: jest.fn(() => <div>Menu</div>)
 }));
-jest.mock('@web3modal/ethers5/react', () => ({
-    useDisconnect: jest.fn().mockReturnValue({
-        disconnect: jest.fn()
-    })
-}));
+jest.mock('@/providers/WalletConnectProvider');
 
 describe('MenuLayout', () => {
+    const mockDisconnect = jest.fn();
+    beforeEach(() => {
+        jest.clearAllMocks();
+        (useWalletConnect as jest.Mock).mockReturnValue({
+            disconnect: mockDisconnect
+        });
+    });
     it('should render menu when user is not logged in', () => {
         render(
             <MemoryRouter initialEntries={[{ pathname: '/test' }]}>
@@ -48,8 +51,13 @@ describe('MenuLayout', () => {
     it('should render menu when user is logged in', () => {
         store.dispatch(
             updateUserInfo({
-                id: '1',
-                legalName: 'Test User'
+                subjectDid: '1',
+                companyClaims: {
+                    legalName: 'Test Company'
+                },
+                employeeClaims: {
+                    lastName: 'Test User'
+                }
             } as UserInfoState)
         );
         render(
@@ -78,24 +86,13 @@ describe('MenuLayout', () => {
         expect(secondaryMenuItems[0].children[1].key).toBe(paths.LOGIN);
 
         act(() => secondaryMenuItems[0].children[1].onClick());
-        expect(store.getState().userInfo).toEqual({
-            isLogged: false,
-            id: '',
-            legalName: '',
-            email: '',
-            address: '',
-            nation: '',
-            telephone: '',
-            image: '',
-            role: '',
-            organizationId: '',
-            privateKey: ''
-        });
+        expect(store.getState().userInfo).toEqual(initialState);
         expect(store.getState().siweIdentity).toEqual({
             isLogged: false,
             address: '',
             sessionIdentity: '',
             delegationChain: ''
         });
+        expect(mockDisconnect).toHaveBeenCalledTimes(1);
     });
 });

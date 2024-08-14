@@ -33,57 +33,7 @@ import { useEthRelationship } from '@/providers/entities/EthRelationshipProvider
 import { useEthGraph } from '@/providers/entities/EthGraphProvider';
 // import { useEthEscrow } from '@/providers/entities/EthEscrowProvider';
 import { AssetOperationView } from '@/pages/AssetOperation/AssetOperationView';
-
-import { createWeb3Modal, defaultConfig } from '@web3modal/ethers5/react';
-import { PROJECT_ID } from '@/constants/walletConnect';
-import { Shipment } from '@/pages/Shipment/Shipment';
-
-// 1. Get projectId
-const projectId = PROJECT_ID;
-
-// 2. Set chains
-// const chain = {
-//     chainId: 222,
-//     name: '3AChain',
-//     currency: 'ETH',
-//     explorerUrl: 'https://explorertest.3achain.org/',
-//     rpcUrl: 'https://testnet-3achain-rpc.noku.io/'
-// };
-const chain = {
-    chainId: 31337,
-    name: 'Hardhat',
-    currency: 'ETH',
-    explorerUrl: 'xxx',
-    rpcUrl: 'http://localhost:8545/'
-};
-
-// 3. Create a metadata object
-const metadata = {
-    name: 'KBC platform',
-    description: 'A portal to decentralized coffee trading',
-    url: 'https://xd4om-uqaaa-aaaam-aclya-cai.icp0.io/',
-    icons: [
-        'https://media.licdn.com/dms/image/C4D0BAQFdvo0UQVHVOQ/company-logo_200_200/0/1630488712072?e=2147483647&v=beta&t=2eNF5yIqHWYMfYGWa5IZ4fb-qMwCiJ2wgMiazq_OLa0'
-    ]
-};
-
-// 4. Create Ethers config
-const ethersConfig = defaultConfig({
-    /*Required*/
-    metadata,
-
-    /*Optional*/
-    enableEIP6963: true, // true by default
-    enableInjected: true, // true by default
-    enableCoinbase: true // true by default
-});
-
-// 5. Create a Web3Modal instance
-createWeb3Modal({
-    ethersConfig,
-    chains: [chain],
-    projectId
-});
+import { WalletConnectProvider } from '@/providers/WalletConnectProvider';
 
 export const App = () => {
     return (
@@ -91,110 +41,115 @@ export const App = () => {
             <ReduxProvider store={store}>
                 <PersistGate loading={null} persistor={persistor}>
                     <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.10.111/build/pdf.worker.js">
-                        <Routes>
-                            <Route element={<MenuLayout />}>
-                                <Route element={<PrivateRoutes />}>
-                                    <Route index path={paths.PROFILE} element={<Profile />} />
-                                    <Route
-                                        path={paths.PARTNERS}
-                                        element={
-                                            <DataLoader customUseContext={useEthRelationship}>
-                                                <Partners />
-                                            </DataLoader>
-                                        }
-                                    />
-                                    <Route
-                                        path={paths.OFFERS}
-                                        element={
-                                            <DataLoader customUseContext={useICPName}>
-                                                <DataLoader customUseContext={useEthOffer}>
-                                                    <Offers />
+                        <WalletConnectProvider>
+                            <Routes>
+                                <Route element={<MenuLayout />}>
+                                    <Route element={<PrivateRoutes />}>
+                                        <Route index path={paths.PROFILE} element={<Profile />} />
+                                        <Route
+                                            path={paths.PARTNERS}
+                                            element={
+                                                <DataLoader customUseContext={useEthRelationship}>
+                                                    <Partners />
                                                 </DataLoader>
-                                            </DataLoader>
-                                        }
-                                    />
-                                    <Route
-                                        path={paths.OFFERS_NEW}
-                                        element={
-                                            <DataLoader customUseContext={useICPName}>
-                                                <DataLoader customUseContext={useEthMaterial}>
+                                            }
+                                        />
+                                        <Route
+                                            path={paths.OFFERS}
+                                            element={
+                                                <DataLoader customUseContext={useICPName}>
                                                     <DataLoader customUseContext={useEthOffer}>
-                                                        <OfferNew />
+                                                        <Offers />
                                                     </DataLoader>
                                                 </DataLoader>
-                                            </DataLoader>
-                                        }
-                                    />
-                                    <Route
-                                        path={paths.OFFERS_SUPPLIER_NEW}
-                                        element={
-                                            <DataLoader customUseContext={useEthOffer}>
-                                                <OfferSupplierNew />
-                                            </DataLoader>
-                                        }
-                                    />
-                                    <Route
-                                        path={paths.MATERIALS}
-                                        element={
-                                            <DataLoader customUseContext={useEthMaterial}>
-                                                <Materials />
-                                            </DataLoader>
-                                        }
-                                    />
-                                    <Route
-                                        path={paths.MATERIAL_NEW}
-                                        element={
-                                            <DataLoader customUseContext={useEthMaterial}>
-                                                <MaterialNew />
-                                            </DataLoader>
-                                        }
-                                    />
-                                    <Route
-                                        path={paths.PRODUCT_CATEGORY_NEW}
-                                        element={
-                                            <DataLoader customUseContext={useEthMaterial}>
-                                                <ProductCategoryNew />
-                                            </DataLoader>
-                                        }
-                                    />
-                                    <Route
-                                        path={paths.TRADES}
-                                        element={
-                                            <DataLoader customUseContext={useICPName}>
-                                                <DataLoader customUseContext={useEthRawTrade}>
-                                                    <Trades />
-                                                </DataLoader>
-                                            </DataLoader>
-                                        }
-                                    />
-                                    <Route
-                                        path={paths.TRADE_NEW}
-                                        element={
-                                            <DataLoader customUseContext={useICPName}>
-                                                <DataLoader customUseContext={useEthMaterial}>
-                                                    <DataLoader customUseContext={useEthEnumerable}>
-                                                        <DataLoader
-                                                            customUseContext={useEthRawTrade}>
-                                                            <TradeNew />
+                                            }
+                                        />
+                                        <Route
+                                            path={paths.OFFERS_NEW}
+                                            element={
+                                                <DataLoader customUseContext={useICPName}>
+                                                    <DataLoader customUseContext={useEthMaterial}>
+                                                        <DataLoader customUseContext={useEthOffer}>
+                                                            <OfferNew />
                                                         </DataLoader>
                                                     </DataLoader>
                                                 </DataLoader>
-                                            </DataLoader>
-                                        }
-                                    />
-                                    <Route
-                                        path={paths.TRADE_VIEW}
-                                        element={
-                                            <DataLoader customUseContext={useICPName}>
-                                                <DataLoader customUseContext={useEthEnumerable}>
+                                            }
+                                        />
+                                        <Route
+                                            path={paths.OFFERS_SUPPLIER_NEW}
+                                            element={
+                                                <DataLoader customUseContext={useEthOffer}>
+                                                    <OfferSupplierNew />
+                                                </DataLoader>
+                                            }
+                                        />
+                                        <Route
+                                            path={paths.MATERIALS}
+                                            element={
+                                                <DataLoader customUseContext={useEthMaterial}>
+                                                    <Materials />
+                                                </DataLoader>
+                                            }
+                                        />
+                                        <Route
+                                            path={paths.MATERIAL_NEW}
+                                            element={
+                                                <DataLoader customUseContext={useEthMaterial}>
+                                                    <MaterialNew />
+                                                </DataLoader>
+                                            }
+                                        />
+                                        <Route
+                                            path={paths.PRODUCT_CATEGORY_NEW}
+                                            element={
+                                                <DataLoader customUseContext={useEthMaterial}>
+                                                    <ProductCategoryNew />
+                                                </DataLoader>
+                                            }
+                                        />
+                                        <Route
+                                            path={paths.TRADES}
+                                            element={
+                                                <DataLoader customUseContext={useICPName}>
+                                                    <DataLoader customUseContext={useEthRawTrade}>
+                                                        <Trades />
+                                                    </DataLoader>
+                                                </DataLoader>
+                                            }
+                                        />
+                                        <Route
+                                            path={paths.TRADE_NEW}
+                                            element={
+                                                <DataLoader customUseContext={useICPName}>
                                                     <DataLoader customUseContext={useEthMaterial}>
                                                         <DataLoader
-                                                            customUseContext={useEthRawTrade}>
-                                                            <TradeView />
+                                                            customUseContext={useEthEnumerable}>
+                                                            <DataLoader
+                                                                customUseContext={useEthRawTrade}>
+                                                                <TradeNew />
+                                                            </DataLoader>
                                                         </DataLoader>
                                                     </DataLoader>
                                                 </DataLoader>
-                                            </DataLoader>
+                                            }
+                                        />
+                                        <Route
+                                            path={paths.TRADE_VIEW}
+                                            element={
+                                                <DataLoader customUseContext={useICPName}>
+                                                    <DataLoader customUseContext={useEthEnumerable}>
+                                                        <DataLoader customUseContext={useEthMaterial}>
+                                                            <DataLoader
+                                                                customUseContext={useEthRawTrade}>
+                                                                {/*<DataLoader*/}
+                                                                {/*    customUseContext={useEthEscrow}>*/}
+                                                                    <TradeView />
+                                                                {/*</DataLoader>*/}
+                                                            </DataLoader>
+                                                        </DataLoader>
+                                                    </DataLoader>
+                                                </DataLoader>
                                         }
                                     />
                                     <Route
@@ -259,6 +214,7 @@ export const App = () => {
                                 <Route path="*" element={<Navigate to={paths.LOGIN} />} />
                             </Route>
                         </Routes>
+                        </WalletConnectProvider>
                     </Worker>
                 </PersistGate>
             </ReduxProvider>

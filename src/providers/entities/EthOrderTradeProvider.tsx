@@ -92,7 +92,7 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
     const [detailedOrderTrade, setDetailedOrderTrade] = useState<DetailedOrderTrade | null>(null);
     const { fileDriver } = useICP();
     const userInfo = useSelector((state: RootState) => state.userInfo);
-    const organizationId = parseInt(userInfo.organizationId);
+    const organizationId = parseInt(userInfo.companyClaims.organizationId);
 
     const rawTrade = useMemo(() => {
         console.log('I need to update rawTrade because id is: ', id);
@@ -341,8 +341,8 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
                 body: JSON.stringify({
                     email,
                     recipientCompanyName,
-                    senderCompanyName: userInfo.legalName,
-                    senderEmailAddress: userInfo.email,
+                    senderCompanyName: userInfo.companyClaims.legalName,
+                    senderEmailAddress: userInfo.companyClaims.email,
                     message,
                     transactionUrl: window.location.href
                 })

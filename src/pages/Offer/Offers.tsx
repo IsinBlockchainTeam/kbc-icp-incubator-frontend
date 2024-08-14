@@ -49,7 +49,7 @@ export const Offers = () => {
             title: 'Actions',
             key: 'action',
             render: (_, record) => {
-                if (userInfo.role.toUpperCase() === credentials.ROLE_IMPORTER) {
+                if (userInfo.companyClaims.role.toUpperCase() === credentials.ROLE_IMPORTER) {
                     return (
                         <Space size="middle">
                             <a
@@ -94,7 +94,7 @@ export const Offers = () => {
                         alignItems: 'center'
                     }}>
                     Offers
-                    {userInfo.role.toUpperCase() === credentials.ROLE_EXPORTER && (
+                    {userInfo.companyClaims.role.toUpperCase() === credentials.ROLE_EXPORTER && (
                         <div>
                             <Button
                                 type="primary"

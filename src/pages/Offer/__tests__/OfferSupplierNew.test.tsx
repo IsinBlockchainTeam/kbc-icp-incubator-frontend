@@ -20,8 +20,10 @@ jest.mock('react-redux');
 describe('Offers Supplier New', () => {
     const signer = { _address: '0x123' } as JsonRpcSigner;
     const userInfo = {
-        legalName: 'Legal Name',
-        role: credentials.ROLE_EXPORTER
+        companyClaims: {
+            legalName: 'Legal Name',
+            role: credentials.ROLE_EXPORTER
+        }
     } as UserInfoState;
     const saveSupplier = jest.fn();
     const navigate = jest.fn();
@@ -62,8 +64,10 @@ describe('Offers Supplier New', () => {
 
     it("should navigate to 'Home' if user is an importer", async () => {
         const userInfo = {
-            legalName: 'Legal Name',
-            role: credentials.ROLE_IMPORTER
+            companyClaims: {
+                legalName: 'Legal Name',
+                role: credentials.ROLE_IMPORTER
+            }
         } as UserInfoState;
         (useSelector as jest.Mock).mockReturnValue(userInfo);
         render(<OfferSupplierNew />);
