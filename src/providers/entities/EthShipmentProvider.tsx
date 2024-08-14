@@ -48,6 +48,7 @@ export type EthShipmentContextState = {
     startShipmentArbitration: () => Promise<void>;
     // Call these functions only if the order is not already loaded
     getShipmentPhaseAsync: (orderId: number) => Promise<ShipmentPhase>;
+    getShipmentService: (address: string) => ShipmentService;
 };
 export const EthShipmentContext = createContext<EthShipmentContextState>(
     {} as EthShipmentContextState
@@ -121,17 +122,17 @@ export function EthShipmentProvider(props: { children: ReactNode }) {
         [signer]
     );
 
-    const shipmentManagerService = useMemo(() => {
-        if (
-            !detailedOrderTrade ||
-            detailedOrderTrade.shipmentAddress == ethers.constants.AddressZero
-        )
-            return undefined;
+    const getShipmentService = (address: string) => {
         return new ShipmentService(
-            new ShipmentDriver(signer, detailedOrderTrade.shipmentAddress),
+            new ShipmentDriver(signer, address),
             new DocumentDriver(signer, CONTRACT_ADDRESSES.DOCUMENT()),
             fileDriver
         );
+    };
+
+    const shipmentManagerService = useMemo(() => {
+        if (!detailedOrderTrade || !detailedOrderTrade.shipmentAddress) return undefined;
+        return getShipmentService(detailedOrderTrade.shipmentAddress);
     }, [signer, detailedOrderTrade]);
 
     // Update shipments when order trades change
@@ -228,7 +229,7 @@ export function EthShipmentProvider(props: { children: ReactNode }) {
         if (!detailedOrderTrade) throw new Error('Order trade not found');
         try {
             dispatch(addLoadingMessage(SHIPMENT_MESSAGE.DEPOSIT.LOADING));
-            await tokenService.approve(detailedOrderTrade.escrowAddress, amount);
+            await tokenService.approve(detailedOrderTrade.escrowAddress!, amount);
             await shipmentManagerService.depositFunds(amount);
             await loadEscrowDetails();
             await loadTokenDetails();
@@ -289,7 +290,7 @@ export function EthShipmentProvider(props: { children: ReactNode }) {
             dispatch(addLoadingMessage(SHIPMENT_MESSAGE.ADD_DOCUMENT.LOADING));
             // TODO: remove this harcoded value
             const delegatedOrganizationIds: number[] =
-                parseInt(userInfo.organizationId) === 0 ? [1] : [0];
+                parseInt(userInfo.companyClaims.organizationId) === 0 ? [1] : [0];
             const resourceSpec: ICPResourceSpec = {
                 name: fileName,
                 type: fileContent.type
@@ -421,8 +422,7 @@ export function EthShipmentProvider(props: { children: ReactNode }) {
         if (!rawTrade) throw new Error('Trade not found');
         const orderTradeService = getOrderTradeService(rawTrade.address);
         const shipmentAddress = await orderTradeService.getShipmentAddress();
-        if (shipmentAddress == ethers.constants.AddressZero)
-            throw new Error('Shipment address not found.');
+        if (!shipmentAddress) throw new Error('Shipment address not found.');
         const service = new ShipmentService(
             new ShipmentDriver(signer, shipmentAddress),
             new DocumentDriver(signer, CONTRACT_ADDRESSES.DOCUMENT()),
@@ -435,6 +435,7 @@ export function EthShipmentProvider(props: { children: ReactNode }) {
         <EthShipmentContext.Provider
             value={{
                 detailedShipment,
+                getShipmentService,
                 updateShipment,
                 approveShipment,
                 depositFunds,

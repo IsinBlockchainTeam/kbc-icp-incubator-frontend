@@ -17,7 +17,7 @@ export const EscrowPanel = () => {
     const { detailedShipment } = useEthShipment();
     const { escrowDetails, tokenDetails } = useEthEscrow();
     const userInfo = useSelector((state: RootState) => state.userInfo);
-    const isImporter = userInfo.role.toUpperCase() === credentials.ROLE_IMPORTER;
+    const isImporter = userInfo.companyClaims.role.toUpperCase() === credentials.ROLE_IMPORTER;
 
     const [isDepositModalOpen, setIsDepositModalOpen] = React.useState(false);
     const [isWithdrawModalOpen, setIsWithdrawModalOpen] = React.useState(false);

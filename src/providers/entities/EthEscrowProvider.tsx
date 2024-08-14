@@ -67,8 +67,7 @@ export function EthEscrowProvider(props: { children: ReactNode }) {
     const dispatch = useDispatch();
 
     const escrowService = useMemo(() => {
-        if (!detailedOrderTrade || detailedOrderTrade.escrowAddress == ethers.constants.AddressZero)
-            return undefined;
+        if (!detailedOrderTrade || !detailedOrderTrade.escrowAddress) return undefined;
         return new EscrowService(new EscrowDriver(signer, detailedOrderTrade.escrowAddress));
     }, [signer, detailedOrderTrade]);
 

@@ -21,6 +21,7 @@ export const paths = {
     ASSET_OPERATIONS_VIEW: '/asset-operations/:id',
     CERTIFICATIONS: '/certifications',
     CERTIFICATION_VIEW: '/certifications/:type/:id',
+    DOCUMENTS: '/documents',
     TRADES: '/trades',
     TRADE_NEW: '/trades/new',
     TRADE_VIEW: '/trades/:id',

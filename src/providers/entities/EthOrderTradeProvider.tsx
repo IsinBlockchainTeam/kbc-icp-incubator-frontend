@@ -64,6 +64,7 @@ export type EthOrderTradeContextState = {
     getNegotiationStatusAsync: (orderId: number) => Promise<NegotiationStatus>;
     getSupplierAsync: (orderId: number) => Promise<string>;
     getCustomerAsync: (orderId: number) => Promise<string>;
+    getDetailedTradesAsync: () => Promise<DetailedOrderTrade[]>;
 };
 export const EthOrderTradeContext = createContext<EthOrderTradeContextState>(
     {} as EthOrderTradeContextState
@@ -75,12 +76,12 @@ export const useEthOrderTrade = (): EthOrderTradeContextState => {
     }
     return context;
 };
-type DetailedOrderTrade = {
+export type DetailedOrderTrade = {
     trade: OrderTrade;
     service: OrderTradeService;
     negotiationStatus: NegotiationStatus;
-    shipmentAddress: string;
-    escrowAddress: string;
+    shipmentAddress: string | undefined;
+    escrowAddress: string | undefined;
 };
 export function EthOrderTradeProvider(props: { children: ReactNode }) {
     const { id } = useParams();
@@ -143,22 +144,27 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
         if (rawTrade) loadData();
     }, [rawTrade]);
 
+    const computeDetailedTrade = async (
+        orderTradeService: OrderTradeService
+    ): Promise<DetailedOrderTrade> => {
+        const trade = await orderTradeService.getCompleteTrade();
+        const negotiationStatus = await orderTradeService.getNegotiationStatus();
+        const shipmentAddress = await orderTradeService.getShipmentAddress();
+        const escrowAddress = await orderTradeService.getEscrowAddress();
+        return {
+            trade,
+            service: orderTradeService,
+            negotiationStatus,
+            shipmentAddress,
+            escrowAddress
+        };
+    };
+
     const loadData = async () => {
         if (!orderTradeService) return;
         try {
             dispatch(addLoadingMessage(ORDER_TRADE_MESSAGE.RETRIEVE.LOADING));
-            const trade = await orderTradeService.getCompleteTrade();
-            const negotiationStatus = trade.negotiationStatus;
-            const shipmentAddress = await orderTradeService.getShipmentAddress();
-            const escrowAddress = await orderTradeService.getEscrowAddress();
-            const detailedOrderTrade = {
-                trade,
-                service: orderTradeService,
-                negotiationStatus,
-                shipmentAddress,
-                escrowAddress
-            };
-            setDetailedOrderTrade(detailedOrderTrade);
+            setDetailedOrderTrade(await computeDetailedTrade(orderTradeService));
         } catch (e) {
             openNotification(
                 'Error',
@@ -384,6 +390,7 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
                 NOTIFICATION_DURATION
             );
         } catch (e) {
+            console.log('error: ', e);
             openNotification(
                 'Error',
                 ORDER_TRADE_MESSAGE.CREATE_SHIPMENT.ERROR,
@@ -418,6 +425,15 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
         return orderTrade.customer;
     };
 
+    const getDetailedTradesAsync = async (): Promise<DetailedOrderTrade[]> => {
+        return Promise.all(
+            rawTrades.map(async (rawTrade) => {
+                const service = getOrderTradeService(rawTrade.address);
+                return await computeDetailedTrade(service);
+            })
+        );
+    };
+
     return (
         <EthOrderTradeContext.Provider
             value={{
@@ -430,7 +446,8 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
                 createShipment,
                 getNegotiationStatusAsync,
                 getSupplierAsync,
-                getCustomerAsync
+                getCustomerAsync,
+                getDetailedTradesAsync
             }}>
             {props.children}
         </EthOrderTradeContext.Provider>

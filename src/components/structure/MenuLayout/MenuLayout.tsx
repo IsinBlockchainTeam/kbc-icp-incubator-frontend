@@ -8,7 +8,8 @@ import {
     TeamOutlined,
     LogoutOutlined,
     UserOutlined,
-    AuditOutlined
+    AuditOutlined,
+    CloudDownloadOutlined
 } from '@ant-design/icons';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { defaultPictureURL } from '@/constants/misc';
@@ -45,6 +46,7 @@ const getItem = (
 
 const blockchainItems: MenuItem[] = [
     getItem('Trades', paths.TRADES, <SwapOutlined />),
+    getItem('Documents', paths.DOCUMENTS, <CloudDownloadOutlined />),
     getItem('Materials', paths.MATERIALS, <GoldOutlined />),
     getItem('Transformations', paths.ASSET_OPERATIONS, <ExperimentOutlined />),
     getItem('Partners', paths.PARTNERS, <TeamOutlined />),
@@ -57,8 +59,12 @@ const settingItems: MenuItem[] = [
     ])
 ];
 
-const { disconnect } = useDisconnect();
-const getUserItemLoggedIn = (name: string, picture: string, dispatch: any) => [
+const getUserItemLoggedIn = (
+    name: string,
+    picture: string,
+    dispatch: any,
+    disconnect: () => void
+) => [
     getItem(
         `${name}`,
         'profile',
@@ -75,6 +81,7 @@ const getUserItemLoggedIn = (name: string, picture: string, dispatch: any) => [
 ];
 
 export const MenuLayout = () => {
+    const { disconnect } = useWalletConnect();
     const location = useLocation();
     const navigate = useNavigate();
     const [collapsed, setCollapsed] = useState<boolean>(false);
@@ -121,9 +128,12 @@ export const MenuLayout = () => {
                             items={
                                 userInfo.isLogged
                                     ? getUserItemLoggedIn(
-                                          userInfo.legalName,
-                                          userInfo.image || defaultPictureURL,
-                                          dispatch
+                                          userInfo.employeeClaims.lastName +
+                                              ', ' +
+                                              userInfo.companyClaims.legalName,
+                                          userInfo.employeeClaims.image || defaultPictureURL,
+                                          dispatch,
+                                          disconnect
                                       )
                                     : settingItems
                             }
@@ -147,8 +157,8 @@ export const MenuLayout = () => {
                                 }}
                             />
                         }
-                        size={'large'}
                         spinning={loading.isLoading}
+                        size="large"
                         tip={loading.loadingMessages.map((msg) => (
                             <div key={msg}>{msg}</div>
                         ))}>

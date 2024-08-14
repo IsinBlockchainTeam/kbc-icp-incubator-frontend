@@ -87,8 +87,15 @@ const mapAdditionalPropertiesToButtonProps: Record<
 type SelectableElement = Omit<LabeledElement, 'type'> & {
     type: FormElementType.SELECT;
     name: string;
-    options: { label: string; value: string | number }[];
+    options: { label: React.ReactNode; value: string | number }[];
     required: boolean;
+    onChange?: (value: any) => Promise<void>;
+    search?: {
+        showIcon: boolean;
+        filterOption: (input: string, option: any) => boolean;
+    };
+    optionRender?: (option: any) => React.ReactNode;
+    onSelect?: (value: string | number) => void;
     defaultValue?: string | number | string[];
     mode?: 'multiple';
     disabled?: boolean;
@@ -260,6 +267,11 @@ export const GenericForm = (props: Props) => {
                             placeholder={`Select ${element.label}`}
                             // defaultValue={element.defaultValue}
                             options={element.options}
+                            onChange={element.onChange}
+                            optionRender={element.optionRender}
+                            onSelect={element.onSelect}
+                            showSearch={element.search?.showIcon}
+                            filterOption={element.search?.filterOption}
                         />
                     </Form.Item>
                 </Col>
