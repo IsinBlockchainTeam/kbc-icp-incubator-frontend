@@ -6,7 +6,7 @@ import {
     OrderLine,
     OrderStatus
 } from '@kbc-lib/coffee-trading-management-lib';
-import { Button, Tag, Tooltip } from 'antd';
+import { Tag, Tooltip } from 'antd';
 import OrderStatusSteps from '@/pages/Trade/OrderStatusSteps/OrderStatusSteps';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
 import React, { useState } from 'react';
@@ -16,13 +16,19 @@ import dayjs from 'dayjs';
 import { useSigner } from '@/providers/SignerProvider';
 import { paths } from '@/constants/paths';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircleOutlined, EditOutlined, RollbackOutlined } from '@ant-design/icons';
+import {
+    CheckCircleOutlined,
+    EditOutlined,
+    FilePdfOutlined,
+    RollbackOutlined
+} from '@ant-design/icons';
 import { validateDates } from '@/utils/date';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 import { OrderTradeRequest, useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
 import useOrderGenerator, { OrderSpec } from '@/hooks/documentGenerator/useOrderGenerator';
 import PDFGenerationView from '@/components/PDFViewer/PDFGenerationView';
+import { incotermsMap } from '@/constants/trade';
 
 type OrderTradeViewProps = {
     orderTrade: OrderTrade;
@@ -154,11 +160,15 @@ export const OrderTradeView = ({
         ...commonElements,
         { type: FormElementType.TITLE, span: 24, label: 'Constraints' },
         {
-            type: FormElementType.INPUT,
+            type: FormElementType.SELECT,
             span: 12,
             name: 'incoterms',
             label: 'Incoterms',
             required: true,
+            options: Array.from(incotermsMap.keys()).map((incoterm) => ({
+                label: incoterm,
+                value: incoterm
+            })),
             defaultValue: orderTrade.metadata?.incoterms,
             disabled
         },
@@ -388,6 +398,21 @@ export const OrderTradeView = ({
             });
         }
     }
+    elements.push({
+        type: FormElementType.BUTTON,
+        span: 24,
+        name: 'generateDocument',
+        label: (
+            <div>
+                {'Generate Document '}
+                <FilePdfOutlined style={{ fontSize: 'large' }} />
+            </div>
+        ),
+        buttonType: 'primary',
+        hidden: isEditing,
+        onClick: () => setShowGeneratedDocument(true)
+    });
+
     return (
         <CardPage
             title={
@@ -415,7 +440,6 @@ export const OrderTradeView = ({
                 negotiationElements={elements}
                 onSubmit={onSubmit}
             />
-            <Button onClick={() => setShowGeneratedDocument(true)}>Generate PDF</Button>
             <PDFGenerationView
                 title={'Generated Order'}
                 centered={true}

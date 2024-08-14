@@ -58,7 +58,7 @@ export default (props: Props) => {
                             onClick={() => createDownloadWindow(file!, filename || 'file.pdf')}
                             icon={<DownloadOutlined />}>
                             {' '}
-                            Download{' '}
+                            Download
                         </Button>
                     )}
                 </>

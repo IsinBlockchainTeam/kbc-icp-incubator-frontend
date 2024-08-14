@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { act, fireEvent, render } from '@testing-library/react';
 import { FormElement } from '@/components/GenericForm/GenericForm';
 import { OrderTradeView } from '@/pages/Trade/View/OrderTradeView';
 import OrderStatusSteps from '@/pages/Trade/OrderStatusSteps/OrderStatusSteps';
@@ -13,10 +13,13 @@ import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
 import { JsonRpcSigner } from '@ethersproject/providers';
+import PDFGenerationView from '@/components/PDFViewer/PDFGenerationView';
+import useOrderGenerator from '@/hooks/documentGenerator/useOrderGenerator';
 
 jest.mock('react-router-dom');
 jest.mock('@/providers/SignerProvider');
 jest.mock('@/pages/Trade/OrderStatusSteps/OrderStatusSteps');
+jest.mock('@/components/PDFViewer/PDFGenerationView');
 jest.mock('@/providers/entities/EthMaterialProvider');
 jest.mock('@/providers/entities/EthEnumerableProvider');
 jest.mock('@/providers/entities/EthOrderTradeProvider');
@@ -32,6 +35,7 @@ describe('Basic Trade View', () => {
     const getOrderStatus = jest.fn();
     const toggleDisabled = jest.fn();
     const navigate = jest.fn();
+    const mockedUseOrderGenerator = jest.fn();
 
     const signer = { _address: '0x123' } as JsonRpcSigner;
     const productCategories = [{ id: 1, name: 'Product Category 1' }];
@@ -81,6 +85,7 @@ describe('Basic Trade View', () => {
             confirmNegotiation,
             getOrderStatus
         });
+        (useOrderGenerator as jest.Mock).mockReturnValue(mockedUseOrderGenerator);
     });
 
     it('should render correctly', async () => {
@@ -95,7 +100,20 @@ describe('Basic Trade View', () => {
         expect(OrderStatusSteps).toHaveBeenCalledTimes(1);
         const negotiationElements = (OrderStatusSteps as jest.Mock).mock.calls[0][0]
             .negotiationElements;
-        expect(negotiationElements).toHaveLength(22);
+        expect(negotiationElements).toHaveLength(23);
+        expect(PDFGenerationView).toHaveBeenCalledTimes(1);
+        expect(PDFGenerationView).toHaveBeenCalledWith(
+            {
+                title: 'Generated Order',
+                visible: false,
+                centered: true,
+                downloadable: true,
+                handleClose: expect.any(Function),
+                useGeneration: mockedUseOrderGenerator,
+                filename: 'order_1.pdf'
+            },
+            {}
+        );
     });
     it('onSubmit', async () => {
         render(
@@ -172,5 +190,22 @@ describe('Basic Trade View', () => {
             .negotiationElements;
         negotiationElements[21].onClick();
         expect(confirmNegotiation).toHaveBeenCalledTimes(1);
+    });
+    it("should show generated document on 'Generate document' click", async () => {
+        render(
+            <OrderTradeView
+                orderTrade={orderTrade}
+                disabled={true}
+                toggleDisabled={toggleDisabled}
+                commonElements={commonElements}
+            />
+        );
+        const negotiationElements = (OrderStatusSteps as jest.Mock).mock.calls[0][0]
+            .negotiationElements;
+        act(() => {
+            negotiationElements[22].onClick();
+        });
+        expect(PDFGenerationView).toHaveBeenCalledTimes(2);
+        expect((PDFGenerationView as jest.Mock).mock.calls[1][0].visible).toBe(true);
     });
 });
