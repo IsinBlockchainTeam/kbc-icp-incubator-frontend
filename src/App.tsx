@@ -35,7 +35,7 @@ import { useEthGraph } from '@/providers/entities/EthGraphProvider';
 import { AssetOperationView } from '@/pages/AssetOperation/AssetOperationView';
 import { WalletConnectProvider } from '@/providers/WalletConnectProvider';
 import { Shipment } from '@/pages/Shipment/Shipment';
-import Documents from '@/pages/Document/Documents';
+import Documents from '@/pages/Trade/ShipmentDocuments/ShipmentDocuments';
 
 export const App = () => {
     return (

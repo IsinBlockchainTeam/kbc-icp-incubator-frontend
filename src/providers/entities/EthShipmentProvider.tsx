@@ -17,7 +17,6 @@ import {
 } from '@kbc-lib/coffee-trading-management-lib';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
-import { ethers } from 'ethers';
 import { CONTRACT_ADDRESSES } from '@/constants/evm';
 import { useICP } from '@/providers/ICPProvider';
 import { RootState } from '@/redux/store';
@@ -39,6 +38,7 @@ export type EthShipmentContextState = {
     getDocument: (documentId: number) => Promise<ShipmentCompleteDocument>;
     addDocument: (
         documentType: ShipmentDocumentType,
+        documentReferenceId: string,
         fileName: string,
         fileContent: Blob
     ) => Promise<void>;
@@ -282,6 +282,7 @@ export function EthShipmentProvider(props: { children: ReactNode }) {
 
     const addDocument = async (
         documentType: ShipmentDocumentType,
+        documentReferenceId: string,
         fileName: string,
         fileContent: Blob
     ) => {
@@ -297,6 +298,7 @@ export function EthShipmentProvider(props: { children: ReactNode }) {
             };
             await shipmentManagerService.addDocument(
                 documentType,
+                documentReferenceId,
                 new Uint8Array(await new Response(fileContent).arrayBuffer()),
                 resourceSpec,
                 delegatedOrganizationIds

@@ -45,8 +45,9 @@ const getItem = (
 };
 
 const blockchainItems: MenuItem[] = [
-    getItem('Trades', paths.TRADES, <SwapOutlined />),
-    getItem('Documents', paths.DOCUMENTS, <CloudDownloadOutlined />),
+    getItem('Trades', paths.TRADES, <SwapOutlined />, [
+        getItem('Documents', paths.DOCUMENTS, <CloudDownloadOutlined />)
+    ]),
     getItem('Materials', paths.MATERIALS, <GoldOutlined />),
     getItem('Transformations', paths.ASSET_OPERATIONS, <ExperimentOutlined />),
     getItem('Partners', paths.PARTNERS, <TeamOutlined />),

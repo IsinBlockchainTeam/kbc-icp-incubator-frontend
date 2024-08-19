@@ -1,7 +1,9 @@
 import React, { ReactNode, useEffect } from 'react';
 import {
     Alert,
+    AlertProps,
     Button,
+    Card,
     Col,
     DatePicker,
     Divider,
@@ -17,6 +19,7 @@ import { DownloadOutlined } from '@ant-design/icons';
 import { createDownloadWindow } from '@/utils/page';
 import { DocumentStatus } from '@kbc-lib/coffee-trading-management-lib';
 import { ConfirmButton } from '@/components/ConfirmButton/ConfirmButton';
+import { CardSize } from 'antd/es/card/Card';
 
 export enum FormElementType {
     TITLE = 'title',
@@ -26,7 +29,8 @@ export enum FormElementType {
     DATE = 'date',
     SPACE = 'space',
     BUTTON = 'button',
-    DOCUMENT = 'document'
+    DOCUMENT = 'document',
+    CARD = 'card'
 }
 
 export type FormElement =
@@ -35,7 +39,8 @@ export type FormElement =
     | ClickableElement
     | SelectableElement
     | EditableElement
-    | DocumentElement;
+    | DocumentElement
+    | CardElement;
 
 type BasicElement = {
     type: FormElementType.SPACE;
@@ -46,6 +51,7 @@ type BasicElement = {
 type LabeledElement = Omit<BasicElement, 'type'> & {
     type: FormElementType.TITLE | FormElementType.TIP;
     label: ReactNode;
+    background?: AlertProps['type'];
     marginVertical?: string;
 };
 
@@ -132,6 +138,17 @@ export type DocumentElement = Omit<LabeledElement, 'type'> & {
     validationCallbacks?: DocumentValidationCallback;
 };
 
+type CardElement = Omit<BasicElement, 'type'> & {
+    type: FormElementType.CARD;
+    name: string;
+    title: string;
+    content: React.ReactNode;
+    actions?: React.ReactNode[];
+    bordered?: boolean;
+    size?: CardSize;
+    extra?: React.ReactNode;
+};
+
 type Props = {
     elements: FormElement[];
     confirmText?: string;
@@ -189,7 +206,7 @@ export const GenericForm = (props: Props) => {
         },
         [FormElementType.TIP]: (element: FormElement, index: number) => {
             element = element as LabeledElement;
-            const { span, label } = element;
+            const { span, label, background = 'info' } = element;
             return (
                 <Col
                     span={span}
@@ -198,7 +215,11 @@ export const GenericForm = (props: Props) => {
                         margin: `${element.marginVertical} 0`,
                         display: `${element.hidden ? 'none' : 'block'}`
                     }}>
-                    <Alert style={{ textAlign: 'center' }} message={element.label} />
+                    <Alert
+                        style={{ textAlign: 'center' }}
+                        message={element.label}
+                        type={background}
+                    />
                 </Col>
             );
         },
@@ -440,9 +461,30 @@ export const GenericForm = (props: Props) => {
                     </Form.Item>
                 </Col>
             );
+        },
+        [FormElementType.CARD]: (element: FormElement, index: number) => {
+            element = element as CardElement;
+            const { title, content, actions, bordered = true, size = 'default', extra } = element;
+
+            return (
+                <Col
+                    span={element.span}
+                    key={`date_${element.name}`}
+                    style={{ display: `${element.hidden ? 'none' : 'block'}` }}>
+                    <Form.Item labelCol={{ span: 24 }} name={element.name}>
+                        <Card
+                            title={title}
+                            bordered={bordered}
+                            size={size}
+                            extra={extra}
+                            actions={actions}>
+                            {content}
+                        </Card>
+                    </Form.Item>
+                </Col>
+            );
         }
     };
-
     return (
         <Form
             layout="horizontal"

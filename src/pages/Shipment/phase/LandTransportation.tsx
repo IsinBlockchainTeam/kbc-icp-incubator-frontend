@@ -36,9 +36,10 @@ export const LandTransportation = () => {
         return new Blob([document.content]);
     };
 
+    // TODO: document upload will be removed from here, only in documents section
     const onFileChange = async (info: UploadChangeParam, record: DataType) => {
         if (info.file.status != 'uploading' && info.file.originFileObj) {
-            await addDocument(record.type, info.file.name, info.file.originFileObj);
+            await addDocument(record.type, '12345', info.file.name, info.file.originFileObj);
         }
     };
 
