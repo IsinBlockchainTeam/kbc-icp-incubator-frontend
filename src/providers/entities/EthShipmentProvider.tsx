@@ -66,7 +66,7 @@ type ShipmentCompleteDocument = {
     fileName: string;
     documentType: ShipmentDocumentType;
 };
-type DetailedShipment = {
+export type DetailedShipment = {
     shipment: Shipment;
     documents: ShipmentDocumentInfo[];
     phase: ShipmentPhase;

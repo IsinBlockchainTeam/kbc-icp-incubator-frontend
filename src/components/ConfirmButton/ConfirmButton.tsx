@@ -6,6 +6,7 @@ type ConfirmButtonProps = {
     confirmText: string;
     disabled?: boolean;
     onConfirm: () => void;
+    style?: React.CSSProperties;
     [x: string]: any;
 };
 export const ConfirmButton = ({
@@ -13,10 +14,12 @@ export const ConfirmButton = ({
     confirmText,
     disabled,
     onConfirm,
+    style,
     ...props
 }: ConfirmButtonProps) => {
     return (
         <Button
+            style={style}
             type="primary"
             disabled={disabled}
             onClick={() => {

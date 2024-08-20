@@ -95,7 +95,7 @@ type SelectableElement = Omit<LabeledElement, 'type'> & {
     name: string;
     options: { label: React.ReactNode; value: string | number }[];
     required: boolean;
-    onChange?: (value: any) => Promise<void>;
+    onChange?: (value: any) => any;
     search?: {
         showIcon: boolean;
         filterOption: (input: string, option: any) => boolean;

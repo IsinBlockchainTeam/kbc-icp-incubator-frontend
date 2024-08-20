@@ -35,7 +35,7 @@ import { useEthGraph } from '@/providers/entities/EthGraphProvider';
 import { AssetOperationView } from '@/pages/AssetOperation/AssetOperationView';
 import { WalletConnectProvider } from '@/providers/WalletConnectProvider';
 import { Shipment } from '@/pages/Shipment/Shipment';
-import Documents from '@/pages/Trade/ShipmentDocuments/ShipmentDocuments';
+import Documents from '@/pages/Documents/Shipment/ShipmentDocuments';
 
 export const App = () => {
     return (
@@ -112,6 +112,14 @@ export const App = () => {
                                         />
                                         <Route
                                             path={paths.DOCUMENTS}
+                                            element={
+                                                <DataLoader customUseContext={useEthRawTrade}>
+                                                    <Documents />
+                                                </DataLoader>
+                                            }
+                                        />
+                                        <Route
+                                            path={paths.ORDER_DOCUMENTS}
                                             element={
                                                 <DataLoader customUseContext={useEthRawTrade}>
                                                     <Documents />

@@ -36,10 +36,11 @@ describe('MenuLayout', () => {
         const primaryMenuItems = mockedMenu.mock.calls[0][0].items;
         expect(primaryMenuItems).toHaveLength(5);
         expect(primaryMenuItems[0].key).toBe(paths.TRADES);
-        expect(primaryMenuItems[1].key).toBe(paths.MATERIALS);
-        expect(primaryMenuItems[2].key).toBe(paths.ASSET_OPERATIONS);
-        expect(primaryMenuItems[3].key).toBe(paths.PARTNERS);
-        expect(primaryMenuItems[4].key).toBe(paths.OFFERS);
+        expect(primaryMenuItems[1].key).toBe(paths.DOCUMENTS);
+        expect(primaryMenuItems[2].key).toBe(paths.MATERIALS);
+        expect(primaryMenuItems[3].key).toBe(paths.ASSET_OPERATIONS);
+        expect(primaryMenuItems[4].key).toBe(paths.PARTNERS);
+        expect(primaryMenuItems[5].key).toBe(paths.OFFERS);
 
         const secondaryMenuItems = mockedMenu.mock.calls[1][0].items;
         expect(secondaryMenuItems).toHaveLength(1);
