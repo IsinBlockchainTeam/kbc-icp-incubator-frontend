@@ -18,7 +18,7 @@ import {
 } from '@kbc-lib/coffee-trading-management-lib';
 import DocumentUpload from '@/pages/Documents/DocumentUpload';
 import { ConfirmButton } from '@/components/ConfirmButton/ConfirmButton';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { setParametersPath } from '@/utils/page';
 import { paths } from '@/constants/paths';
 import { credentials } from '@/constants/ssi';

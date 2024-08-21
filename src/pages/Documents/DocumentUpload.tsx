@@ -6,7 +6,7 @@ import {
 } from '@kbc-lib/coffee-trading-management-lib';
 import React from 'react';
 import { Flex, Tooltip } from 'antd';
-import { CheckCircleOutlined, WarningOutlined } from '@ant-design/icons';
+import { WarningOutlined } from '@ant-design/icons';
 
 type Props = {
     // TODO: change ShipmentDocumentType with generic DocumentType and ShipmentDocumentInfo with DocumentInfo, so that this component can be used for every document upload
