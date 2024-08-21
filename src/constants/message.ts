@@ -118,6 +118,11 @@ export const BASIC_TRADE_MESSAGE = {
     }
 };
 export const ORDER_TRADE_MESSAGE = {
+    RETRIEVE_MANY: {
+        LOADING: 'Retrieving order trades...',
+        OK: '',
+        ERROR: 'Error while retrieving order trades.'
+    },
     RETRIEVE: {
         LOADING: 'Retrieving order trade...',
         OK: '',

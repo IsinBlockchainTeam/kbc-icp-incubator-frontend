@@ -96,12 +96,9 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
     const organizationId = parseInt(userInfo.companyClaims.organizationId);
 
     const rawTrade = useMemo(() => {
-        console.log('I need to update rawTrade because id is: ', id);
-        const rawTrade = rawTrades.find(
+        return rawTrades.find(
             (t) => id !== undefined && t.id === Number(id) && t.type == TradeType.ORDER
         );
-        console.log('New rawTrade is: ', rawTrade);
-        return rawTrade;
     }, [rawTrades, id]);
 
     const tradeManagerService = useMemo(
@@ -142,7 +139,8 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
     // Update basic trades if raw trades change
     useEffect(() => {
         if (rawTrade) loadData();
-    }, [rawTrade]);
+        else setDetailedOrderTrade(null);
+    }, [rawTrade, id]);
 
     const computeDetailedTrade = async (
         orderTradeService: OrderTradeService
@@ -162,6 +160,7 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
 
     const loadData = async () => {
         if (!orderTradeService) return;
+
         try {
             dispatch(addLoadingMessage(ORDER_TRADE_MESSAGE.RETRIEVE.LOADING));
             setDetailedOrderTrade(await computeDetailedTrade(orderTradeService));

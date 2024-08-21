@@ -51,7 +51,7 @@ export default (props: Props) => {
             optionRender: ({ data }) => (
                 <Flex justify="space-between">
                     <span>{data.label}</span>
-                    {oldDocumentsInfo.findIndex((d) => d.type === data.value) !== -1 ? (
+                    {oldDocumentsInfo.findIndex((d) => d.type === data.value) !== -1 && (
                         <Tooltip
                             placement="right"
                             title={
@@ -63,10 +63,6 @@ export default (props: Props) => {
                                 </span>
                             }>
                             <WarningOutlined style={{ fontSize: 20, color: 'darkorange' }} />
-                        </Tooltip>
-                    ) : (
-                        <Tooltip placement="right" title="Add new document for this type">
-                            <CheckCircleOutlined style={{ fontSize: 20, color: 'blue' }} />
                         </Tooltip>
                     )}
                 </Flex>

@@ -2,8 +2,8 @@ import { CardPage } from '@/components/structure/CardPage/CardPage';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
 import { useEthRawTrade } from '@/providers/entities/EthRawTradeProvider';
 import { DetailedOrderTrade, useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
-import { useEffect, useMemo, useState } from 'react';
-import { Divider, Empty, Flex, Tag } from 'antd';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Alert, Empty, Flex, Tag } from 'antd';
 import { useICPName } from '@/providers/entities/ICPNameProvider';
 import {
     DetailedShipment,
@@ -18,15 +18,20 @@ import {
 } from '@kbc-lib/coffee-trading-management-lib';
 import DocumentUpload from '@/pages/Documents/DocumentUpload';
 import { ConfirmButton } from '@/components/ConfirmButton/ConfirmButton';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { setParametersPath } from '@/utils/page';
 import { paths } from '@/constants/paths';
 import { credentials } from '@/constants/ssi';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
+import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
+import { ORDER_TRADE_MESSAGE } from '@/constants/message';
+import { NotificationType, openNotification } from '@/utils/notification';
+import { NOTIFICATION_DURATION } from '@/constants/notification';
 
 export default () => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const { rawTrades } = useEthRawTrade();
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const isExporter = userInfo.companyClaims.role.toUpperCase() === credentials.ROLE_EXPORTER;
@@ -34,8 +39,6 @@ export default () => {
     const [orders, setOrders] = useState<DetailedOrderTrade[]>([]);
     const { detailedOrderTrade, getDetailedTradesAsync } = useEthOrderTrade();
     const { detailedShipment, addDocument } = useEthShipment();
-    console.log('detailedOrderTrade', detailedOrderTrade);
-    console.log('detailedShipment', detailedShipment);
 
     const tradeSelected:
         | {
@@ -44,7 +47,8 @@ export default () => {
           }
         | undefined = useMemo(() => {
         if (!detailedOrderTrade) return undefined;
-
+        console.log('detailedOrderTrade', detailedOrderTrade);
+        console.log('detailedShipment', detailedShipment);
         return {
             detailedOrder: detailedOrderTrade,
             detailedShipment
@@ -70,7 +74,19 @@ export default () => {
     );
 
     const loadData = async () => {
-        setOrders(await getDetailedTradesAsync());
+        try {
+            dispatch(addLoadingMessage(ORDER_TRADE_MESSAGE.RETRIEVE_MANY.LOADING));
+            setOrders(await getDetailedTradesAsync());
+        } catch (e) {
+            openNotification(
+                'Error',
+                ORDER_TRADE_MESSAGE.RETRIEVE_MANY.ERROR,
+                NotificationType.ERROR,
+                NOTIFICATION_DURATION
+            );
+        } finally {
+            dispatch(removeLoadingMessage(ORDER_TRADE_MESSAGE.RETRIEVE_MANY.LOADING));
+        }
     };
 
     const handleChange = async (value: number) => {
@@ -96,6 +112,7 @@ export default () => {
         navigate(paths.DOCUMENTS);
     };
 
+    console.log('tradeSelected.detailedOrder: ', tradeSelected?.detailedOrder.trade);
     const elements: FormElement[] = useMemo(
         () => [
             {
@@ -104,9 +121,7 @@ export default () => {
                 name: 'orders',
                 label: 'Orders',
                 required: false,
-                defaultValue: tradeSelected?.detailedOrder
-                    ? tradeSelected.detailedOrder.trade.tradeId
-                    : undefined,
+                defaultValue: tradeSelected ? tradeSelected.detailedOrder.trade.tradeId : undefined,
                 options: orders.map((orderDetail, index) => ({
                     value: index,
                     label: orderDetail.trade.tradeId,
@@ -192,17 +207,32 @@ export default () => {
                             </div>
                         </Flex>
                         {tradeSelected.detailedShipment.phase === ShipmentPhase.APPROVAL ? (
-                            <ConfirmButton
-                                text="Approve shipment"
-                                confirmText="Go to 'Shipment' section in order to approve the shipment, proceed?"
-                                disabled={isExporter}
-                                onConfirm={() =>
-                                    navigate(
-                                        setParametersPath(`${paths.TRADE_VIEW}?type=1`, {
-                                            id: tradeSelected!.detailedOrder.trade.tradeId.toString()
-                                        })
-                                    )
+                            <Alert
+                                style={{ textAlign: 'center' }}
+                                message={
+                                    <span>
+                                        Shipment must be approved before uploading documents. <br />
+                                        Click{' '}
+                                        <ConfirmButton
+                                            style={{ padding: 0 }}
+                                            type="link"
+                                            text="here"
+                                            confirmText="Go to 'Shipment' section in order to approve the shipment, proceed?"
+                                            disabled={isExporter}
+                                            onConfirm={() =>
+                                                navigate(
+                                                    setParametersPath(
+                                                        `${paths.TRADE_VIEW}?type=1`,
+                                                        {
+                                                            id: tradeSelected!.detailedOrder.trade.tradeId.toString()
+                                                        }
+                                                    )
+                                                )
+                                            }
+                                        />
+                                    </span>
                                 }
+                                type={'warning'}
                             />
                         ) : (
                             <DocumentUpload
@@ -215,18 +245,30 @@ export default () => {
                         )}
                     </Flex>
                 ) : (
-                    <ConfirmButton
-                        style={{ width: '100%' }}
-                        text="Add shipment"
-                        confirmText="Go to 'Shipment' section in order to add new shipment, proceed?"
-                        disabled={!isExporter}
-                        onConfirm={() =>
-                            navigate(
-                                setParametersPath(`${paths.TRADE_VIEW}?type=1`, {
-                                    id: tradeSelected!.detailedOrder.trade.tradeId.toString()
-                                })
-                            )
+                    <Alert
+                        style={{ textAlign: 'center' }}
+                        message={
+                            <span>
+                                No shipment available for this order, please add one to proceed.{' '}
+                                <br />
+                                Click{' '}
+                                <ConfirmButton
+                                    style={{ padding: 0 }}
+                                    type="link"
+                                    text="here"
+                                    confirmText="Go to 'Shipment' section in order to add new shipment, proceed?"
+                                    disabled={!isExporter}
+                                    onConfirm={() =>
+                                        navigate(
+                                            setParametersPath(`${paths.TRADE_VIEW}?type=1`, {
+                                                id: tradeSelected!.detailedOrder.trade.tradeId.toString()
+                                            })
+                                        )
+                                    }
+                                />
+                            </span>
                         }
+                        type={'warning'}
                     />
                 )
             }
