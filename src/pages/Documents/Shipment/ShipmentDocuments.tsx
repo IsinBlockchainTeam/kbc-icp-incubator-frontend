@@ -29,6 +29,11 @@ import { ORDER_TRADE_MESSAGE } from '@/constants/message';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
 
+type SelectedOrder = {
+    detailedOrder: DetailedOrderTrade;
+    detailedShipment: DetailedShipment | null;
+};
+
 export default () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -40,15 +45,9 @@ export default () => {
     const { detailedOrderTrade, getDetailedTradesAsync } = useEthOrderTrade();
     const { detailedShipment, addDocument } = useEthShipment();
 
-    const tradeSelected:
-        | {
-              detailedOrder: DetailedOrderTrade;
-              detailedShipment: DetailedShipment | null;
-          }
-        | undefined = useMemo(() => {
+    const tradeSelected: SelectedOrder | undefined = useMemo(() => {
         if (!detailedOrderTrade) return undefined;
-        console.log('detailedOrderTrade', detailedOrderTrade);
-        console.log('detailedShipment', detailedShipment);
+        console.log('detailedOrderTrade: ', detailedOrderTrade);
         return {
             detailedOrder: detailedOrderTrade,
             detailedShipment
@@ -76,7 +75,9 @@ export default () => {
     const loadData = async () => {
         try {
             dispatch(addLoadingMessage(ORDER_TRADE_MESSAGE.RETRIEVE_MANY.LOADING));
-            setOrders(await getDetailedTradesAsync());
+            setOrders(
+                (await getDetailedTradesAsync()).sort((a, b) => a.trade.tradeId - b.trade.tradeId)
+            );
         } catch (e) {
             openNotification(
                 'Error',
@@ -91,6 +92,8 @@ export default () => {
 
     const handleChange = async (value: number) => {
         const detailedOrder = orders[value];
+        console.log('detailedOrder: ', detailedOrder);
+        console.log('value: ', value);
         navigate(
             setParametersPath(paths.ORDER_DOCUMENTS, {
                 id: detailedOrder.trade.tradeId.toString()
@@ -112,7 +115,18 @@ export default () => {
         navigate(paths.DOCUMENTS);
     };
 
-    console.log('tradeSelected.detailedOrder: ', tradeSelected?.detailedOrder.trade);
+    useEffect(() => {
+        console.log('tradeSelected: ', tradeSelected?.detailedOrder.trade.tradeId);
+        console.log(
+            'orders: ',
+            orders.map((orderDetail, index) => ({
+                value: index,
+                label: orderDetail.trade.tradeId,
+                counterpart: computeCounterpart(orderDetail.trade)
+            }))
+        );
+    }, [tradeSelected?.detailedOrder.trade.tradeId]);
+
     const elements: FormElement[] = useMemo(
         () => [
             {
@@ -121,7 +135,9 @@ export default () => {
                 name: 'orders',
                 label: 'Orders',
                 required: false,
-                defaultValue: tradeSelected ? tradeSelected.detailedOrder.trade.tradeId : undefined,
+                defaultValue: tradeSelected
+                    ? tradeSelected.detailedOrder.trade.tradeId.toString()
+                    : undefined,
                 options: orders.map((orderDetail, index) => ({
                     value: index,
                     label: orderDetail.trade.tradeId,

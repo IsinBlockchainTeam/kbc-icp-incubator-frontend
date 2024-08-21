@@ -141,10 +141,8 @@ export function EthShipmentProvider(props: { children: ReactNode }) {
     }, [detailedOrderTrade]);
 
     const loadData = async () => {
-        if (!shipmentManagerService) {
-            setDetailedShipment(null);
-            return;
-        }
+        if (!shipmentManagerService) return;
+
         try {
             dispatch(addLoadingMessage(SHIPMENT_MESSAGE.RETRIEVE.LOADING));
             const shipment = await shipmentManagerService.getShipment();

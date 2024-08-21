@@ -138,6 +138,8 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
 
     // Update basic trades if raw trades change
     useEffect(() => {
+        console.log('rawTrade: ', rawTrade);
+        console.log('id: ', id);
         if (rawTrade) loadData();
         else setDetailedOrderTrade(null);
     }, [rawTrade, id]);

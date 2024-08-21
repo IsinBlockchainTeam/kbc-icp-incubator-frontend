@@ -121,8 +121,10 @@ export const App = () => {
                                         <Route
                                             path={paths.ORDER_DOCUMENTS}
                                             element={
-                                                <DataLoader customUseContext={useEthRawTrade}>
-                                                    <Documents />
+                                                <DataLoader customUseContext={useICPName}>
+                                                    <DataLoader customUseContext={useEthRawTrade}>
+                                                        <Documents />
+                                                    </DataLoader>
                                                 </DataLoader>
                                             }
                                         />

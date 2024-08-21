@@ -102,6 +102,7 @@ type SelectableElement = Omit<LabeledElement, 'type'> & {
     };
     optionRender?: (option: any) => React.ReactNode;
     onSelect?: (value: string | number) => void;
+    // if 'number', it refers to the index of the options array
     defaultValue?: string | number | string[];
     mode?: 'multiple';
     disabled?: boolean;
