@@ -8,7 +8,6 @@ import {
     BasicTrade,
     BasicTradeService,
     DocumentInfo,
-    DocumentType,
     ICPFileDriver,
     Line,
     LineRequest,
@@ -24,9 +23,9 @@ import { RawTrade, useEthRawTrade } from '@/providers/entities/EthRawTradeProvid
 import { UserInfoState } from '@/redux/reducers/userInfoSlice';
 import { getICPCanisterURL } from '@/utils/icp';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
-import { DocumentRequest } from '@/providers/entities/EthDocumentProvider';
 import { useICP } from '@/providers/ICPProvider';
 import { JsonRpcSigner } from '@ethersproject/providers';
+import { useParams } from 'react-router-dom';
 
 jest.mock('@kbc-lib/coffee-trading-management-lib');
 jest.mock('@/providers/SignerProvider');
@@ -36,19 +35,28 @@ jest.mock('@/utils/notification');
 jest.mock('@/utils/icp');
 jest.mock('@/providers/entities/EthMaterialProvider');
 jest.mock('@/providers/ICPProvider');
+jest.mock('react-router-dom');
 
 describe('EthBasicTradeProvider', () => {
     const signer = { _address: '0x123' } as JsonRpcSigner;
     const dispatch = jest.fn();
     const getTrade = jest.fn();
     const getDocumentsByType = jest.fn();
-    const addDocument = jest.fn();
     const addLine = jest.fn();
     const setName = jest.fn();
     const updateLine = jest.fn();
     const registerBasicTrade = jest.fn();
     const waitForTransactions = jest.fn();
-    const rawTrades = [{ address: '0x123', type: TradeType.BASIC } as RawTrade];
+    const MockedBasicTradeService = {
+        getTrade,
+        getDocumentsByType,
+        addLine,
+        setName,
+        updateLine
+    };
+
+    const documentInfo = { id: 1 } as DocumentInfo;
+    const rawTrades = [{ id: 1, address: '0x123', type: TradeType.BASIC } as RawTrade];
     const userInfo = { companyClaims: { organizationId: '1' } } as UserInfoState;
     const basicTrade = {
         tradeId: 1,
@@ -67,14 +75,7 @@ describe('EthBasicTradeProvider', () => {
         jest.clearAllMocks();
         jest.spyOn(console, 'error').mockImplementation(jest.fn());
 
-        (BasicTradeService as jest.Mock).mockImplementation(() => ({
-            getTrade,
-            getDocumentsByType,
-            addDocument,
-            addLine,
-            setName,
-            updateLine
-        }));
+        (BasicTradeService as jest.Mock).mockImplementation(() => MockedBasicTradeService);
         (TradeManagerService as jest.Mock).mockImplementation(() => ({
             registerBasicTrade
         }));
@@ -82,7 +83,7 @@ describe('EthBasicTradeProvider', () => {
         (useSelector as jest.Mock).mockReturnValue(userInfo);
         (useSigner as jest.Mock).mockReturnValue({ signer, waitForTransactions });
         (useEthRawTrade as jest.Mock).mockReturnValue({ rawTrades });
-        getDocumentsByType.mockResolvedValue([]);
+        getDocumentsByType.mockResolvedValue([documentInfo]);
         (getICPCanisterURL as jest.Mock).mockReturnValue('icpCanisterUrl');
         (useEthMaterial as jest.Mock).mockReturnValue({
             productCategories
@@ -90,41 +91,46 @@ describe('EthBasicTradeProvider', () => {
         (useICP as jest.Mock).mockReturnValue({
             fileDriver: {} as ICPFileDriver
         });
+        (useParams as jest.Mock).mockReturnValue({ id: '1' });
     });
 
     it('should throw error if hook is used outside the provider', async () => {
         expect(() => renderHook(() => useEthBasicTrade())).toThrow();
     });
 
-    it('should load basic trades on initial render', async () => {
+    it('should load detailed trade on initial render', async () => {
         getTrade.mockResolvedValue(basicTrade);
         const { result } = renderHook(() => useEthBasicTrade(), {
             wrapper: EthBasicTradeProvider
         });
+        const detailedBasicTrade = {
+            trade: basicTrade,
+            service: MockedBasicTradeService,
+            documents: [documentInfo]
+        };
         await waitFor(() => {
-            expect(result.current.basicTrades).toHaveLength(1);
+            expect(result.current.detailedBasicTrade).toEqual(detailedBasicTrade);
         });
 
         expect(dispatch).toHaveBeenCalledTimes(2);
         expect(BasicTradeService).toHaveBeenCalledTimes(1);
-        expect(result.current.basicTrades).toHaveLength(1);
         expect(openNotification).not.toHaveBeenCalled();
     });
 
-    // it('should handle load failure on initial render', async () => {
-    //     getTrade.mockRejectedValue(new Error('Test error'));
-    //     const { result } = renderHook(() => useEthBasicTrade(), {
-    //         wrapper: EthBasicTradeProvider
-    //     });
-    //     await waitFor(() => {
-    //         expect(openNotification).toHaveBeenCalled();
-    //     });
-    //
-    //     expect(dispatch).toHaveBeenCalledTimes(2);
-    //     expect(BasicTradeService).toHaveBeenCalledTimes(1);
-    //     expect(result.current.basicTrades).toHaveLength(0);
-    //     expect(openNotification).toHaveBeenCalled();
-    // });
+    it('should handle load failure on initial render', async () => {
+        getTrade.mockRejectedValue(new Error('Test error'));
+        const { result } = renderHook(() => useEthBasicTrade(), {
+            wrapper: EthBasicTradeProvider
+        });
+        await waitFor(() => {
+            expect(openNotification).toHaveBeenCalled();
+        });
+
+        expect(dispatch).toHaveBeenCalledTimes(2);
+        expect(BasicTradeService).toHaveBeenCalledTimes(1);
+        expect(result.current.detailedBasicTrade).toEqual(null);
+        expect(openNotification).toHaveBeenCalled();
+    });
 
     it('should save basic trade', async () => {
         const basicTradeRequest = {
@@ -134,27 +140,21 @@ describe('EthBasicTradeProvider', () => {
             name: 'basicTrade',
             lines: [{} as LineRequest]
         } as BasicTradeRequest;
-        const documentRequests = [
-            {
-                filename: 'filenameTest',
-                documentType: DocumentType.DELIVERY_NOTE,
-                content: { type: 'testFile' } as Blob
-            } as DocumentRequest
-        ];
         getTrade.mockResolvedValue(basicTrade);
         registerBasicTrade.mockResolvedValue(['', '0x123', 'txHash']);
         const { result } = renderHook(() => useEthBasicTrade(), {
             wrapper: EthBasicTradeProvider
         });
         await waitFor(() => {
-            expect(result.current.basicTrades).toHaveLength(1);
+            expect(result.current.detailedBasicTrade).toBeNull();
         });
         jest.clearAllMocks();
         await act(async () => {
-            await result.current.saveBasicTrade(basicTradeRequest, documentRequests);
+            await result.current.saveBasicTrade(basicTradeRequest);
         });
 
-        expect(dispatch).toHaveBeenCalledTimes(4);
+        expect(dispatch).toHaveBeenCalledTimes(2);
+        expect(getICPCanisterURL).toHaveBeenCalledTimes(1);
         expect(registerBasicTrade).toHaveBeenCalledTimes(1);
         expect(registerBasicTrade).toHaveBeenCalledWith(
             basicTradeRequest.supplier,
@@ -169,18 +169,6 @@ describe('EthBasicTradeProvider', () => {
             [0]
         );
         expect(waitForTransactions).toHaveBeenCalledTimes(1);
-        expect(addDocument).toHaveBeenCalledTimes(1);
-        expect(addDocument).toHaveBeenCalledWith(
-            DocumentType.DELIVERY_NOTE,
-            expect.any(Uint8Array),
-            'externalUrl',
-            {
-                name: 'filenameTest',
-                type: 'testFile'
-            },
-            [0]
-        );
-        expect(getTrade).toHaveBeenCalled();
         expect(openNotification).toHaveBeenCalled();
     });
     it('should handle save basic trade failure', async () => {
@@ -191,30 +179,22 @@ describe('EthBasicTradeProvider', () => {
             name: 'basicTrade',
             lines: [{} as LineRequest]
         } as BasicTradeRequest;
-        const documentRequests = [
-            {
-                filename: 'filenameTest',
-                documentType: DocumentType.DELIVERY_NOTE,
-                content: { type: 'testFile' } as Blob
-            } as DocumentRequest
-        ];
         getTrade.mockResolvedValue(basicTrade);
         registerBasicTrade.mockRejectedValue(new Error('Test error'));
         const { result } = renderHook(() => useEthBasicTrade(), {
             wrapper: EthBasicTradeProvider
         });
         await waitFor(() => {
-            expect(result.current.basicTrades).toHaveLength(1);
+            expect(result.current.detailedBasicTrade).toBeNull();
         });
         jest.clearAllMocks();
         await act(async () => {
-            await result.current.saveBasicTrade(basicTradeRequest, documentRequests);
+            await result.current.saveBasicTrade(basicTradeRequest);
         });
 
         expect(dispatch).toHaveBeenCalledTimes(2);
         expect(registerBasicTrade).toHaveBeenCalledTimes(1);
         expect(waitForTransactions).not.toHaveBeenCalled();
-        expect(addDocument).not.toHaveBeenCalled();
         expect(openNotification).toHaveBeenCalled();
     });
     it('should update basic trade', async () => {
@@ -236,11 +216,11 @@ describe('EthBasicTradeProvider', () => {
             wrapper: EthBasicTradeProvider
         });
         await waitFor(() => {
-            expect(result.current.basicTrades).toHaveLength(1);
+            expect(result.current.detailedBasicTrade).not.toBeNull();
         });
         jest.clearAllMocks();
         await act(async () => {
-            await result.current.updateBasicTrade(1, basicTradeRequest);
+            await result.current.updateBasicTrade(basicTradeRequest);
         });
 
         expect(dispatch).toHaveBeenCalledTimes(4);
@@ -279,11 +259,11 @@ describe('EthBasicTradeProvider', () => {
             wrapper: EthBasicTradeProvider
         });
         await waitFor(() => {
-            expect(result.current.basicTrades).toHaveLength(1);
+            expect(result.current.detailedBasicTrade).not.toBeNull();
         });
         jest.clearAllMocks();
         await act(async () => {
-            await result.current.updateBasicTrade(1, basicTradeRequest);
+            await result.current.updateBasicTrade(basicTradeRequest);
         });
 
         expect(dispatch).toHaveBeenCalledTimes(2);
@@ -291,21 +271,5 @@ describe('EthBasicTradeProvider', () => {
         expect(setName).toHaveBeenCalledWith(basicTradeRequest.name);
         expect(updateLine).not.toHaveBeenCalled();
         expect(openNotification).toHaveBeenCalled();
-    });
-    it('should retrieve basic trade documents', async () => {
-        const documentInfo = { id: 1 } as DocumentInfo;
-        getDocumentsByType.mockResolvedValue([documentInfo]);
-        getTrade.mockResolvedValue(basicTrade);
-        const { result } = renderHook(() => useEthBasicTrade(), {
-            wrapper: EthBasicTradeProvider
-        });
-        await waitFor(() => {
-            expect(result.current.basicTrades).toHaveLength(1);
-        });
-        jest.clearAllMocks();
-        const resp = result.current.getBasicTradeDocuments(1);
-
-        expect(resp).toHaveLength(1);
-        expect(resp).toEqual([documentInfo]);
     });
 });
