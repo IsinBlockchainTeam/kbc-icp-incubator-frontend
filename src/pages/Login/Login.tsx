@@ -14,6 +14,7 @@ import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { updateUserInfo } from '@/redux/reducers/userInfoSlice';
 import { Navigate } from 'react-router-dom';
 import { paths } from '@/constants/paths';
+import { DID_METHOD } from '@/constants/ssi';
 
 export const Login = () => {
     const { provider } = useWalletConnect();
@@ -126,7 +127,13 @@ export const Login = () => {
                     updateUserInfo({
                         subjectDid: employeeDid,
                         companyClaims,
-                        employeeClaims
+                        employeeClaims,
+                        roleProof: {
+                            signedProof: message.body.verifiableCredential[1].signedProof,
+                            delegator: message.body.verifiableCredential[1].issuer.id.split(
+                                DID_METHOD + ':'
+                            )[1]
+                        }
                     })
                 );
             }
