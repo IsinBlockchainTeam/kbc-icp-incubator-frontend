@@ -24,7 +24,7 @@ export const SeaTransportation = () => {
         useEthShipment();
     const [previewDocumentId, setPreviewDocumentId] = React.useState<number | null>(null);
     const userInfo = useSelector((state: RootState) => state.userInfo);
-    const isExporter = userInfo.role.toUpperCase() === credentials.ROLE_EXPORTER;
+    const isExporter = userInfo.companyClaims.role.toUpperCase() === credentials.ROLE_EXPORTER;
 
     if (!detailedShipment) {
         return <>Shipment not found</>;

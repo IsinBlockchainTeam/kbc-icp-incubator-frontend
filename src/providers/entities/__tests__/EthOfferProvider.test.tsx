@@ -1,7 +1,7 @@
 import { renderHook, act } from '@testing-library/react';
 import { EthOfferProvider, useEthOffer } from '../EthOfferProvider';
-import { Offer, OfferService } from '@kbc-lib/coffee-trading-management-lib';
-import { useDispatch } from 'react-redux';
+import { Offer, OfferService, RoleProof } from '@kbc-lib/coffee-trading-management-lib';
+import { useDispatch, useSelector } from 'react-redux';
 import { useSigner } from '@/providers/SignerProvider';
 import { openNotification } from '@/utils/notification';
 import { JsonRpcSigner } from '@ethersproject/providers';
@@ -18,9 +18,14 @@ describe('EthOfferProvider', () => {
     const registerOffer = jest.fn();
     const registerSupplier = jest.fn();
     const offers = [{ id: 1 } as Offer];
+    const roleProof: RoleProof = {
+        signedProof: 'signedProof',
+        delegator: 'delegator'
+    };
     beforeEach(() => {
         jest.clearAllMocks();
         jest.spyOn(console, 'error').mockImplementation(jest.fn());
+        jest.spyOn(console, 'log').mockImplementation(jest.fn());
 
         (OfferService as jest.Mock).mockImplementation(() => ({
             getAllOffers,
@@ -30,6 +35,7 @@ describe('EthOfferProvider', () => {
         (useDispatch as jest.Mock).mockReturnValue(dispatch);
         (useSigner as jest.Mock).mockReturnValue({ signer });
         getAllOffers.mockResolvedValue(offers);
+        (useSelector as jest.Mock).mockReturnValue(roleProof);
     });
 
     it('should throw error if hook is used outside the provider', async () => {
@@ -76,7 +82,7 @@ describe('EthOfferProvider', () => {
 
         expect(dispatch).toHaveBeenCalledTimes(4);
         expect(registerOffer).toHaveBeenCalled();
-        expect(registerOffer).toHaveBeenCalledWith('0x123', 1);
+        expect(registerOffer).toHaveBeenCalledWith(roleProof, '0x123', 1);
         expect(getAllOffers).toHaveBeenCalled();
         expect(result.current.dataLoaded).toBe(true);
     });
@@ -105,7 +111,7 @@ describe('EthOfferProvider', () => {
 
         expect(dispatch).toHaveBeenCalledTimes(2);
         expect(registerSupplier).toHaveBeenCalled();
-        expect(registerSupplier).toHaveBeenCalledWith('0x123', 'name');
+        expect(registerSupplier).toHaveBeenCalledWith(roleProof, '0x123', 'name');
     });
     it('should handle save supplier failure', async () => {
         registerSupplier.mockRejectedValue(new Error('Test error'));

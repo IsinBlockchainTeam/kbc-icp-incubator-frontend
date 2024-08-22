@@ -29,3 +29,10 @@ export const validateDates = (
         return Promise.resolve();
     };
 };
+
+export const fromDateToString = (date: Date): string => {
+    const day = date.getDate();
+    const month = date.toLocaleString('default', { month: 'short' });
+    const year = date.getFullYear();
+    return `${day} ${month} ${year}`;
+};

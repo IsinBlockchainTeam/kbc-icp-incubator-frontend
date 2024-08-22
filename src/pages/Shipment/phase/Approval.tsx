@@ -18,7 +18,7 @@ export const Approval = () => {
     const { detailedShipment, updateShipment, approveShipment } = useEthShipment();
     const { detailedOrderTrade, createShipment } = useEthOrderTrade();
     const userInfo = useSelector((state: RootState) => state.userInfo);
-    const isExporter = userInfo.role.toUpperCase() === credentials.ROLE_EXPORTER;
+    const isExporter = userInfo.companyClaims.role.toUpperCase() === credentials.ROLE_EXPORTER;
 
     if (!detailedOrderTrade) {
         return <>Order not found</>;

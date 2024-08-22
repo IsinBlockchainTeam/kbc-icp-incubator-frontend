@@ -5,12 +5,13 @@ import {
 } from '@kbc-lib/coffee-trading-management-lib';
 import { createContext, ReactNode, useContext, useMemo, useState } from 'react';
 import { useSigner } from '@/providers/SignerProvider';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { CONTRACT_ADDRESSES } from '@/constants/evm';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
 import { ASSET_OPERATION_MESSAGE } from '@/constants/message';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
+import { RootState } from '@/redux/store';
 
 export type AssetOperationRequest = {
     name: string;
@@ -43,6 +44,8 @@ export function EthAssetOperationProvider(props: { children: ReactNode }) {
     const { signer } = useSigner();
     const dispatch = useDispatch();
 
+    const roleProof = useSelector((state: RootState) => state.userInfo.roleProof);
+
     const assetOperationService = useMemo(
         () =>
             new AssetOperationService(
@@ -60,6 +63,7 @@ export function EthAssetOperationProvider(props: { children: ReactNode }) {
         try {
             dispatch(addLoadingMessage(ASSET_OPERATION_MESSAGE.RETRIEVE.LOADING));
             const assetOperations = await assetOperationService.getAssetOperationsOfCreator(
+                roleProof,
                 signer._address
             );
             setAssetOperations(assetOperations);
@@ -84,6 +88,7 @@ export function EthAssetOperationProvider(props: { children: ReactNode }) {
         try {
             dispatch(addLoadingMessage(ASSET_OPERATION_MESSAGE.SAVE.LOADING));
             await assetOperationService.registerAssetOperation(
+                roleProof,
                 assetOperationRequest.name,
                 assetOperationRequest.inputMaterialIds,
                 assetOperationRequest.outputMaterialId,

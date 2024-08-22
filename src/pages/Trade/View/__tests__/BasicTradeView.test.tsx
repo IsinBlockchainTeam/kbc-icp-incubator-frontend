@@ -86,7 +86,7 @@ describe('Basic Trade New', () => {
         };
         await onSubmit(values);
         expect(updateBasicTrade).toHaveBeenCalledTimes(1);
-        expect(updateBasicTrade).toHaveBeenCalledWith(basicTrade.tradeId, {
+        expect(updateBasicTrade).toHaveBeenCalledWith({
             supplier: 'supplier',
             customer: 'customer',
             commissioner: 'commissioner',
@@ -109,6 +109,6 @@ describe('Basic Trade New', () => {
         act(() => userEvent.click(screen.getByRole('confirm')));
 
         expect(confirmNegotiation).toHaveBeenCalledTimes(1);
-        expect(confirmNegotiation).toHaveBeenCalledWith(basicTrade.tradeId);
+        expect(confirmNegotiation).toHaveBeenCalledWith();
     });
 });

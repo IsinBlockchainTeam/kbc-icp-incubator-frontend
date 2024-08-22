@@ -10,6 +10,7 @@ import { useICP } from '@/providers/ICPProvider';
 import { paths } from '@/constants/paths';
 import { MailOutlined, PhoneOutlined, EnvironmentOutlined } from '@ant-design/icons';
 import { formatAddress, formatICPPrincipal } from '@/utils/format';
+import { fromDateToString } from '@/utils/date';
 
 const { Title, Text } = Typography;
 export default function Profile() {
@@ -121,7 +122,7 @@ export default function Profile() {
                                     </span>
                                 </Descriptions.Item>
                                 <Descriptions.Item label="Birth Date">
-                                    {employeeClaims.birthDate}
+                                    {fromDateToString(new Date(employeeClaims.birthDate))}
                                 </Descriptions.Item>
                                 <Descriptions.Item label="Ethereum Address">
                                     {formatAddress(signer._address)}

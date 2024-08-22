@@ -6,7 +6,7 @@ import {
     ProductCategory,
     ProductCategoryService
 } from '@kbc-lib/coffee-trading-management-lib';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useSigner } from '@/providers/SignerProvider';
 import { openNotification } from '@/utils/notification';
 import { JsonRpcSigner } from '@ethersproject/providers';
@@ -28,6 +28,7 @@ describe('EthMaterialProvider', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         jest.spyOn(console, 'error').mockImplementation(jest.fn());
+        jest.spyOn(console, 'log').mockImplementation(jest.fn());
 
         (ProductCategoryService as jest.Mock).mockImplementation(() => ({
             getProductCategories,
@@ -41,6 +42,10 @@ describe('EthMaterialProvider', () => {
         (useSigner as jest.Mock).mockReturnValue({ signer });
         getProductCategories.mockResolvedValue(productCategories);
         getMaterials.mockResolvedValue(materials);
+        (useSelector as jest.Mock).mockReturnValue({
+            signedProof: 'signedProof',
+            delegator: 'delegator'
+        });
     });
 
     it('should throw error if hook is used outside the provider', async () => {

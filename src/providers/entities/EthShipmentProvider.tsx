@@ -116,6 +116,8 @@ export function EthShipmentProvider(props: { children: ReactNode }) {
     const [detailedShipment, setDetailedShipment] = useState<DetailedShipment | null>(null);
     const dispatch = useDispatch();
 
+    const roleProof = useSelector((state: RootState) => state.userInfo.roleProof);
+
     const tokenService = useMemo(
         () => new TokenService(new TokenDriver(signer, CONTRACT_ADDRESSES.TOKEN())),
         [signer]
@@ -143,12 +145,14 @@ export function EthShipmentProvider(props: { children: ReactNode }) {
         if (!shipmentManagerService) return;
         try {
             dispatch(addLoadingMessage(SHIPMENT_MESSAGE.RETRIEVE.LOADING));
-            const shipment = await shipmentManagerService.getShipment();
-            const phase = await shipmentManagerService.getPhase();
+            const shipment = await shipmentManagerService.getShipment(roleProof);
+            const phase = await shipmentManagerService.getPhase(roleProof);
             const documents: ShipmentDocumentInfo[] = [];
             await Promise.allSettled(
                 shipment.documentsIds.map(async (documentId) => {
-                    documents.push(await shipmentManagerService.getDocumentInfo(documentId));
+                    documents.push(
+                        await shipmentManagerService.getDocumentInfo(roleProof, documentId)
+                    );
                 })
             );
             setDetailedShipment({
@@ -177,7 +181,13 @@ export function EthShipmentProvider(props: { children: ReactNode }) {
         if (!shipmentManagerService) throw new Error('ShipmentManager service not initialized');
         try {
             dispatch(addLoadingMessage(SHIPMENT_MESSAGE.SAVE.LOADING));
-            await shipmentManagerService.updateShipment(expirationDate, quantity, weight, price);
+            await shipmentManagerService.updateShipment(
+                roleProof,
+                expirationDate,
+                quantity,
+                weight,
+                price
+            );
             await loadData();
             openNotification(
                 'Success',
@@ -202,7 +212,7 @@ export function EthShipmentProvider(props: { children: ReactNode }) {
         if (!shipmentManagerService) throw new Error('ShipmentManager service not initialized');
         try {
             dispatch(addLoadingMessage(SHIPMENT_MESSAGE.APPROVE.LOADING));
-            await shipmentManagerService.approveShipment();
+            await shipmentManagerService.approveShipment(roleProof);
             await loadData();
             openNotification(
                 'Success',
@@ -229,7 +239,7 @@ export function EthShipmentProvider(props: { children: ReactNode }) {
         try {
             dispatch(addLoadingMessage(SHIPMENT_MESSAGE.DEPOSIT.LOADING));
             await tokenService.approve(detailedOrderTrade.escrowAddress, amount);
-            await shipmentManagerService.depositFunds(amount);
+            await shipmentManagerService.depositFunds(roleProof, amount);
             await loadEscrowDetails();
             await loadTokenDetails();
             await loadData();
@@ -255,7 +265,7 @@ export function EthShipmentProvider(props: { children: ReactNode }) {
         if (!shipmentManagerService) throw new Error('ShipmentManager service not initialized');
         try {
             dispatch(addLoadingMessage(SHIPMENT_MESSAGE.GET_DOCUMENT.LOADING));
-            const document = await shipmentManagerService.getDocument(documentId);
+            const document = await shipmentManagerService.getDocument(roleProof, documentId);
             const blob = new Blob([document!.fileContent], {
                 type: getMimeType(document.fileName)
             });
@@ -289,12 +299,13 @@ export function EthShipmentProvider(props: { children: ReactNode }) {
             dispatch(addLoadingMessage(SHIPMENT_MESSAGE.ADD_DOCUMENT.LOADING));
             // TODO: remove this harcoded value
             const delegatedOrganizationIds: number[] =
-                parseInt(userInfo.organizationId) === 0 ? [1] : [0];
+                parseInt(userInfo.companyClaims.organizationId) === 0 ? [1] : [0];
             const resourceSpec: ICPResourceSpec = {
                 name: fileName,
                 type: fileContent.type
             };
             await shipmentManagerService.addDocument(
+                roleProof,
                 documentType,
                 new Uint8Array(await new Response(fileContent).arrayBuffer()),
                 resourceSpec,
@@ -324,7 +335,7 @@ export function EthShipmentProvider(props: { children: ReactNode }) {
         if (!shipmentManagerService) throw new Error('ShipmentManager service not initialized');
         try {
             dispatch(addLoadingMessage(SHIPMENT_MESSAGE.APPROVE_DOCUMENT.LOADING));
-            await shipmentManagerService.approveDocument(documentId);
+            await shipmentManagerService.approveDocument(roleProof, documentId);
             await loadData();
             openNotification(
                 'Success',
@@ -348,7 +359,7 @@ export function EthShipmentProvider(props: { children: ReactNode }) {
         if (!shipmentManagerService) throw new Error('ShipmentManager service not initialized');
         try {
             dispatch(addLoadingMessage(SHIPMENT_MESSAGE.REJECT_DOCUMENT.LOADING));
-            await shipmentManagerService.rejectDocument(documentId);
+            await shipmentManagerService.rejectDocument(roleProof, documentId);
             await loadData();
             openNotification(
                 'Success',
@@ -372,7 +383,7 @@ export function EthShipmentProvider(props: { children: ReactNode }) {
         if (!shipmentManagerService) throw new Error('ShipmentManager service not initialized');
         try {
             dispatch(addLoadingMessage(SHIPMENT_MESSAGE.CONFIRM.LOADING));
-            await shipmentManagerService.confirmShipment();
+            await shipmentManagerService.confirmShipment(roleProof);
             await loadData();
             openNotification(
                 'Success',
@@ -396,7 +407,7 @@ export function EthShipmentProvider(props: { children: ReactNode }) {
         if (!shipmentManagerService) throw new Error('ShipmentManager service not initialized');
         try {
             dispatch(addLoadingMessage(SHIPMENT_MESSAGE.START_ARBITRATION.LOADING));
-            await shipmentManagerService.startShipmentArbitration();
+            await shipmentManagerService.startShipmentArbitration(roleProof);
             await loadData();
             openNotification(
                 'Success',
@@ -420,7 +431,7 @@ export function EthShipmentProvider(props: { children: ReactNode }) {
         const rawTrade = rawTrades.find((t) => t.id === orderId);
         if (!rawTrade) throw new Error('Trade not found');
         const orderTradeService = getOrderTradeService(rawTrade.address);
-        const shipmentAddress = await orderTradeService.getShipmentAddress();
+        const shipmentAddress = await orderTradeService.getShipmentAddress(roleProof);
         if (shipmentAddress == ethers.constants.AddressZero)
             throw new Error('Shipment address not found.');
         const service = new ShipmentService(
@@ -428,7 +439,7 @@ export function EthShipmentProvider(props: { children: ReactNode }) {
             new DocumentDriver(signer, CONTRACT_ADDRESSES.DOCUMENT()),
             fileDriver
         );
-        return service.getPhase();
+        return service.getPhase(roleProof);
     };
 
     return (

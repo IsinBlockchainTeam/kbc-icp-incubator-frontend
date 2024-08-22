@@ -5,12 +5,13 @@ import {
 } from '@kbc-lib/coffee-trading-management-lib';
 import { createContext, ReactNode, useContext, useMemo, useState } from 'react';
 import { useSigner } from '@/providers/SignerProvider';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { CONTRACT_ADDRESSES } from '@/constants/evm';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
 import { OFFER_MESSAGE } from '@/constants/message';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
+import { RootState } from '@/redux/store';
 
 export type EthRelationshipContextState = {
     dataLoaded: boolean;
@@ -34,6 +35,8 @@ export function EthRelationshipProvider(props: { children: ReactNode }) {
     const { signer } = useSigner();
     const dispatch = useDispatch();
 
+    const roleProof = useSelector((state: RootState) => state.userInfo.roleProof);
+
     const relationshipService = useMemo(
         () =>
             new RelationshipService(
@@ -46,12 +49,13 @@ export function EthRelationshipProvider(props: { children: ReactNode }) {
         try {
             dispatch(addLoadingMessage(OFFER_MESSAGE.RETRIEVE.LOADING));
             const relationshipIds = await relationshipService.getRelationshipIdsByCompany(
+                roleProof,
                 signer._address
             );
             const relationships: Relationship[] = [];
             await Promise.allSettled(
                 relationshipIds.map(async (id) =>
-                    relationships.push(await relationshipService.getRelationshipInfo(id))
+                    relationships.push(await relationshipService.getRelationshipInfo(roleProof, id))
                 )
             );
             setRelationships(relationships);

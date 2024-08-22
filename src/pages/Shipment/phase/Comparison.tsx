@@ -12,7 +12,7 @@ const { Paragraph } = Typography;
 export const Comparison = () => {
     const { detailedShipment, confirmShipment, startShipmentArbitration } = useEthShipment();
     const userInfo = useSelector((state: RootState) => state.userInfo);
-    const isImporter = userInfo.role.toUpperCase() === credentials.ROLE_IMPORTER;
+    const isImporter = userInfo.companyClaims.role.toUpperCase() === credentials.ROLE_IMPORTER;
 
     if (!detailedShipment) {
         return <>Shipment not found</>;
