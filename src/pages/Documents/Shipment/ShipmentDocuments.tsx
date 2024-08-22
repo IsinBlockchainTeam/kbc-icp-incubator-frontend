@@ -47,7 +47,6 @@ export default () => {
 
     const tradeSelected: SelectedOrder | undefined = useMemo(() => {
         if (!detailedOrderTrade) return undefined;
-        console.log('detailedOrderTrade: ', detailedOrderTrade);
         return {
             detailedOrder: detailedOrderTrade,
             detailedShipment
@@ -92,8 +91,6 @@ export default () => {
 
     const handleChange = async (value: number) => {
         const detailedOrder = orders[value];
-        console.log('detailedOrder: ', detailedOrder);
-        console.log('value: ', value);
         navigate(
             setParametersPath(paths.ORDER_DOCUMENTS, {
                 id: detailedOrder.trade.tradeId.toString()
@@ -114,18 +111,6 @@ export default () => {
         await addDocument(documentType, documentReferenceId, filename, fileContent);
         navigate(paths.DOCUMENTS);
     };
-
-    useEffect(() => {
-        console.log('tradeSelected: ', tradeSelected?.detailedOrder.trade.tradeId);
-        console.log(
-            'orders: ',
-            orders.map((orderDetail, index) => ({
-                value: index,
-                label: orderDetail.trade.tradeId,
-                counterpart: computeCounterpart(orderDetail.trade)
-            }))
-        );
-    }, [tradeSelected?.detailedOrder.trade.tradeId]);
 
     const elements: FormElement[] = useMemo(
         () => [
@@ -168,7 +153,7 @@ export default () => {
                 type: FormElementType.CARD,
                 span: 12,
                 name: 'orderSelected',
-                title: 'Order',
+                title: 'Order Details',
                 hidden: tradeSelected === undefined,
                 content: tradeSelected ? (
                     <Flex vertical>
@@ -192,7 +177,7 @@ export default () => {
                 type: FormElementType.CARD,
                 span: 24,
                 name: 'shipmentSelected',
-                title: 'Shipment',
+                title: 'Shipment Details',
                 hidden: tradeSelected === undefined,
                 content: tradeSelected?.detailedShipment ? (
                     <Flex vertical>

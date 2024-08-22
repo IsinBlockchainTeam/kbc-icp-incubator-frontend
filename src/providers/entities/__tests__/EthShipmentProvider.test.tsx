@@ -7,7 +7,6 @@ import {
     Material,
     NegotiationStatus,
     OrderTrade,
-    OrderTradeService,
     ProductCategory,
     Shipment,
     ShipmentDocumentType,

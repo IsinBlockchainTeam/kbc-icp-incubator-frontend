@@ -7,7 +7,6 @@ import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
 import { useICPName } from '@/providers/entities/ICPNameProvider';
 import { RawTrade, useEthRawTrade } from '@/providers/entities/EthRawTradeProvider';
 import { useEthShipment } from '@/providers/entities/EthShipmentProvider';
-import { AsyncComponent, AsyncComponentProps } from '@/components/AsyncComponent/AsyncComponent';
 
 jest.mock('antd', () => {
     return {
