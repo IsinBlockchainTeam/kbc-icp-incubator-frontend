@@ -11,7 +11,6 @@ import { EthEnumerableProvider } from '@/providers/entities/EthEnumerableProvide
 import { EthOfferProvider } from '@/providers/entities/EthOfferProvider';
 import { ICPNameProvider } from '@/providers/entities/ICPNameProvider';
 import { EthRawTradeProvider } from '@/providers/entities/EthRawTradeProvider';
-import { EthDocumentProvider } from '@/providers/entities/EthDocumentProvider';
 import { EthBasicTradeProvider } from '@/providers/entities/EthBasicTradeProvider';
 import { EthOrderTradeProvider } from '@/providers/entities/EthOrderTradeProvider';
 import { EthAssetOperationProvider } from '@/providers/entities/EthAssetOperationProvider';
@@ -50,7 +49,6 @@ describe('PrivateRoutes', () => {
         (EthOfferProvider as jest.Mock).mockImplementation(renderChildren);
         (ICPNameProvider as jest.Mock).mockImplementation(renderChildren);
         (EthRawTradeProvider as jest.Mock).mockImplementation(renderChildren);
-        (EthDocumentProvider as jest.Mock).mockImplementation(renderChildren);
         (EthBasicTradeProvider as jest.Mock).mockImplementation(renderChildren);
         (EthOrderTradeProvider as jest.Mock).mockImplementation(renderChildren);
         (EthAssetOperationProvider as jest.Mock).mockImplementation(renderChildren);
@@ -68,7 +66,6 @@ describe('PrivateRoutes', () => {
         expect(EthOfferProvider).toHaveBeenCalled();
         expect(ICPNameProvider).toHaveBeenCalled();
         expect(EthRawTradeProvider).toHaveBeenCalled();
-        expect(EthDocumentProvider).toHaveBeenCalled();
         expect(EthBasicTradeProvider).toHaveBeenCalled();
         expect(EthOrderTradeProvider).toHaveBeenCalled();
         expect(EthAssetOperationProvider).toHaveBeenCalled();

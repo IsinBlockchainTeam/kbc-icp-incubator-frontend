@@ -6,11 +6,10 @@ import { FormElement, FormElementType, GenericForm } from '@/components/GenericF
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { regex } from '@/constants/regex';
-import { LineRequest, DocumentType } from '@kbc-lib/coffee-trading-management-lib';
+import { LineRequest } from '@kbc-lib/coffee-trading-management-lib';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 import { BasicTradeRequest, useEthBasicTrade } from '@/providers/entities/EthBasicTradeProvider';
-import { DocumentRequest } from '@/providers/entities/EthDocumentProvider';
 
 type BasicTradeNewProps = {
     supplierAddress: string;
@@ -57,12 +56,7 @@ export const BasicTradeNew = ({
             lines: tradeLines as LineRequest[],
             name: values['name']
         };
-        const deliveryNote: DocumentRequest = {
-            content: values['certificate-of-shipping'],
-            filename: values['certificate-of-shipping'].name,
-            documentType: DocumentType.DELIVERY_NOTE
-        };
-        await saveBasicTrade(basicTrade, [deliveryNote]);
+        await saveBasicTrade(basicTrade);
         navigate(paths.TRADES);
     };
 

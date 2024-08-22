@@ -17,6 +17,7 @@ import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
 
 export type RawTrade = {
+    id: number;
     address: string;
     type: TradeType;
 };
@@ -67,22 +68,17 @@ export function EthRawTradeProvider(props: { children: ReactNode }) {
                 ...(await tradeManagerService.getTradeIdsOfSupplier(signer._address)),
                 ...(await tradeManagerService.getTradeIdsOfCommissioner(signer._address))
             ];
-            const tradeAddresses: string[] = [];
-            await Promise.allSettled(
-                tradeIds.map(async (id) =>
-                    tradeAddresses.push(await tradeManagerService.getTrade(id))
-                )
-            );
             const rawTrades: RawTrade[] = [];
             await Promise.allSettled(
-                tradeAddresses.map(async (address) => {
+                tradeIds.map(async (id) => {
+                    const address = await tradeManagerService.getTrade(id);
                     const tradeService = new TradeService(
                         new TradeDriver(signer, address),
                         documentDriver,
                         fileDriver
                     );
                     const type = await tradeService.getTradeType();
-                    rawTrades.push({ address, type });
+                    rawTrades.push({ id, address, type });
                 })
             );
             setRawTrades(rawTrades);

@@ -42,7 +42,7 @@ export const BasicTradeView = ({
             lines: [new LineRequest(productCategoryId, quantity, unit)],
             name: values['name']
         };
-        await updateBasicTrade(basicTrade.tradeId, updatedBasicTrade);
+        await updateBasicTrade(updatedBasicTrade);
 
         toggleDisabled();
         navigate(paths.TRADES);
@@ -130,7 +130,7 @@ export const BasicTradeView = ({
                                 <CheckCircleOutlined
                                     role="confirm"
                                     style={{ marginLeft: '8px' }}
-                                    onClick={() => confirmNegotiation(basicTrade.tradeId)}
+                                    onClick={() => confirmNegotiation()}
                                 />
                             </Tooltip>
                         </div>

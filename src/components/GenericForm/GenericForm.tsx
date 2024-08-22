@@ -15,7 +15,6 @@ import {
 import PDFViewer from '../PDFViewer/PDFViewer';
 import { DownloadOutlined } from '@ant-design/icons';
 import { createDownloadWindow } from '@/utils/page';
-import { DocumentContent } from '@/providers/entities/EthDocumentProvider';
 import { DocumentStatus } from '@kbc-lib/coffee-trading-management-lib';
 import { ConfirmButton } from '@/components/ConfirmButton/ConfirmButton';
 
@@ -48,6 +47,13 @@ type LabeledElement = Omit<BasicElement, 'type'> & {
     type: FormElementType.TITLE | FormElementType.TIP;
     label: ReactNode;
     marginVertical?: string;
+};
+
+export type DocumentContent = {
+    contentType: string;
+    content: Blob;
+    filename: string;
+    date: Date;
 };
 
 // type DisableableElement = Omit<LabeledElement, 'type'> & {
@@ -94,6 +100,7 @@ type EditableElement = Omit<LabeledElement, 'type'> & {
     name: string;
     defaultValue: any;
     required: boolean;
+    addOnAfter?: string;
     disabled?: boolean;
     disableValues?: (...args: any[]) => boolean;
     block?: boolean;
@@ -122,6 +129,7 @@ type Props = {
     elements: FormElement[];
     confirmText?: string;
     submittable?: boolean;
+    submitText?: string;
     onSubmit?: (values: any) => void;
 };
 
@@ -293,9 +301,11 @@ export const GenericForm = (props: Props) => {
                             type={element.type}
                             disabled={disabled}
                             placeholder={`Enter ${element.label}`}
+                            addonAfter={element.addOnAfter}
                             // defaultValue={element.defaultValue}
                             // value={element.defaultValue}
                             className="ant-input"
+                            style={{ padding: element.addOnAfter ? 0 : undefined }}
                         />
                     </Form.Item>
                 </Col>
@@ -442,7 +452,7 @@ export const GenericForm = (props: Props) => {
                     <Col span={24}>
                         <Form.Item>
                             <ConfirmButton
-                                text="Submit"
+                                text={props.submitText || 'Submit'}
                                 disabled={!areFieldsValid}
                                 confirmText={
                                     props.confirmText || 'Are you sure you want to submit?'

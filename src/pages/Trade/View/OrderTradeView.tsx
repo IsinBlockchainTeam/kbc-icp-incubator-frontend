@@ -1,16 +1,13 @@
 import {
     NegotiationStatus,
-    OrderTrade,
-    OrderLineRequest,
-    OrderLinePrice,
     OrderLine,
-    OrderStatus
+    OrderLinePrice,
+    OrderLineRequest,
+    OrderTrade
 } from '@kbc-lib/coffee-trading-management-lib';
-import { Tag, Tooltip } from 'antd';
-import OrderStatusSteps from '@/pages/Trade/OrderStatusSteps/OrderStatusSteps';
-import { CardPage } from '@/components/structure/CardPage/CardPage';
+import { Tooltip } from 'antd';
 import React, { useState } from 'react';
-import { FormElement, FormElementType } from '@/components/GenericForm/GenericForm';
+import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
 import { regex } from '@/constants/regex';
 import dayjs from 'dayjs';
 import { useSigner } from '@/providers/SignerProvider';
@@ -38,7 +35,7 @@ export const OrderTradeView = ({
     const { signer } = useSigner();
     const { productCategories } = useEthMaterial();
     const { units, fiats } = useEthEnumerable();
-    const { updateOrderTrade, confirmNegotiation, getOrderStatus } = useEthOrderTrade();
+    const { updateOrderTrade, confirmNegotiation } = useEthOrderTrade();
     const negotiationStatus = NegotiationStatus[orderTrade.negotiationStatus];
     const navigate = useNavigate();
 
@@ -83,26 +80,12 @@ export const OrderTradeView = ({
             shippingPort: values['shipping-port'],
             deliveryPort: values['delivery-port']
         };
-        await updateOrderTrade(orderTrade.tradeId, updatedOrderTrade);
+        await updateOrderTrade(updatedOrderTrade);
         toggleDisabled();
         navigate(paths.TRADES);
     };
 
     const elements: FormElement[] = [
-        {
-            type: FormElementType.TIP,
-            span: 24,
-            label: (
-                <p>
-                    This is the first stage, where the involved parties can negotiate the terms of
-                    the trade. <br />
-                    Once the negotiation is confirmed by both parties, the implementation phase will
-                    begin in which all the necessary documents must be uploaded in order to
-                    successfully complete the transaction.{' '}
-                </p>
-            ),
-            marginVertical: '1rem'
-        },
         ...commonElements,
         { type: FormElementType.TITLE, span: 24, label: 'Constraints' },
         {
@@ -336,38 +319,18 @@ export const OrderTradeView = ({
                 ),
                 buttonType: 'primary',
                 hidden: isEditing,
-                onClick: () => confirmNegotiation(orderTrade.tradeId)
+                onClick: () => confirmNegotiation()
             });
         }
     }
+
     return (
-        <CardPage
-            title={
-                <div
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                        alignItems: 'center'
-                    }}>
-                    Order
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                        <Tag color="green">
-                            {negotiationStatus !== NegotiationStatus[NegotiationStatus.CONFIRMED]
-                                ? negotiationStatus
-                                : OrderStatus[getOrderStatus(orderTrade.tradeId)]}
-                        </Tag>
-                    </div>
-                </div>
-            }>
-            <OrderStatusSteps
-                status={getOrderStatus(orderTrade.tradeId)}
-                orderTrade={orderTrade}
-                submittable={!disabled}
-                negotiationElements={elements}
-                onSubmit={onSubmit}
-            />
-        </CardPage>
+        <GenericForm
+            elements={elements}
+            confirmText="Are you sure you want to proceed?"
+            submittable={!disabled}
+            onSubmit={onSubmit}
+        />
     );
 };
 export default OrderTradeView;
