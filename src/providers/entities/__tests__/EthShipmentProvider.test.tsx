@@ -170,7 +170,8 @@ describe('EthShipmentProvider', () => {
             const detailedShipment = {
                 shipment,
                 documents: [{ id: 1, type: DocumentType.INSURANCE_CERTIFICATE }],
-                phase: ShipmentPhase.APPROVAL
+                phase: ShipmentPhase.APPROVAL,
+                orderId: 1
             };
 
             await waitFor(() => {

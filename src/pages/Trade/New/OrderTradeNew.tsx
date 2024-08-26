@@ -249,7 +249,7 @@ export const OrderTradeNew = ({
             label: 'Unit',
             required: true,
             options: units.map((unit) => ({ label: unit, value: unit })),
-            defaultValue: '',
+            defaultValue: undefined,
             disabled: false
         },
         {
@@ -269,7 +269,7 @@ export const OrderTradeNew = ({
             label: 'Fiat',
             required: true,
             options: fiats.map((fiat) => ({ label: fiat, value: fiat })),
-            defaultValue: '',
+            defaultValue: undefined,
             disabled: false
         }
     ];

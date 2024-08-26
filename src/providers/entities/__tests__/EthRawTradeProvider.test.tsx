@@ -70,7 +70,7 @@ describe('EthRawTradeProvider', () => {
         expect(getTradeType).toHaveBeenCalled();
         expect(result.current.dataLoaded).toBe(true);
         expect(result.current.rawTrades).toEqual([
-            { address: tradeAddress, type: tradeType } as RawTrade
+            { id: 1, address: tradeAddress, type: tradeType } as RawTrade
         ]);
     });
 

@@ -18,7 +18,7 @@ import {
 } from '@kbc-lib/coffee-trading-management-lib';
 import DocumentUpload from '@/pages/Documents/DocumentUpload';
 import { ConfirmButton } from '@/components/ConfirmButton/ConfirmButton';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { setParametersPath } from '@/utils/page';
 import { paths } from '@/constants/paths';
 import { credentials } from '@/constants/ssi';
@@ -36,6 +36,7 @@ type SelectedOrder = {
 
 export default () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const dispatch = useDispatch();
     const { rawTrades } = useEthRawTrade();
     const userInfo = useSelector((state: RootState) => state.userInfo);
@@ -44,6 +45,8 @@ export default () => {
     const [orders, setOrders] = useState<DetailedOrderTrade[]>([]);
     const { detailedOrderTrade, getDetailedTradesAsync } = useEthOrderTrade();
     const { detailedShipment, addDocument } = useEthShipment();
+    const selectedDocumentType: ShipmentDocumentType | undefined =
+        location.state?.selectedDocumentType;
 
     const tradeSelected: SelectedOrder | undefined = useMemo(() => {
         if (!detailedOrderTrade) return undefined;
@@ -242,6 +245,7 @@ export default () => {
                                 }
                                 onSubmit={documentSubmit}
                                 oldDocumentsInfo={tradeSelected.detailedShipment.documents}
+                                selectedDocumentType={selectedDocumentType}
                             />
                         )}
                     </Flex>

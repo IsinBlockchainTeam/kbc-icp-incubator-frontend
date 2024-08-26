@@ -151,6 +151,23 @@ describe('EthOrderTradeProvider', () => {
             (useParams as jest.Mock).mockReturnValue({ id: '1' });
         });
 
+        it('should render correctly', async () => {
+            const { result } = renderHook(() => useEthOrderTrade(), {
+                wrapper: EthOrderTradeProvider
+            });
+            await waitFor(() => {
+                expect(result.current.detailedOrderTrade).toBeNull();
+            });
+
+            expect(dispatch).toHaveBeenCalledTimes(2);
+            expect(OrderTradeService).toHaveBeenCalledTimes(1);
+            expect(getCompleteTrade).toHaveBeenCalledTimes(1);
+            expect(getNegotiationStatus).toHaveBeenCalledTimes(1);
+            expect(getShipmentAddress).toHaveBeenCalledTimes(1);
+            expect(getEscrowAddress).toHaveBeenCalledTimes(1);
+            expect(openNotification).not.toHaveBeenCalled();
+        });
+
         it('should load detailed order trade on initial render', async () => {
             const { result } = renderHook(() => useEthOrderTrade(), {
                 wrapper: EthOrderTradeProvider
@@ -486,18 +503,13 @@ describe('EthOrderTradeProvider', () => {
                 expect(result.current.detailedOrderTrade).not.toBeNull();
             });
 
-            await result.current.createShipment(dayjs().add(1, 'day').toDate(), 10, 500, 300);
+            const expiration = dayjs().add(1, 'day').toDate();
+            await result.current.createShipment(expiration, 10, 500, 300);
 
             expect(dispatch).toHaveBeenCalledTimes(6);
             expect(getCompleteTrade).toHaveBeenCalledTimes(2);
             expect(createShipment).toHaveBeenCalledTimes(1);
-            expect(createShipment).toHaveBeenNthCalledWith(
-                1,
-                dayjs().add(1, 'day').toDate(),
-                10,
-                500,
-                300
-            );
+            expect(createShipment).toHaveBeenNthCalledWith(1, expiration, 10, 500, 300);
             expect(openNotification).toHaveBeenCalled();
         });
 

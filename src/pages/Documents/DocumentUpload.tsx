@@ -18,10 +18,11 @@ type Props = {
         filename: string,
         fileContent: Blob
     ) => Promise<void>;
+    selectedDocumentType?: ShipmentDocumentType;
 };
 
 export default (props: Props) => {
-    const { documentTypes, onSubmit, oldDocumentsInfo } = props;
+    const { documentTypes, onSubmit, oldDocumentsInfo, selectedDocumentType } = props;
     const mappedDocumentsInfo = documentTypes.map((type) => ({
         type,
         info: oldDocumentsInfo.find((d) => d.type === type)
@@ -42,6 +43,7 @@ export default (props: Props) => {
             name: 'documentType',
             label: 'Document Type',
             required: true,
+            defaultValue: selectedDocumentType !== undefined ? selectedDocumentType : undefined,
             options: mappedDocumentsInfo
                 .filter(({ info }) => info?.status !== ShipmentDocumentStatus.APPROVED)
                 .map(({ type }) => ({

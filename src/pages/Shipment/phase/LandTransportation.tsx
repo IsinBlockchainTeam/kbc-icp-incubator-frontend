@@ -12,6 +12,9 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { credentials } from '@/constants/ssi';
 import { PreviewModal } from '@/components/PreviewModal/PreviewModal';
+import { useNavigate } from 'react-router-dom';
+import { setParametersPath } from '@/utils/page';
+import { paths } from '@/constants/paths';
 
 const { Paragraph } = Typography;
 
@@ -20,8 +23,8 @@ interface DataType {
     info: ShipmentDocumentInfo | null;
 }
 export const LandTransportation = () => {
-    const { detailedShipment, addDocument, getDocument, approveDocument, rejectDocument } =
-        useEthShipment();
+    const navigate = useNavigate();
+    const { detailedShipment, getDocument, approveDocument, rejectDocument } = useEthShipment();
     const [previewDocumentId, setPreviewDocumentId] = React.useState<number | null>(null);
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const isExporter = userInfo.companyClaims.role.toUpperCase() === credentials.ROLE_EXPORTER;
@@ -34,13 +37,6 @@ export const LandTransportation = () => {
         if (!previewDocumentId) return null;
         const document = await getDocument(previewDocumentId);
         return new Blob([document.content]);
-    };
-
-    // TODO: document upload will be removed from here, only in documents section
-    const onFileChange = async (info: UploadChangeParam, record: DataType) => {
-        if (info.file.status != 'uploading' && info.file.originFileObj) {
-            await addDocument(record.type, '12345', info.file.name, info.file.originFileObj);
-        }
     };
 
     const onApprove = async (record: DataType) => {
@@ -101,11 +97,17 @@ export const LandTransportation = () => {
                             </a>
                         )}
                         {isUploader && record.info?.status !== ShipmentDocumentStatus.APPROVED && (
-                            <Upload
-                                onChange={(e) => onFileChange(e, record)}
-                                showUploadList={false}>
-                                <Button icon={<UploadOutlined />}>Click to Upload</Button>
-                            </Upload>
+                            <a
+                                onClick={() =>
+                                    navigate(
+                                        setParametersPath(paths.ORDER_DOCUMENTS, {
+                                            id: detailedShipment.orderId.toString()
+                                        }),
+                                        { state: { selectedDocumentType: record.type } }
+                                    )
+                                }>
+                                Go to upload page
+                            </a>
                         )}
                         {!isUploader &&
                             record.info &&

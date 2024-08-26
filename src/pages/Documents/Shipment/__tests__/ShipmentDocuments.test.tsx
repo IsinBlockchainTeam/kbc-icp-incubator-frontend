@@ -11,7 +11,7 @@ import {
     TradeType
 } from '@kbc-lib/coffee-trading-management-lib';
 import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { credentials } from '@/constants/ssi';
 import { UserInfoState } from '@/redux/reducers/userInfoSlice';
@@ -71,6 +71,9 @@ describe('Shipment Documents', () => {
         jest.spyOn(console, 'error').mockImplementation(jest.fn());
 
         (useNavigate as jest.Mock).mockReturnValue(navigate);
+        (useLocation as jest.Mock).mockReturnValue({
+            state: { selectedDocumentType: ShipmentDocumentType.BOOKING_CONFIRMATION }
+        });
         (useDispatch as jest.Mock).mockReturnValue(dispatch);
         (useEthRawTrade as jest.Mock).mockReturnValue({ rawTrades });
         (useSelector as jest.Mock).mockReturnValue(userInfo);

@@ -16,6 +16,7 @@ export const Shipment = () => {
     const [current, setCurrent] = React.useState<ShipmentPhase>(currentPhase);
 
     useEffect(() => {
+        console.log('currentPhase', currentPhase);
         setCurrent(currentPhase);
     }, [currentPhase]);
 

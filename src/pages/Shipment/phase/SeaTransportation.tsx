@@ -36,13 +36,6 @@ export const SeaTransportation = () => {
         return new Blob([document.content]);
     };
 
-    // TODO: document upload will be removed from here, only in documents section
-    const onFileChange = async (info: UploadChangeParam, record: DataType) => {
-        if (info.file.status != 'uploading' && info.file.originFileObj) {
-            await addDocument(record.type, '1234', info.file.name, info.file.originFileObj);
-        }
-    };
-
     const onApprove = async (record: DataType) => {
         if (!record.info) return;
         await approveDocument(record.info.id);
@@ -101,11 +94,7 @@ export const SeaTransportation = () => {
                             </a>
                         )}
                         {isUploader && record.info?.status !== ShipmentDocumentStatus.APPROVED && (
-                            <Upload
-                                onChange={(e) => onFileChange(e, record)}
-                                showUploadList={false}>
-                                <Button icon={<UploadOutlined />}>Click to Upload</Button>
-                            </Upload>
+                            <a>Go to upload page</a>
                         )}
                         {!isUploader &&
                             record.info &&

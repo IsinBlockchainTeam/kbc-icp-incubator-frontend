@@ -276,7 +276,9 @@ export const GenericForm = (props: Props) => {
                         labelCol={{ span: 24 }}
                         label={element.label}
                         name={element.name}
-                        initialValue={element.defaultValue ? element.defaultValue : undefined}
+                        initialValue={
+                            element.defaultValue !== undefined ? element.defaultValue : undefined
+                        }
                         rules={[
                             {
                                 required: element.required,

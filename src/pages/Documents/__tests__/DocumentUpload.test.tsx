@@ -37,6 +37,19 @@ describe('Document Upload', () => {
         expect(elements[2].label).toEqual('Document');
     });
 
+    it('should render correctly with state', async () => {
+        render(
+            <DocumentUpload
+                documentTypes={documentTypes}
+                oldDocumentsInfo={oldDocumentsInfo}
+                onSubmit={onSubmit}
+                selectedDocumentType={ShipmentDocumentType.BOOKING_CONFIRMATION}
+            />
+        );
+        const elements = (GenericForm as jest.Mock).mock.calls[0][0].elements;
+        expect(elements[1].defaultValue).toEqual(ShipmentDocumentType.BOOKING_CONFIRMATION);
+    });
+
     it('should submit correctly', async () => {
         render(
             <DocumentUpload

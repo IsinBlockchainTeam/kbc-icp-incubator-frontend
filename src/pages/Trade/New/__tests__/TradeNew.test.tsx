@@ -4,8 +4,8 @@ import { useSigner } from '@/providers/SignerProvider';
 import { TradeNew } from '@/pages/Trade/New/TradeNew';
 import { OrderTradeNew } from '@/pages/Trade/New/OrderTradeNew';
 import { paths } from '@/constants/paths';
-import { Wallet } from 'ethers';
 import { useICPName } from '@/providers/entities/ICPNameProvider';
+import { JsonRpcSigner } from '@ethersproject/providers';
 
 jest.mock('react-router-dom');
 jest.mock('@/providers/SignerProvider');

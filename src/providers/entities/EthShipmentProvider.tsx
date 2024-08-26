@@ -70,6 +70,7 @@ export type DetailedShipment = {
     shipment: Shipment;
     documents: ShipmentDocumentInfo[];
     phase: ShipmentPhase;
+    orderId: number;
 };
 export const ShipmentDocumentRules: {
     [key in ShipmentDocumentType]: { name: string; isExporterUploader: boolean };
@@ -156,7 +157,8 @@ export function EthShipmentProvider(props: { children: ReactNode }) {
             setDetailedShipment({
                 shipment,
                 documents,
-                phase
+                phase,
+                orderId: detailedOrderTrade!.trade.tradeId
             });
         } catch (e) {
             openNotification(
@@ -361,6 +363,7 @@ export function EthShipmentProvider(props: { children: ReactNode }) {
                 NOTIFICATION_DURATION
             );
         } catch (e) {
+            console.log('error: ', e);
             openNotification(
                 'Error',
                 SHIPMENT_MESSAGE.REJECT_DOCUMENT.ERROR,

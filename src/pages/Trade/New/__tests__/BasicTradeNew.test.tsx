@@ -75,22 +75,13 @@ describe('Basic Trade New', () => {
         };
         await onSubmit(values);
         expect(saveBasicTrade).toHaveBeenCalledTimes(1);
-        expect(saveBasicTrade).toHaveBeenCalledWith(
-            {
-                supplier: supplierAddress,
-                customer: customerAddress,
-                commissioner: customerAddress,
-                lines: [new LineRequest(2, 10, 'unit2'), new LineRequest(1, 5, 'unit1')],
-                name: 'name'
-            },
-            [
-                {
-                    content: values['certificate-of-shipping'],
-                    filename: 'file.pdf',
-                    documentType: DocumentType.DELIVERY_NOTE
-                }
-            ]
-        );
+        expect(saveBasicTrade).toHaveBeenCalledWith({
+            supplier: supplierAddress,
+            customer: customerAddress,
+            commissioner: customerAddress,
+            lines: [new LineRequest(2, 10, 'unit2'), new LineRequest(1, 5, 'unit1')],
+            name: 'name'
+        });
         expect(navigate).toHaveBeenCalledTimes(1);
     });
     it('should navigate to Trades when clicking on Delete button', async () => {
