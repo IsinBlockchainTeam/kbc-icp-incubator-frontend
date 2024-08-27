@@ -28,14 +28,11 @@ export const Trades = () => {
             dataIndex: 'id',
             sorter: (a, b) => a.id - b.id,
             sortDirections: ['descend'],
-            render: (id, { type }) => {
-                return (
-                    <Link
-                        to={setParametersPath(`${paths.TRADE_VIEW}?type=:type`, { id }, { type })}>
-                        {id}
-                    </Link>
-                );
-            }
+            render: (id, { type }) => (
+                <Link to={setParametersPath(`${paths.TRADE_VIEW}?type=:type`, { id }, { type })}>
+                    {id}
+                </Link>
+            )
         },
         {
             title: 'Supplier',

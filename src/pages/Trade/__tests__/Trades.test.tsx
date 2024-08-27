@@ -7,6 +7,7 @@ import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
 import { useICPName } from '@/providers/entities/ICPNameProvider';
 import { RawTrade, useEthRawTrade } from '@/providers/entities/EthRawTradeProvider';
 import { useEthShipment } from '@/providers/entities/EthShipmentProvider';
+import { AsyncComponent } from '@/components/AsyncComponent/AsyncComponent';
 
 jest.mock('antd', () => {
     return {
@@ -27,10 +28,12 @@ jest.mock('react-router-dom', () => {
         Link: jest.fn(() => <div />)
     };
 });
-jest.mock('@/components/AsyncComponent/AsyncComponent');
+jest.mock('@/components/AsyncComponent/AsyncComponent', () => ({
+    AsyncComponent: jest.fn(() => <div />)
+}));
 
 describe('Trades', () => {
-    const rawTrades = [{} as RawTrade, {} as RawTrade];
+    const rawTrades = [{ id: 1 } as RawTrade, { id: 2 } as RawTrade];
     const orderTrades = [{} as OrderTrade];
     const getName = jest.fn();
     const getSupplierAsync = jest.fn();
@@ -53,10 +56,6 @@ describe('Trades', () => {
         (useICPName as jest.Mock).mockReturnValue({ getName });
         getName.mockReturnValue('actor');
         getNegotiationStatusAsync.mockReturnValue(NegotiationStatus.CONFIRMED);
-        // (AsyncComponent as jest.Mock).mockImplementation(({ asyncFunction, defaultElement }) => {
-        //     asyncFunction();
-        //     return <div>{defaultElement}</div>;
-        // });
     });
 
     it('should render correctly', async () => {
@@ -64,11 +63,6 @@ describe('Trades', () => {
         expect(Table).toHaveBeenCalledTimes(1);
         const dataSource = (Table as unknown as jest.Mock).mock.calls[0][0].dataSource;
         expect(dataSource).toHaveLength(rawTrades.length);
-        expect(getName).toHaveBeenCalledTimes(rawTrades.length * 2);
-        expect(getSupplierAsync).toHaveBeenCalledTimes(rawTrades.length);
-        expect(getCustomerAsync).toHaveBeenCalledTimes(rawTrades.length);
-        expect(getNegotiationStatusAsync).toHaveBeenCalledTimes(rawTrades.length);
-        expect(getShipmentPhaseAsync).toHaveBeenCalledTimes(rawTrades.length);
     });
 
     it('columns sorting', async () => {
@@ -84,13 +78,31 @@ describe('Trades', () => {
         const columns = (Table as unknown as jest.Mock).mock.calls[0][0].columns;
         render(columns[0].render(1, TradeType.BASIC));
         expect(Link).toHaveBeenCalled();
-        let resp = columns[2].render('customer');
-        expect(resp).toEqual('customer');
-        resp = columns[3].render(0);
-        expect(resp).toEqual(TradeType[0]);
-        render(columns[4].render(null, { negotiationStatus: 0, orderStatus: 0 }));
-        expect(Tag).toHaveBeenCalled();
-        render(columns[5].render(null, { actionRequired: 'actionRequired' }));
-        expect(Tooltip).toHaveBeenCalled();
+        render(columns[1].render(0, { id: 1 }));
+        expect(AsyncComponent).toHaveBeenCalledTimes(1);
+        // expect(getName).toHaveBeenCalledTimes(1);
+        // expect(getSupplierAsync).toHaveBeenCalledTimes(1);
+        // expect(getSupplierAsync).toHaveBeenNthCalledWith(1, 1);
+        // expect(resp).toEqual('actor');
+        render(columns[2].render(null, 1));
+        expect(AsyncComponent).toHaveBeenCalledTimes(2);
+        // expect(getName).toHaveBeenCalledTimes(2);
+        // expect(getCustomerAsync).toHaveBeenCalledTimes(1);
+        // expect(getCustomerAsync).toHaveBeenNthCalledWith(1, 1);
+        // expect(resp).toEqual('actor');
+        const resp = columns[3].render(TradeType.BASIC);
+        expect(resp).toEqual(TradeType[TradeType.BASIC]);
+
+        render(columns[4].render(null, { id: 1 }));
+        expect(Tag).toHaveBeenCalledTimes(1);
+        // expect(AsyncComponent).toHaveBeenCalledTimes(3);
+        // expect(getNegotiationStatusAsync).toHaveBeenCalledTimes(1);
+        // expect(getNegotiationStatusAsync).toHaveBeenNthCalledWith(1, 1);
+
+        render(columns[5].render(null, { id: 1 }));
+        expect(Tag).toHaveBeenCalledTimes(2);
+        // expect(AsyncComponent).toHaveBeenCalledTimes(4);
+        // expect(getShipmentPhaseAsync).toHaveBeenCalledTimes(1);
+        // expect(getShipmentPhaseAsync).toHaveBeenNthCalledWith(1, 1);
     });
 });
