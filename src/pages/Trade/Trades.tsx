@@ -10,7 +10,7 @@ import {
 } from '@kbc-lib/coffee-trading-management-lib';
 import { setParametersPath } from '@/utils/page';
 import { paths } from '@/constants/paths';
-import { useICPOrganization } from '@/providers/entities/ICPNameProvider';
+import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
 import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
 import { useEthShipment } from '@/providers/entities/EthShipmentProvider';
 import { RawTrade, useEthRawTrade } from '@/providers/entities/EthRawTradeProvider';

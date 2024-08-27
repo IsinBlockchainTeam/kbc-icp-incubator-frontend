@@ -44,7 +44,7 @@ jest.mock('@/utils/file', () => ({
 jest.mock('@/providers/entities/EthEscrowProvider');
 jest.mock('@/providers/ICPProvider');
 jest.mock('@/providers/entities/EthOrderTradeProvider');
-jest.mock('@/providers/entities/ICPNameProvider');
+jest.mock('@/providers/entities/ICPOrganizationProvider');
 jest.mock('react-router-dom');
 
 describe('EthShipmentProvider', () => {

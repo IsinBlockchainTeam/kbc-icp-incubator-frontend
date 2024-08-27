@@ -4,7 +4,7 @@ import { useEthRawTrade } from '@/providers/entities/EthRawTradeProvider';
 import { DetailedOrderTrade, useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Alert, Empty, Flex, Tag } from 'antd';
-import { useICPName } from '@/providers/entities/ICPNameProvider';
+import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
 import {
     DetailedShipment,
     ShipmentDocumentRules,
@@ -41,7 +41,7 @@ export default () => {
     const { rawTrades } = useEthRawTrade();
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const isExporter = userInfo.companyClaims.role.toUpperCase() === credentials.ROLE_EXPORTER;
-    const { getName } = useICPName();
+    const { getCompany } = useICPOrganization();
     const [orders, setOrders] = useState<DetailedOrderTrade[]>([]);
     const { detailedOrderTrade, getDetailedTradesAsync } = useEthOrderTrade();
     const { detailedShipment, addDocument } = useEthShipment();
@@ -102,7 +102,9 @@ export default () => {
     };
 
     const computeCounterpart = (trade: OrderTrade) => {
-        return isExporter ? getName(trade.commissioner) : getName(trade.supplier);
+        return isExporter
+            ? getCompany(trade.commissioner).legalName
+            : getCompany(trade.supplier).legalName;
     };
 
     const documentSubmit = async (

@@ -16,7 +16,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { credentials } from '@/constants/ssi';
 import { UserInfoState } from '@/redux/reducers/userInfoSlice';
 import { RawTrade, useEthRawTrade } from '@/providers/entities/EthRawTradeProvider';
-import { useICPName } from '@/providers/entities/ICPNameProvider';
+import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
 import { useEthShipment } from '@/providers/entities/EthShipmentProvider';
 import { FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
 
@@ -25,7 +25,7 @@ jest.mock('antd', () => ({
     GenericForm: jest.fn()
 }));
 jest.mock('@kbc-lib/coffee-trading-management-lib');
-jest.mock('@/providers/entities/ICPNameProvider');
+jest.mock('@/providers/entities/ICPOrganizationProvider');
 jest.mock('@/providers/entities/EthOrderTradeProvider');
 jest.mock('@/providers/entities/EthRawTradeProvider');
 jest.mock('@/providers/entities/EthShipmentProvider');
@@ -36,7 +36,7 @@ jest.mock('react-redux');
 describe('Shipment Documents', () => {
     const navigate = jest.fn();
     const dispatch = jest.fn();
-    const getName = jest.fn();
+    const getCompany = jest.fn();
     const addDocument = jest.fn();
     const getDetailedTradesAsync = jest.fn();
 
@@ -77,7 +77,7 @@ describe('Shipment Documents', () => {
         (useDispatch as jest.Mock).mockReturnValue(dispatch);
         (useEthRawTrade as jest.Mock).mockReturnValue({ rawTrades });
         (useSelector as jest.Mock).mockReturnValue(userInfo);
-        (useICPName as jest.Mock).mockReturnValue({ getName });
+        (useICPOrganization as jest.Mock).mockReturnValue({ getCompany });
         (useEthOrderTrade as jest.Mock).mockReturnValue({
             detailedOrderTrade,
             getDetailedTradesAsync
@@ -88,6 +88,9 @@ describe('Shipment Documents', () => {
             { trade: { tradeId: 1 } },
             { trade: { tradeId: 2 } }
         ]);
+        getCompany.mockReturnValue({
+            legalName: 'legalName'
+        });
     });
 
     afterEach(() => {
@@ -118,6 +121,6 @@ describe('Shipment Documents', () => {
         expect(elements[2].hidden).toEqual(false);
 
         expect(getDetailedTradesAsync).toHaveBeenCalledTimes(1);
-        expect(getName).toHaveBeenCalledTimes(1);
+        expect(getCompany).toHaveBeenCalledTimes(1);
     });
 });

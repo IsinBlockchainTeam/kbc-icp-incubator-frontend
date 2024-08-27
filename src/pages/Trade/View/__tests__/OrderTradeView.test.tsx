@@ -99,7 +99,7 @@ describe('Basic Trade View', () => {
         );
         expect(GenericForm).toHaveBeenCalledTimes(1);
         const elements = (GenericForm as jest.Mock).mock.calls[0][0].elements;
-        expect(elements).toHaveLength(21);
+        expect(elements).toHaveLength(22);
         expect(PDFGenerationView).toHaveBeenCalledTimes(1);
         expect(PDFGenerationView).toHaveBeenCalledWith(
             {
@@ -198,10 +198,9 @@ describe('Basic Trade View', () => {
                 commonElements={commonElements}
             />
         );
-        const negotiationElements = (OrderStatusSteps as jest.Mock).mock.calls[0][0]
-            .negotiationElements;
+        const elements = (GenericForm as jest.Mock).mock.calls[0][0].elements;
         act(() => {
-            negotiationElements[22].onClick();
+            elements[21].onClick();
         });
         expect(PDFGenerationView).toHaveBeenCalledTimes(2);
         expect((PDFGenerationView as jest.Mock).mock.calls[1][0].visible).toBe(true);

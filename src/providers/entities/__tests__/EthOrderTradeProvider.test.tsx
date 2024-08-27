@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, RenderHookResult, waitFor } from '@testing-library/react';
 import {
     EthOrderTradeProvider,
     OrderTradeRequest,
@@ -119,12 +119,6 @@ describe('EthOrderTradeProvider', () => {
         }));
         (useSigner as jest.Mock).mockReturnValue({ signer, waitForTransactions });
         (useEthRawTrade as jest.Mock).mockReturnValue({ rawTrades });
-        (useEthDocument as jest.Mock).mockReturnValue({
-            validateDocument,
-            uploadDocument,
-            getDocumentDuty,
-            getDocumentDetailMap
-        });
         (useICPOrganization as jest.Mock).mockReturnValue({
             getCompany
         });
@@ -178,9 +172,13 @@ describe('EthOrderTradeProvider', () => {
         });
 
         it('should load detailed order trade on initial render', async () => {
-            const { result } = renderHook(() => useEthOrderTrade(), {
-                wrapper: EthOrderTradeProvider
-            });
+            let result: any;
+            await act(
+                async () =>
+                    ({ result } = renderHook(() => useEthOrderTrade(), {
+                        wrapper: EthOrderTradeProvider
+                    }))
+            );
             const detailedOrderTrade = {
                 trade: orderTrade,
                 service: MockedOrderTradeService,
@@ -188,10 +186,11 @@ describe('EthOrderTradeProvider', () => {
                 shipmentAddress: '0xshipment',
                 escrowAddress: '0xescrow'
             };
-            await waitFor(() => {
-                expect(result.current.detailedOrderTrade).toEqual(detailedOrderTrade);
-            });
+            // await waitFor(() => {
+            //     expect(result.result.current.detailedOrderTrade).not.toBeNull();
+            // });
 
+            expect(result.current.detailedOrderTrade).toEqual(detailedOrderTrade);
             expect(dispatch).toHaveBeenCalledTimes(2);
             expect(OrderTradeService).toHaveBeenCalledTimes(1);
             expect(getCompleteTrade).toHaveBeenCalledTimes(1);

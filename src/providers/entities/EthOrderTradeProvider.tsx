@@ -26,7 +26,7 @@ import { getICPCanisterURL } from '@/utils/icp';
 import { ICP } from '@/constants/icp';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { RootState } from '@/redux/store';
-import { useICPOrganization } from '@/providers/entities/ICPNameProvider';
+import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
 import { requestPath } from '@/constants/url';
 import { useParams } from 'react-router-dom';
 
