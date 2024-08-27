@@ -12,6 +12,9 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { credentials } from '@/constants/ssi';
 import { PreviewModal } from '@/components/PreviewModal/PreviewModal';
+import { setParametersPath } from '@/utils/page';
+import { paths } from '@/constants/paths';
+import { useNavigate } from 'react-router-dom';
 
 const { Paragraph } = Typography;
 
@@ -20,6 +23,7 @@ interface DataType {
     info: ShipmentDocumentInfo | null;
 }
 export const SeaTransportation = () => {
+    const navigate = useNavigate();
     const { detailedShipment, addDocument, getDocument, approveDocument, rejectDocument } =
         useEthShipment();
     const [previewDocumentId, setPreviewDocumentId] = React.useState<number | null>(null);
@@ -94,7 +98,17 @@ export const SeaTransportation = () => {
                             </a>
                         )}
                         {isUploader && record.info?.status !== ShipmentDocumentStatus.APPROVED && (
-                            <a>Go to upload page</a>
+                            <a
+                                onClick={() =>
+                                    navigate(
+                                        setParametersPath(paths.ORDER_DOCUMENTS, {
+                                            id: detailedShipment.orderId.toString()
+                                        }),
+                                        { state: { selectedDocumentType: record.type } }
+                                    )
+                                }>
+                                Go to upload page
+                            </a>
                         )}
                         {!isUploader &&
                             record.info &&

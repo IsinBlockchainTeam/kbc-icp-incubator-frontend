@@ -1,4 +1,3 @@
-
 import { act, renderHook, waitFor } from '@testing-library/react';
 import {
     BasicTradeRequest,
@@ -14,6 +13,7 @@ import {
     LineRequest,
     Material,
     ProductCategory,
+    RoleProof,
     TradeManagerService,
     TradeType
 } from '@kbc-lib/coffee-trading-management-lib';
@@ -58,7 +58,8 @@ describe('EthBasicTradeProvider', () => {
 
     const documentInfo = { id: 1 } as DocumentInfo;
     const rawTrades = [{ id: 1, address: '0x123', type: TradeType.BASIC } as RawTrade];
-    const userInfo = { companyClaims: { organizationId: '1' } } as UserInfoState;
+    const roleProof = { signedProof: 'signedProof', delegator: 'delegator' };
+    const userInfo = { companyClaims: { organizationId: '1' }, roleProof } as UserInfoState;
     const basicTrade = {
         tradeId: 1,
         externalUrl: 'externalUrl',
@@ -81,7 +82,7 @@ describe('EthBasicTradeProvider', () => {
             registerBasicTrade
         }));
         (useDispatch as jest.Mock).mockReturnValue(dispatch);
-        (useSelector as jest.Mock).mockReturnValue(userInfo);
+        (useSelector as jest.Mock).mockImplementation((fn) => fn({ userInfo }));
         (useSigner as jest.Mock).mockReturnValue({ signer, waitForTransactions });
         (useEthRawTrade as jest.Mock).mockReturnValue({ rawTrades });
         getDocumentsByType.mockResolvedValue([documentInfo]);
@@ -158,6 +159,7 @@ describe('EthBasicTradeProvider', () => {
         expect(getICPCanisterURL).toHaveBeenCalledTimes(1);
         expect(registerBasicTrade).toHaveBeenCalledTimes(1);
         expect(registerBasicTrade).toHaveBeenCalledWith(
+            roleProof,
             basicTradeRequest.supplier,
             basicTradeRequest.customer,
             basicTradeRequest.commissioner,
@@ -226,9 +228,10 @@ describe('EthBasicTradeProvider', () => {
 
         expect(dispatch).toHaveBeenCalledTimes(4);
         expect(setName).toHaveBeenCalledTimes(1);
-        expect(setName).toHaveBeenCalledWith(basicTradeRequest.name);
+        expect(setName).toHaveBeenCalledWith(roleProof, basicTradeRequest.name);
         expect(updateLine).toHaveBeenCalledTimes(1);
         expect(updateLine).toHaveBeenCalledWith(
+            roleProof,
             new Line(
                 basicTrade.lines[0].id,
                 basicTrade.lines[0].material,
@@ -269,7 +272,7 @@ describe('EthBasicTradeProvider', () => {
 
         expect(dispatch).toHaveBeenCalledTimes(2);
         expect(setName).toHaveBeenCalledTimes(1);
-        expect(setName).toHaveBeenCalledWith(basicTradeRequest.name);
+        expect(setName).toHaveBeenCalledWith(roleProof, basicTradeRequest.name);
         expect(updateLine).not.toHaveBeenCalled();
         expect(openNotification).toHaveBeenCalled();
     });

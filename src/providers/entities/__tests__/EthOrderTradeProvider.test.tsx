@@ -15,6 +15,7 @@ import {
     OrderTrade,
     OrderTradeService,
     ProductCategory,
+    RoleProof,
     TradeManagerService,
     TradeType
 } from '@kbc-lib/coffee-trading-management-lib';
@@ -87,7 +88,8 @@ describe('EthOrderTradeProvider', () => {
     };
 
     const rawTrades = [{ id: 1, address: '0x123', type: TradeType.ORDER } as RawTrade];
-    const userInfo = { companyClaims: { organizationId: '1' } } as UserInfoState;
+    const roleProof: RoleProof = { delegator: 'delegator', signedProof: 'signedProof' };
+    const userInfo = { companyClaims: { organizationId: '1' }, roleProof } as UserInfoState;
     const orderTrade = {
         tradeId: 1,
         externalUrl: 'externalUrl',
@@ -123,7 +125,7 @@ describe('EthOrderTradeProvider', () => {
         (useICP as jest.Mock).mockReturnValue({
             fileDriver: {} as ICPFileDriver
         });
-        (useSelector as jest.Mock).mockReturnValue(userInfo);
+        (useSelector as jest.Mock).mockImplementation((fn) => fn({ userInfo }));
         (getICPCanisterURL as jest.Mock).mockReturnValue('icpCanisterUrl');
         (useEthMaterial as jest.Mock).mockReturnValue({
             productCategories
@@ -225,6 +227,7 @@ describe('EthOrderTradeProvider', () => {
             expect(dispatch).toHaveBeenCalledTimes(2);
             expect(registerOrderTrade).toHaveBeenCalledTimes(1);
             expect(registerOrderTrade).toHaveBeenCalledWith(
+                roleProof,
                 orderTradeRequest.supplier,
                 orderTradeRequest.customer,
                 orderTradeRequest.commissioner,
@@ -250,7 +253,7 @@ describe('EthOrderTradeProvider', () => {
             expect(waitForTransactions).toHaveBeenCalledTimes(1);
             expect(OrderTradeService).toHaveBeenCalledTimes(1);
             expect(addLine).toHaveBeenCalledTimes(1);
-            expect(addLine).toHaveBeenCalledWith(orderTradeRequest.lines[0]);
+            expect(addLine).toHaveBeenCalledWith(roleProof, orderTradeRequest.lines[0]);
             expect(openNotification).toHaveBeenCalled();
         });
         it('should handle save order trade failure', async () => {
@@ -328,15 +331,31 @@ describe('EthOrderTradeProvider', () => {
             await result.current.updateOrderTrade(orderTradeRequest);
 
             expect(dispatch).toHaveBeenCalledTimes(6);
-            expect(updatePaymentDeadline).toHaveBeenCalledWith(orderTradeRequest.paymentDeadline);
+            expect(updatePaymentDeadline).toHaveBeenCalledWith(
+                roleProof,
+                orderTradeRequest.paymentDeadline
+            );
             expect(updateDocumentDeliveryDeadline).toHaveBeenCalledWith(
+                roleProof,
                 orderTradeRequest.documentDeliveryDeadline
             );
-            expect(updateArbiter).toHaveBeenCalledWith(orderTradeRequest.arbiter);
-            expect(updateShippingDeadline).toHaveBeenCalledWith(orderTradeRequest.shippingDeadline);
-            expect(updateDeliveryDeadline).toHaveBeenCalledWith(orderTradeRequest.deliveryDeadline);
-            expect(updateAgreedAmount).toHaveBeenCalledWith(orderTradeRequest.agreedAmount);
-            expect(updateTokenAddress).toHaveBeenCalledWith(orderTradeRequest.tokenAddress);
+            expect(updateArbiter).toHaveBeenCalledWith(roleProof, orderTradeRequest.arbiter);
+            expect(updateShippingDeadline).toHaveBeenCalledWith(
+                roleProof,
+                orderTradeRequest.shippingDeadline
+            );
+            expect(updateDeliveryDeadline).toHaveBeenCalledWith(
+                roleProof,
+                orderTradeRequest.deliveryDeadline
+            );
+            expect(updateAgreedAmount).toHaveBeenCalledWith(
+                roleProof,
+                orderTradeRequest.agreedAmount
+            );
+            expect(updateTokenAddress).toHaveBeenCalledWith(
+                roleProof,
+                orderTradeRequest.tokenAddress
+            );
             expect(updateLine).toHaveBeenCalledTimes(1);
             expect(getCompleteTrade).toHaveBeenCalledTimes(2);
             expect(openNotification).toHaveBeenCalled();
@@ -378,7 +397,10 @@ describe('EthOrderTradeProvider', () => {
             await result.current.updateOrderTrade(orderTradeRequest);
 
             expect(dispatch).toHaveBeenCalledTimes(2);
-            expect(updatePaymentDeadline).toHaveBeenCalledWith(orderTradeRequest.paymentDeadline);
+            expect(updatePaymentDeadline).toHaveBeenCalledWith(
+                roleProof,
+                orderTradeRequest.paymentDeadline
+            );
             expect(updateDocumentDeliveryDeadline).not.toHaveBeenCalled();
             expect(openNotification).toHaveBeenCalled();
         });
@@ -401,6 +423,7 @@ describe('EthOrderTradeProvider', () => {
 
             expect(dispatch).toHaveBeenCalledTimes(6);
             expect(confirmOrder).toHaveBeenCalledTimes(1);
+            expect(confirmOrder).toHaveBeenCalledWith(roleProof);
             expect(openNotification).toHaveBeenCalled();
         });
         it('should handle confirm order trade negotiation failure', async () => {
@@ -509,7 +532,7 @@ describe('EthOrderTradeProvider', () => {
             expect(dispatch).toHaveBeenCalledTimes(6);
             expect(getCompleteTrade).toHaveBeenCalledTimes(2);
             expect(createShipment).toHaveBeenCalledTimes(1);
-            expect(createShipment).toHaveBeenNthCalledWith(1, expiration, 10, 500, 300);
+            expect(createShipment).toHaveBeenNthCalledWith(1, roleProof, expiration, 10, 500, 300);
             expect(openNotification).toHaveBeenCalled();
         });
 
@@ -561,6 +584,7 @@ describe('EthOrderTradeProvider', () => {
             await result.current.getSupplierAsync(1);
             expect(OrderTradeService).toHaveBeenCalledTimes(1);
             expect(getCompleteTrade).toHaveBeenCalled();
+            expect(getCompleteTrade).toHaveBeenCalledWith(roleProof);
         });
 
         it('should handle get order supplier failure - order not found', async () => {
@@ -582,6 +606,7 @@ describe('EthOrderTradeProvider', () => {
             await result.current.getCustomerAsync(1);
             expect(OrderTradeService).toHaveBeenCalledTimes(1);
             expect(getCompleteTrade).toHaveBeenCalled();
+            expect(getCompleteTrade).toHaveBeenCalledWith(roleProof);
         });
 
         it('should handle get order customer failure - order not found', async () => {

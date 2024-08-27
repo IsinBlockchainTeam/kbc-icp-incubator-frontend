@@ -8,6 +8,7 @@ import {
     NegotiationStatus,
     OrderTrade,
     ProductCategory,
+    RoleProof,
     Shipment,
     ShipmentDocumentType,
     ShipmentEvaluationStatus,
@@ -72,7 +73,8 @@ describe('EthShipmentProvider', () => {
     const loadTokenDetails = jest.fn();
 
     const rawTrades = [{ id: 1, address: '0x123', type: TradeType.ORDER } as RawTrade];
-    const userInfo = { companyClaims: { organizationId: '1' } } as UserInfoState;
+    const roleProof: RoleProof = { delegator: 'delegator', signedProof: 'signedProof' };
+    const userInfo = { companyClaims: { organizationId: '1' }, roleProof } as UserInfoState;
     const orderTrade = {
         tradeId: 1,
         externalUrl: 'externalUrl',
@@ -134,7 +136,7 @@ describe('EthShipmentProvider', () => {
         (useICP as jest.Mock).mockReturnValue({
             fileDriver: {} as ICPFileDriver
         });
-        (useSelector as jest.Mock).mockReturnValue(userInfo);
+        (useSelector as jest.Mock).mockImplementation((fn) => fn({ userInfo }));
         (getICPCanisterURL as jest.Mock).mockReturnValue('icpCanisterUrl');
         (useEthEscrow as jest.Mock).mockReturnValue({
             loadEscrowDetails,
@@ -203,6 +205,7 @@ describe('EthShipmentProvider', () => {
             expect(updateShipment).toHaveBeenCalledTimes(1);
             expect(updateShipment).toHaveBeenNthCalledWith(
                 1,
+                roleProof,
                 updatedExpirationDate,
                 200,
                 400,
@@ -241,6 +244,7 @@ describe('EthShipmentProvider', () => {
 
             expect(dispatch).toHaveBeenCalledTimes(6);
             expect(approveShipment).toHaveBeenCalledTimes(1);
+            expect(approveShipment).toHaveBeenCalledWith(roleProof);
             expect(getShipment).toHaveBeenCalledTimes(2);
             expect(openNotification).toHaveBeenCalledTimes(1);
         });
@@ -277,7 +281,7 @@ describe('EthShipmentProvider', () => {
             expect(tokenApprove).toHaveBeenCalledTimes(1);
             expect(tokenApprove).toHaveBeenCalledWith('0x456', 2000);
             expect(depositFunds).toHaveBeenCalledTimes(1);
-            expect(depositFunds).toHaveBeenCalledWith(2000);
+            expect(depositFunds).toHaveBeenCalledWith(roleProof, 2000);
             expect(loadEscrowDetails).toHaveBeenCalledTimes(1);
             expect(loadTokenDetails).toHaveBeenCalledTimes(1);
             expect(getShipment).toHaveBeenCalledTimes(2);
@@ -314,7 +318,7 @@ describe('EthShipmentProvider', () => {
 
             expect(dispatch).toHaveBeenCalledTimes(4);
             expect(getDocument).toHaveBeenCalledTimes(1);
-            expect(getDocument).toHaveBeenCalledWith(1);
+            expect(getDocument).toHaveBeenCalledWith(roleProof, 1);
         });
         it('should handle a failure when getting a document', async () => {
             const { result } = renderHook(() => useEthShipment(), {
@@ -354,6 +358,7 @@ describe('EthShipmentProvider', () => {
             expect(dispatch).toHaveBeenCalledTimes(6);
             expect(addDocument).toHaveBeenCalledTimes(1);
             expect(addDocument).toHaveBeenCalledWith(
+                roleProof,
                 ShipmentDocumentType.BOOKING_CONFIRMATION,
                 'refId',
                 new Uint8Array(
@@ -402,7 +407,7 @@ describe('EthShipmentProvider', () => {
             await result.current.approveDocument(1);
             expect(dispatch).toHaveBeenCalledTimes(6);
             expect(approveDocument).toHaveBeenCalledTimes(1);
-            expect(approveDocument).toHaveBeenCalledWith(1);
+            expect(approveDocument).toHaveBeenCalledWith(roleProof, 1);
             expect(getShipment).toHaveBeenCalledTimes(2);
             expect(openNotification).toHaveBeenCalledTimes(1);
         });
@@ -435,7 +440,7 @@ describe('EthShipmentProvider', () => {
             await result.current.rejectDocument(1);
             expect(dispatch).toHaveBeenCalledTimes(6);
             expect(rejectDocument).toHaveBeenCalledTimes(1);
-            expect(rejectDocument).toHaveBeenCalledWith(1);
+            expect(rejectDocument).toHaveBeenCalledWith(roleProof, 1);
             expect(getShipment).toHaveBeenCalledTimes(2);
             expect(openNotification).toHaveBeenCalledTimes(1);
         });
