@@ -1,7 +1,7 @@
 import { renderHook, act } from '@testing-library/react';
 import { EthRelationshipProvider, useEthRelationship } from '../EthRelationshipProvider';
 import { Relationship, RelationshipService } from '@kbc-lib/coffee-trading-management-lib';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useSigner } from '@/providers/SignerProvider';
 import { openNotification } from '@/utils/notification';
 import { JsonRpcSigner } from '@ethersproject/providers';
@@ -30,6 +30,10 @@ describe('EthRelationshipProvider', () => {
         (useSigner as jest.Mock).mockReturnValue({ signer });
         getRelationshipIdsByCompany.mockResolvedValue(relationshipIds);
         getRelationshipInfo.mockResolvedValue(relationship);
+        (useSelector as jest.Mock).mockReturnValue({
+            signedProof: 'signedProof',
+            delegator: 'delegator'
+        });
     });
 
     it('should throw error if hook is used outside the provider', async () => {

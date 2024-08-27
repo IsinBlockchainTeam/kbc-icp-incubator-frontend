@@ -31,6 +31,10 @@ describe('userInfoSlice', () => {
             telephone: 'telephone',
             role: 'role',
             image: 'image'
+        },
+        roleProof: {
+            signedProof: 'signedProof',
+            delegator: 'delegator'
         }
     };
     it('should update user info', () => {
@@ -44,6 +48,7 @@ describe('userInfoSlice', () => {
         expect(nextState.subjectDid).toBe(userInfo.subjectDid);
         expect(nextState.companyClaims).toBe(userInfo.companyClaims);
         expect(nextState.employeeClaims).toBe(userInfo.employeeClaims);
+        expect(nextState.roleProof).toBe(userInfo.roleProof);
     });
     it('should reset user info', () => {
         const action = resetUserInfo();
@@ -53,5 +58,6 @@ describe('userInfoSlice', () => {
         expect(nextState.subjectDid).toBe(initialState.subjectDid);
         expect(nextState.companyClaims).toBe(initialState.companyClaims);
         expect(nextState.employeeClaims).toBe(initialState.employeeClaims);
+        expect(nextState.roleProof).toBe(initialState.roleProof);
     });
 });

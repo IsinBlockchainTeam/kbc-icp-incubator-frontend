@@ -9,12 +9,14 @@ import { Navigate } from 'react-router-dom';
 import { paths } from '@/constants/paths';
 import userEvent from '@testing-library/user-event';
 import { JsonRpcSigner } from '@ethersproject/providers';
+import { fromDateToString } from '@/utils/date';
 
 jest.mock('react-redux');
 jest.mock('react-router-dom');
 jest.mock('@/providers/SignerProvider');
 jest.mock('@/providers/ICPProvider');
 jest.mock('@/providers/SiweIdentityProvider');
+jest.mock('@/utils/date');
 
 describe('Profile', () => {
     const userInfo = {
@@ -56,6 +58,7 @@ describe('Profile', () => {
         (useICP as jest.Mock).mockReturnValue({ organizationDriver });
         (useSiweIdentity as jest.Mock).mockReturnValue({ identity });
         (useSelector as jest.Mock).mockReturnValue(userInfo);
+        (fromDateToString as jest.Mock).mockReturnValue('01 Jan 2000');
     });
 
     it('should navigate to login if user is not logged in', async () => {
@@ -125,7 +128,7 @@ describe('Profile', () => {
         },
         {
             label: 'Birth Date',
-            value: '01/01/2000'
+            value: '01 Jan 2000'
         },
         {
             label: 'Ethereum Address',

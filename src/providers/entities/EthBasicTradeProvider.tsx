@@ -65,7 +65,9 @@ export function EthBasicTradeProvider(props: { children: ReactNode }) {
     const [detailedBasicTrade, setDetailedBasicTrade] = useState<DetailedBasicTrade | null>(null);
     const { fileDriver } = useICP();
     const userInfo = useSelector((state: RootState) => state.userInfo);
+
     const organizationId = parseInt(userInfo.companyClaims.organizationId);
+    const roleProof = useSelector((state: RootState) => state.userInfo.roleProof);
 
     const rawTrade = useMemo(
         () =>
@@ -119,9 +121,12 @@ export function EthBasicTradeProvider(props: { children: ReactNode }) {
         try {
             dispatch(addLoadingMessage(BASIC_TRADE_MESSAGE.RETRIEVE.LOADING));
             const detailedBasicTrade = {
-                trade: await basicTradeService.getTrade(),
+                trade: await basicTradeService.getTrade(roleProof),
                 service: basicTradeService,
-                documents: await basicTradeService.getDocumentsByType(DocumentType.DELIVERY_NOTE)
+                documents: await basicTradeService.getDocumentsByType(
+                    roleProof,
+                    DocumentType.DELIVERY_NOTE
+                )
             };
             setDetailedBasicTrade(detailedBasicTrade);
         } catch (e) {
@@ -150,6 +155,7 @@ export function EthBasicTradeProvider(props: { children: ReactNode }) {
             };
             const [, newTradeAddress, transactionHash] =
                 await tradeManagerService.registerBasicTrade(
+                    roleProof,
                     basicTradeRequest.supplier,
                     basicTradeRequest.customer,
                     basicTradeRequest.commissioner,
@@ -164,7 +170,7 @@ export function EthBasicTradeProvider(props: { children: ReactNode }) {
             );
             const basicTradeService = getBasicTradeService(newTradeAddress);
             for (const line of basicTradeRequest.lines) {
-                await basicTradeService.addLine(line);
+                await basicTradeService.addLine(roleProof, line);
             }
             await loadRawTrades();
             openNotification(
@@ -195,7 +201,7 @@ export function EthBasicTradeProvider(props: { children: ReactNode }) {
             const basicTradeService = detailedBasicTrade.service;
 
             if (oldTrade.name !== basicTradeRequest.name)
-                await basicTradeService.setName(basicTradeRequest.name);
+                await basicTradeService.setName(roleProof, basicTradeRequest.name);
 
             // update one single line because at this time we manage only one line per trade
             const oldLine = oldTrade.lines[0];
@@ -213,6 +219,7 @@ export function EthBasicTradeProvider(props: { children: ReactNode }) {
                 );
                 if (!productCategory) return Promise.reject('Product category not found');
                 await basicTradeService.updateLine(
+                    roleProof,
                     new Line(
                         oldLine.id,
                         oldLine.material,

@@ -11,9 +11,10 @@ import { CONTRACT_ADDRESSES } from '@/constants/evm';
 import { useSigner } from '@/providers/SignerProvider';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
 import { NotificationType, openNotification } from '@/utils/notification';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { MATERIAL_MESSAGE, PRODUCT_CATEGORY_MESSAGE } from '@/constants/message';
+import { RootState } from '@/redux/store';
 
 export type EthMaterialContextState = {
     dataLoaded: boolean;
@@ -40,6 +41,7 @@ export function EthMaterialProvider(props: { children: ReactNode }) {
 
     const { signer } = useSigner();
     const dispatch = useDispatch();
+    const roleProof = useSelector((state: RootState) => state.userInfo.roleProof);
 
     const productCategoryService = useMemo(
         () =>
@@ -63,9 +65,10 @@ export function EthMaterialProvider(props: { children: ReactNode }) {
     const loadProductCategories = async () => {
         try {
             dispatch(addLoadingMessage(PRODUCT_CATEGORY_MESSAGE.RETRIEVE.LOADING));
-            const productCategories = await productCategoryService.getProductCategories();
+            const productCategories = await productCategoryService.getProductCategories(roleProof);
             setProductCategories(productCategories);
         } catch (e: any) {
+            console.log('Error while loading product categories', e);
             openNotification(
                 'Error',
                 PRODUCT_CATEGORY_MESSAGE.RETRIEVE.ERROR,
@@ -80,7 +83,7 @@ export function EthMaterialProvider(props: { children: ReactNode }) {
     const loadMaterials = async () => {
         try {
             dispatch(addLoadingMessage(MATERIAL_MESSAGE.RETRIEVE.LOADING));
-            const materials = await materialService.getMaterials();
+            const materials = await materialService.getMaterials(roleProof);
             setMaterials(materials);
         } catch (e: any) {
             openNotification(
@@ -102,7 +105,7 @@ export function EthMaterialProvider(props: { children: ReactNode }) {
     const saveMaterial = async (productCategoryId: number) => {
         try {
             dispatch(addLoadingMessage(MATERIAL_MESSAGE.SAVE.LOADING));
-            await materialService.registerMaterial(productCategoryId);
+            await materialService.registerMaterial(roleProof, productCategoryId);
             openNotification(
                 'Success',
                 MATERIAL_MESSAGE.SAVE.OK,
@@ -124,7 +127,12 @@ export function EthMaterialProvider(props: { children: ReactNode }) {
     const saveProductCategory = async (name: string, quality: number, description: string) => {
         try {
             dispatch(addLoadingMessage(PRODUCT_CATEGORY_MESSAGE.SAVE.LOADING));
-            await productCategoryService.registerProductCategory(name, quality, description);
+            await productCategoryService.registerProductCategory(
+                roleProof,
+                name,
+                quality,
+                description
+            );
             openNotification(
                 'Success',
                 PRODUCT_CATEGORY_MESSAGE.SAVE.OK,
@@ -133,6 +141,7 @@ export function EthMaterialProvider(props: { children: ReactNode }) {
             );
             await loadProductCategories();
         } catch (e: any) {
+            console.log('Error while saving product category', e);
             openNotification(
                 'Error',
                 PRODUCT_CATEGORY_MESSAGE.SAVE.ERROR,

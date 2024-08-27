@@ -6,7 +6,7 @@ import {
     TradeService,
     TradeType
 } from '@kbc-lib/coffee-trading-management-lib';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useSigner } from '@/providers/SignerProvider';
 import { openNotification } from '@/utils/notification';
 import { useICP } from '@/providers/ICPProvider';
@@ -48,6 +48,10 @@ describe('EthRawTradeProvider', () => {
         getTradeType.mockResolvedValue(tradeType);
         (useICP as jest.Mock).mockReturnValue({
             fileDriver: {} as ICPFileDriver
+        });
+        (useSelector as jest.Mock).mockReturnValue({
+            signedProof: 'signedProof',
+            delegator: 'delegator'
         });
     });
 

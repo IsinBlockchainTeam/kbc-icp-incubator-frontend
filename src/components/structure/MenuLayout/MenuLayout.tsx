@@ -21,8 +21,9 @@ import { resetUserInfo } from '@/redux/reducers/userInfoSlice';
 import { clearSiweIdentity } from '@/redux/reducers/siweIdentitySlice';
 import { paths } from '@/constants/paths';
 import { useWalletConnect } from '@/providers/WalletConnectProvider';
-const { Content, Footer, Sider } = Layout;
 import loadingLogo from '@/assets/coffee-loading.gif';
+
+const { Content, Footer, Sider } = Layout;
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -157,8 +158,8 @@ export const MenuLayout = () => {
                                 }}
                             />
                         }
+                        size={'large'}
                         spinning={loading.isLoading}
-                        size="large"
                         tip={loading.loadingMessages.map((msg) => (
                             <div key={msg}>{msg}</div>
                         ))}>

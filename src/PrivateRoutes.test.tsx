@@ -37,6 +37,7 @@ jest.mock('@/providers/entities/EthAssetOperationProvider');
 jest.mock('@/providers/entities/EthRelationshipProvider');
 jest.mock('@/providers/entities/EthGraphProvider');
 jest.mock('@/providers/entities/EthEscrowProvider');
+jest.mock('@/providers/entities/EthShipmentProvider');
 
 describe('PrivateRoutes', () => {
     it('renders when user is logged in', () => {
@@ -57,6 +58,7 @@ describe('PrivateRoutes', () => {
         (EthRelationshipProvider as jest.Mock).mockImplementation(renderChildren);
         (EthGraphProvider as jest.Mock).mockImplementation(renderChildren);
         (EthEscrowProvider as jest.Mock).mockImplementation(renderChildren);
+        (EthShipmentProvider as jest.Mock).mockImplementation(renderChildren);
 
         render(<PrivateRoutes />);
 

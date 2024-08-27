@@ -3,7 +3,7 @@ import { act, render, screen } from '@testing-library/react';
 import { paths } from '@/constants/paths';
 import { BasicTradeNew } from '@/pages/Trade/New/BasicTradeNew';
 import { FormElement, GenericForm } from '@/components/GenericForm/GenericForm';
-import { LineRequest, DocumentType } from '@kbc-lib/coffee-trading-management-lib';
+import { LineRequest } from '@kbc-lib/coffee-trading-management-lib';
 import userEvent from '@testing-library/user-event';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
