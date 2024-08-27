@@ -1,76 +1,58 @@
 import React from 'react';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
-import { Table, Tag, Tooltip } from 'antd';
-import { CheckCircleOutlined, ExclamationCircleOutlined, SettingOutlined } from '@ant-design/icons';
+import { Table, Tag } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { Link } from 'react-router-dom';
-import { NegotiationStatus, OrderStatus, TradeType } from '@kbc-lib/coffee-trading-management-lib';
+import {
+    NegotiationStatus,
+    ShipmentPhase,
+    TradeType
+} from '@kbc-lib/coffee-trading-management-lib';
 import { setParametersPath } from '@/utils/page';
 import { paths } from '@/constants/paths';
-import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
-import { useEthBasicTrade } from '@/providers/entities/EthBasicTradeProvider';
+import { useICPOrganization } from '@/providers/entities/ICPNameProvider';
 import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
+import { useEthShipment } from '@/providers/entities/EthShipmentProvider';
+import { RawTrade, useEthRawTrade } from '@/providers/entities/EthRawTradeProvider';
+import { AsyncComponent } from '@/components/AsyncComponent/AsyncComponent';
 
-type TradePreviewPresentable = {
-    id: number;
-    supplier: string;
-    commissioner: string;
-    type: TradeType;
-    negotiationStatus?: NegotiationStatus;
-    orderStatus?: OrderStatus;
-    actionRequired?: string;
-};
 export const Trades = () => {
-    const { basicTrades } = useEthBasicTrade();
-    const { orderTrades, getActionRequired, getNegotiationStatus, getOrderStatus } =
-        useEthOrderTrade();
+    const { rawTrades } = useEthRawTrade();
+    const { getSupplierAsync, getCustomerAsync, getNegotiationStatusAsync } = useEthOrderTrade();
+    const { getShipmentPhaseAsync } = useEthShipment();
     const { getCompany } = useICPOrganization();
 
-    const tradesPresentable: TradePreviewPresentable[] = basicTrades.map((t) => ({
-        id: t.tradeId,
-        supplier: getCompany(t.supplier).legalName,
-        commissioner: getCompany(t.commissioner).legalName,
-        type: TradeType.BASIC
-    }));
-    tradesPresentable.push(
-        ...orderTrades.map((o) => ({
-            id: o.tradeId,
-            supplier: getCompany(o.supplier).legalName,
-            commissioner: getCompany(o.commissioner).legalName,
-            type: TradeType.ORDER,
-            actionRequired: getActionRequired(o.tradeId),
-            negotiationStatus: getNegotiationStatus(o.tradeId),
-            orderStatus: getOrderStatus(o.tradeId)
-        }))
-    );
-
-    const columns: ColumnsType<TradePreviewPresentable> = [
+    const columns: ColumnsType<RawTrade> = [
         {
             title: 'Id',
             dataIndex: 'id',
             sorter: (a, b) => a.id - b.id,
             sortDirections: ['descend'],
-            render: (id, { type }) => {
-                return (
-                    <Link
-                        to={setParametersPath(`${paths.TRADE_VIEW}?type=:type`, { id }, { type })}>
-                        {id}
-                    </Link>
-                );
-            }
+            render: (id, { type }) => (
+                <Link to={setParametersPath(`${paths.TRADE_VIEW}?type=:type`, { id }, { type })}>
+                    {id}
+                </Link>
+            )
         },
         {
             title: 'Supplier',
             dataIndex: 'supplier',
-            sorter: (a, b) => a.supplier.localeCompare(b.supplier)
+            render: (_, { id }) => (
+                <AsyncComponent
+                    asyncFunction={async () => getCompany(await getSupplierAsync(id)).legalName}
+                    defaultElement={<>Unknown</>}
+                />
+            )
         },
         {
             title: 'Commissioner',
             dataIndex: 'commissioner',
-            sorter: (a, b) => (a.commissioner || '').localeCompare(b.commissioner || ''),
-            render: (customer) => {
-                return customer ? customer : '-';
-            }
+            render: (_, { id }) => (
+                <AsyncComponent
+                    asyncFunction={async () => getCompany(await getCustomerAsync(id)).legalName}
+                    defaultElement={<>Unknown</>}
+                />
+            )
         },
         {
             title: 'Type',
@@ -80,36 +62,30 @@ export const Trades = () => {
             }
         },
         {
-            title: 'Status',
-            dataIndex: 'orderStatus',
-            sorter: (a, b) =>
-                (a.orderStatus?.toString() || '').localeCompare(b.orderStatus?.toString() || ''),
-            render: (_, { negotiationStatus, orderStatus }) => (
-                <Tag color="geekblue" key={negotiationStatus}>
-                    {negotiationStatus
-                        ? negotiationStatus !== NegotiationStatus.CONFIRMED
-                            ? NegotiationStatus[negotiationStatus]?.toString().toUpperCase()
-                            : OrderStatus[orderStatus!]?.toString().toUpperCase()
-                        : '-'}
+            title: 'Negotiation status',
+            dataIndex: 'negotiationStatus',
+            render: (_, { id }) => (
+                <Tag color="geekblue">
+                    <AsyncComponent
+                        asyncFunction={async () =>
+                            NegotiationStatus[await getNegotiationStatusAsync(id)]
+                        }
+                        defaultElement={<>UNKNOWN</>}
+                    />
                 </Tag>
             )
         },
         {
-            title: <SettingOutlined />,
-            dataIndex: 'actionRequired',
-            render: (_, { actionRequired }) => {
-                return actionRequired ? (
-                    <Tooltip title={actionRequired}>
-                        <ExclamationCircleOutlined
-                            style={{ fontSize: '1.5rem', color: 'orange' }}
-                        />
-                    </Tooltip>
-                ) : (
-                    <Tooltip title={'There are no operations charged to you at this time'}>
-                        <CheckCircleOutlined style={{ fontSize: '1.5rem', color: 'green' }} />
-                    </Tooltip>
-                );
-            }
+            title: 'Shipment phase',
+            dataIndex: 'shipmentPhase',
+            render: (_, { id }) => (
+                <Tag color="geekblue">
+                    <AsyncComponent
+                        asyncFunction={async () => ShipmentPhase[await getShipmentPhaseAsync(id)]}
+                        defaultElement={<>NOT CREATED</>}
+                    />
+                </Tag>
+            )
         }
     ];
 
@@ -125,7 +101,7 @@ export const Trades = () => {
                     Trades
                 </div>
             }>
-            <Table columns={columns} dataSource={tradesPresentable} />
+            <Table columns={columns} dataSource={rawTrades} />
         </CardPage>
     );
 };

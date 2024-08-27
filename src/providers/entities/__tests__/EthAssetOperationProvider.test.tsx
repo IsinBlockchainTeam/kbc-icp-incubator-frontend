@@ -5,7 +5,7 @@ import {
     useEthAssetOperation
 } from '../EthAssetOperationProvider';
 import { AssetOperation, AssetOperationService } from '@kbc-lib/coffee-trading-management-lib';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useSigner } from '@/providers/SignerProvider';
 import { openNotification } from '@/utils/notification';
 import { JsonRpcSigner } from '@ethersproject/providers';
@@ -31,6 +31,10 @@ describe('EthAssetOperationProvider', () => {
         }));
         (useDispatch as jest.Mock).mockReturnValue(dispatch);
         (useSigner as jest.Mock).mockReturnValue({ signer });
+        (useSelector as jest.Mock).mockReturnValue({
+            signedProof: 'signedProof',
+            delegator: 'delegator'
+        });
     });
 
     it('should throw error if hook is used outside the provider', async () => {

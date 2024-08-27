@@ -1,11 +1,10 @@
 import {
     EscrowDriver,
     EscrowService,
-    EscrowStatus,
     TokenDriver,
     TokenService
 } from '@kbc-lib/coffee-trading-management-lib';
-import { createContext, ReactNode, useContext, useMemo, useState } from 'react';
+import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 import { useSigner } from '@/providers/SignerProvider';
 import { useDispatch } from 'react-redux';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
@@ -13,29 +12,32 @@ import { ESCROW_MESSAGE, TOKEN_MESSAGE } from '@/constants/message';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { CONTRACT_ADDRESSES } from '@/constants/evm';
+import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
+import { ethers } from 'ethers';
 
 export type EthEscrowContextState = {
-    dataLoaded: boolean;
-    loadData: () => Promise<void>;
     escrowDetails: EscrowDetails;
     tokenDetails: TokenDetails;
-    deposit: (amount: number) => Promise<void>;
-    payerWithdraw: (amount: number) => Promise<void>;
+    withdraw: (amount: number) => Promise<void>;
     getFees: (amount: number) => Promise<number>;
+    loadEscrowDetails: () => Promise<void>;
+    loadTokenDetails: () => Promise<void>;
 };
 type EscrowDetails = {
-    state: EscrowStatus;
     depositedAmount: number;
     totalDepositedAmount: number;
+    lockedAmount: number;
     withdrawableAmount: number;
+    balance: number;
     baseFee: number;
     percentageFee: number;
 };
 const defaultEscrowDetails: EscrowDetails = {
-    state: EscrowStatus.ACTIVE,
     depositedAmount: 0,
     totalDepositedAmount: 0,
+    lockedAmount: 0,
     withdrawableAmount: 0,
+    balance: 0,
     baseFee: 0,
     percentageFee: 0
 };
@@ -56,36 +58,49 @@ export const useEthEscrow = (): EthEscrowContextState => {
     return context;
 };
 export function EthEscrowProvider(props: { children: ReactNode }) {
-    const [dataLoaded, setDataLoaded] = useState<boolean>(false);
+    const { detailedOrderTrade } = useEthOrderTrade();
+
     const [escrowDetails, setEscrowDetails] = useState<EscrowDetails>(defaultEscrowDetails);
     const [tokenDetails, setTokenDetails] = useState<TokenDetails>(defaultTokenDetails);
 
     const { signer } = useSigner();
     const dispatch = useDispatch();
 
-    const escrowService = useMemo(
-        () => new EscrowService(new EscrowDriver(signer, CONTRACT_ADDRESSES.ESCROW())),
-        [signer]
-    );
+    const escrowService = useMemo(() => {
+        if (!detailedOrderTrade || !detailedOrderTrade.escrowAddress) return undefined;
+        return new EscrowService(new EscrowDriver(signer, detailedOrderTrade.escrowAddress));
+    }, [signer, detailedOrderTrade]);
+
     const tokenService = useMemo(
         () => new TokenService(new TokenDriver(signer, CONTRACT_ADDRESSES.TOKEN())),
         [signer]
     );
 
+    // Update escrow when order trades change
+    useEffect(() => {
+        if (detailedOrderTrade) {
+            loadEscrowDetails();
+            loadTokenDetails();
+        }
+    }, [detailedOrderTrade]);
+
     const loadEscrowDetails = async () => {
+        if (!escrowService) return;
         try {
             dispatch(addLoadingMessage(ESCROW_MESSAGE.RETRIEVE.LOADING));
-            const state = await escrowService.getState();
-            const depositedAmount = await escrowService.getDepositedAmount();
+            const depositedAmount = await escrowService.getDepositedAmount(signer._address);
             const totalDepositedAmount = await escrowService.getTotalDepositedAmount();
-            const withdrawableAmount = await escrowService.getWithdrawableAmount();
+            const lockedAmount = await escrowService.getLockedAmount();
+            const withdrawableAmount = await escrowService.getWithdrawableAmount(signer._address);
+            const balance = await escrowService.getBalance();
             const baseFee = await escrowService.getBaseFee();
             const percentageFee = await escrowService.getPercentageFee();
             setEscrowDetails({
-                state,
                 depositedAmount,
                 totalDepositedAmount,
+                lockedAmount,
                 withdrawableAmount,
+                balance,
                 baseFee,
                 percentageFee
             });
@@ -122,41 +137,19 @@ export function EthEscrowProvider(props: { children: ReactNode }) {
         }
     };
 
-    const deposit = async (amount: number) => {
-        try {
-            dispatch(addLoadingMessage(ESCROW_MESSAGE.DEPOSIT.LOADING));
-            await tokenService.approve(CONTRACT_ADDRESSES.ESCROW(), amount);
-            await escrowService.deposit(amount);
-            openNotification(
-                'Success',
-                ESCROW_MESSAGE.DEPOSIT.OK,
-                NotificationType.SUCCESS,
-                NOTIFICATION_DURATION
-            );
-            await loadData();
-        } catch (e) {
-            openNotification(
-                'Error',
-                ESCROW_MESSAGE.DEPOSIT.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
-        } finally {
-            dispatch(removeLoadingMessage(ESCROW_MESSAGE.DEPOSIT.LOADING));
-        }
-    };
-
-    const payerWithdraw = async (amount: number) => {
+    const withdraw = async (amount: number) => {
+        if (!escrowService) throw new Error('Escrow service not initialized');
         try {
             dispatch(addLoadingMessage(ESCROW_MESSAGE.WITHDRAW.LOADING));
-            await escrowService.payerWithdraw(amount);
+            await escrowService.withdraw(amount);
             openNotification(
                 'Success',
                 ESCROW_MESSAGE.WITHDRAW.OK,
                 NotificationType.SUCCESS,
                 NOTIFICATION_DURATION
             );
-            await loadData();
+            await loadEscrowDetails();
+            await loadTokenDetails();
         } catch (e) {
             openNotification(
                 'Error',
@@ -170,6 +163,7 @@ export function EthEscrowProvider(props: { children: ReactNode }) {
     };
 
     const getFees = async (amount: number) => {
+        if (!escrowService) throw new Error('Escrow service not initialized');
         try {
             return await escrowService.getFees(amount);
         } catch (e) {
@@ -183,22 +177,15 @@ export function EthEscrowProvider(props: { children: ReactNode }) {
         }
     };
 
-    const loadData = async () => {
-        await loadEscrowDetails();
-        await loadTokenDetails();
-        setDataLoaded(true);
-    };
-
     return (
         <EthEscrowContext.Provider
             value={{
-                dataLoaded,
                 escrowDetails,
                 tokenDetails,
-                loadData,
-                deposit,
-                payerWithdraw,
-                getFees
+                withdraw,
+                getFees,
+                loadEscrowDetails,
+                loadTokenDetails
             }}>
             {props.children}
         </EthEscrowContext.Provider>

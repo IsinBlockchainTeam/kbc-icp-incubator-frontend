@@ -1,20 +1,21 @@
 import {
     AssetOperationDriver,
     AssetOperationService,
+    GraphData as LibGraphData,
     GraphService,
     TradeManagerDriver,
-    TradeManagerService,
-    GraphData as LibGraphData
+    TradeManagerService
 } from '@kbc-lib/coffee-trading-management-lib';
 import { createContext, ReactNode, useContext, useMemo } from 'react';
 import { useSigner } from '@/providers/SignerProvider';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { CONTRACT_ADDRESSES } from '@/constants/evm';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
 import { GRAPH_MESSAGE } from '@/constants/message';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { useICP } from '@/providers/ICPProvider';
+import { RootState } from '@/redux/store';
 
 export type EthGraphContextState = {
     dataLoaded: boolean;
@@ -34,6 +35,8 @@ export function EthGraphProvider(props: { children: ReactNode }) {
     const { fileDriver } = useICP();
     const { signer } = useSigner();
     const dispatch = useDispatch();
+
+    const roleProof = useSelector((state: RootState) => state.userInfo.roleProof);
 
     const graphService = useMemo(
         () =>
@@ -63,8 +66,7 @@ export function EthGraphProvider(props: { children: ReactNode }) {
     const computeGraph = async (materialId: number) => {
         try {
             dispatch(addLoadingMessage(GRAPH_MESSAGE.COMPUTE.LOADING));
-            const result = await graphService.computeGraph(materialId, true);
-            return result;
+            return await graphService.computeGraph(roleProof, materialId, true);
         } catch (e) {
             openNotification(
                 'Error',

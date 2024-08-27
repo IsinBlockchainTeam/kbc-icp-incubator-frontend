@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { RoleProof } from '@kbc-lib/coffee-trading-management-lib';
 
 export type CompanyClaimsState = {
     legalName: string;
@@ -28,6 +29,7 @@ export type UserInfoState = {
     subjectDid: string;
     companyClaims: CompanyClaimsState;
     employeeClaims: EmployeeClaimsState;
+    roleProof: RoleProof;
 };
 
 export const initialState: UserInfoState = {
@@ -55,6 +57,10 @@ export const initialState: UserInfoState = {
         telephone: '',
         role: '',
         image: ''
+    },
+    roleProof: {
+        signedProof: '',
+        delegator: ''
     }
 };
 export type UpdatableUserInfoState = Omit<UserInfoState, 'isLogged'>;
@@ -71,12 +77,14 @@ const userInfoSlice = createSlice({
             state.subjectDid = action.payload.subjectDid;
             state.companyClaims = action.payload.companyClaims;
             state.employeeClaims = action.payload.employeeClaims;
+            state.roleProof = action.payload.roleProof;
         },
         resetUserInfo: (state: UserInfoState) => {
             state.isLogged = false;
             state.subjectDid = initialState.subjectDid;
             state.companyClaims = initialState.companyClaims;
             state.employeeClaims = initialState.employeeClaims;
+            state.roleProof = initialState.roleProof;
         }
     }
 });

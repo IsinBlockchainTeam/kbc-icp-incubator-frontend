@@ -1,14 +1,12 @@
-import { FormElement, FormElementType } from '@/components/GenericForm/GenericForm';
+import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
 import { Button } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import { paths } from '@/constants/paths';
-import OrderStatusSteps from '@/pages/Trade/OrderStatusSteps/OrderStatusSteps';
 import {
-    OrderStatus,
-    OrderLineRequest,
+    LineRequest,
     OrderLinePrice,
-    LineRequest
+    OrderLineRequest
 } from '@kbc-lib/coffee-trading-management-lib';
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -87,7 +85,7 @@ export const OrderTradeNew = ({
             shippingPort: values['shipping-port'],
             deliveryPort: values['delivery-port']
         };
-        await saveOrderTrade(orderTrade, []);
+        await saveOrderTrade(orderTrade);
         navigate(paths.TRADES);
     };
 
@@ -256,7 +254,7 @@ export const OrderTradeNew = ({
             label: 'Unit',
             required: true,
             options: units.map((unit) => ({ label: unit, value: unit })),
-            defaultValue: '',
+            defaultValue: undefined,
             disabled: false
         },
         {
@@ -276,7 +274,7 @@ export const OrderTradeNew = ({
             label: 'Fiat',
             required: true,
             options: fiats.map((fiat) => ({ label: fiat, value: fiat })),
-            defaultValue: '',
+            defaultValue: undefined,
             disabled: false
         }
     ];
@@ -299,12 +297,7 @@ export const OrderTradeNew = ({
                     </Button>
                 </div>
             }>
-            <OrderStatusSteps
-                status={OrderStatus.CONTRACTING}
-                submittable={true}
-                negotiationElements={elements}
-                onSubmit={onSubmit}
-            />
+            <GenericForm elements={elements} onSubmit={onSubmit} submittable={true} />
         </CardPage>
     );
 };

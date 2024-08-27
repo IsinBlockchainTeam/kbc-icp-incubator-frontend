@@ -8,7 +8,6 @@ export const paths = {
     ORDER_VIEW: '/orders/:id',
     SHIPMENTS: '/shipments',
     SHIPMENT_CREATE: '/shipments/create',
-    SHIPMENT_VIEW: '/shipments/:id',
     PARTNERS: '/partners',
     OFFERS: '/offers',
     OFFERS_NEW: '/offers/new',
@@ -22,7 +21,11 @@ export const paths = {
     ASSET_OPERATIONS_VIEW: '/asset-operations/:id',
     CERTIFICATIONS: '/certifications',
     CERTIFICATION_VIEW: '/certifications/:type/:id',
+    DOCUMENTS: '/documents',
+    ORDER_DOCUMENTS: '/documents/orders/:id',
     TRADES: '/trades',
     TRADE_NEW: '/trades/new',
-    TRADE_VIEW: '/trades/:id'
+    TRADE_VIEW: '/trades/:id',
+    SHIPMENT_NEW: '/trades/:id/shipments/new',
+    SHIPMENT: '/trades/:id/shipment'
 };

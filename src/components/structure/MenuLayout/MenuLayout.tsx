@@ -8,7 +8,8 @@ import {
     TeamOutlined,
     LogoutOutlined,
     UserOutlined,
-    AuditOutlined
+    AuditOutlined,
+    CloudDownloadOutlined
 } from '@ant-design/icons';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { defaultPictureURL } from '@/constants/misc';
@@ -20,8 +21,9 @@ import { resetUserInfo } from '@/redux/reducers/userInfoSlice';
 import { clearSiweIdentity } from '@/redux/reducers/siweIdentitySlice';
 import { paths } from '@/constants/paths';
 import { useWalletConnect } from '@/providers/WalletConnectProvider';
-const { Content, Footer, Sider } = Layout;
 import loadingLogo from '@/assets/coffee-loading.gif';
+
+const { Content, Footer, Sider } = Layout;
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -45,6 +47,7 @@ const getItem = (
 
 const blockchainItems: MenuItem[] = [
     getItem('Trades', paths.TRADES, <SwapOutlined />),
+    getItem('Documents', paths.DOCUMENTS, <CloudDownloadOutlined />),
     getItem('Materials', paths.MATERIALS, <GoldOutlined />),
     getItem('Transformations', paths.ASSET_OPERATIONS, <ExperimentOutlined />),
     getItem('Partners', paths.PARTNERS, <TeamOutlined />),
@@ -155,8 +158,8 @@ export const MenuLayout = () => {
                                 }}
                             />
                         }
+                        size={'large'}
                         spinning={loading.isLoading}
-                        size="large"
                         tip={loading.loadingMessages.map((msg) => (
                             <div key={msg}>{msg}</div>
                         ))}>

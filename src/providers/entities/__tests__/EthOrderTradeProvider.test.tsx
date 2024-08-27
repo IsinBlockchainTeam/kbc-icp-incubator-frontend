@@ -5,8 +5,6 @@ import {
     useEthOrderTrade
 } from '../EthOrderTradeProvider';
 import {
-    DocumentStatus,
-    DocumentType,
     ICPFileDriver,
     Line,
     LineRequest,
@@ -14,10 +12,10 @@ import {
     NegotiationStatus,
     OrderLinePrice,
     OrderLineRequest,
-    OrderStatus,
     OrderTrade,
     OrderTradeService,
     ProductCategory,
+    RoleProof,
     TradeManagerService,
     TradeType
 } from '@kbc-lib/coffee-trading-management-lib';
@@ -28,17 +26,13 @@ import { RawTrade, useEthRawTrade } from '@/providers/entities/EthRawTradeProvid
 import { UserInfoState } from '@/redux/reducers/userInfoSlice';
 import { getICPCanisterURL } from '@/utils/icp';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
-import {
-    DOCUMENT_DUTY,
-    DocumentDetail,
-    DocumentRequest,
-    useEthDocument
-} from '@/providers/entities/EthDocumentProvider';
 import { useICP } from '@/providers/ICPProvider';
 import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
 import { ACTION_MESSAGE } from '@/constants/message';
 import { requestPath } from '@/constants/url';
 import { JsonRpcSigner } from '@ethersproject/providers';
+import dayjs from 'dayjs';
+import { useParams } from 'react-router-dom';
 
 jest.mock('@kbc-lib/coffee-trading-management-lib');
 jest.mock('@/providers/SignerProvider');
@@ -48,17 +42,18 @@ jest.mock('@/utils/notification');
 jest.mock('@/utils/icp');
 jest.mock('@/providers/entities/EthMaterialProvider');
 jest.mock('@/providers/ICPProvider');
-jest.mock('@/providers/entities/EthDocumentProvider');
 jest.mock('@/providers/entities/ICPOrganizationProvider');
+jest.mock('react-router-dom');
 
 describe('EthOrderTradeProvider', () => {
     const signer = { _address: '0x123' } as JsonRpcSigner;
     const dispatch = jest.fn();
     const getTrade = jest.fn();
     const getCompleteTrade = jest.fn();
-    const getOrderStatus = jest.fn();
+    const getEscrowAddress = jest.fn();
+    const getShipmentAddress = jest.fn();
     const getWhoSigned = jest.fn();
-    const addDocument = jest.fn();
+    const createShipment = jest.fn();
     const addLine = jest.fn();
     const updatePaymentDeadline = jest.fn();
     const updateDocumentDeliveryDeadline = jest.fn();
@@ -68,16 +63,34 @@ describe('EthOrderTradeProvider', () => {
     const updateAgreedAmount = jest.fn();
     const updateTokenAddress = jest.fn();
     const updateLine = jest.fn();
+    const getNegotiationStatus = jest.fn();
     const confirmOrder = jest.fn();
-    const validateDocument = jest.fn();
-    const uploadDocument = jest.fn();
-    const getDocumentDuty = jest.fn();
-    const getDocumentDetailMap = jest.fn();
     const registerOrderTrade = jest.fn();
     const waitForTransactions = jest.fn();
     const getCompany = jest.fn();
-    const rawTrades = [{ address: '0x123', type: TradeType.ORDER } as RawTrade];
-    const userInfo = { companyClaims: { organizationId: '1' } } as UserInfoState;
+    const MockedOrderTradeService = {
+        getTrade,
+        getCompleteTrade,
+        getEscrowAddress,
+        getShipmentAddress,
+        getWhoSigned,
+        createShipment,
+        addLine,
+        getNegotiationStatus,
+        updatePaymentDeadline,
+        updateDocumentDeliveryDeadline,
+        updateArbiter,
+        updateShippingDeadline,
+        updateDeliveryDeadline,
+        updateAgreedAmount,
+        updateTokenAddress,
+        updateLine,
+        confirmOrder
+    };
+
+    const rawTrades = [{ id: 1, address: '0x123', type: TradeType.ORDER } as RawTrade];
+    const roleProof: RoleProof = { delegator: 'delegator', signedProof: 'signedProof' };
+    const userInfo = { companyClaims: { organizationId: '1' }, roleProof } as UserInfoState;
     const orderTrade = {
         tradeId: 1,
         externalUrl: 'externalUrl',
@@ -91,30 +104,16 @@ describe('EthOrderTradeProvider', () => {
         ],
         negotiationStatus: NegotiationStatus.PENDING,
         commissioner: signer._address,
-        supplier: '0x456'
+        supplier: '0x456',
+        escrow: '0x789'
     } as OrderTrade;
     const productCategories = [{ id: 1 } as ProductCategory];
+
     beforeEach(() => {
         jest.clearAllMocks();
         jest.spyOn(console, 'error').mockImplementation(jest.fn());
 
-        (OrderTradeService as jest.Mock).mockImplementation(() => ({
-            getTrade,
-            getCompleteTrade,
-            getOrderStatus,
-            getWhoSigned,
-            addDocument,
-            addLine,
-            updatePaymentDeadline,
-            updateDocumentDeliveryDeadline,
-            updateArbiter,
-            updateShippingDeadline,
-            updateDeliveryDeadline,
-            updateAgreedAmount,
-            updateTokenAddress,
-            updateLine,
-            confirmOrder
-        }));
+        (OrderTradeService as jest.Mock).mockImplementation(() => MockedOrderTradeService);
         (TradeManagerService as jest.Mock).mockImplementation(() => ({
             registerOrderTrade
         }));
@@ -133,347 +132,84 @@ describe('EthOrderTradeProvider', () => {
         (useICP as jest.Mock).mockReturnValue({
             fileDriver: {} as ICPFileDriver
         });
-        (useSelector as jest.Mock).mockReturnValue(userInfo);
+        (useSelector as jest.Mock).mockImplementation((fn) => fn({ userInfo }));
         (getICPCanisterURL as jest.Mock).mockReturnValue('icpCanisterUrl');
         (useEthMaterial as jest.Mock).mockReturnValue({
             productCategories
         });
+        (useParams as jest.Mock).mockReturnValue({ id: '' });
+
         getTrade.mockResolvedValue(orderTrade);
         getCompleteTrade.mockResolvedValue(orderTrade);
-        getOrderStatus.mockResolvedValue(OrderStatus.PRODUCTION);
         getWhoSigned.mockResolvedValue([]);
-        getDocumentDetailMap.mockResolvedValue(new Map());
+        getShipmentAddress.mockResolvedValue('0xshipment');
+        getNegotiationStatus.mockResolvedValue(orderTrade.negotiationStatus);
+        getEscrowAddress.mockResolvedValue('0xescrow');
+    });
+
+    afterEach(() => {
+        jest.clearAllMocks();
     });
 
     it('should throw error if hook is used outside the provider', async () => {
         expect(() => renderHook(() => useEthOrderTrade())).toThrow();
     });
 
-    describe('orderTrades', () => {
-        it('should load order trades on initial render', async () => {
+    describe('detailed order trade', () => {
+        beforeEach(() => {
+            (useParams as jest.Mock).mockReturnValue({ id: '1' });
+        });
+
+        it('should render correctly', async () => {
             const { result } = renderHook(() => useEthOrderTrade(), {
                 wrapper: EthOrderTradeProvider
             });
             await waitFor(() => {
-                expect(result.current.orderTrades).toHaveLength(1);
+                expect(result.current.detailedOrderTrade).toBeNull();
             });
-
-            expect(result.current.orderTrades).toHaveLength(1);
-            expect(result.current.orderTrades[0]).toEqual(orderTrade);
 
             expect(dispatch).toHaveBeenCalledTimes(2);
             expect(OrderTradeService).toHaveBeenCalledTimes(1);
             expect(getCompleteTrade).toHaveBeenCalledTimes(1);
-            expect(getOrderStatus).toHaveBeenCalledTimes(1);
-            expect(getWhoSigned).toHaveBeenCalledTimes(1);
-            expect(getDocumentDetailMap).toHaveBeenCalledTimes(1);
+            expect(getNegotiationStatus).toHaveBeenCalledTimes(1);
+            expect(getShipmentAddress).toHaveBeenCalledTimes(1);
+            expect(getEscrowAddress).toHaveBeenCalledTimes(1);
+            expect(openNotification).not.toHaveBeenCalled();
+        });
+
+        it('should load detailed order trade on initial render', async () => {
+            const { result } = renderHook(() => useEthOrderTrade(), {
+                wrapper: EthOrderTradeProvider
+            });
+            const detailedOrderTrade = {
+                trade: orderTrade,
+                service: MockedOrderTradeService,
+                negotiationStatus: NegotiationStatus.PENDING,
+                shipmentAddress: '0xshipment',
+                escrowAddress: '0xescrow'
+            };
+            await waitFor(() => {
+                expect(result.current.detailedOrderTrade).toEqual(detailedOrderTrade);
+            });
+
+            expect(dispatch).toHaveBeenCalledTimes(2);
+            expect(OrderTradeService).toHaveBeenCalledTimes(1);
+            expect(getCompleteTrade).toHaveBeenCalledTimes(1);
+            expect(getNegotiationStatus).toHaveBeenCalledTimes(1);
+            expect(getShipmentAddress).toHaveBeenCalledTimes(1);
+            expect(getEscrowAddress).toHaveBeenCalledTimes(1);
             expect(openNotification).not.toHaveBeenCalled();
         });
     });
 
-    describe('getActionRequired', () => {
-        it('should return the correct required action - not found', async () => {
-            const { result } = renderHook(() => useEthOrderTrade(), {
-                wrapper: EthOrderTradeProvider
-            });
-            await waitFor(() => {
-                expect(result.current.orderTrades).toHaveLength(1);
-            });
-
-            expect(() => result.current.getActionRequired(-1)).toThrowError();
-        });
-        it('should return the correct required action - SIGNATURE_REQUIRED', async () => {
-            const { result } = renderHook(() => useEthOrderTrade(), {
-                wrapper: EthOrderTradeProvider
-            });
-            await waitFor(() => {
-                expect(result.current.orderTrades).toHaveLength(1);
-            });
-
-            const requiredAction = result.current.getActionRequired(orderTrade.tradeId);
-            expect(requiredAction).toEqual(ACTION_MESSAGE.SIGNATURE_REQUIRED);
-        });
-        it('should return the correct required action - NO_ACTION', async () => {
-            getWhoSigned.mockResolvedValue([signer._address]);
-            const { result } = renderHook(() => useEthOrderTrade(), {
-                wrapper: EthOrderTradeProvider
-            });
-            await waitFor(() => {
-                expect(result.current.orderTrades).toHaveLength(1);
-            });
-
-            const requiredAction = result.current.getActionRequired(orderTrade.tradeId);
-            expect(requiredAction).toEqual(ACTION_MESSAGE.NO_ACTION);
-        });
-        it('should return the correct required action - UPLOAD_REQUIRED', async () => {
-            getWhoSigned.mockResolvedValue([signer._address]);
-            const map = new Map<OrderStatus, Map<DocumentType, DocumentDetail>>();
-            const requiredDocuments = new Map<DocumentType, DocumentDetail>();
-            requiredDocuments.set(DocumentType.DELIVERY_NOTE, {} as DocumentDetail);
-            map.set(OrderStatus.PRODUCTION, requiredDocuments);
-            getDocumentDetailMap.mockResolvedValue(map);
-            getDocumentDuty.mockReturnValue(DOCUMENT_DUTY.UPLOAD_NEEDED);
-
-            const { result } = renderHook(() => useEthOrderTrade(), {
-                wrapper: EthOrderTradeProvider
-            });
-            await waitFor(() => {
-                expect(result.current.orderTrades).toHaveLength(1);
-            });
-
-            const requiredAction = result.current.getActionRequired(orderTrade.tradeId);
-            expect(requiredAction).toEqual(ACTION_MESSAGE.UPLOAD_REQUIRED);
-        });
-        it('should return the correct required action - VALIDATION_REQUIRED', async () => {
-            getWhoSigned.mockResolvedValue([signer._address]);
-            const map = new Map<OrderStatus, Map<DocumentType, DocumentDetail>>();
-            const requiredDocuments = new Map<DocumentType, DocumentDetail>();
-            requiredDocuments.set(DocumentType.DELIVERY_NOTE, {} as DocumentDetail);
-            map.set(OrderStatus.PRODUCTION, requiredDocuments);
-            getDocumentDetailMap.mockResolvedValue(map);
-            getDocumentDuty.mockReturnValue(DOCUMENT_DUTY.APPROVAL_NEEDED);
-
-            const { result } = renderHook(() => useEthOrderTrade(), {
-                wrapper: EthOrderTradeProvider
-            });
-            await waitFor(() => {
-                expect(result.current.orderTrades).toHaveLength(1);
-            });
-
-            const requiredAction = result.current.getActionRequired(orderTrade.tradeId);
-            expect(requiredAction).toEqual(ACTION_MESSAGE.VALIDATION_REQUIRED);
-        });
-        it('should return the correct required action - NO_ACTION fallback', async () => {
-            getWhoSigned.mockResolvedValue([signer._address]);
-            const map = new Map<OrderStatus, Map<DocumentType, DocumentDetail>>();
-            const requiredDocuments = new Map<DocumentType, DocumentDetail>();
-            requiredDocuments.set(DocumentType.DELIVERY_NOTE, {} as DocumentDetail);
-            map.set(OrderStatus.PRODUCTION, requiredDocuments);
-            getDocumentDetailMap.mockResolvedValue(map);
-            getDocumentDuty.mockReturnValue(DOCUMENT_DUTY.NO_ACTION_NEEDED);
-
-            const { result } = renderHook(() => useEthOrderTrade(), {
-                wrapper: EthOrderTradeProvider
-            });
-            await waitFor(() => {
-                expect(result.current.orderTrades).toHaveLength(1);
-            });
-
-            const requiredAction = result.current.getActionRequired(orderTrade.tradeId);
-            expect(requiredAction).toEqual(ACTION_MESSAGE.NO_ACTION);
-        });
-    });
-    describe('getNegotiationStatus', () => {
-        it('should return negotiation status - not found', async () => {
-            const { result } = renderHook(() => useEthOrderTrade(), {
-                wrapper: EthOrderTradeProvider
-            });
-            await waitFor(() => {
-                expect(result.current.orderTrades).toHaveLength(1);
-            });
-
-            expect(() => result.current.getNegotiationStatus(-1)).toThrowError();
-        });
-        it('should return negotiation status', async () => {
-            const { result } = renderHook(() => useEthOrderTrade(), {
-                wrapper: EthOrderTradeProvider
-            });
-            await waitFor(() => {
-                expect(result.current.orderTrades).toHaveLength(1);
-            });
-
-            expect(result.current.getNegotiationStatus(orderTrade.tradeId)).toEqual(
-                orderTrade.negotiationStatus
-            );
-        });
-    });
-    describe('getOrderStatus', () => {
-        it('should return order status - not found', async () => {
-            const { result } = renderHook(() => useEthOrderTrade(), {
-                wrapper: EthOrderTradeProvider
-            });
-            await waitFor(() => {
-                expect(result.current.orderTrades).toHaveLength(1);
-            });
-
-            expect(() => result.current.getOrderStatus(-1)).toThrowError();
-        });
-        it('should return order status', async () => {
-            getOrderStatus.mockResolvedValue(OrderStatus.PRODUCTION);
-            const { result } = renderHook(() => useEthOrderTrade(), {
-                wrapper: EthOrderTradeProvider
-            });
-            await waitFor(() => {
-                expect(result.current.orderTrades).toHaveLength(1);
-            });
-
-            expect(result.current.getOrderStatus(orderTrade.tradeId)).toEqual(
-                OrderStatus.PRODUCTION
-            );
-        });
-    });
-    describe('getRequiredDocumentTypes', () => {
-        it('should return the required document types - order not found', async () => {
-            const { result } = renderHook(() => useEthOrderTrade(), {
-                wrapper: EthOrderTradeProvider
-            });
-            await waitFor(() => {
-                expect(result.current.orderTrades).toHaveLength(1);
-            });
-
-            expect(() =>
-                result.current.getRequiredDocumentTypes(-1, OrderStatus.CONTRACTING)
-            ).toThrowError();
-        });
-        it('should return the required document types - order status not found', async () => {
-            const { result } = renderHook(() => useEthOrderTrade(), {
-                wrapper: EthOrderTradeProvider
-            });
-            await waitFor(() => {
-                expect(result.current.orderTrades).toHaveLength(1);
-            });
-
-            expect(() =>
-                result.current.getRequiredDocumentTypes(orderTrade.tradeId, OrderStatus.CONTRACTING)
-            ).toThrowError();
-        });
-        it('should return the required document types', async () => {
-            const map = new Map<OrderStatus, Map<DocumentType, DocumentDetail>>();
-            const requiredDocuments = new Map<DocumentType, DocumentDetail>();
-            requiredDocuments.set(DocumentType.DELIVERY_NOTE, {} as DocumentDetail);
-            map.set(OrderStatus.CONTRACTING, requiredDocuments);
-            getDocumentDetailMap.mockResolvedValue(map);
-            const { result } = renderHook(() => useEthOrderTrade(), {
-                wrapper: EthOrderTradeProvider
-            });
-            await waitFor(() => {
-                expect(result.current.orderTrades).toHaveLength(1);
-            });
-
-            expect(
-                result.current.getRequiredDocumentTypes(orderTrade.tradeId, OrderStatus.CONTRACTING)
-            ).toEqual([DocumentType.DELIVERY_NOTE]);
-        });
-    });
-    describe('getDocumentDetail', () => {
-        it('should return document detail - order not found', async () => {
-            const { result } = renderHook(() => useEthOrderTrade(), {
-                wrapper: EthOrderTradeProvider
-            });
-            await waitFor(() => {
-                expect(result.current.orderTrades).toHaveLength(1);
-            });
-
-            expect(() =>
-                result.current.getDocumentDetail(
-                    -1,
-                    OrderStatus.CONTRACTING,
-                    DocumentType.DELIVERY_NOTE
-                )
-            ).toThrowError();
-        });
-        it('should return document detail - order status not found', async () => {
-            const { result } = renderHook(() => useEthOrderTrade(), {
-                wrapper: EthOrderTradeProvider
-            });
-            await waitFor(() => {
-                expect(result.current.orderTrades).toHaveLength(1);
-            });
-
-            expect(() =>
-                result.current.getDocumentDetail(
-                    orderTrade.tradeId,
-                    OrderStatus.CONTRACTING,
-                    DocumentType.DELIVERY_NOTE
-                )
-            ).toThrowError();
-        });
-        it('should return document detail', async () => {
-            const map = new Map<OrderStatus, Map<DocumentType, DocumentDetail>>();
-            const requiredDocuments = new Map<DocumentType, DocumentDetail>();
-            requiredDocuments.set(DocumentType.DELIVERY_NOTE, {} as DocumentDetail);
-            map.set(OrderStatus.CONTRACTING, requiredDocuments);
-            getDocumentDetailMap.mockResolvedValue(map);
-            const { result } = renderHook(() => useEthOrderTrade(), {
-                wrapper: EthOrderTradeProvider
-            });
-            await waitFor(() => {
-                expect(result.current.orderTrades).toHaveLength(1);
-            });
-
-            expect(
-                result.current.getDocumentDetail(
-                    orderTrade.tradeId,
-                    OrderStatus.CONTRACTING,
-                    DocumentType.DELIVERY_NOTE
-                )
-            ).toEqual(requiredDocuments.get(DocumentType.DELIVERY_NOTE));
-        });
-    });
-    describe('getDocumentDetail', () => {
-        it('should return document detail - order not found', async () => {
-            const { result } = renderHook(() => useEthOrderTrade(), {
-                wrapper: EthOrderTradeProvider
-            });
-            await waitFor(() => {
-                expect(result.current.orderTrades).toHaveLength(1);
-            });
-
-            expect(() =>
-                result.current.getDocumentDetail(
-                    -1,
-                    OrderStatus.CONTRACTING,
-                    DocumentType.DELIVERY_NOTE
-                )
-            ).toThrowError();
-        });
-        it('should return document detail - order status not found', async () => {
-            const { result } = renderHook(() => useEthOrderTrade(), {
-                wrapper: EthOrderTradeProvider
-            });
-            await waitFor(() => {
-                expect(result.current.orderTrades).toHaveLength(1);
-            });
-
-            expect(() =>
-                result.current.getDocumentDetail(
-                    orderTrade.tradeId,
-                    OrderStatus.CONTRACTING,
-                    DocumentType.DELIVERY_NOTE
-                )
-            ).toThrowError();
-        });
-        it('should return document detail', async () => {
-            const map = new Map<OrderStatus, Map<DocumentType, DocumentDetail>>();
-            const requiredDocuments = new Map<DocumentType, DocumentDetail>();
-            requiredDocuments.set(DocumentType.DELIVERY_NOTE, {} as DocumentDetail);
-            map.set(OrderStatus.CONTRACTING, requiredDocuments);
-            getDocumentDetailMap.mockResolvedValue(map);
-            const { result } = renderHook(() => useEthOrderTrade(), {
-                wrapper: EthOrderTradeProvider
-            });
-            await waitFor(() => {
-                expect(result.current.orderTrades).toHaveLength(1);
-            });
-
-            expect(
-                result.current.getDocumentDetail(
-                    orderTrade.tradeId,
-                    OrderStatus.CONTRACTING,
-                    DocumentType.DELIVERY_NOTE
-                )
-            ).toEqual(requiredDocuments.get(DocumentType.DELIVERY_NOTE));
-        });
-    });
     describe('saveOrderTrade', () => {
         it('should save order trade', async () => {
             const { result } = renderHook(() => useEthOrderTrade(), {
                 wrapper: EthOrderTradeProvider
             });
             await waitFor(() => {
-                expect(result.current.orderTrades).toHaveLength(1);
+                expect(result.current.detailedOrderTrade).toBeNull();
             });
-            (getICPCanisterURL as jest.Mock).mockReturnValue('icpCanisterUrl');
             const orderTradeRequest = {
                 supplier: 'supplier',
                 customer: 'customer',
@@ -491,20 +227,14 @@ describe('EthOrderTradeProvider', () => {
                 deliveryPort: 'deliveryPort',
                 lines: [{} as LineRequest]
             } as OrderTradeRequest;
-            const documentRequests = [
-                {
-                    documentType: DocumentType.PAYMENT_INVOICE,
-                    filename: 'filename',
-                    content: { type: 'pdf' }
-                } as DocumentRequest
-            ];
             registerOrderTrade.mockResolvedValue([1, 2, 3]);
 
-            await result.current.saveOrderTrade(orderTradeRequest, documentRequests);
+            await result.current.saveOrderTrade(orderTradeRequest);
 
-            expect(dispatch).toHaveBeenCalledTimes(6);
+            expect(dispatch).toHaveBeenCalledTimes(2);
             expect(registerOrderTrade).toHaveBeenCalledTimes(1);
             expect(registerOrderTrade).toHaveBeenCalledWith(
+                roleProof,
                 orderTradeRequest.supplier,
                 orderTradeRequest.customer,
                 orderTradeRequest.commissioner,
@@ -528,11 +258,9 @@ describe('EthOrderTradeProvider', () => {
                 [0]
             );
             expect(waitForTransactions).toHaveBeenCalledTimes(1);
-            expect(OrderTradeService).toHaveBeenCalledTimes(3);
-            expect(getTrade).toHaveBeenCalledTimes(1);
-            expect(addDocument).toHaveBeenCalledTimes(1);
+            expect(OrderTradeService).toHaveBeenCalledTimes(1);
             expect(addLine).toHaveBeenCalledTimes(1);
-            expect(addLine).toHaveBeenCalledWith(orderTradeRequest.lines[0]);
+            expect(addLine).toHaveBeenCalledWith(roleProof, orderTradeRequest.lines[0]);
             expect(openNotification).toHaveBeenCalled();
         });
         it('should handle save order trade failure', async () => {
@@ -540,9 +268,8 @@ describe('EthOrderTradeProvider', () => {
                 wrapper: EthOrderTradeProvider
             });
             await waitFor(() => {
-                expect(result.current.orderTrades).toHaveLength(1);
+                expect(result.current.detailedOrderTrade).toBeNull();
             });
-            (getICPCanisterURL as jest.Mock).mockReturnValue('icpCanisterUrl');
             const orderTradeRequest = {
                 supplier: 'supplier',
                 customer: 'customer',
@@ -560,29 +287,28 @@ describe('EthOrderTradeProvider', () => {
                 deliveryPort: 'deliveryPort',
                 lines: [{} as LineRequest]
             } as OrderTradeRequest;
-            const documentRequests = [
-                {
-                    documentType: DocumentType.PAYMENT_INVOICE,
-                    filename: 'filename',
-                    content: { type: 'pdf' }
-                } as DocumentRequest
-            ];
             registerOrderTrade.mockRejectedValue(new Error('error'));
 
-            await result.current.saveOrderTrade(orderTradeRequest, documentRequests);
+            jest.clearAllMocks();
+            await result.current.saveOrderTrade(orderTradeRequest);
 
-            expect(dispatch).toHaveBeenCalledTimes(4);
+            expect(dispatch).toHaveBeenCalledTimes(2);
             expect(registerOrderTrade).toHaveBeenCalledTimes(1);
             expect(openNotification).toHaveBeenCalled();
         });
     });
+
     describe('updateOrderTrade', () => {
+        beforeEach(() => {
+            (useParams as jest.Mock).mockReturnValue({ id: '1' });
+        });
+
         it('should update order trade', async () => {
             const { result } = renderHook(() => useEthOrderTrade(), {
                 wrapper: EthOrderTradeProvider
             });
             await waitFor(() => {
-                expect(result.current.orderTrades).toHaveLength(1);
+                expect(result.current.detailedOrderTrade).not.toBeNull();
             });
             const orderTradeRequest = {
                 supplier: 'supplier',
@@ -609,19 +335,36 @@ describe('EthOrderTradeProvider', () => {
                 ]
             } as OrderTradeRequest;
 
-            await result.current.updateOrderTrade(orderTrade.tradeId, orderTradeRequest);
+            await result.current.updateOrderTrade(orderTradeRequest);
 
             expect(dispatch).toHaveBeenCalledTimes(6);
-            expect(updatePaymentDeadline).toHaveBeenCalledWith(orderTradeRequest.paymentDeadline);
+            expect(updatePaymentDeadline).toHaveBeenCalledWith(
+                roleProof,
+                orderTradeRequest.paymentDeadline
+            );
             expect(updateDocumentDeliveryDeadline).toHaveBeenCalledWith(
+                roleProof,
                 orderTradeRequest.documentDeliveryDeadline
             );
-            expect(updateArbiter).toHaveBeenCalledWith(orderTradeRequest.arbiter);
-            expect(updateShippingDeadline).toHaveBeenCalledWith(orderTradeRequest.shippingDeadline);
-            expect(updateDeliveryDeadline).toHaveBeenCalledWith(orderTradeRequest.deliveryDeadline);
-            expect(updateAgreedAmount).toHaveBeenCalledWith(orderTradeRequest.agreedAmount);
-            expect(updateTokenAddress).toHaveBeenCalledWith(orderTradeRequest.tokenAddress);
+            expect(updateArbiter).toHaveBeenCalledWith(roleProof, orderTradeRequest.arbiter);
+            expect(updateShippingDeadline).toHaveBeenCalledWith(
+                roleProof,
+                orderTradeRequest.shippingDeadline
+            );
+            expect(updateDeliveryDeadline).toHaveBeenCalledWith(
+                roleProof,
+                orderTradeRequest.deliveryDeadline
+            );
+            expect(updateAgreedAmount).toHaveBeenCalledWith(
+                roleProof,
+                orderTradeRequest.agreedAmount
+            );
+            expect(updateTokenAddress).toHaveBeenCalledWith(
+                roleProof,
+                orderTradeRequest.tokenAddress
+            );
             expect(updateLine).toHaveBeenCalledTimes(1);
+            expect(getCompleteTrade).toHaveBeenCalledTimes(2);
             expect(openNotification).toHaveBeenCalled();
         });
         it('should handle update order trade failure', async () => {
@@ -629,7 +372,7 @@ describe('EthOrderTradeProvider', () => {
                 wrapper: EthOrderTradeProvider
             });
             await waitFor(() => {
-                expect(result.current.orderTrades).toHaveLength(1);
+                expect(result.current.detailedOrderTrade).not.toBeNull();
             });
             const orderTradeRequest = {
                 supplier: 'supplier',
@@ -657,27 +400,37 @@ describe('EthOrderTradeProvider', () => {
             } as OrderTradeRequest;
             updatePaymentDeadline.mockRejectedValue(new Error('error'));
 
-            await result.current.updateOrderTrade(orderTrade.tradeId, orderTradeRequest);
+            jest.clearAllMocks();
+            await result.current.updateOrderTrade(orderTradeRequest);
 
-            expect(dispatch).toHaveBeenCalledTimes(4);
-            expect(updatePaymentDeadline).toHaveBeenCalledWith(orderTradeRequest.paymentDeadline);
+            expect(dispatch).toHaveBeenCalledTimes(2);
+            expect(updatePaymentDeadline).toHaveBeenCalledWith(
+                roleProof,
+                orderTradeRequest.paymentDeadline
+            );
             expect(updateDocumentDeliveryDeadline).not.toHaveBeenCalled();
             expect(openNotification).toHaveBeenCalled();
         });
     });
+
     describe('confirmNegotiation', () => {
+        beforeEach(() => {
+            (useParams as jest.Mock).mockReturnValue({ id: '1' });
+        });
+
         it('should confirm order trade negotiation', async () => {
             const { result } = renderHook(() => useEthOrderTrade(), {
                 wrapper: EthOrderTradeProvider
             });
             await waitFor(() => {
-                expect(result.current.orderTrades).toHaveLength(1);
+                expect(result.current.detailedOrderTrade).not.toBeNull();
             });
 
-            await result.current.confirmNegotiation(orderTrade.tradeId);
+            await result.current.confirmNegotiation();
 
             expect(dispatch).toHaveBeenCalledTimes(6);
-            expect(confirmOrder).toHaveBeenCalled();
+            expect(confirmOrder).toHaveBeenCalledTimes(1);
+            expect(confirmOrder).toHaveBeenCalledWith(roleProof);
             expect(openNotification).toHaveBeenCalled();
         });
         it('should handle confirm order trade negotiation failure', async () => {
@@ -686,97 +439,22 @@ describe('EthOrderTradeProvider', () => {
                 wrapper: EthOrderTradeProvider
             });
             await waitFor(() => {
-                expect(result.current.orderTrades).toHaveLength(1);
+                expect(result.current.detailedOrderTrade).not.toBeNull();
             });
 
-            await result.current.confirmNegotiation(orderTrade.tradeId);
+            await result.current.confirmNegotiation();
 
             expect(dispatch).toHaveBeenCalledTimes(4);
             expect(confirmOrder).toHaveBeenCalled();
             expect(openNotification).toHaveBeenCalled();
         });
-        it('should reject if order is not found', async () => {
-            const { result } = renderHook(() => useEthOrderTrade(), {
-                wrapper: EthOrderTradeProvider
-            });
-            await waitFor(() => {
-                expect(result.current.orderTrades).toHaveLength(1);
-            });
-
-            await expect(result.current.confirmNegotiation(-1)).rejects.toMatch('Trade not found');
-        });
     });
-    describe('validateOrderDocument', () => {
-        it('should validate document', async () => {
-            const { result } = renderHook(() => useEthOrderTrade(), {
-                wrapper: EthOrderTradeProvider
-            });
-            await waitFor(() => {
-                expect(result.current.orderTrades).toHaveLength(1);
-            });
 
-            await result.current.validateOrderDocument(
-                orderTrade.tradeId,
-                1,
-                DocumentStatus.NOT_EVALUATED
-            );
-
-            expect(validateDocument).toHaveBeenCalled();
-            expect(validateDocument).toHaveBeenCalledWith(
-                1,
-                DocumentStatus.NOT_EVALUATED,
-                expect.anything()
-            );
-        });
-        it('should reject if order is not found', async () => {
-            const { result } = renderHook(() => useEthOrderTrade(), {
-                wrapper: EthOrderTradeProvider
-            });
-            await waitFor(() => {
-                expect(result.current.orderTrades).toHaveLength(1);
-            });
-
-            await expect(
-                result.current.validateOrderDocument(-1, 1, DocumentStatus.NOT_EVALUATED)
-            ).rejects.toMatch('Trade not found');
-        });
-    });
-    describe('uploadOrderDocument', () => {
-        it('should upload document', async () => {
-            const { result } = renderHook(() => useEthOrderTrade(), {
-                wrapper: EthOrderTradeProvider
-            });
-            await waitFor(() => {
-                expect(result.current.orderTrades).toHaveLength(1);
-            });
-
-            await result.current.uploadOrderDocument(
-                orderTrade.tradeId,
-                {} as DocumentRequest,
-                'externalUrl'
-            );
-
-            expect(uploadDocument).toHaveBeenCalled();
-            expect(uploadDocument).toHaveBeenCalledWith(
-                {} as DocumentRequest,
-                'externalUrl',
-                expect.anything()
-            );
-        });
-        it('should reject if order is not found', async () => {
-            const { result } = renderHook(() => useEthOrderTrade(), {
-                wrapper: EthOrderTradeProvider
-            });
-            await waitFor(() => {
-                expect(result.current.orderTrades).toHaveLength(1);
-            });
-
-            await expect(
-                result.current.uploadOrderDocument(-1, {} as DocumentRequest, 'externalUrl')
-            ).rejects.toMatch('Trade not found');
-        });
-    });
     describe('notifyExpiration', () => {
+        beforeEach(() => {
+            (useParams as jest.Mock).mockReturnValue({ id: '1' });
+        });
+
         it('should notify order expiration', async () => {
             const fetchBackup = global.fetch;
             getCompany.mockReturnValue({ legalName: 'recipientCompanyName' });
@@ -786,10 +464,10 @@ describe('EthOrderTradeProvider', () => {
                 wrapper: EthOrderTradeProvider
             });
             await waitFor(() => {
-                expect(result.current.orderTrades).toHaveLength(1);
+                expect(result.current.detailedOrderTrade).not.toBeNull();
             });
 
-            await result.current.notifyExpiration(orderTrade.tradeId, 'email', 'message');
+            await result.current.notifyExpiration('email', 'message');
 
             expect(dispatch).toHaveBeenCalledTimes(4);
             expect(mockedFetch).toHaveBeenCalled();
@@ -820,12 +498,13 @@ describe('EthOrderTradeProvider', () => {
                 wrapper: EthOrderTradeProvider
             });
             await waitFor(() => {
-                expect(result.current.orderTrades).toHaveLength(1);
+                expect(result.current.detailedOrderTrade).not.toBeNull();
             });
 
-            await result.current.notifyExpiration(orderTrade.tradeId, 'email', 'message');
+            jest.clearAllMocks();
+            await result.current.notifyExpiration('email', 'message');
 
-            expect(dispatch).toHaveBeenCalledTimes(4);
+            expect(dispatch).toHaveBeenCalledTimes(2);
             expect(mockedFetch).toHaveBeenCalled();
             expect(openNotification).toHaveBeenCalled();
             global.fetch = fetchBackup;
@@ -834,13 +513,137 @@ describe('EthOrderTradeProvider', () => {
             const { result } = renderHook(() => useEthOrderTrade(), {
                 wrapper: EthOrderTradeProvider
             });
-            await waitFor(() => {
-                expect(result.current.orderTrades).toHaveLength(1);
-            });
 
-            await expect(result.current.notifyExpiration(-1, 'email', 'message')).rejects.toMatch(
+            await expect(result.current.notifyExpiration('email', 'message')).rejects.toThrowError(
                 'Trade not found'
             );
+        });
+    });
+
+    describe('createShipment', () => {
+        beforeEach(() => {
+            (useParams as jest.Mock).mockReturnValue({ id: '1' });
+        });
+
+        it('should create shipment', async () => {
+            const { result } = renderHook(() => useEthOrderTrade(), {
+                wrapper: EthOrderTradeProvider
+            });
+            await waitFor(() => {
+                expect(result.current.detailedOrderTrade).not.toBeNull();
+            });
+
+            const expiration = dayjs().add(1, 'day').toDate();
+            await result.current.createShipment(expiration, 10, 500, 300);
+
+            expect(dispatch).toHaveBeenCalledTimes(6);
+            expect(getCompleteTrade).toHaveBeenCalledTimes(2);
+            expect(createShipment).toHaveBeenCalledTimes(1);
+            expect(createShipment).toHaveBeenNthCalledWith(1, roleProof, expiration, 10, 500, 300);
+            expect(openNotification).toHaveBeenCalled();
+        });
+
+        it('should handle create shipment failure', async () => {
+            createShipment.mockRejectedValue(new Error('error'));
+            const { result } = renderHook(() => useEthOrderTrade(), {
+                wrapper: EthOrderTradeProvider
+            });
+            await waitFor(() => {
+                expect(result.current.detailedOrderTrade).not.toBeNull();
+            });
+
+            jest.clearAllMocks();
+            await result.current.createShipment(dayjs().add(1, 'day').toDate(), 10, 500, 300);
+
+            expect(dispatch).toHaveBeenCalledTimes(2);
+            expect(createShipment).toHaveBeenCalledTimes(1);
+            expect(openNotification).toHaveBeenCalled();
+        });
+    });
+
+    describe('getNegotiationStatusAsync', () => {
+        it('should return negotiation status', async () => {
+            const { result } = renderHook(() => useEthOrderTrade(), {
+                wrapper: EthOrderTradeProvider
+            });
+
+            await result.current.getNegotiationStatusAsync(1);
+            expect(OrderTradeService).toHaveBeenCalledTimes(1);
+            expect(getNegotiationStatus).toHaveBeenCalled();
+        });
+
+        it('should handle get negotiation status failure - order not found', async () => {
+            const { result } = renderHook(() => useEthOrderTrade(), {
+                wrapper: EthOrderTradeProvider
+            });
+            await expect(result.current.getNegotiationStatusAsync(-1)).rejects.toThrowError(
+                'Trade not found'
+            );
+        });
+    });
+
+    describe('getSupplierAsync', () => {
+        it('should return the order supplier', async () => {
+            const { result } = renderHook(() => useEthOrderTrade(), {
+                wrapper: EthOrderTradeProvider
+            });
+
+            await result.current.getSupplierAsync(1);
+            expect(OrderTradeService).toHaveBeenCalledTimes(1);
+            expect(getCompleteTrade).toHaveBeenCalled();
+            expect(getCompleteTrade).toHaveBeenCalledWith(roleProof);
+        });
+
+        it('should handle get order supplier failure - order not found', async () => {
+            const { result } = renderHook(() => useEthOrderTrade(), {
+                wrapper: EthOrderTradeProvider
+            });
+            await expect(result.current.getSupplierAsync(-1)).rejects.toThrowError(
+                'Trade not found'
+            );
+        });
+    });
+
+    describe('getCustomerAsync', () => {
+        it('should return the order customer', async () => {
+            const { result } = renderHook(() => useEthOrderTrade(), {
+                wrapper: EthOrderTradeProvider
+            });
+
+            await result.current.getCustomerAsync(1);
+            expect(OrderTradeService).toHaveBeenCalledTimes(1);
+            expect(getCompleteTrade).toHaveBeenCalled();
+            expect(getCompleteTrade).toHaveBeenCalledWith(roleProof);
+        });
+
+        it('should handle get order customer failure - order not found', async () => {
+            const { result } = renderHook(() => useEthOrderTrade(), {
+                wrapper: EthOrderTradeProvider
+            });
+            await expect(result.current.getCustomerAsync(-1)).rejects.toThrowError(
+                'Trade not found'
+            );
+        });
+    });
+
+    describe('getDetailedTradesAsync', () => {
+        it('should return a list of detailed trades', async () => {
+            const rawTrades = [
+                { id: 1, address: '0x123', type: TradeType.ORDER },
+                { id: 2, address: '0x456', type: TradeType.ORDER }
+            ] as RawTrade[];
+            (useEthRawTrade as jest.Mock).mockReturnValue({ rawTrades });
+            const { result } = renderHook(() => useEthOrderTrade(), {
+                wrapper: EthOrderTradeProvider
+            });
+            expect(result.current.detailedOrderTrade).toBeNull();
+
+            await result.current.getDetailedTradesAsync();
+            expect(OrderTradeService).toHaveBeenCalledTimes(rawTrades.length);
+            expect(getCompleteTrade).toHaveBeenCalledTimes(rawTrades.length);
+            expect(getNegotiationStatus).toHaveBeenCalledTimes(rawTrades.length);
+            expect(getShipmentAddress).toHaveBeenCalledTimes(rawTrades.length);
+            expect(getEscrowAddress).toHaveBeenCalledTimes(rawTrades.length);
         });
     });
 });

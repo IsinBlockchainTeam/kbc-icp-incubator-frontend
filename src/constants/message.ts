@@ -102,9 +102,9 @@ export const RAW_TRADE_MESSAGE = {
 };
 export const BASIC_TRADE_MESSAGE = {
     RETRIEVE: {
-        LOADING: 'Retrieving basic trades...',
+        LOADING: 'Retrieving basic trade...',
         OK: '',
-        ERROR: 'Error while retrieving basic trades.'
+        ERROR: 'Error while retrieving basic trade.'
     },
     SAVE: {
         LOADING: 'Creating basic trade...',
@@ -118,10 +118,15 @@ export const BASIC_TRADE_MESSAGE = {
     }
 };
 export const ORDER_TRADE_MESSAGE = {
-    RETRIEVE: {
+    RETRIEVE_MANY: {
         LOADING: 'Retrieving order trades...',
         OK: '',
         ERROR: 'Error while retrieving order trades.'
+    },
+    RETRIEVE: {
+        LOADING: 'Retrieving order trade...',
+        OK: '',
+        ERROR: 'Error while retrieving order trade.'
     },
     SAVE: {
         LOADING: 'Creating order trade...',
@@ -142,6 +147,11 @@ export const ORDER_TRADE_MESSAGE = {
         LOADING: 'Notifying expiration...',
         OK: 'The expiration has been notified.',
         ERROR: 'Error while notifying expiration.'
+    },
+    CREATE_SHIPMENT: {
+        LOADING: 'Creating shipment...',
+        OK: 'Shipment created successfully.',
+        ERROR: 'Error while creating shipment.'
     }
 };
 export const DOCUMENT_MESSAGE = {
@@ -206,5 +216,57 @@ export const TOKEN_MESSAGE = {
         LOADING: 'Retrieving token details...',
         OK: '',
         ERROR: 'Error while retrieving token details.'
+    }
+};
+export const SHIPMENT_MESSAGE = {
+    RETRIEVE: {
+        LOADING: 'Retrieving shipment...',
+        OK: '',
+        ERROR: 'Error while retrieving shipment.'
+    },
+    SAVE: {
+        LOADING: 'Saving shipment...',
+        OK: 'Shipment saved successfully.',
+        ERROR: 'Error while saving shipment.'
+    },
+    APPROVE: {
+        LOADING: 'Approving shipment...',
+        OK: 'Shipment approved successfully.',
+        ERROR: 'Error while approving shipment.'
+    },
+    DEPOSIT: {
+        LOADING: 'Depositing funds...',
+        OK: 'Funds deposited successfully.',
+        ERROR: 'Error while depositing funds.'
+    },
+    GET_DOCUMENT: {
+        LOADING: 'Retrieving document...',
+        OK: '',
+        ERROR: 'Error while retrieving document.'
+    },
+    ADD_DOCUMENT: {
+        LOADING: 'Adding document...',
+        OK: 'Document added successfully.',
+        ERROR: 'Error while adding document.'
+    },
+    APPROVE_DOCUMENT: {
+        LOADING: 'Approving document...',
+        OK: 'Document approved successfully.',
+        ERROR: 'Error while approving document.'
+    },
+    REJECT_DOCUMENT: {
+        LOADING: 'Rejecting document...',
+        OK: 'Document rejected successfully.',
+        ERROR: 'Error while rejecting document.'
+    },
+    CONFIRM: {
+        LOADING: 'Confirming shipment...',
+        OK: 'Shipment confirmed successfully.',
+        ERROR: 'Error while confirming shipment.'
+    },
+    START_ARBITRATION: {
+        LOADING: 'Starting arbitration...',
+        OK: 'Arbitration started successfully.',
+        ERROR: 'Error while starting arbitration.'
     }
 };

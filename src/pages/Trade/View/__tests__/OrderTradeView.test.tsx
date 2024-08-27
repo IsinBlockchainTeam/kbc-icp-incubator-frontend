@@ -1,7 +1,7 @@
+import React from 'react';
 import { act, fireEvent, render } from '@testing-library/react';
-import { FormElement } from '@/components/GenericForm/GenericForm';
+import { FormElement, GenericForm } from '@/components/GenericForm/GenericForm';
 import { OrderTradeView } from '@/pages/Trade/View/OrderTradeView';
-import OrderStatusSteps from '@/pages/Trade/OrderStatusSteps/OrderStatusSteps';
 import { useNavigate } from 'react-router-dom';
 import {
     OrderLinePrice,
@@ -18,11 +18,11 @@ import useOrderGenerator from '@/hooks/documentGenerator/useOrderGenerator';
 
 jest.mock('react-router-dom');
 jest.mock('@/providers/SignerProvider');
-jest.mock('@/pages/Trade/OrderStatusSteps/OrderStatusSteps');
 jest.mock('@/components/PDFViewer/PDFGenerationView');
 jest.mock('@/providers/entities/EthMaterialProvider');
 jest.mock('@/providers/entities/EthEnumerableProvider');
 jest.mock('@/providers/entities/EthOrderTradeProvider');
+jest.mock('@/components/GenericForm/GenericForm');
 jest.mock('@/hooks/documentGenerator/useOrderGenerator');
 
 describe('Basic Trade View', () => {
@@ -97,10 +97,9 @@ describe('Basic Trade View', () => {
                 commonElements={commonElements}
             />
         );
-        expect(OrderStatusSteps).toHaveBeenCalledTimes(1);
-        const negotiationElements = (OrderStatusSteps as jest.Mock).mock.calls[0][0]
-            .negotiationElements;
-        expect(negotiationElements).toHaveLength(23);
+        expect(GenericForm).toHaveBeenCalledTimes(1);
+        const elements = (GenericForm as jest.Mock).mock.calls[0][0].elements;
+        expect(elements).toHaveLength(21);
         expect(PDFGenerationView).toHaveBeenCalledTimes(1);
         expect(PDFGenerationView).toHaveBeenCalledWith(
             {
@@ -125,8 +124,8 @@ describe('Basic Trade View', () => {
             />
         );
 
-        expect(OrderStatusSteps).toHaveBeenCalledTimes(1);
-        const onSubmit = (OrderStatusSteps as jest.Mock).mock.calls[0][0].onSubmit;
+        expect(GenericForm).toHaveBeenCalledTimes(1);
+        const onSubmit = (GenericForm as jest.Mock).mock.calls[0][0].onSubmit;
         const values = {
             supplier: supplierAddress,
             customer: customerAddress,
@@ -157,7 +156,7 @@ describe('Basic Trade View', () => {
         };
         await onSubmit(values);
         expect(updateOrderTrade).toHaveBeenCalledTimes(1);
-        expect(updateOrderTrade).toHaveBeenCalledWith(orderTrade.tradeId, {
+        expect(updateOrderTrade).toHaveBeenCalledWith({
             supplier: supplierAddress,
             customer: customerAddress,
             commissioner: customerAddress,
@@ -186,9 +185,8 @@ describe('Basic Trade View', () => {
                 commonElements={commonElements}
             />
         );
-        const negotiationElements = (OrderStatusSteps as jest.Mock).mock.calls[0][0]
-            .negotiationElements;
-        negotiationElements[21].onClick();
+        const elements = (GenericForm as jest.Mock).mock.calls[0][0].elements;
+        elements[20].onClick();
         expect(confirmNegotiation).toHaveBeenCalledTimes(1);
     });
     it("should show generated document on 'Generate document' click", async () => {

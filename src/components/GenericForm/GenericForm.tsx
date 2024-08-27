@@ -1,7 +1,9 @@
 import React, { ReactNode, useEffect } from 'react';
 import {
     Alert,
+    AlertProps,
     Button,
+    Card,
     Col,
     DatePicker,
     Divider,
@@ -15,9 +17,9 @@ import {
 import PDFViewer from '../PDFViewer/PDFViewer';
 import { DownloadOutlined } from '@ant-design/icons';
 import { createDownloadWindow } from '@/utils/page';
-import { DocumentContent } from '@/providers/entities/EthDocumentProvider';
 import { DocumentStatus } from '@kbc-lib/coffee-trading-management-lib';
 import { ConfirmButton } from '@/components/ConfirmButton/ConfirmButton';
+import { CardSize } from 'antd/es/card/Card';
 
 export enum FormElementType {
     TITLE = 'title',
@@ -27,7 +29,8 @@ export enum FormElementType {
     DATE = 'date',
     SPACE = 'space',
     BUTTON = 'button',
-    DOCUMENT = 'document'
+    DOCUMENT = 'document',
+    CARD = 'card'
 }
 
 export type FormElement =
@@ -36,7 +39,8 @@ export type FormElement =
     | ClickableElement
     | SelectableElement
     | EditableElement
-    | DocumentElement;
+    | DocumentElement
+    | CardElement;
 
 type BasicElement = {
     type: FormElementType.SPACE;
@@ -47,7 +51,15 @@ type BasicElement = {
 type LabeledElement = Omit<BasicElement, 'type'> & {
     type: FormElementType.TITLE | FormElementType.TIP;
     label: ReactNode;
+    background?: AlertProps['type'];
     marginVertical?: string;
+};
+
+export type DocumentContent = {
+    contentType: string;
+    content: Blob;
+    filename: string;
+    date: Date;
 };
 
 // type DisableableElement = Omit<LabeledElement, 'type'> & {
@@ -81,8 +93,16 @@ const mapAdditionalPropertiesToButtonProps: Record<
 type SelectableElement = Omit<LabeledElement, 'type'> & {
     type: FormElementType.SELECT;
     name: string;
-    options: { label: string; value: string | number }[];
+    options: { label: React.ReactNode; value: string | number }[];
     required: boolean;
+    onChange?: (value: any) => any;
+    search?: {
+        showIcon: boolean;
+        filterOption: (input: string, option: any) => boolean;
+    };
+    optionRender?: (option: any) => React.ReactNode;
+    onSelect?: (value: string | number) => void;
+    // if 'number', it refers to the index of the options array
     defaultValue?: string | number | string[];
     mode?: 'multiple';
     disabled?: boolean;
@@ -94,6 +114,7 @@ type EditableElement = Omit<LabeledElement, 'type'> & {
     name: string;
     defaultValue: any;
     required: boolean;
+    addOnAfter?: string;
     disabled?: boolean;
     disableValues?: (...args: any[]) => boolean;
     block?: boolean;
@@ -118,10 +139,22 @@ export type DocumentElement = Omit<LabeledElement, 'type'> & {
     validationCallbacks?: DocumentValidationCallback;
 };
 
+type CardElement = Omit<BasicElement, 'type'> & {
+    type: FormElementType.CARD;
+    name: string;
+    title: string;
+    content: React.ReactNode;
+    actions?: React.ReactNode[];
+    bordered?: boolean;
+    size?: CardSize;
+    extra?: React.ReactNode;
+};
+
 type Props = {
     elements: FormElement[];
     confirmText?: string;
     submittable?: boolean;
+    submitText?: string;
     onSubmit?: (values: any) => void;
 };
 
@@ -174,7 +207,7 @@ export const GenericForm = (props: Props) => {
         },
         [FormElementType.TIP]: (element: FormElement, index: number) => {
             element = element as LabeledElement;
-            const { span, label } = element;
+            const { span, label, background = 'info' } = element;
             return (
                 <Col
                     span={span}
@@ -183,7 +216,11 @@ export const GenericForm = (props: Props) => {
                         margin: `${element.marginVertical} 0`,
                         display: `${element.hidden ? 'none' : 'block'}`
                     }}>
-                    <Alert style={{ textAlign: 'center' }} message={element.label} />
+                    <Alert
+                        style={{ textAlign: 'center' }}
+                        message={element.label}
+                        type={background}
+                    />
                 </Col>
             );
         },
@@ -239,7 +276,9 @@ export const GenericForm = (props: Props) => {
                         labelCol={{ span: 24 }}
                         label={element.label}
                         name={element.name}
-                        initialValue={element.defaultValue ? element.defaultValue : undefined}
+                        initialValue={
+                            element.defaultValue !== undefined ? element.defaultValue : undefined
+                        }
                         rules={[
                             {
                                 required: element.required,
@@ -252,6 +291,11 @@ export const GenericForm = (props: Props) => {
                             placeholder={`Select ${element.label}`}
                             // defaultValue={element.defaultValue}
                             options={element.options}
+                            onChange={element.onChange}
+                            optionRender={element.optionRender}
+                            onSelect={element.onSelect}
+                            showSearch={element.search?.showIcon}
+                            filterOption={element.search?.filterOption}
                         />
                     </Form.Item>
                 </Col>
@@ -293,9 +337,11 @@ export const GenericForm = (props: Props) => {
                             type={element.type}
                             disabled={disabled}
                             placeholder={`Enter ${element.label}`}
+                            addonAfter={element.addOnAfter}
                             // defaultValue={element.defaultValue}
                             // value={element.defaultValue}
                             className="ant-input"
+                            style={{ padding: element.addOnAfter ? 0 : undefined }}
                         />
                     </Form.Item>
                 </Col>
@@ -418,9 +464,30 @@ export const GenericForm = (props: Props) => {
                     </Form.Item>
                 </Col>
             );
+        },
+        [FormElementType.CARD]: (element: FormElement, index: number) => {
+            element = element as CardElement;
+            const { title, content, actions, bordered = true, size = 'default', extra } = element;
+
+            return (
+                <Col
+                    span={element.span}
+                    key={`date_${element.name}`}
+                    style={{ display: `${element.hidden ? 'none' : 'block'}` }}>
+                    <Form.Item labelCol={{ span: 24 }} name={element.name}>
+                        <Card
+                            title={title}
+                            bordered={bordered}
+                            size={size}
+                            extra={extra}
+                            actions={actions}>
+                            {content}
+                        </Card>
+                    </Form.Item>
+                </Col>
+            );
         }
     };
-
     return (
         <Form
             layout="horizontal"
@@ -442,7 +509,7 @@ export const GenericForm = (props: Props) => {
                     <Col span={24}>
                         <Form.Item>
                             <ConfirmButton
-                                text="Submit"
+                                text={props.submitText || 'Submit'}
                                 disabled={!areFieldsValid}
                                 confirmText={
                                     props.confirmText || 'Are you sure you want to submit?'

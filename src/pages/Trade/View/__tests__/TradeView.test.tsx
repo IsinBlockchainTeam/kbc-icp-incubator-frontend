@@ -1,8 +1,16 @@
+import React from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { act, render } from '@testing-library/react';
 import { TradeView } from '@/pages/Trade/View/TradeView';
 import { OrderTradeView } from '@/pages/Trade/View/OrderTradeView';
-import { BasicTrade, OrderTrade, TradeType } from '@kbc-lib/coffee-trading-management-lib';
+import {
+    BasicTrade,
+    BasicTradeService,
+    NegotiationStatus,
+    OrderTrade,
+    OrderTradeService,
+    TradeType
+} from '@kbc-lib/coffee-trading-management-lib';
 import { paths } from '@/constants/paths';
 import { BasicTradeView } from '@/pages/Trade/View/BasicTradeView';
 import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
@@ -19,8 +27,16 @@ jest.mock('@/providers/entities/ICPOrganizationProvider');
 jest.mock('@/utils/notification');
 
 describe('Trade View', () => {
-    const basicTrades = [{ tradeId: 1 } as BasicTrade];
-    const orderTrades = [{ tradeId: 1 } as OrderTrade];
+    const detailedBasicTrade = {
+        trade: { tradeId: 1 } as BasicTrade,
+        service: {} as BasicTradeService,
+        documents: []
+    };
+    const detailedOrderTrade = {
+        trade: { tradeId: 1 } as OrderTrade,
+        service: {} as OrderTradeService,
+        negotiationStatus: NegotiationStatus.INITIALIZED
+    };
     const getCompany = jest.fn();
     const navigate = jest.fn();
 
@@ -36,8 +52,8 @@ describe('Trade View', () => {
         (useParams as jest.Mock).mockReturnValue({
             id: 1
         });
-        (useEthBasicTrade as jest.Mock).mockReturnValue({ basicTrades });
-        (useEthOrderTrade as jest.Mock).mockReturnValue({ orderTrades });
+        (useEthBasicTrade as jest.Mock).mockReturnValue({ detailedBasicTrade });
+        (useEthOrderTrade as jest.Mock).mockReturnValue({ detailedOrderTrade });
         (useICPOrganization as jest.Mock).mockReturnValue({ getCompany });
         getCompany.mockReturnValue({ legalName: 'actor' });
     });

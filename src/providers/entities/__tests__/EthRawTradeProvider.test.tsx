@@ -6,7 +6,7 @@ import {
     TradeService,
     TradeType
 } from '@kbc-lib/coffee-trading-management-lib';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useSigner } from '@/providers/SignerProvider';
 import { openNotification } from '@/utils/notification';
 import { useICP } from '@/providers/ICPProvider';
@@ -49,6 +49,10 @@ describe('EthRawTradeProvider', () => {
         (useICP as jest.Mock).mockReturnValue({
             fileDriver: {} as ICPFileDriver
         });
+        (useSelector as jest.Mock).mockReturnValue({
+            signedProof: 'signedProof',
+            delegator: 'delegator'
+        });
     });
 
     it('should throw error if hook is used outside the provider', async () => {
@@ -70,7 +74,7 @@ describe('EthRawTradeProvider', () => {
         expect(getTradeType).toHaveBeenCalled();
         expect(result.current.dataLoaded).toBe(true);
         expect(result.current.rawTrades).toEqual([
-            { address: tradeAddress, type: tradeType } as RawTrade
+            { id: 1, address: tradeAddress, type: tradeType } as RawTrade
         ]);
     });
 

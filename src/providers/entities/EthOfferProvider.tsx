@@ -1,12 +1,13 @@
 import { Offer, OfferDriver, OfferService } from '@kbc-lib/coffee-trading-management-lib';
 import { createContext, ReactNode, useContext, useMemo, useState } from 'react';
 import { useSigner } from '@/providers/SignerProvider';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { CONTRACT_ADDRESSES } from '@/constants/evm';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
 import { OFFER_MESSAGE, SUPPLIER_MESSAGE } from '@/constants/message';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
+import { RootState } from '@/redux/store';
 
 export type EthOfferContextState = {
     dataLoaded: boolean;
@@ -30,6 +31,8 @@ export function EthOfferProvider(props: { children: ReactNode }) {
     const { signer } = useSigner();
     const dispatch = useDispatch();
 
+    const roleProof = useSelector((state: RootState) => state.userInfo.roleProof);
+
     const offerService = useMemo(
         () =>
             new OfferService(
@@ -45,9 +48,10 @@ export function EthOfferProvider(props: { children: ReactNode }) {
     const loadOffers = async () => {
         try {
             dispatch(addLoadingMessage(OFFER_MESSAGE.RETRIEVE.LOADING));
-            const offers = await offerService.getAllOffers();
+            const offers = await offerService.getAllOffers(roleProof);
             setOffers(offers);
         } catch (e) {
+            console.log('Error loading offers', e);
             openNotification(
                 'Error',
                 OFFER_MESSAGE.RETRIEVE.ERROR,
@@ -67,7 +71,7 @@ export function EthOfferProvider(props: { children: ReactNode }) {
     const saveOffer = async (offerorAddress: string, productCategoryId: number) => {
         try {
             dispatch(addLoadingMessage(OFFER_MESSAGE.SAVE.LOADING));
-            await offerService.registerOffer(offerorAddress, productCategoryId);
+            await offerService.registerOffer(roleProof, offerorAddress, productCategoryId);
             openNotification(
                 'Success',
                 OFFER_MESSAGE.SAVE.OK,
@@ -90,7 +94,7 @@ export function EthOfferProvider(props: { children: ReactNode }) {
     const saveSupplier = async (supplier: string, name: string) => {
         try {
             dispatch(addLoadingMessage(SUPPLIER_MESSAGE.SAVE.LOADING));
-            await offerService.registerSupplier(supplier, name);
+            await offerService.registerSupplier(roleProof, supplier, name);
             openNotification(
                 'Success',
                 SUPPLIER_MESSAGE.SAVE.OK,
@@ -98,6 +102,7 @@ export function EthOfferProvider(props: { children: ReactNode }) {
                 NOTIFICATION_DURATION
             );
         } catch (e: any) {
+            console.error(e);
             openNotification(
                 'Error',
                 SUPPLIER_MESSAGE.SAVE.ERROR,

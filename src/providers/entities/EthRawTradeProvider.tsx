@@ -12,11 +12,13 @@ import { useSigner } from '@/providers/SignerProvider';
 import { useICP } from '@/providers/ICPProvider';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
 import { RAW_TRADE_MESSAGE } from '@/constants/message';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
+import { RootState } from '@/redux/store';
 
 export type RawTrade = {
+    id: number;
     address: string;
     type: TradeType;
 };
@@ -42,6 +44,8 @@ export function EthRawTradeProvider(props: { children: ReactNode }) {
     const { fileDriver } = useICP();
     const dispatch = useDispatch();
 
+    const roleProof = useSelector((state: RootState) => state.userInfo.roleProof);
+
     const tradeManagerService = useMemo(
         () =>
             new TradeManagerService({
@@ -64,25 +68,20 @@ export function EthRawTradeProvider(props: { children: ReactNode }) {
         try {
             dispatch(addLoadingMessage(RAW_TRADE_MESSAGE.RETRIEVE.LOADING));
             const tradeIds = [
-                ...(await tradeManagerService.getTradeIdsOfSupplier(signer._address)),
-                ...(await tradeManagerService.getTradeIdsOfCommissioner(signer._address))
+                ...(await tradeManagerService.getTradeIdsOfSupplier(roleProof, signer._address)),
+                ...(await tradeManagerService.getTradeIdsOfCommissioner(roleProof, signer._address))
             ];
-            const tradeAddresses: string[] = [];
-            await Promise.allSettled(
-                tradeIds.map(async (id) =>
-                    tradeAddresses.push(await tradeManagerService.getTrade(id))
-                )
-            );
             const rawTrades: RawTrade[] = [];
             await Promise.allSettled(
-                tradeAddresses.map(async (address) => {
+                tradeIds.map(async (id) => {
+                    const address = await tradeManagerService.getTrade(roleProof, id);
                     const tradeService = new TradeService(
                         new TradeDriver(signer, address),
                         documentDriver,
                         fileDriver
                     );
-                    const type = await tradeService.getTradeType();
-                    rawTrades.push({ address, type });
+                    const type = await tradeService.getTradeType(roleProof);
+                    rawTrades.push({ id, address, type });
                 })
             );
             setRawTrades(rawTrades);

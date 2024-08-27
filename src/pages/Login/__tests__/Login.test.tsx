@@ -12,6 +12,7 @@ import { requestPath } from '@/constants/url';
 import { openNotification } from '@/utils/notification';
 import { updateUserInfo } from '@/redux/reducers/userInfoSlice';
 import { EventEmitter } from 'events';
+import { DID_METHOD } from '@/constants/ssi';
 
 jest.mock('antd', () => ({
     ...jest.requireActual('antd'),
@@ -153,7 +154,11 @@ describe('Login', () => {
                                 email: 'email',
                                 address: 'address',
                                 birthDate: 'birthDate'
-                            }
+                            },
+                            issuer: {
+                                id: DID_METHOD + ':123'
+                            },
+                            signedProof: 'signedProof'
                         }
                     ]
                 }
@@ -185,7 +190,11 @@ describe('Login', () => {
             expect(updateUserInfo).toHaveBeenCalledWith({
                 subjectDid: employeeDid,
                 companyClaims,
-                employeeClaims
+                employeeClaims,
+                roleProof: {
+                    delegator: '123',
+                    signedProof: 'signedProof'
+                }
             });
             jest.useRealTimers();
         });

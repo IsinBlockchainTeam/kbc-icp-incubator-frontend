@@ -1,7 +1,7 @@
 import { renderHook, act } from '@testing-library/react';
 import { EthGraphProvider, useEthGraph } from '../EthGraphProvider';
-import { GraphService, ICPFileDriver } from '@kbc-lib/coffee-trading-management-lib';
-import { useDispatch } from 'react-redux';
+import { GraphService, ICPFileDriver, RoleProof } from '@kbc-lib/coffee-trading-management-lib';
+import { useDispatch, useSelector } from 'react-redux';
 import { useSigner } from '@/providers/SignerProvider';
 import { openNotification } from '@/utils/notification';
 import { useICP } from '@/providers/ICPProvider';
@@ -17,6 +17,10 @@ describe('EthGraphProvider', () => {
     const signer = { _address: '0x123' } as JsonRpcSigner;
     const dispatch = jest.fn();
     const computeGraph = jest.fn();
+    const roleProof: RoleProof = {
+        signedProof: 'signedProof',
+        delegator: 'delegator'
+    };
     beforeEach(() => {
         jest.clearAllMocks();
         jest.spyOn(console, 'error').mockImplementation(jest.fn());
@@ -29,6 +33,7 @@ describe('EthGraphProvider', () => {
         (useICP as jest.Mock).mockReturnValue({
             fileDriver: {} as ICPFileDriver
         });
+        (useSelector as jest.Mock).mockReturnValue(roleProof);
     });
 
     it('should throw error if hook is used outside the provider', async () => {
@@ -42,7 +47,7 @@ describe('EthGraphProvider', () => {
         await result.current.computeGraph(1);
 
         expect(dispatch).toHaveBeenCalledTimes(2);
-        expect(computeGraph).toHaveBeenCalledWith(1, true);
+        expect(computeGraph).toHaveBeenCalledWith(roleProof, 1, true);
     });
 
     it('should handle compute graph failure', async () => {
@@ -53,7 +58,7 @@ describe('EthGraphProvider', () => {
         await result.current.computeGraph(1);
 
         expect(dispatch).toHaveBeenCalledTimes(2);
-        expect(computeGraph).toHaveBeenCalledWith(1, true);
+        expect(computeGraph).toHaveBeenCalledWith(roleProof, 1, true);
         expect(openNotification).toHaveBeenCalled();
     });
 

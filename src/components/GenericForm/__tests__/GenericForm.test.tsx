@@ -50,6 +50,11 @@ jest.mock('antd', () => {
                 {children}
             </div>
         ),
+        Card: ({ children, ...props }: any) => (
+            <div {...props} data-testid="card">
+                {children}
+            </div>
+        ),
         Alert: ({ children, message, ...props }: any) => (
             <div {...props} data-testid="alert">
                 {message}
@@ -265,6 +270,27 @@ describe('GenericForm', () => {
 
         const pdfViewer = tree.getByTestId('pdfviewer');
         expect(pdfViewer).toBeDefined();
+    });
+    it('should render correctly CardElements', () => {
+        const elements: FormElement[] = [
+            {
+                type: FormElementType.CARD,
+                span: 24,
+                name: 'card',
+                title: 'Card 1',
+                content: "This is the card's content"
+            }
+        ];
+        const tree = render(<GenericForm elements={elements} />);
+
+        const formitem = tree.getByTestId('form-item');
+        expect(formitem).toHaveAttribute('name', 'card');
+
+        const card = tree.getByTestId('card');
+        expect(card).toHaveAttribute('title', 'Card 1');
+        expect(card).not.toHaveAttribute('size');
+        expect(card).not.toHaveAttribute('extra');
+        expect(card).not.toHaveAttribute('actions');
     });
     it('should call onSubmit', () => {
         const elements: FormElement[] = [

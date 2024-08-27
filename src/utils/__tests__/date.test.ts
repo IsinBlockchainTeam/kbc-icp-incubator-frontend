@@ -1,4 +1,9 @@
-import { differenceInDaysFromToday, fromTimestampToDate, validateDates } from '@/utils/date';
+import {
+    differenceInDaysFromToday,
+    fromDateToString,
+    fromTimestampToDate,
+    validateDates
+} from '@/utils/date';
 import { FormInstance } from 'antd';
 
 describe('date utility functions', () => {
@@ -45,5 +50,9 @@ describe('date utility functions', () => {
             'Start date should be before end date'
         );
         await expect(validator(form)).rejects.toEqual('Start date should be before end date');
+    });
+
+    it('convert Date to string', () => {
+        expect(fromDateToString(new Date('2022-01-01'))).toEqual('1 Jan 2022');
     });
 });

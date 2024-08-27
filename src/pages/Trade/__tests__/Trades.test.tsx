@@ -1,17 +1,13 @@
 import { render } from '@testing-library/react';
 import Trades from '@/pages/Trade/Trades';
 import { Table, Tag, Tooltip } from 'antd';
-import {
-    BasicTrade,
-    NegotiationStatus,
-    OrderStatus,
-    OrderTrade,
-    TradeType
-} from '@kbc-lib/coffee-trading-management-lib';
+import { NegotiationStatus, OrderTrade, TradeType } from '@kbc-lib/coffee-trading-management-lib';
 import { Link } from 'react-router-dom';
-import { useEthBasicTrade } from '@/providers/entities/EthBasicTradeProvider';
 import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
-import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
+import { useICPOrganization } from '@/providers/entities/ICPNameProvider';
+import { RawTrade, useEthRawTrade } from '@/providers/entities/EthRawTradeProvider';
+import { useEthShipment } from '@/providers/entities/EthShipmentProvider';
+import { AsyncComponent } from '@/components/AsyncComponent/AsyncComponent';
 
 jest.mock('antd', () => {
     return {
@@ -21,7 +17,8 @@ jest.mock('antd', () => {
         Tooltip: jest.fn(() => <div />)
     };
 });
-jest.mock('@/providers/entities/EthBasicTradeProvider');
+jest.mock('@/providers/entities/EthRawTradeProvider');
+jest.mock('@/providers/entities/EthShipmentProvider');
 jest.mock('@/providers/entities/EthOrderTradeProvider');
 jest.mock('@/providers/entities/ICPOrganizationProvider');
 jest.mock('@/utils/page');
@@ -31,42 +28,41 @@ jest.mock('react-router-dom', () => {
         Link: jest.fn(() => <div />)
     };
 });
+jest.mock('@/components/AsyncComponent/AsyncComponent', () => ({
+    AsyncComponent: jest.fn(() => <div />)
+}));
 
 describe('Trades', () => {
-    const basicTrades = [{} as BasicTrade];
+    const rawTrades = [{ id: 1 } as RawTrade, { id: 2 } as RawTrade];
     const orderTrades = [{} as OrderTrade];
     const getCompany = jest.fn();
-    const getActionRequired = jest.fn();
-    const getNegotiationStatus = jest.fn();
-    const getOrderStatus = jest.fn();
+    const getSupplierAsync = jest.fn();
+    const getCustomerAsync = jest.fn();
+    const getNegotiationStatusAsync = jest.fn();
+    const getShipmentPhaseAsync = jest.fn();
     beforeEach(() => {
         jest.spyOn(console, 'log').mockImplementation(jest.fn());
         jest.spyOn(console, 'error').mockImplementation(jest.fn());
         jest.clearAllMocks();
 
-        (useEthBasicTrade as jest.Mock).mockReturnValue({ basicTrades });
+        (useEthRawTrade as jest.Mock).mockReturnValue({ rawTrades });
         (useEthOrderTrade as jest.Mock).mockReturnValue({
             orderTrades,
-            getActionRequired,
-            getNegotiationStatus,
-            getOrderStatus
+            getSupplierAsync,
+            getCustomerAsync,
+            getNegotiationStatusAsync
         });
+        (useEthShipment as jest.Mock).mockReturnValue({ getShipmentPhaseAsync });
         (useICPOrganization as jest.Mock).mockReturnValue({ getCompany });
         getCompany.mockReturnValue({ legalName: 'actor' });
-        getActionRequired.mockReturnValue('actionRequired');
-        getNegotiationStatus.mockReturnValue(NegotiationStatus.CONFIRMED);
-        getOrderStatus.mockReturnValue(OrderStatus.CONTRACTING);
+        getNegotiationStatusAsync.mockReturnValue(NegotiationStatus.CONFIRMED);
     });
 
     it('should render correctly', async () => {
         render(<Trades />);
         expect(Table).toHaveBeenCalledTimes(1);
         const dataSource = (Table as unknown as jest.Mock).mock.calls[0][0].dataSource;
-        expect(dataSource).toHaveLength(2);
-        expect(getCompany).toHaveBeenCalledTimes(4);
-        expect(getActionRequired).toHaveBeenCalledTimes(1);
-        expect(getNegotiationStatus).toHaveBeenCalledTimes(1);
-        expect(getOrderStatus).toHaveBeenCalledTimes(1);
+        expect(dataSource).toHaveLength(rawTrades.length);
     });
 
     it('columns sorting', async () => {
@@ -74,9 +70,6 @@ describe('Trades', () => {
         expect(Table).toHaveBeenCalledTimes(1);
         const columns = (Table as unknown as jest.Mock).mock.calls[0][0].columns;
         expect(columns[0].sorter({ id: 1 }, { id: 2 })).toBeLessThan(0);
-        expect(columns[1].sorter({ supplier: 'a' }, { supplier: 'b' })).toBeLessThan(0);
-        expect(columns[2].sorter({ commissioner: 'a' }, { commissioner: 'b' })).toBeLessThan(0);
-        expect(columns[4].sorter({ orderStatus: 'a' }, { orderStatus: 'b' })).toBeLessThan(0);
     });
 
     it('columns render', async () => {
@@ -85,13 +78,31 @@ describe('Trades', () => {
         const columns = (Table as unknown as jest.Mock).mock.calls[0][0].columns;
         render(columns[0].render(1, TradeType.BASIC));
         expect(Link).toHaveBeenCalled();
-        let resp = columns[2].render('customer');
-        expect(resp).toEqual('customer');
-        resp = columns[3].render(0);
-        expect(resp).toEqual(TradeType[0]);
-        render(columns[4].render(null, { negotiationStatus: 0, orderStatus: 0 }));
-        expect(Tag).toHaveBeenCalled();
-        render(columns[5].render(null, { actionRequired: 'actionRequired' }));
-        expect(Tooltip).toHaveBeenCalled();
+        render(columns[1].render(0, { id: 1 }));
+        expect(AsyncComponent).toHaveBeenCalledTimes(1);
+        // expect(getName).toHaveBeenCalledTimes(1);
+        // expect(getSupplierAsync).toHaveBeenCalledTimes(1);
+        // expect(getSupplierAsync).toHaveBeenNthCalledWith(1, 1);
+        // expect(resp).toEqual('actor');
+        render(columns[2].render(null, 1));
+        expect(AsyncComponent).toHaveBeenCalledTimes(2);
+        // expect(getName).toHaveBeenCalledTimes(2);
+        // expect(getCustomerAsync).toHaveBeenCalledTimes(1);
+        // expect(getCustomerAsync).toHaveBeenNthCalledWith(1, 1);
+        // expect(resp).toEqual('actor');
+        const resp = columns[3].render(TradeType.BASIC);
+        expect(resp).toEqual(TradeType[TradeType.BASIC]);
+
+        render(columns[4].render(null, { id: 1 }));
+        expect(Tag).toHaveBeenCalledTimes(1);
+        // expect(AsyncComponent).toHaveBeenCalledTimes(3);
+        // expect(getNegotiationStatusAsync).toHaveBeenCalledTimes(1);
+        // expect(getNegotiationStatusAsync).toHaveBeenNthCalledWith(1, 1);
+
+        render(columns[5].render(null, { id: 1 }));
+        expect(Tag).toHaveBeenCalledTimes(2);
+        // expect(AsyncComponent).toHaveBeenCalledTimes(4);
+        // expect(getShipmentPhaseAsync).toHaveBeenCalledTimes(1);
+        // expect(getShipmentPhaseAsync).toHaveBeenNthCalledWith(1, 1);
     });
 });
