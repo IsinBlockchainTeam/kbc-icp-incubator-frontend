@@ -133,7 +133,14 @@ export const Login = () => {
                             delegator: message.body.verifiableCredential[1].issuer.id.split(
                                 DID_METHOD + ':'
                             )[1],
-                            delegateCredentialIdHash: message.body.verifiableCredential[1].id
+                            delegateCredentialIdHash: message.body.verifiableCredential[1].id,
+                            membershipProof: {
+                                signedProof: message.body.verifiableCredential[0].signedProof,
+                                delegatorCredentialIdHash: message.body.verifiableCredential[0].id,
+                                issuer: message.body.verifiableCredential[0].issuer.id.split(
+                                    DID_METHOD + ':'
+                                )[1]
+                            }
                         }
                     })
                 );

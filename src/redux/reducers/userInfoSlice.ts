@@ -61,7 +61,12 @@ export const initialState: UserInfoState = {
     roleProof: {
         signedProof: '',
         delegator: '',
-        delegateCredentialIdHash: ''
+        delegateCredentialIdHash: '',
+        membershipProof: {
+            signedProof: '',
+            delegatorCredentialIdHash: '',
+            issuer: ''
+        }
     }
 };
 export type UpdatableUserInfoState = Omit<UserInfoState, 'isLogged'>;
