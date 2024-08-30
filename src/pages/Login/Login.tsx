@@ -132,7 +132,8 @@ export const Login = () => {
                             signedProof: message.body.verifiableCredential[1].signedProof,
                             delegator: message.body.verifiableCredential[1].issuer.id.split(
                                 DID_METHOD + ':'
-                            )[1]
+                            )[1],
+                            delegateCredentialIdHash: message.body.verifiableCredential[1].id
                         }
                     })
                 );
@@ -144,6 +145,7 @@ export const Login = () => {
                 NotificationType.ERROR,
                 NOTIFICATION_DURATION
             );
+            clearInterval(interval);
         }
     };
 
