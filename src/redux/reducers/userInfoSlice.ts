@@ -62,9 +62,11 @@ export const initialState: UserInfoState = {
         signedProof: '',
         delegator: '',
         delegateCredentialIdHash: '',
+        delegateCredentialExpiryDate: 0,
         membershipProof: {
             signedProof: '',
             delegatorCredentialIdHash: '',
+            delegatorCredentialExpiryDate: 0,
             issuer: ''
         }
     }

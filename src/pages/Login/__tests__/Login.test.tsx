@@ -132,6 +132,7 @@ describe('Login', () => {
                     holder: 'subjectDid',
                     verifiableCredential: [
                         {
+                            id: '123',
                             credentialSubject: {
                                 id: 'id',
                                 subjectDid: 'subjectDid',
@@ -143,9 +144,15 @@ describe('Login', () => {
                                 image: 'image',
                                 role: 'role',
                                 organizationId: 'organizationId'
-                            }
+                            },
+                            issuer: {
+                                id: DID_METHOD + ':456'
+                            },
+                            expirationDate: new Date(1),
+                            signedProof: 'signedProof'
                         },
                         {
+                            id: '456',
                             credentialSubject: {
                                 id: 'id',
                                 subjectDid: 'subjectDid',
@@ -158,6 +165,7 @@ describe('Login', () => {
                             issuer: {
                                 id: DID_METHOD + ':123'
                             },
+                            expirationDate: new Date(1),
                             signedProof: 'signedProof'
                         }
                     ]
@@ -193,7 +201,15 @@ describe('Login', () => {
                 employeeClaims,
                 roleProof: {
                     delegator: '123',
-                    signedProof: 'signedProof'
+                    signedProof: 'signedProof',
+                    delegateCredentialIdHash: '456',
+                    delegateCredentialExpiryDate: 0,
+                    membershipProof: {
+                        signedProof: 'signedProof',
+                        delegatorCredentialIdHash: '123',
+                        delegatorCredentialExpiryDate: 0,
+                        issuer: '456'
+                    }
                 }
             });
             jest.useRealTimers();
