@@ -1,7 +1,7 @@
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
 import {
+    ShipmentDocumentEvaluationStatus,
     ShipmentDocumentInfo,
-    ShipmentDocumentStatus,
     ShipmentDocumentType
 } from '@kbc-lib/coffee-trading-management-lib';
 import React from 'react';
@@ -45,7 +45,7 @@ export default (props: Props) => {
             required: true,
             defaultValue: selectedDocumentType !== undefined ? selectedDocumentType : undefined,
             options: mappedDocumentsInfo
-                .filter(({ info }) => info?.status !== ShipmentDocumentStatus.APPROVED)
+                .filter(({ info }) => info?.status !== ShipmentDocumentEvaluationStatus.APPROVED)
                 .map(({ type }) => ({
                     value: type,
                     label: ShipmentDocumentType[type]

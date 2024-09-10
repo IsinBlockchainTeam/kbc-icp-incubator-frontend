@@ -13,7 +13,6 @@ import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { CONTRACT_ADDRESSES } from '@/constants/evm';
 import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
-import { ethers } from 'ethers';
 
 export type EthEscrowContextState = {
     escrowDetails: EscrowDetails;

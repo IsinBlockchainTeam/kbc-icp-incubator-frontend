@@ -57,15 +57,20 @@ describe('EthShipmentProvider', () => {
     const addDocument = jest.fn();
     const getShipment = jest.fn();
     const getPhase = jest.fn();
+    const getDocumentId = jest.fn();
     const getDocumentInfo = jest.fn();
-    const updateShipment = jest.fn();
-    const approveShipment = jest.fn();
+    const getPhaseDocuments = jest.fn();
+    const setDetails = jest.fn();
+    const approveSample = jest.fn();
+    const rejectSample = jest.fn();
+    const approveDetails = jest.fn();
+    const rejectDetails = jest.fn();
     const depositFunds = jest.fn();
     const getDocument = jest.fn();
     const approveDocument = jest.fn();
     const rejectDocument = jest.fn();
-    const confirmShipment = jest.fn();
-    const startShipmentArbitration = jest.fn();
+    const approveQuality = jest.fn();
+    const rejectQuality = jest.fn();
 
     const tokenApprove = jest.fn();
 
@@ -107,15 +112,20 @@ describe('EthShipmentProvider', () => {
             addDocument,
             getShipment,
             getPhase,
+            getDocumentId,
             getDocumentInfo,
-            updateShipment,
-            approveShipment,
+            getPhaseDocuments,
+            setDetails,
+            approveSample,
+            rejectSample,
+            approveDetails,
+            rejectDetails,
             depositFunds,
             getDocument,
             approveDocument,
             rejectDocument,
-            confirmShipment,
-            startShipmentArbitration
+            approveQuality,
+            rejectQuality
         }));
         (TokenService as jest.Mock).mockImplementation(() => ({
             approve: tokenApprove
@@ -144,8 +154,15 @@ describe('EthShipmentProvider', () => {
         });
         (useParams as jest.Mock).mockReturnValue({ id: '1' });
         getShipment.mockResolvedValue(shipment);
-        getPhase.mockResolvedValue(ShipmentPhase.APPROVAL);
+        getPhase.mockResolvedValue(ShipmentPhase.PHASE_1);
+        getDocumentId.mockResolvedValue(1);
         getDocumentInfo.mockResolvedValue({ id: 1, type: DocumentType.INSURANCE_CERTIFICATE });
+        getPhaseDocuments.mockResolvedValue([
+            {
+                documentType: DocumentType.INSURANCE_CERTIFICATE,
+                required: true
+            }
+        ]);
         getDocument.mockResolvedValue({
             id: 2,
             fileName: 'file.pdf',
@@ -158,6 +175,8 @@ describe('EthShipmentProvider', () => {
 
     afterEach(() => {
         jest.clearAllMocks();
+        jest.spyOn(console, 'error').mockImplementation();
+        jest.spyOn(console, 'log').mockImplementation();
     });
 
     it('should throw error if hook is used outside the provider', async () => {
@@ -171,8 +190,19 @@ describe('EthShipmentProvider', () => {
             });
             const detailedShipment = {
                 shipment,
-                documents: [{ id: 1, type: DocumentType.INSURANCE_CERTIFICATE }],
-                phase: ShipmentPhase.APPROVAL,
+                documents: new Map(
+                    Array.from({ length: 19 }, (_, i) => [
+                        i,
+                        { id: 1, type: DocumentType.INSURANCE_CERTIFICATE }
+                    ])
+                ),
+                phase: ShipmentPhase.PHASE_1,
+                phaseDocuments: new Map(
+                    Array.from({ length: 7 }, (_, i) => [
+                        i,
+                        [{ documentType: DocumentType.INSURANCE_CERTIFICATE, required: true }]
+                    ])
+                ),
                 orderId: 1
             };
 
@@ -185,13 +215,15 @@ describe('EthShipmentProvider', () => {
             expect(ShipmentService).toHaveBeenCalledTimes(1);
             expect(getShipment).toHaveBeenCalledTimes(1);
             expect(getPhase).toHaveBeenCalledTimes(1);
-            expect(getDocumentInfo).toHaveBeenCalledTimes(1);
+            expect(getDocumentId).toHaveBeenCalledTimes(19);
+            expect(getDocumentInfo).toHaveBeenCalledTimes(19);
+            expect(getPhaseDocuments).toHaveBeenCalledTimes(7);
             expect(openNotification).not.toHaveBeenCalled();
         });
     });
 
-    describe('updateShipment', () => {
-        it('should update a shipment', async () => {
+    describe('setDetails', () => {
+        it('should set shipment details', async () => {
             const { result } = renderHook(() => useEthShipment(), {
                 wrapper: EthShipmentProvider
             });
@@ -199,40 +231,91 @@ describe('EthShipmentProvider', () => {
                 expect(result.current.detailedShipment).not.toBeNull();
             });
 
-            const updatedExpirationDate = dayjs().add(2, 'day').toDate();
-            await result.current.updateShipment(updatedExpirationDate, 200, 400, 2000);
+            const details = {
+                shipmentNumber: 1,
+                expirationDate: dayjs().add(2, 'day').toDate(),
+                fixingDate: dayjs().add(3, 'day').toDate(),
+                targetExchange: 'USD',
+                differentialApplied: 0,
+                price: 100,
+                quantity: 10,
+                containersNumber: 1000,
+                netWeight: 1100,
+                grossWeight: 100
+            };
+            await result.current.setDetails(
+                details.shipmentNumber,
+                details.expirationDate,
+                details.fixingDate,
+                details.targetExchange,
+                details.differentialApplied,
+                details.price,
+                details.quantity,
+                details.containersNumber,
+                details.netWeight,
+                details.grossWeight
+            );
             expect(dispatch).toHaveBeenCalledTimes(6);
-            expect(updateShipment).toHaveBeenCalledTimes(1);
-            expect(updateShipment).toHaveBeenNthCalledWith(
+            expect(setDetails).toHaveBeenCalledTimes(1);
+            expect(setDetails).toHaveBeenNthCalledWith(
                 1,
                 roleProof,
-                updatedExpirationDate,
-                200,
-                400,
-                2000
+                details.shipmentNumber,
+                details.expirationDate,
+                details.fixingDate,
+                details.targetExchange,
+                details.differentialApplied,
+                details.price,
+                details.quantity,
+                details.containersNumber,
+                details.netWeight,
+                details.grossWeight
             );
             expect(getShipment).toHaveBeenCalledTimes(2);
             expect(openNotification).toHaveBeenCalledTimes(1);
         });
-        it('should handle a failure when updating a shipment', async () => {
+        it('should handle a failure when setting shipment details', async () => {
             const { result } = renderHook(() => useEthShipment(), {
                 wrapper: EthShipmentProvider
             });
-            updateShipment.mockRejectedValueOnce(new Error('error'));
+            setDetails.mockRejectedValueOnce(new Error('error'));
             await waitFor(() => {
                 expect(result.current.detailedShipment).not.toBeNull();
             });
 
-            await result.current.updateShipment(dayjs().add(2, 'day').toDate(), 200, 400, 2000);
+            const details = {
+                shipmentNumber: 1,
+                expirationDate: dayjs().add(2, 'day').toDate(),
+                fixingDate: dayjs().add(3, 'day').toDate(),
+                targetExchange: 'USD',
+                differentialApplied: 0,
+                price: 100,
+                quantity: 10,
+                containersNumber: 1000,
+                netWeight: 1100,
+                grossWeight: 100
+            };
+            await result.current.setDetails(
+                details.shipmentNumber,
+                details.expirationDate,
+                details.fixingDate,
+                details.targetExchange,
+                details.differentialApplied,
+                details.price,
+                details.quantity,
+                details.containersNumber,
+                details.netWeight,
+                details.grossWeight
+            );
 
             expect(dispatch).toHaveBeenCalledTimes(4);
-            expect(updateShipment).toHaveBeenCalledTimes(1);
+            expect(setDetails).toHaveBeenCalledTimes(1);
             expect(openNotification).toHaveBeenCalledTimes(1);
         });
     });
 
-    describe('approveShipment', () => {
-        it('should approve a shipment', async () => {
+    describe('approveSample', () => {
+        it('should approve a sample', async () => {
             const { result } = renderHook(() => useEthShipment(), {
                 wrapper: EthShipmentProvider
             });
@@ -240,28 +323,191 @@ describe('EthShipmentProvider', () => {
                 expect(result.current.detailedShipment).not.toBeNull();
             });
 
-            await result.current.approveShipment();
+            await result.current.approveSample();
 
             expect(dispatch).toHaveBeenCalledTimes(6);
-            expect(approveShipment).toHaveBeenCalledTimes(1);
-            expect(approveShipment).toHaveBeenCalledWith(roleProof);
+            expect(approveSample).toHaveBeenCalledTimes(1);
+            expect(approveSample).toHaveBeenCalledWith(roleProof);
             expect(getShipment).toHaveBeenCalledTimes(2);
             expect(openNotification).toHaveBeenCalledTimes(1);
         });
-
-        it('should handle a failure when approving a shipment', async () => {
+        it('should handle a failure when approving a sample', async () => {
             const { result } = renderHook(() => useEthShipment(), {
                 wrapper: EthShipmentProvider
             });
-            approveShipment.mockRejectedValueOnce(new Error('error'));
+            approveSample.mockRejectedValueOnce(new Error('error'));
             await waitFor(() => {
                 expect(result.current.detailedShipment).not.toBeNull();
             });
 
-            await result.current.approveShipment();
+            await result.current.approveSample();
 
             expect(dispatch).toHaveBeenCalledTimes(4);
-            expect(approveShipment).toHaveBeenCalledTimes(1);
+            expect(approveSample).toHaveBeenCalledTimes(1);
+            expect(openNotification).toHaveBeenCalledTimes(1);
+        });
+    });
+
+    describe('rejectSample', () => {
+        it('should reject a sample', async () => {
+            const { result } = renderHook(() => useEthShipment(), {
+                wrapper: EthShipmentProvider
+            });
+            await waitFor(() => {
+                expect(result.current.detailedShipment).not.toBeNull();
+            });
+
+            await result.current.rejectSample();
+
+            expect(dispatch).toHaveBeenCalledTimes(6);
+            expect(rejectSample).toHaveBeenCalledTimes(1);
+            expect(rejectSample).toHaveBeenCalledWith(roleProof);
+            expect(getShipment).toHaveBeenCalledTimes(2);
+            expect(openNotification).toHaveBeenCalledTimes(1);
+        });
+        it('should handle a failure when rejecting a sample', async () => {
+            const { result } = renderHook(() => useEthShipment(), {
+                wrapper: EthShipmentProvider
+            });
+            approveSample.mockRejectedValueOnce(new Error('error'));
+            await waitFor(() => {
+                expect(result.current.detailedShipment).not.toBeNull();
+            });
+
+            await result.current.rejectSample();
+
+            expect(dispatch).toHaveBeenCalledTimes(6);
+            expect(rejectSample).toHaveBeenCalledTimes(1);
+            expect(openNotification).toHaveBeenCalledTimes(1);
+        });
+    });
+
+    describe('approveDetails', () => {
+        it('should approve details', async () => {
+            const { result } = renderHook(() => useEthShipment(), {
+                wrapper: EthShipmentProvider
+            });
+            await waitFor(() => {
+                expect(result.current.detailedShipment).not.toBeNull();
+            });
+
+            await result.current.approveDetails();
+
+            expect(dispatch).toHaveBeenCalledTimes(6);
+            expect(approveDetails).toHaveBeenCalledTimes(1);
+            expect(approveDetails).toHaveBeenCalledWith(roleProof);
+            expect(getShipment).toHaveBeenCalledTimes(2);
+            expect(openNotification).toHaveBeenCalledTimes(1);
+        });
+        it('should handle a failure when approving details', async () => {
+            const { result } = renderHook(() => useEthShipment(), {
+                wrapper: EthShipmentProvider
+            });
+            approveDetails.mockRejectedValueOnce(new Error('error'));
+            await waitFor(() => {
+                expect(result.current.detailedShipment).not.toBeNull();
+            });
+
+            await result.current.approveDetails();
+
+            expect(dispatch).toHaveBeenCalledTimes(4);
+            expect(approveDetails).toHaveBeenCalledTimes(1);
+            expect(openNotification).toHaveBeenCalledTimes(1);
+        });
+    });
+
+    describe('rejectDetails', () => {
+        it('should reject details', async () => {
+            const { result } = renderHook(() => useEthShipment(), {
+                wrapper: EthShipmentProvider
+            });
+            await waitFor(() => {
+                expect(result.current.detailedShipment).not.toBeNull();
+            });
+
+            await result.current.rejectDetails();
+
+            expect(dispatch).toHaveBeenCalledTimes(6);
+            expect(rejectDetails).toHaveBeenCalledTimes(1);
+            expect(rejectDetails).toHaveBeenCalledWith(roleProof);
+            expect(getShipment).toHaveBeenCalledTimes(2);
+            expect(openNotification).toHaveBeenCalledTimes(1);
+        });
+        it('should handle a failure when rejecting details', async () => {
+            const { result } = renderHook(() => useEthShipment(), {
+                wrapper: EthShipmentProvider
+            });
+            rejectSample.mockRejectedValueOnce(new Error('error'));
+            await waitFor(() => {
+                expect(result.current.detailedShipment).not.toBeNull();
+            });
+
+            await result.current.rejectSample();
+
+            expect(dispatch).toHaveBeenCalledTimes(4);
+            expect(rejectSample).toHaveBeenCalledTimes(1);
+            expect(openNotification).toHaveBeenCalledTimes(1);
+        });
+    });
+
+    describe('approveQuality', () => {
+        it('should approve quality', async () => {
+            const { result } = renderHook(() => useEthShipment(), {
+                wrapper: EthShipmentProvider
+            });
+            await waitFor(() => {
+                expect(result.current.detailedShipment).not.toBeNull();
+            });
+
+            await result.current.approveQuality();
+            expect(dispatch).toHaveBeenCalledTimes(6);
+            expect(approveQuality).toHaveBeenCalledTimes(1);
+            expect(getShipment).toHaveBeenCalledTimes(2);
+            expect(openNotification).toHaveBeenCalledTimes(1);
+        });
+        it('should handle a failure when approving quality', async () => {
+            const { result } = renderHook(() => useEthShipment(), {
+                wrapper: EthShipmentProvider
+            });
+            approveQuality.mockRejectedValueOnce(new Error('error'));
+            await waitFor(() => {
+                expect(result.current.detailedShipment).not.toBeNull();
+            });
+
+            await result.current.approveQuality();
+            expect(dispatch).toHaveBeenCalledTimes(4);
+            expect(approveQuality).toHaveBeenCalledTimes(1);
+            expect(openNotification).toHaveBeenCalledTimes(1);
+        });
+    });
+
+    describe('rejectQuality', () => {
+        it('should reject quality', async () => {
+            const { result } = renderHook(() => useEthShipment(), {
+                wrapper: EthShipmentProvider
+            });
+            await waitFor(() => {
+                expect(result.current.detailedShipment).not.toBeNull();
+            });
+
+            await result.current.rejectQuality();
+            expect(dispatch).toHaveBeenCalledTimes(6);
+            expect(rejectQuality).toHaveBeenCalledTimes(1);
+            expect(getShipment).toHaveBeenCalledTimes(2);
+            expect(openNotification).toHaveBeenCalledTimes(1);
+        });
+        it('should handle a failure when rejecting quality', async () => {
+            const { result } = renderHook(() => useEthShipment(), {
+                wrapper: EthShipmentProvider
+            });
+            rejectQuality.mockRejectedValueOnce(new Error('error'));
+            await waitFor(() => {
+                expect(result.current.detailedShipment).not.toBeNull();
+            });
+
+            await result.current.rejectQuality();
+            expect(dispatch).toHaveBeenCalledTimes(4);
+            expect(rejectQuality).toHaveBeenCalledTimes(1);
             expect(openNotification).toHaveBeenCalledTimes(1);
         });
     });
@@ -461,70 +707,6 @@ describe('EthShipmentProvider', () => {
         });
     });
 
-    describe('confirmShipment', () => {
-        it('should confirm a shipment', async () => {
-            const { result } = renderHook(() => useEthShipment(), {
-                wrapper: EthShipmentProvider
-            });
-            await waitFor(() => {
-                expect(result.current.detailedShipment).not.toBeNull();
-            });
-
-            await result.current.confirmShipment();
-            expect(dispatch).toHaveBeenCalledTimes(6);
-            expect(confirmShipment).toHaveBeenCalledTimes(1);
-            expect(getShipment).toHaveBeenCalledTimes(2);
-            expect(openNotification).toHaveBeenCalledTimes(1);
-        });
-
-        it('should handle a failure when confirming a shipment', async () => {
-            const { result } = renderHook(() => useEthShipment(), {
-                wrapper: EthShipmentProvider
-            });
-            confirmShipment.mockRejectedValueOnce(new Error('error'));
-            await waitFor(() => {
-                expect(result.current.detailedShipment).not.toBeNull();
-            });
-
-            await result.current.confirmShipment();
-            expect(dispatch).toHaveBeenCalledTimes(4);
-            expect(confirmShipment).toHaveBeenCalledTimes(1);
-            expect(openNotification).toHaveBeenCalledTimes(1);
-        });
-    });
-
-    describe('startShipmentArbitration', () => {
-        it('should start a shipment arbitration', async () => {
-            const { result } = renderHook(() => useEthShipment(), {
-                wrapper: EthShipmentProvider
-            });
-            await waitFor(() => {
-                expect(result.current.detailedShipment).not.toBeNull();
-            });
-
-            await result.current.startShipmentArbitration();
-            expect(dispatch).toHaveBeenCalledTimes(6);
-            expect(startShipmentArbitration).toHaveBeenCalledTimes(1);
-            expect(getShipment).toHaveBeenCalledTimes(2);
-            expect(openNotification).toHaveBeenCalledTimes(1);
-        });
-
-        it('should handle a failure when starting a shipment arbitration', async () => {
-            const { result } = renderHook(() => useEthShipment(), {
-                wrapper: EthShipmentProvider
-            });
-            startShipmentArbitration.mockRejectedValueOnce(new Error('error'));
-            await waitFor(() => {
-                expect(result.current.detailedShipment).not.toBeNull();
-            });
-
-            await result.current.startShipmentArbitration();
-            expect(dispatch).toHaveBeenCalledTimes(4);
-            expect(startShipmentArbitration).toHaveBeenCalledTimes(1);
-            expect(openNotification).toHaveBeenCalledTimes(1);
-        });
-    });
-
     describe('getShipmentPhaseAsync', () => {
         it('should get the shipment phase', async () => {
             const { result } = renderHook(() => useEthShipment(), {
@@ -555,6 +737,20 @@ describe('EthShipmentProvider', () => {
             expect(getOrderTradeService).toHaveBeenCalledTimes(1);
             expect(getShipmentAddress).toHaveBeenCalledTimes(1);
             expect(getPhase).toHaveBeenCalledTimes(1);
+        });
+    });
+
+    describe('getShipmentService', () => {
+        it('should get the shipment service', async () => {
+            const { result } = renderHook(() => useEthShipment(), {
+                wrapper: EthShipmentProvider
+            });
+            await waitFor(() => {
+                expect(result.current.detailedShipment).not.toBeNull();
+            });
+
+            await result.current.getShipmentService('0x123');
+            expect(ShipmentService).toHaveBeenCalledTimes(2);
         });
     });
 });

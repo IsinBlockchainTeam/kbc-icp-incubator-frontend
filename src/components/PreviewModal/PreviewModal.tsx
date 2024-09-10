@@ -24,7 +24,7 @@ export const PreviewModal = ({ open, getDocument, onClose }: PreviewModalProps) 
     return (
         <Modal title="Document preview" open={open} onCancel={onClose} footer={[]} width={1000}>
             {loading ? (
-                <Flex align="center" justify="center">
+                <Flex align="center" justify="center" role="loading">
                     <Spin indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} />
                 </Flex>
             ) : (

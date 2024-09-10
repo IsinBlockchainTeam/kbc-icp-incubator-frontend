@@ -1,4 +1,4 @@
-import { act, renderHook, RenderHookResult, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import {
     EthOrderTradeProvider,
     OrderTradeRequest,
@@ -28,10 +28,8 @@ import { getICPCanisterURL } from '@/utils/icp';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useICP } from '@/providers/ICPProvider';
 import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
-import { ACTION_MESSAGE } from '@/constants/message';
 import { requestPath } from '@/constants/url';
 import { JsonRpcSigner } from '@ethersproject/providers';
-import dayjs from 'dayjs';
 import { useParams } from 'react-router-dom';
 
 jest.mock('@kbc-lib/coffee-trading-management-lib');
@@ -106,7 +104,7 @@ describe('EthOrderTradeProvider', () => {
         commissioner: signer._address,
         supplier: '0x456',
         escrow: '0x789'
-    } as OrderTrade;
+    } as unknown as OrderTrade;
     const productCategories = [{ id: 1 } as ProductCategory];
 
     beforeEach(() => {
@@ -516,47 +514,6 @@ describe('EthOrderTradeProvider', () => {
             await expect(result.current.notifyExpiration('email', 'message')).rejects.toThrowError(
                 'Trade not found'
             );
-        });
-    });
-
-    describe('createShipment', () => {
-        beforeEach(() => {
-            (useParams as jest.Mock).mockReturnValue({ id: '1' });
-        });
-
-        it('should create shipment', async () => {
-            const { result } = renderHook(() => useEthOrderTrade(), {
-                wrapper: EthOrderTradeProvider
-            });
-            await waitFor(() => {
-                expect(result.current.detailedOrderTrade).not.toBeNull();
-            });
-
-            const expiration = dayjs().add(1, 'day').toDate();
-            await result.current.createShipment(expiration, 10, 500, 300);
-
-            expect(dispatch).toHaveBeenCalledTimes(6);
-            expect(getCompleteTrade).toHaveBeenCalledTimes(2);
-            expect(createShipment).toHaveBeenCalledTimes(1);
-            expect(createShipment).toHaveBeenNthCalledWith(1, roleProof, expiration, 10, 500, 300);
-            expect(openNotification).toHaveBeenCalled();
-        });
-
-        it('should handle create shipment failure', async () => {
-            createShipment.mockRejectedValue(new Error('error'));
-            const { result } = renderHook(() => useEthOrderTrade(), {
-                wrapper: EthOrderTradeProvider
-            });
-            await waitFor(() => {
-                expect(result.current.detailedOrderTrade).not.toBeNull();
-            });
-
-            jest.clearAllMocks();
-            await result.current.createShipment(dayjs().add(1, 'day').toDate(), 10, 500, 300);
-
-            expect(dispatch).toHaveBeenCalledTimes(2);
-            expect(createShipment).toHaveBeenCalledTimes(1);
-            expect(openNotification).toHaveBeenCalled();
         });
     });
 

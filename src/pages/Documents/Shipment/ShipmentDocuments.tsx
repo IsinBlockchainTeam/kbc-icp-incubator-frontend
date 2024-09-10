@@ -5,11 +5,7 @@ import { DetailedOrderTrade, useEthOrderTrade } from '@/providers/entities/EthOr
 import React, { useEffect, useMemo, useState } from 'react';
 import { Alert, Empty, Flex, Tag } from 'antd';
 import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
-import {
-    DetailedShipment,
-    ShipmentDocumentRules,
-    useEthShipment
-} from '@/providers/entities/EthShipmentProvider';
+import { DetailedShipment, useEthShipment } from '@/providers/entities/EthShipmentProvider';
 import {
     OrderLine,
     OrderTrade,
@@ -56,24 +52,6 @@ export default () => {
         };
     }, [detailedOrderTrade, detailedShipment]);
 
-    const shipmentPhaseDocumentTypes: ShipmentDocumentType[][] = useMemo(
-        () =>
-            tradeSelected?.detailedShipment
-                ? [
-                      [],
-                      tradeSelected.detailedShipment.shipment
-                          .landTransportationRequiredDocumentsTypes,
-                      tradeSelected.detailedShipment.shipment
-                          .seaTransportationRequiredDocumentsTypes
-                  ].map((types) =>
-                      types.filter(
-                          (type) => ShipmentDocumentRules[type].isExporterUploader === isExporter
-                      )
-                  )
-                : [],
-        [tradeSelected?.detailedShipment]
-    );
-
     const loadData = async () => {
         try {
             dispatch(addLoadingMessage(ORDER_TRADE_MESSAGE.RETRIEVE_MANY.LOADING));
@@ -116,6 +94,9 @@ export default () => {
         await addDocument(documentType, documentReferenceId, filename, fileContent);
         navigate(paths.DOCUMENTS);
     };
+
+    const currentPhaseDocuments =
+        detailedShipment?.phaseDocuments?.get(detailedShipment?.phase) || [];
 
     const elements: FormElement[] = useMemo(
         () => [
@@ -173,6 +154,19 @@ export default () => {
                                 tradeSelected.detailedOrder.trade.deliveryDeadline * 1000
                             ).toLocaleDateString()}
                         </div>
+                        <ConfirmButton
+                            style={{ padding: 0, marginTop: 10, textAlign: 'left' }}
+                            type="link"
+                            text="Go to Order page"
+                            confirmText="Do you want to go to the order page?"
+                            onConfirm={() =>
+                                navigate(
+                                    setParametersPath(`${paths.TRADE_VIEW}?type=1`, {
+                                        id: tradeSelected!.detailedOrder.trade.tradeId.toString()
+                                    })
+                                )
+                            }
+                        />
                     </Flex>
                 ) : (
                     <Empty></Empty>
@@ -205,74 +199,29 @@ export default () => {
                             </div>
                             <div>
                                 <span style={{ fontWeight: 'bold' }}>Weight: </span>
-                                {`${tradeSelected.detailedShipment.shipment.weight} kg`}
+                                {`${tradeSelected.detailedShipment.shipment.grossWeight} kg`}
                             </div>
                             <div>
                                 <span style={{ fontWeight: 'bold' }}>Price: </span>
                                 {`${tradeSelected.detailedShipment.shipment.price} ${(tradeSelected.detailedOrder.trade.lines[0] as OrderLine).price.fiat}`}
                             </div>
                         </Flex>
-                        {tradeSelected.detailedShipment.phase === ShipmentPhase.APPROVAL ? (
-                            <Alert
-                                style={{ textAlign: 'center' }}
-                                message={
-                                    <span>
-                                        Shipment must be approved before uploading documents. <br />
-                                        Click{' '}
-                                        <ConfirmButton
-                                            style={{ padding: 0 }}
-                                            type="link"
-                                            text="here"
-                                            confirmText="Go to 'Shipment' section in order to approve the shipment, proceed?"
-                                            disabled={isExporter}
-                                            onConfirm={() =>
-                                                navigate(
-                                                    setParametersPath(
-                                                        `${paths.TRADE_VIEW}?type=1`,
-                                                        {
-                                                            id: tradeSelected!.detailedOrder.trade.tradeId.toString()
-                                                        }
-                                                    )
-                                                )
-                                            }
-                                        />
-                                    </span>
-                                }
-                                type={'warning'}
-                            />
-                        ) : (
-                            <DocumentUpload
-                                documentTypes={
-                                    shipmentPhaseDocumentTypes[tradeSelected.detailedShipment.phase]
-                                }
-                                onSubmit={documentSubmit}
-                                oldDocumentsInfo={tradeSelected.detailedShipment.documents}
-                                selectedDocumentType={selectedDocumentType}
-                            />
-                        )}
+                        <DocumentUpload
+                            documentTypes={currentPhaseDocuments.map((s) => s.documentType)}
+                            onSubmit={documentSubmit}
+                            oldDocumentsInfo={Array.from(
+                                tradeSelected.detailedShipment.documents.values()
+                            )}
+                            selectedDocumentType={selectedDocumentType}
+                        />
                     </Flex>
                 ) : (
                     <Alert
                         style={{ textAlign: 'center' }}
                         message={
                             <span>
-                                No shipment available for this order, please add one to proceed.{' '}
-                                <br />
-                                Click{' '}
-                                <ConfirmButton
-                                    style={{ padding: 0 }}
-                                    type="link"
-                                    text="here"
-                                    confirmText="Go to 'Shipment' section in order to add new shipment, proceed?"
-                                    disabled={!isExporter}
-                                    onConfirm={() =>
-                                        navigate(
-                                            setParametersPath(`${paths.TRADE_VIEW}?type=1`, {
-                                                id: tradeSelected!.detailedOrder.trade.tradeId.toString()
-                                            })
-                                        )
-                                    }
-                                />
+                                No shipment available for this order, please continue with order
+                                negotiation.
                             </span>
                         }
                         type={'warning'}

@@ -1,5 +1,5 @@
 import { Card, Col, Divider, Flex, Image, Row, Tag, Typography } from 'antd';
-import { DownloadOutlined, LockOutlined, UploadOutlined } from '@ant-design/icons';
+import { DownloadOutlined, UploadOutlined } from '@ant-design/icons';
 import React from 'react';
 import { useEthEscrow } from '@/providers/entities/EthEscrowProvider';
 import { DepositModal } from '@/components/EscrowPanel/DepositModal';
@@ -7,7 +7,6 @@ import { WithdrawModal } from '@/components/EscrowPanel/WithdrawModal';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { credentials } from '@/constants/ssi';
-import { LockModal } from '@/components/EscrowPanel/LockModal';
 import { useEthShipment } from '@/providers/entities/EthShipmentProvider';
 import { FundsStatus } from '@kbc-lib/coffee-trading-management-lib';
 
@@ -21,7 +20,6 @@ export const EscrowPanel = () => {
 
     const [isDepositModalOpen, setIsDepositModalOpen] = React.useState(false);
     const [isWithdrawModalOpen, setIsWithdrawModalOpen] = React.useState(false);
-    const [isLockModalOpen, setIsLockModalOpen] = React.useState(false);
 
     if (!detailedShipment) {
         return <>Shipment not created</>;
@@ -31,8 +29,6 @@ export const EscrowPanel = () => {
     const closeDepositModal = () => setIsDepositModalOpen(false);
     const openWithdrawModal = () => setIsWithdrawModalOpen(true);
     const closeWithdrawModal = () => setIsWithdrawModalOpen(false);
-    const openLockModal = () => setIsLockModalOpen(true);
-    const closeLockModal = () => setIsLockModalOpen(false);
 
     const actions: React.ReactNode[] = [];
     if (isImporter) {
@@ -58,20 +54,6 @@ export const EscrowPanel = () => {
                 Deposit
             </Flex>
         );
-        detailedShipment.shipment.fundsStatus == FundsStatus.NOT_LOCKED &&
-            escrowDetails.totalDepositedAmount >=
-                escrowDetails.lockedAmount + detailedShipment.shipment.price &&
-            actions.push(
-                <Flex
-                    gap="middle"
-                    align="center"
-                    justify="center"
-                    style={{ fontSize: 16 }}
-                    onClick={openLockModal}>
-                    <LockOutlined key="withdraw" />
-                    Lock funds
-                </Flex>
-            );
     }
 
     return (
@@ -135,7 +117,6 @@ export const EscrowPanel = () => {
             </Card>
             <WithdrawModal isOpen={isWithdrawModalOpen} onClose={closeWithdrawModal} />
             <DepositModal isOpen={isDepositModalOpen} onClose={closeDepositModal} />
-            <LockModal isOpen={isLockModalOpen} onClose={closeLockModal} />
         </>
     );
 };

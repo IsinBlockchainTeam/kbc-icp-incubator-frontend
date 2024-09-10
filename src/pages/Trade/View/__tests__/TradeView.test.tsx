@@ -16,6 +16,8 @@ import { BasicTradeView } from '@/pages/Trade/View/BasicTradeView';
 import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
 import { useEthBasicTrade } from '@/providers/entities/EthBasicTradeProvider';
 import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
+import { ShipmentPanel } from '@/components/ShipmentPanel/ShipmentPanel';
+import { EscrowPanel } from '@/components/EscrowPanel/EscrowPanel';
 
 jest.mock('react-router-dom');
 jest.mock('@/providers/SignerProvider');
@@ -25,6 +27,8 @@ jest.mock('@/providers/entities/EthBasicTradeProvider');
 jest.mock('@/providers/entities/EthOrderTradeProvider');
 jest.mock('@/providers/entities/ICPOrganizationProvider');
 jest.mock('@/utils/notification');
+jest.mock('@/components/ShipmentPanel/ShipmentPanel');
+jest.mock('@/components/EscrowPanel/EscrowPanel');
 
 describe('Trade View', () => {
     const detailedBasicTrade = {
@@ -59,13 +63,21 @@ describe('Trade View', () => {
     });
 
     it('should render correctly - ORDER', async () => {
-        render(<TradeView />);
+        const { getByText } = render(<TradeView />);
         expect(OrderTradeView).toHaveBeenCalledTimes(1);
         const commonElements = (OrderTradeView as jest.Mock).mock.calls[0][0].commonElements;
         expect(commonElements).toHaveLength(4);
         expect(commonElements[1].defaultValue).toEqual('actor');
         expect(commonElements[2].defaultValue).toEqual('actor');
         expect(commonElements[3].defaultValue).toEqual('actor');
+
+        expect(getByText('Shipment')).toBeInTheDocument();
+        await act(async () => getByText('Shipment').click());
+        expect(ShipmentPanel).toHaveBeenCalledTimes(1);
+
+        expect(getByText('Escrow')).toBeInTheDocument();
+        await act(async () => getByText('Escrow').click());
+        expect(EscrowPanel).toHaveBeenCalledTimes(1);
     });
 
     it('should render correctly - BASIC', async () => {

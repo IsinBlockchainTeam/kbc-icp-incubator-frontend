@@ -147,11 +147,6 @@ export const ORDER_TRADE_MESSAGE = {
         LOADING: 'Notifying expiration...',
         OK: 'The expiration has been notified.',
         ERROR: 'Error while notifying expiration.'
-    },
-    CREATE_SHIPMENT: {
-        LOADING: 'Creating shipment...',
-        OK: 'Shipment created successfully.',
-        ERROR: 'Error while creating shipment.'
     }
 };
 export const DOCUMENT_MESSAGE = {
@@ -224,15 +219,40 @@ export const SHIPMENT_MESSAGE = {
         OK: '',
         ERROR: 'Error while retrieving shipment.'
     },
-    SAVE: {
-        LOADING: 'Saving shipment...',
-        OK: 'Shipment saved successfully.',
-        ERROR: 'Error while saving shipment.'
+    SAVE_DETAILS: {
+        LOADING: 'Saving shipment details...',
+        OK: 'Shipment details saved successfully.',
+        ERROR: 'Error while saving shipment details.'
     },
-    APPROVE: {
-        LOADING: 'Approving shipment...',
-        OK: 'Shipment approved successfully.',
-        ERROR: 'Error while approving shipment.'
+    APPROVE_SAMPLE: {
+        LOADING: 'Approving shipment sample...',
+        OK: 'Shipment sample approved successfully.',
+        ERROR: 'Error while approving shipment sample.'
+    },
+    REJECT_SAMPLE: {
+        LOADING: 'Rejecting shipment sample...',
+        OK: 'Shipment sample rejected successfully.',
+        ERROR: 'Error while rejecting shipment sample.'
+    },
+    APPROVE_DETAILS: {
+        LOADING: 'Approving shipment details...',
+        OK: 'Shipment details approved successfully.',
+        ERROR: 'Error while approving shipment details.'
+    },
+    REJECT_DETAILS: {
+        LOADING: 'Rejecting shipment details...',
+        OK: 'Shipment details rejected successfully.',
+        ERROR: 'Error while rejecting shipment details.'
+    },
+    APPROVE_QUALITY: {
+        LOADING: 'Approving shipment quality...',
+        OK: 'Shipment quality approved successfully.',
+        ERROR: 'Error while approving shipment quality.'
+    },
+    REJECT_QUALITY: {
+        LOADING: 'Rejecting shipment quality...',
+        OK: 'Shipment quality rejected successfully.',
+        ERROR: 'Error while rejecting shipment quality.'
     },
     DEPOSIT: {
         LOADING: 'Depositing funds...',
