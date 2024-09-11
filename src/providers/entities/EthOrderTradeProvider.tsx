@@ -53,12 +53,6 @@ export type EthOrderTradeContextState = {
     updateOrderTrade: (orderTradeRequest: OrderTradeRequest) => Promise<void>;
     confirmNegotiation: () => Promise<void>;
     notifyExpiration: (email: string, message: string) => Promise<void>;
-    createShipment: (
-        expirationDate: Date,
-        quantity: number,
-        weight: number,
-        price: number
-    ) => Promise<void>;
     // Call these functions only if the order is not already loaded
     getOrderTradeService: (address: string) => OrderTradeService;
     getNegotiationStatusAsync: (orderId: number) => Promise<NegotiationStatus>;
@@ -392,42 +386,6 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
         }
     };
 
-    const createShipment = async (
-        expirationDate: Date,
-        quantity: number,
-        weight: number,
-        price: number
-    ) => {
-        if (!orderTradeService) throw new Error('Order trade service not initialized');
-        try {
-            dispatch(addLoadingMessage(ORDER_TRADE_MESSAGE.CREATE_SHIPMENT.LOADING));
-            await orderTradeService.createShipment(
-                roleProof,
-                expirationDate,
-                quantity,
-                weight,
-                price
-            );
-            await loadData();
-            openNotification(
-                'Success',
-                ORDER_TRADE_MESSAGE.CREATE_SHIPMENT.OK,
-                NotificationType.SUCCESS,
-                NOTIFICATION_DURATION
-            );
-        } catch (e) {
-            console.log('Error creating shipment', e);
-            openNotification(
-                'Error',
-                ORDER_TRADE_MESSAGE.CREATE_SHIPMENT.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
-        } finally {
-            dispatch(removeLoadingMessage(ORDER_TRADE_MESSAGE.CREATE_SHIPMENT.LOADING));
-        }
-    };
-
     const getNegotiationStatusAsync = async (orderId: number) => {
         const rawTrade = rawTrades.find((t) => t.id === orderId);
         if (!rawTrade) throw new Error('Trade not found');
@@ -469,7 +427,6 @@ export function EthOrderTradeProvider(props: { children: ReactNode }) {
                 updateOrderTrade,
                 confirmNegotiation,
                 notifyExpiration,
-                createShipment,
                 getNegotiationStatusAsync,
                 getSupplierAsync,
                 getCustomerAsync,

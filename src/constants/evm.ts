@@ -87,5 +87,10 @@ export const CONTRACT_ADDRESSES = {
         checkAndGetEnvironmentVariable(
             process.env.REACT_APP_TOKEN,
             'Token contract address must be defined'
+        ),
+    SHIPMENT_LIBRARY: () =>
+        checkAndGetEnvironmentVariable(
+            process.env.REACT_APP_SHIPMENT_LIBRARY,
+            'Shipment library contract address must be defined'
         )
 };

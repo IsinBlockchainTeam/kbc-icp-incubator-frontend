@@ -48,7 +48,6 @@ export default (props: Props) => {
             title={title}
             centered={centered}
             open={visible}
-            loading={loading}
             onCancel={handleClose}
             footer={(_, { CancelBtn }) => (
                 <>

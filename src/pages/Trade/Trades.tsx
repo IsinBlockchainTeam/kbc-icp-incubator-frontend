@@ -3,11 +3,7 @@ import { CardPage } from '@/components/structure/CardPage/CardPage';
 import { Table, Tag } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { Link } from 'react-router-dom';
-import {
-    NegotiationStatus,
-    ShipmentPhase,
-    TradeType
-} from '@kbc-lib/coffee-trading-management-lib';
+import { NegotiationStatus, TradeType } from '@kbc-lib/coffee-trading-management-lib';
 import { setParametersPath } from '@/utils/page';
 import { paths } from '@/constants/paths';
 import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
@@ -15,6 +11,7 @@ import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
 import { useEthShipment } from '@/providers/entities/EthShipmentProvider';
 import { RawTrade, useEthRawTrade } from '@/providers/entities/EthRawTradeProvider';
 import { AsyncComponent } from '@/components/AsyncComponent/AsyncComponent';
+import { ShipmentPhaseDisplayName } from '@/constants/shipmentPhase';
 
 export const Trades = () => {
     const { rawTrades } = useEthRawTrade();
@@ -81,7 +78,9 @@ export const Trades = () => {
             render: (_, { id }) => (
                 <Tag color="geekblue">
                     <AsyncComponent
-                        asyncFunction={async () => ShipmentPhase[await getShipmentPhaseAsync(id)]}
+                        asyncFunction={async () =>
+                            ShipmentPhaseDisplayName[await getShipmentPhaseAsync(id)]
+                        }
                         defaultElement={<>NOT CREATED</>}
                     />
                 </Tag>

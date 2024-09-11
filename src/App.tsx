@@ -33,7 +33,6 @@ import { useEthRelationship } from '@/providers/entities/EthRelationshipProvider
 import { useEthGraph } from '@/providers/entities/EthGraphProvider';
 import { AssetOperationView } from '@/pages/AssetOperation/AssetOperationView';
 import { WalletConnectProvider } from '@/providers/WalletConnectProvider';
-import { Shipment } from '@/pages/Shipment/Shipment';
 import Documents from '@/pages/Documents/Shipment/ShipmentDocuments';
 
 export const App = () => {

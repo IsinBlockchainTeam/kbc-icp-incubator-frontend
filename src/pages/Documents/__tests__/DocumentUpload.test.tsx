@@ -11,7 +11,7 @@ jest.mock('antd');
 describe('Document Upload', () => {
     const documentTypes = [
         ShipmentDocumentType.BOOKING_CONFIRMATION,
-        ShipmentDocumentType.INSURANCE_CERTIFICATE
+        ShipmentDocumentType.SUBJECT_TO_APPROVAL_OF_SAMPLE
     ];
     const oldDocumentsInfo = [
         { id: 1, type: ShipmentDocumentType.BOOKING_CONFIRMATION } as ShipmentDocumentInfo

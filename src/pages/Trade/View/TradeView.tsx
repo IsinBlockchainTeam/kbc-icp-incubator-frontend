@@ -9,7 +9,7 @@ import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider
 import { useEthBasicTrade } from '@/providers/entities/EthBasicTradeProvider';
 import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
 import { Collapse } from 'antd';
-import { Shipment } from '@/pages/Shipment/Shipment';
+import { ShipmentPanel } from '@/components/ShipmentPanel/ShipmentPanel';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
 import { EscrowPanel } from '@/components/EscrowPanel/EscrowPanel';
 
@@ -93,7 +93,7 @@ export const TradeView = () => {
                         {
                             key: '2',
                             label: 'Shipment',
-                            children: <Shipment />
+                            children: <ShipmentPanel />
                         },
 
                         {
