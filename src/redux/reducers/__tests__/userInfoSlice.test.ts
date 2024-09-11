@@ -7,35 +7,8 @@ import userInfoReducer, {
 
 describe('userInfoSlice', () => {
     const userInfo: UserInfoState = {
-        isLogged: true,
-        subjectDid: 'subjectDid',
-        companyClaims: {
-            legalName: 'legalName',
-            industrialSector: 'industrialSector',
-            address: 'address',
-            email: 'email',
-            nation: 'nation',
-            latitude: 'latitude',
-            longitude: 'longitude',
-            telephone: 'telephone',
-            image: 'image',
-            role: 'role',
-            organizationId: 'organizationId'
-        },
-        employeeClaims: {
-            firstName: 'firstName',
-            lastName: 'lastName',
-            address: 'address',
-            birthDate: 'birthDate',
-            email: 'email',
-            telephone: 'telephone',
-            role: 'role',
-            image: 'image'
-        },
-        roleProof: {
-            signedProof: 'signedProof',
-            delegator: 'delegator'
-        }
+        ...initialState,
+        isLogged: true
     };
     it('should update user info', () => {
         const { isLogged, ...rest } = userInfo;
