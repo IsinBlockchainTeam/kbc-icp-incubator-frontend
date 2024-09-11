@@ -11,6 +11,7 @@ import { Bean } from '@/components/ShipmentPanel/svg/Bean';
 import { ShipmentConfirmation } from '@/components/ShipmentPanel/phase/ShipmentConfirmation';
 import { Result } from '@/components/ShipmentPanel/phase/Result';
 import { SampleApproval } from '@/components/ShipmentPanel/phase/SampleApproval';
+import { ShipmentPhaseDisplayName } from '@/constants/shipmentPhase';
 
 export const ShipmentPanel = () => {
     const { detailedShipment } = useEthShipment();
@@ -34,27 +35,27 @@ export const ShipmentPanel = () => {
 
     const steps = [
         {
-            title: 'Sample Approval',
+            title: ShipmentPhaseDisplayName[ShipmentPhase.PHASE_1],
             icon: <Bean />,
             content: <SampleApproval />
         },
         {
-            title: 'Shipment Confirmation',
+            title: ShipmentPhaseDisplayName[ShipmentPhase.PHASE_2],
             icon: <FormOutlined />,
             content: <ShipmentConfirmation />
         },
         {
-            title: 'Waiting for Land Transportation',
+            title: ShipmentPhaseDisplayName[ShipmentPhase.PHASE_3],
             icon: <InboxOutlined />,
             content: <WaitingForLandTransportation />
         },
         {
-            title: 'Land Transportation',
+            title: ShipmentPhaseDisplayName[ShipmentPhase.PHASE_4],
             icon: <TruckOutlined />,
             content: <LandTransportation />
         },
         {
-            title: 'Sea transportation',
+            title: ShipmentPhaseDisplayName[ShipmentPhase.PHASE_5],
             icon: <Cargo />,
             content: <SeaTransportation />
         },

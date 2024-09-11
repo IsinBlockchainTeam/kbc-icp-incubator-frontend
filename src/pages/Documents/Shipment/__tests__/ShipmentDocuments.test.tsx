@@ -1,6 +1,6 @@
 import React from 'react';
 import ShipmentDocuments from '@/pages/Documents/Shipment/ShipmentDocuments';
-import { render } from '@testing-library/react';
+import { act, render } from '@testing-library/react';
 import {
     NegotiationStatus,
     OrderLine,
@@ -19,6 +19,10 @@ import { RawTrade, useEthRawTrade } from '@/providers/entities/EthRawTradeProvid
 import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
 import { useEthShipment } from '@/providers/entities/EthShipmentProvider';
 import { FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
+import { openNotification } from '@/utils/notification';
+import { setParametersPath } from '@/utils/page';
+import { paths } from '@/constants/paths';
+import DocumentUpload from '@/pages/Documents/DocumentUpload';
 
 jest.mock('antd', () => ({
     ...jest.requireActual('antd'),
@@ -32,6 +36,9 @@ jest.mock('@/providers/entities/EthShipmentProvider');
 jest.mock('@/components/GenericForm/GenericForm');
 jest.mock('react-router-dom');
 jest.mock('react-redux');
+jest.mock('@/utils/notification');
+jest.mock('@/utils/page');
+jest.mock('@/pages/Documents/DocumentUpload');
 
 describe('Shipment Documents', () => {
     const navigate = jest.fn();
@@ -54,15 +61,11 @@ describe('Shipment Documents', () => {
         negotiationStatus: NegotiationStatus.INITIALIZED
     };
     const detailedShipment = {
-        shipment: {
-            landTransportationRequiredDocumentsTypes: [
-                ShipmentDocumentType.BOOKING_CONFIRMATION,
-                ShipmentDocumentType.INSURANCE_CERTIFICATE
-            ],
-            seaTransportationRequiredDocumentsTypes: [ShipmentDocumentType.BILL_OF_LADING]
-        } as Shipment,
+        shipment: {} as Shipment,
         documents: [],
-        phase: ShipmentPhase.APPROVAL
+        phase: ShipmentPhase.PHASE_1,
+        phaseDocuments: new Map(),
+        orderId: 1
     };
     const rawTrades = [{ id: 1, address: '0x123', type: TradeType.ORDER } as RawTrade];
 
@@ -98,9 +101,9 @@ describe('Shipment Documents', () => {
     });
 
     it('should render correctly', async () => {
-        render(<ShipmentDocuments />);
+        await act(async () => render(<ShipmentDocuments />));
 
-        expect(GenericForm).toHaveBeenCalledTimes(1);
+        expect(GenericForm).toHaveBeenCalledTimes(2);
         expect(GenericForm).toHaveBeenCalledWith(
             {
                 elements: expect.any(Array),
@@ -121,6 +124,45 @@ describe('Shipment Documents', () => {
         expect(elements[2].hidden).toEqual(false);
 
         expect(getDetailedTradesAsync).toHaveBeenCalledTimes(1);
-        expect(getCompany).toHaveBeenCalledTimes(1);
+        expect(getCompany).toHaveBeenCalledTimes(4);
+    });
+    it('should show notification message if error occurs while retrieving detailed trades', async () => {
+        getDetailedTradesAsync.mockRejectedValue(new Error('error'));
+        await act(async () => render(<ShipmentDocuments />));
+        expect(GenericForm).toHaveBeenCalledTimes(1);
+        expect(dispatch).toHaveBeenCalledTimes(2);
+        expect(openNotification).toHaveBeenCalledTimes(1);
+    });
+    it('should handle order change', async () => {
+        await act(async () => render(<ShipmentDocuments />));
+        expect(GenericForm).toHaveBeenCalledTimes(2);
+        const elements = (GenericForm as jest.Mock).mock.calls[1][0].elements;
+        const orderElement = elements[0];
+        orderElement.onChange(1);
+        expect(navigate).toHaveBeenCalledTimes(1);
+        expect(setParametersPath).toHaveBeenCalledTimes(1);
+        expect(setParametersPath).toHaveBeenCalledWith(paths.ORDER_DOCUMENTS, { id: '2' });
+    });
+    it('should handle document submit', async () => {
+        await act(async () => render(<ShipmentDocuments />));
+        expect(GenericForm).toHaveBeenCalledTimes(2);
+        const elements = (GenericForm as jest.Mock).mock.calls[1][0].elements;
+        render(elements[2].content);
+        expect(DocumentUpload).toHaveBeenCalledTimes(1);
+        const documentElement = (DocumentUpload as jest.Mock).mock.calls[0][0];
+        await documentElement.onSubmit(
+            ShipmentDocumentType.BILL_OF_LADING,
+            'documentReferenceId',
+            'filename',
+            new Blob()
+        );
+        expect(addDocument).toHaveBeenCalledTimes(1);
+        expect(addDocument).toHaveBeenCalledWith(
+            ShipmentDocumentType.BILL_OF_LADING,
+            'documentReferenceId',
+            'filename',
+            expect.any(Blob)
+        );
+        expect(navigate).toHaveBeenCalledTimes(1);
     });
 });

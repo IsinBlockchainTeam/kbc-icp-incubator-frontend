@@ -9,8 +9,9 @@ import { DetailedShipment, useEthShipment } from '@/providers/entities/EthShipme
 import {
     OrderLine,
     OrderTrade,
+    ShipmentDocumentEvaluationStatus,
     ShipmentDocumentType,
-    ShipmentPhase
+    ShipmentPhaseDocument
 } from '@kbc-lib/coffee-trading-management-lib';
 import DocumentUpload from '@/pages/Documents/DocumentUpload';
 import { ConfirmButton } from '@/components/ConfirmButton/ConfirmButton';
@@ -24,6 +25,7 @@ import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadin
 import { ORDER_TRADE_MESSAGE } from '@/constants/message';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
+import { ShipmentPhaseDisplayName } from '@/constants/shipmentPhase';
 
 type SelectedOrder = {
     detailedOrder: DetailedOrderTrade;
@@ -70,7 +72,7 @@ export default () => {
         }
     };
 
-    const handleChange = async (value: number) => {
+    const handleChange = (value: number) => {
         const detailedOrder = orders[value];
         navigate(
             setParametersPath(paths.ORDER_DOCUMENTS, {
@@ -95,8 +97,17 @@ export default () => {
         navigate(paths.DOCUMENTS);
     };
 
-    const currentPhaseDocuments =
-        detailedShipment?.phaseDocuments?.get(detailedShipment?.phase) || [];
+    const approvedDocumentTypes: ShipmentDocumentType[] = [];
+    const allPhasesDocuments: ShipmentPhaseDocument[] = [];
+    detailedShipment?.documents.forEach((value) => {
+        if (value.status === ShipmentDocumentEvaluationStatus.APPROVED)
+            approvedDocumentTypes.push(value.type);
+    });
+    detailedShipment?.phaseDocuments?.forEach((value) => {
+        value.forEach((doc) => {
+            if (!approvedDocumentTypes.includes(doc.documentType)) allPhasesDocuments.push(doc);
+        });
+    });
 
     const elements: FormElement[] = useMemo(
         () => [
@@ -188,7 +199,7 @@ export default () => {
                             <div>
                                 <span style={{ fontWeight: 'bold' }}>Status: </span>
                                 <Tag color="geekblue" style={{ margin: 0 }}>
-                                    {ShipmentPhase[tradeSelected.detailedShipment.phase]}
+                                    {ShipmentPhaseDisplayName[tradeSelected.detailedShipment.phase]}
                                 </Tag>
                             </div>
                         </Flex>
@@ -207,7 +218,7 @@ export default () => {
                             </div>
                         </Flex>
                         <DocumentUpload
-                            documentTypes={currentPhaseDocuments.map((s) => s.documentType)}
+                            documentTypes={allPhasesDocuments.map((s) => s.documentType)}
                             onSubmit={documentSubmit}
                             oldDocumentsInfo={Array.from(
                                 tradeSelected.detailedShipment.documents.values()
