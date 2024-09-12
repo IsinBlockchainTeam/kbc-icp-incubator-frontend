@@ -20,6 +20,7 @@ export const paths = {
     ASSET_OPERATIONS_NEW: '/asset-operations/new',
     ASSET_OPERATIONS_VIEW: '/asset-operations/:id',
     CERTIFICATIONS: '/certifications',
+    CERTIFICATION_NEW: '/certifications/:type/new',
     CERTIFICATION_VIEW: '/certifications/:type/:id',
     DOCUMENTS: '/documents',
     ORDER_DOCUMENTS: '/documents/orders/:id',

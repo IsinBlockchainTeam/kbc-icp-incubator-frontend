@@ -149,6 +149,13 @@ export const ORDER_TRADE_MESSAGE = {
         ERROR: 'Error while notifying expiration.'
     }
 };
+export const RAW_CERTIFICATE_MESSAGE = {
+    RETRIEVE: {
+        LOADING: 'Retrieving raw certifications...',
+        OK: '',
+        ERROR: 'Error while retrieving raw certifications.'
+    }
+};
 export const DOCUMENT_MESSAGE = {
     UPLOAD: {
         LOADING: 'Uploading document...',

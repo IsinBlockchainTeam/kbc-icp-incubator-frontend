@@ -34,6 +34,10 @@ import { useEthGraph } from '@/providers/entities/EthGraphProvider';
 import { AssetOperationView } from '@/pages/AssetOperation/AssetOperationView';
 import { WalletConnectProvider } from '@/providers/WalletConnectProvider';
 import Documents from '@/pages/Documents/Shipment/ShipmentDocuments';
+import { Certifications } from '@/pages/Certification/Certifications';
+import { useEthCertificate } from '@/providers/entities/EthCertificateProvider';
+import { useEthRawCertificate } from '@/providers/entities/EthRawCertificateProvider';
+import { CertificateNew } from '@/pages/Certification/New/CertificateNew';
 
 export const App = () => {
     return (
@@ -167,6 +171,18 @@ export const App = () => {
                                                     </DataLoader>
                                                 </DataLoader>
                                             }
+                                        />
+                                        <Route
+                                            path={paths.CERTIFICATIONS}
+                                            element={
+                                                <DataLoader customUseContext={useEthRawCertificate}>
+                                                    <Certifications />
+                                                </DataLoader>
+                                            }
+                                        />
+                                        <Route
+                                            path={paths.CERTIFICATION_NEW}
+                                            element={<CertificateNew />}
                                         />
                                         <Route
                                             path={paths.ASSET_OPERATIONS}

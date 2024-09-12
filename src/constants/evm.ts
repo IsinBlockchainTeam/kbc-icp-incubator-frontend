@@ -63,6 +63,11 @@ export const CONTRACT_ADDRESSES = {
             process.env.REACT_APP_CONTRACT_TRADE,
             'Trade contract address must be defined'
         ),
+    CERTIFICATE: () =>
+        checkAndGetEnvironmentVariable(
+            process.env.REACT_APP_CONTRACT_CERTIFICATE,
+            'Certificate contract address must be defined'
+        ),
     ASSET_OPERATION: () =>
         checkAndGetEnvironmentVariable(
             process.env.REACT_APP_CONTRACT_ASSET_OPERATION,

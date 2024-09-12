@@ -9,7 +9,8 @@ import {
     LogoutOutlined,
     UserOutlined,
     AuditOutlined,
-    CloudDownloadOutlined
+    CloudDownloadOutlined,
+    FileDoneOutlined
 } from '@ant-design/icons';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { defaultPictureURL } from '@/constants/misc';
@@ -51,7 +52,8 @@ const blockchainItems: MenuItem[] = [
     getItem('Materials', paths.MATERIALS, <GoldOutlined />),
     getItem('Transformations', paths.ASSET_OPERATIONS, <ExperimentOutlined />),
     getItem('Partners', paths.PARTNERS, <TeamOutlined />),
-    getItem('Offers', paths.OFFERS, <AuditOutlined />)
+    getItem('Offers', paths.OFFERS, <AuditOutlined />),
+    getItem('Certifications', paths.CERTIFICATIONS, <FileDoneOutlined />)
 ];
 
 const settingItems: MenuItem[] = [
