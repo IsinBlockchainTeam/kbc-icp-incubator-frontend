@@ -182,7 +182,13 @@ export const App = () => {
                                         />
                                         <Route
                                             path={paths.CERTIFICATION_NEW}
-                                            element={<CertificateNew />}
+                                            element={
+                                                <DataLoader customUseContext={useICPOrganization}>
+                                                    <DataLoader customUseContext={useEthEnumerable}>
+                                                        <CertificateNew />
+                                                    </DataLoader>
+                                                </DataLoader>
+                                            }
                                         />
                                         <Route
                                             path={paths.ASSET_OPERATIONS}

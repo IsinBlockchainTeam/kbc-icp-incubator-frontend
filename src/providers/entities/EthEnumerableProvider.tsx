@@ -3,7 +3,12 @@ import { useSigner } from '@/providers/SignerProvider';
 import { useDispatch } from 'react-redux';
 import { EnumerableTypeReadDriver, EnumerableTypeService } from '@blockchain-lib/common';
 import { CONTRACT_ADDRESSES } from '@/constants/evm';
-import { FIAT_MESSAGE, PROCESS_TYPE_MESSAGE, UNIT_MESSAGE } from '@/constants/message';
+import {
+    ASSESSMENT_STANDARD_MESSAGE,
+    FIAT_MESSAGE,
+    PROCESS_TYPE_MESSAGE,
+    UNIT_MESSAGE
+} from '@/constants/message';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
@@ -13,6 +18,7 @@ export type EthEnumerableContextState = {
     fiats: string[];
     processTypes: string[];
     units: string[];
+    assessmentStandards: string[];
     loadData: () => Promise<void>;
 };
 export const EthEnumerableContext = createContext<EthEnumerableContextState>(
@@ -30,6 +36,7 @@ export function EthEnumerableProvider(props: { children: React.ReactNode }) {
     const [fiats, setFiats] = useState<string[]>([]);
     const [processTypes, setProcessTypes] = useState<string[]>([]);
     const [units, setUnits] = useState<string[]>([]);
+    const [assessmentStandards, setAssessmentStandards] = useState<string[]>([]);
 
     const { signer } = useSigner();
     const dispatch = useDispatch();
@@ -52,6 +59,13 @@ export function EthEnumerableProvider(props: { children: React.ReactNode }) {
         () =>
             new EnumerableTypeService(
                 new EnumerableTypeReadDriver(signer, CONTRACT_ADDRESSES.UNIT())
+            ),
+        [signer]
+    );
+    const assessmentStandardService = useMemo(
+        () =>
+            new EnumerableTypeService(
+                new EnumerableTypeReadDriver(signer, CONTRACT_ADDRESSES.ASSESSMENT_STANDARD())
             ),
         [signer]
     );
@@ -107,8 +121,30 @@ export function EthEnumerableProvider(props: { children: React.ReactNode }) {
         }
     };
 
+    const loadAssessmentStandards = async () => {
+        try {
+            dispatch(addLoadingMessage(ASSESSMENT_STANDARD_MESSAGE.RETRIEVE.LOADING));
+            const assessmentStandards = await assessmentStandardService.getTypesList();
+            setAssessmentStandards(assessmentStandards);
+        } catch (e) {
+            openNotification(
+                'Error',
+                ASSESSMENT_STANDARD_MESSAGE.RETRIEVE.ERROR,
+                NotificationType.ERROR,
+                NOTIFICATION_DURATION
+            );
+        } finally {
+            dispatch(removeLoadingMessage(ASSESSMENT_STANDARD_MESSAGE.RETRIEVE.LOADING));
+        }
+    };
+
     const loadData = async () => {
-        await Promise.all([loadFiats(), loadProcessTypes(), loadUnits()]);
+        await Promise.all([
+            loadFiats(),
+            loadProcessTypes(),
+            loadUnits(),
+            loadAssessmentStandards()
+        ]);
         setDataLoaded(true);
     };
 
@@ -119,6 +155,7 @@ export function EthEnumerableProvider(props: { children: React.ReactNode }) {
                 fiats,
                 processTypes,
                 units,
+                assessmentStandards,
                 loadData
             }}>
             {props.children}

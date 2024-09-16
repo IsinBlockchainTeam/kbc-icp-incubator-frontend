@@ -43,6 +43,13 @@ export const UNIT_MESSAGE = {
         ERROR: 'Error while retrieving units.'
     }
 };
+export const ASSESSMENT_STANDARD_MESSAGE = {
+    RETRIEVE: {
+        LOADING: 'Retrieving assessment standards...',
+        OK: '',
+        ERROR: 'Error while retrieving assessment standards.'
+    }
+};
 export const OFFER_MESSAGE = {
     RETRIEVE: {
         LOADING: 'Retrieving offers...',
@@ -154,6 +161,18 @@ export const RAW_CERTIFICATE_MESSAGE = {
         LOADING: 'Retrieving raw certifications...',
         OK: '',
         ERROR: 'Error while retrieving raw certifications.'
+    }
+};
+export const CERTIFICATE_MESSAGE = {
+    RETRIEVE: {
+        LOADING: 'Retrieving certification...',
+        OK: '',
+        ERROR: 'Error while retrieving certification.'
+    },
+    SAVE: {
+        LOADING: 'Creating certification...',
+        OK: 'The certification has been created.',
+        ERROR: 'Error while creating certification.'
     }
 };
 export const DOCUMENT_MESSAGE = {

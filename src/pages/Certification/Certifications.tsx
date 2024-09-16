@@ -7,7 +7,7 @@ import { setParametersPath } from '@/utils/page';
 import { paths } from '@/constants/paths';
 import { AsyncComponent } from '@/components/AsyncComponent/AsyncComponent';
 import { TradeType } from '../../../../coffee-trading-management-lib/src/types/TradeType';
-import { Tag } from 'antd';
+import { Button, Tag } from 'antd';
 import { NegotiationStatus } from '../../../../coffee-trading-management-lib/src/types/NegotiationStatus';
 import { ShipmentPhaseDisplayName } from '@/constants/shipmentPhase';
 import { useEthCertificate } from '@/providers/entities/EthCertificateProvider';
@@ -15,6 +15,7 @@ import { useEthRawCertificate } from '@/providers/entities/EthRawCertificateProv
 import DropdownButton from 'antd/es/dropdown/dropdown-button';
 import { PlusOutlined } from '@ant-design/icons';
 import { CertificateType } from '@kbc-lib/coffee-trading-management-lib';
+import ButtonGroup from 'antd/es/button/button-group';
 
 export const Certifications = () => {
     const navigate = useNavigate();
@@ -122,6 +123,7 @@ export const Certifications = () => {
                     Certifications
                     <div>
                         <DropdownButton
+                            trigger={['hover']}
                             type="primary"
                             menu={{ items: newCertificationsType, onClick: (e) => navigate(e.key) }}
                             icon={<PlusOutlined />}>

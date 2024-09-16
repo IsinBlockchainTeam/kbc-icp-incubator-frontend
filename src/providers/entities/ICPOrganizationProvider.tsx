@@ -11,8 +11,8 @@ import { ICP } from '@/constants/icp';
 
 // TODO: fix this by retrieving the names from the blockchain
 const ADDRESSES = [
-    '0xa1f48005f183780092E0E277B282dC1934AE3308',
     '0x319FFED7a71D3CD22aEEb5C815C88f0d2b19D123',
+    '0xa1f48005f183780092E0E277B282dC1934AE3308',
     // TO REMOVE: this is a fake address, that is used to simulate the arbiter organization.
     '0x23618e81E3f5cdF7f54C3d65f7FBc0aBf5B21E8f'
 ];

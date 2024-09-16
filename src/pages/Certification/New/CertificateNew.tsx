@@ -4,7 +4,13 @@ import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider
 import { useSigner } from '@/providers/SignerProvider';
 import { paths } from '@/constants/paths';
 import { CertificateType } from '@kbc-lib/coffee-trading-management-lib';
-import { ReactElement, ReactNode } from 'react';
+import { ReactElement } from 'react';
+import { CompanyCertificateNew } from '@/pages/Certification/New/CompanyCertificateNew';
+import { regex } from '@/constants/regex';
+
+export type CertificateNewProps = {
+    commonElements: FormElement[];
+};
 
 export const CertificateNew = () => {
     const { type } = useParams();
@@ -12,7 +18,7 @@ export const CertificateNew = () => {
     const { getCompany } = useICPOrganization();
     const { signer } = useSigner();
     const elements: FormElement[] = [];
-    const issuerName = getCompany(signer._address).legalName;
+    const signerName = getCompany(signer._address).legalName;
 
     elements.push(
         {
@@ -22,17 +28,27 @@ export const CertificateNew = () => {
         },
         {
             type: FormElementType.INPUT,
-            span: 8,
-            name: 'issuer',
-            label: 'Issuer',
+            span: 12,
+            name: 'subject',
+            label: 'Subject',
             required: true,
-            defaultValue: issuerName,
+            defaultValue: signerName,
             disabled: true
+        },
+        {
+            type: FormElementType.INPUT,
+            span: 12,
+            name: 'issuer',
+            label: 'Certifier',
+            required: true,
+            defaultValue: '',
+            disabled: false,
+            regex: regex.ETHEREUM_ADDRESS
         }
     );
 
     const newCertificateByType = new Map<CertificateType, ReactElement>([
-        [CertificateType.COMPANY, <div>Company</div>],
+        [CertificateType.COMPANY, <CompanyCertificateNew commonElements={elements} />],
         [CertificateType.SCOPE, <div>Scope</div>],
         [CertificateType.MATERIAL, <div>Material</div>]
     ]);

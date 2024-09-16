@@ -68,6 +68,7 @@ export function EthRawCertificateProvider(props: { children: ReactNode }) {
             setRawCertificates(rawCertificates);
             setDataLoaded(true);
         } catch (e) {
+            console.log('Error retrieving raw certificates', e);
             openNotification(
                 'Error',
                 RAW_CERTIFICATE_MESSAGE.RETRIEVE.ERROR,
