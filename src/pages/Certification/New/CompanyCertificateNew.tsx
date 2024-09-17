@@ -15,9 +15,12 @@ import {
     useEthCertificate
 } from '@/providers/entities/EthCertificateProvider';
 import { validateDates } from '@/utils/date';
+import dayjs from 'dayjs';
+import { useSigner } from '@/providers/SignerProvider';
 
 export const CompanyCertificateNew = (props: CertificateNewProps) => {
     const { commonElements } = props;
+    const { signer } = useSigner();
     const navigate = useNavigate();
     const { assessmentStandards } = useEthEnumerable();
     const { saveCompanyCertificate } = useEthCertificate();
@@ -107,17 +110,17 @@ export const CompanyCertificateNew = (props: CertificateNewProps) => {
     const onSubmit = async (values: any) => {
         await saveCompanyCertificate({
             issuer: values.issuer,
-            subject: values.subject,
+            subject: signer._address,
             assessmentStandard: values.assessmentStandard,
             document: {
                 fileName: values.document.name,
                 fileType: values.document.type,
                 documentType: values.documentType,
-                fileContent: values.document,
+                fileContent: new Uint8Array(await new Response(values.document).arrayBuffer()),
                 documentReferenceId: values.documentReferenceId
             },
-            validFrom: values.validFrom,
-            validUntil: values.validUntil
+            validFrom: dayjs(values.validFrom).unix(),
+            validUntil: dayjs(values.validUntil).unix()
         } as CompanyCertificateRequest);
         navigate(paths.CERTIFICATIONS);
     };

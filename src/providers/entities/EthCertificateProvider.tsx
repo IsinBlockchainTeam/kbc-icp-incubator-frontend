@@ -1,11 +1,13 @@
 import {
+    BaseCertificate,
     CertificateDocument,
     CertificateManagerDriver,
     CertificateManagerService,
+    CertificateType,
     DocumentDriver,
     URLStructure
 } from '@kbc-lib/coffee-trading-management-lib';
-import { createContext, ReactNode, useContext, useMemo } from 'react';
+import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 import { useSigner } from '@/providers/SignerProvider';
 import { CONTRACT_ADDRESSES } from '@/constants/evm';
 import { useICP } from '@/providers/ICPProvider';
@@ -18,6 +20,7 @@ import { NotificationType, openNotification } from '@/utils/notification';
 import { CERTIFICATE_MESSAGE } from '@/constants/message';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
+import { useParams } from 'react-router-dom';
 
 type BaseCertificateRequest = {
     issuer: string;
@@ -26,12 +29,12 @@ type BaseCertificateRequest = {
     document: CertificateDocument;
 };
 export type CompanyCertificateRequest = BaseCertificateRequest & {
-    validFrom: Date;
-    validUntil: Date;
+    validFrom: number;
+    validUntil: number;
 };
 export type ScopeCertificateRequest = BaseCertificateRequest & {
-    validFrom: Date;
-    validUntil: Date;
+    validFrom: number;
+    validUntil: number;
     processTypes: string[];
 };
 export type MaterialCertificateRequest = BaseCertificateRequest & {
@@ -39,6 +42,8 @@ export type MaterialCertificateRequest = BaseCertificateRequest & {
 };
 
 export type EthCertificateContextState = {
+    certificate: BaseCertificate | null; // based on runtime type it will be either CompanyCertificate, ScopeCertificate or MaterialCertificate
+
     saveCompanyCertificate: (request: CompanyCertificateRequest) => Promise<void>;
     saveScopeCertificate: (request: ScopeCertificateRequest) => Promise<void>;
     saveMaterialCertificate: (request: MaterialCertificateRequest) => Promise<void>;
@@ -57,9 +62,11 @@ export const useEthCertificate = (): EthCertificateContextState => {
 };
 
 export function EthCertificateProvider(props: { children: ReactNode }) {
+    const { id, type } = useParams();
     const { signer, waitForTransactions } = useSigner();
     const { fileDriver } = useICP();
     const { loadData: loadRawCertificates } = useEthRawCertificate();
+    const [certificate, setCertificate] = useState<BaseCertificate | null>(null);
 
     const dispatch = useDispatch();
     const userInfo = useSelector((state: RootState) => state.userInfo);
@@ -81,6 +88,44 @@ export function EthCertificateProvider(props: { children: ReactNode }) {
         [signer]
     );
 
+    const loadData = async () => {
+        if (!certificateManagerService) return;
+
+        try {
+            dispatch(addLoadingMessage(CERTIFICATE_MESSAGE.RETRIEVE.LOADING));
+            let actualCertificate: BaseCertificate;
+            const certificateByType = new Map<CertificateType, () => Promise<BaseCertificate>>([
+                [
+                    CertificateType.COMPANY,
+                    () => certificateManagerService.getCompanyCertificate(roleProof, Number(id))
+                ],
+                [
+                    CertificateType.SCOPE,
+                    () => certificateManagerService.getScopeCertificate(roleProof, Number(id))
+                ],
+                [
+                    CertificateType.MATERIAL,
+                    () => certificateManagerService.getMaterialCertificate(roleProof, Number(id))
+                ]
+            ]);
+            setCertificate(
+                certificateByType.has(Number(type))
+                    ? await certificateByType.get(Number(type))!()
+                    : null
+            );
+        } catch (e: any) {
+            console.log('Error while loading certificate', e);
+            openNotification(
+                'Error',
+                CERTIFICATE_MESSAGE.RETRIEVE.ERROR,
+                NotificationType.ERROR,
+                NOTIFICATION_DURATION
+            );
+        } finally {
+            dispatch(removeLoadingMessage(CERTIFICATE_MESSAGE.RETRIEVE.LOADING));
+        }
+    };
+
     const saveCompanyCertificate = async (request: CompanyCertificateRequest) => {
         if (!certificateManagerService) return;
 
@@ -101,7 +146,7 @@ export function EthCertificateProvider(props: { children: ReactNode }) {
                 request.issuer,
                 request.subject,
                 request.assessmentStandard,
-                new Date(),
+                new Date().getTime(),
                 request.validFrom,
                 request.validUntil,
                 request.document,
@@ -109,10 +154,12 @@ export function EthCertificateProvider(props: { children: ReactNode }) {
                 resourceSpec,
                 delegatedOrganizationIds
             );
+            console.log('txHash', txHash);
             await waitForTransactions(
                 txHash,
                 Number(process.env.REACT_APP_BC_CONFIRMATION_NUMBER || 0)
             );
+            console.log('transaction saved');
             await loadRawCertificates();
         } catch (e: any) {
             console.log('Error while saving company certificate', e);
@@ -127,9 +174,15 @@ export function EthCertificateProvider(props: { children: ReactNode }) {
         }
     };
 
+    useEffect(() => {
+        if (!id || !type) return;
+        loadData();
+    }, [id, type]);
+
     return (
         <EthCertificateContext.Provider
             value={{
+                certificate,
                 saveCompanyCertificate,
                 saveScopeCertificate: async (request: ScopeCertificateRequest) => {
                     console.log('saveScopeCertificate', request);

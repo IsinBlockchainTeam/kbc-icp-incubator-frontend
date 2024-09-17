@@ -191,6 +191,16 @@ export const App = () => {
                                             }
                                         />
                                         <Route
+                                            path={paths.CERTIFICATION_VIEW}
+                                            element={
+                                                <DataLoader customUseContext={useICPOrganization}>
+                                                    <DataLoader customUseContext={useEthEnumerable}>
+                                                        <CertificateNew />
+                                                    </DataLoader>
+                                                </DataLoader>
+                                            }
+                                        />
+                                        <Route
                                             path={paths.ASSET_OPERATIONS}
                                             element={
                                                 <DataLoader customUseContext={useEthAssetOperation}>

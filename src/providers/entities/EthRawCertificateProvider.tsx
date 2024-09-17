@@ -4,7 +4,7 @@ import {
     CertificateManagerService,
     DocumentDriver
 } from '@kbc-lib/coffee-trading-management-lib';
-import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, ReactNode, useContext, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { useSigner } from '@/providers/SignerProvider';
