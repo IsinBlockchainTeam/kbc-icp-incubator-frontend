@@ -38,6 +38,7 @@ import { Certifications } from '@/pages/Certification/Certifications';
 import { useEthCertificate } from '@/providers/entities/EthCertificateProvider';
 import { useEthRawCertificate } from '@/providers/entities/EthRawCertificateProvider';
 import { CertificateNew } from '@/pages/Certification/New/CertificateNew';
+import { CertificateView } from '@/pages/Certification/View/CertificateView';
 
 export const App = () => {
     return (
@@ -193,10 +194,8 @@ export const App = () => {
                                         <Route
                                             path={paths.CERTIFICATION_VIEW}
                                             element={
-                                                <DataLoader customUseContext={useICPOrganization}>
-                                                    <DataLoader customUseContext={useEthEnumerable}>
-                                                        <CertificateNew />
-                                                    </DataLoader>
+                                                <DataLoader customUseContext={useEthEnumerable}>
+                                                    <CertificateView />
                                                 </DataLoader>
                                             }
                                         />

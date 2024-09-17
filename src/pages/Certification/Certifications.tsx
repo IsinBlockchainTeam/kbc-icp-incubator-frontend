@@ -37,7 +37,7 @@ export const Certifications = () => {
             dataIndex: 'assessmentStandard'
         },
         {
-            title: 'Issuer',
+            title: 'Certifier',
             dataIndex: 'issuer',
             render: (_, { issuer }) => getCompany(issuer).legalName
         },

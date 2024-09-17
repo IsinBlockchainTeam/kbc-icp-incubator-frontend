@@ -1,57 +1,102 @@
-import { useNavigate, useParams } from 'react-router-dom';
 import { FormElement, FormElementType } from '@/components/GenericForm/GenericForm';
-import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
-import { useSigner } from '@/providers/SignerProvider';
-import { paths } from '@/constants/paths';
-import { CertificateType } from '@kbc-lib/coffee-trading-management-lib';
-import {ReactElement, useMemo} from 'react';
-import { CompanyCertificateNew } from '@/pages/Certification/New/CompanyCertificateNew';
-import { useEthCertificate } from '@/providers/entities/EthCertificateProvider';
+import React, { useMemo } from 'react';
+import {
+    DetailedCertificate,
+    useEthCertificate
+} from '@/providers/entities/EthCertificateProvider';
+import { CompanyCertificateView } from '@/pages/Certification/View/CompanyCertificateView';
+import { EditOutlined, RollbackOutlined } from '@ant-design/icons';
 
 export type CertificateViewProps = {
     commonElements: FormElement[];
+    editElements: FormElement[];
+    disabled: boolean;
+    detailedCertificate: DetailedCertificate;
 };
 
 export const CertificateView = () => {
-    const { certificate } = useEthCertificate();
-    const navigate = useNavigate();
-    const { getCompany } = useICPOrganization();
-    const { signer } = useSigner();
-    const elements: FormElement[] = [];
-    const signerName = getCompany(signer._address).legalName;
+    const { detailedCertificate } = useEthCertificate();
+    const [disabled, setDisabled] = React.useState(true);
+    const [isEditing, setIsEditing] = React.useState(false);
 
-    elements.push(
-        {
-            type: FormElementType.TITLE,
-            span: 24,
-            label: 'Actors'
-        },
-        {
-            type: FormElementType.INPUT,
-            span: 12,
-            name: 'subject',
-            label: 'Subject',
-            required: true,
-            defaultValue: certificate.,
-            disabled: true
-        },
-        {
-            type: FormElementType.INPUT,
-            span: 12,
-            name: 'issuer',
-            label: 'Certifier',
-            required: true,
-            defaultValue: '',
-            disabled: true
-        }
+    const toggleEditing = () => {
+        setDisabled(!disabled);
+        setIsEditing(!isEditing);
+    };
+
+    const elements: FormElement[] = useMemo(
+        () => [
+            {
+                type: FormElementType.TITLE,
+                span: 24,
+                label: 'Actors'
+            },
+            {
+                type: FormElementType.INPUT,
+                span: 12,
+                name: 'subject',
+                label: 'Subject',
+                required: true,
+                defaultValue: detailedCertificate?.certificate.subject,
+                disabled: true
+            },
+            {
+                type: FormElementType.INPUT,
+                span: 12,
+                name: 'issuer',
+                label: 'Certifier',
+                required: true,
+                defaultValue: detailedCertificate?.certificate.issuer,
+                disabled: true
+            }
+        ],
+        [detailedCertificate]
     );
 
-    const newCertificateByType = useMemo(() => new Map<CertificateType, ReactElement>([
-        [CertificateType.COMPANY, <CompanyCertificateNew commonElements={elements} />],
-        [CertificateType.SCOPE, <div>Scope</div>],
-        [CertificateType.MATERIAL, <div>Material</div>]
-    ]), [certificate]);
+    const editElements: FormElement[] = [
+        {
+            type: FormElementType.BUTTON,
+            span: 24,
+            name: 'back',
+            label: (
+                <div>
+                    Back <RollbackOutlined />
+                </div>
+            ),
+            buttonType: 'primary',
+            hidden: !isEditing,
+            onClick: toggleEditing,
+            resetFormValues: true
+        },
+        {
+            type: FormElementType.BUTTON,
+            span: 24,
+            name: 'edit',
+            label: (
+                <div>
+                    {disabled ? 'Edit ' : 'Editing.. '}
+                    <EditOutlined style={{ fontSize: 'large' }} />
+                </div>
+            ),
+            buttonType: 'primary',
+            hidden: isEditing,
+            onClick: toggleEditing
+        }
+    ];
 
-    if (certificate === undefined) navigate(paths.HOME);
-    return newCertificateByType.get(Number(type)) || <div>Unknown certificate type</div>;
+    if (detailedCertificate === null) {
+        return <div>No certificate found</div>;
+    } else {
+        const certificatesViewByType = [
+            <CompanyCertificateView
+                commonElements={elements}
+                editElements={editElements}
+                detailedCertificate={detailedCertificate}
+                disabled={disabled}
+            />,
+            <div>Scope</div>,
+            <div>Material</div>
+        ];
+        return certificatesViewByType[Number(detailedCertificate?.certificate.certificateType)];
+    }
 };

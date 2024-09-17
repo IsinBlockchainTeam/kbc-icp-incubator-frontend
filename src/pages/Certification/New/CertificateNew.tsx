@@ -1,10 +1,9 @@
+import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FormElement, FormElementType } from '@/components/GenericForm/GenericForm';
 import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
 import { useSigner } from '@/providers/SignerProvider';
 import { paths } from '@/constants/paths';
-import { CertificateType } from '@kbc-lib/coffee-trading-management-lib';
-import { ReactElement } from 'react';
 import { CompanyCertificateNew } from '@/pages/Certification/New/CompanyCertificateNew';
 import { regex } from '@/constants/regex';
 
@@ -47,12 +46,12 @@ export const CertificateNew = () => {
         }
     );
 
-    const newCertificateByType = new Map<CertificateType, ReactElement>([
-        [CertificateType.COMPANY, <CompanyCertificateNew commonElements={elements} />],
-        [CertificateType.SCOPE, <div>Scope</div>],
-        [CertificateType.MATERIAL, <div>Material</div>]
-    ]);
+    const newCertificatesByType = [
+        <CompanyCertificateNew commonElements={elements} />,
+        <div>Scope</div>,
+        <div>Material</div>
+    ];
 
     if (type === undefined) navigate(paths.HOME);
-    return newCertificateByType.get(Number(type)) || <div>Unknown certificate type</div>;
+    return newCertificatesByType[Number(type)];
 };

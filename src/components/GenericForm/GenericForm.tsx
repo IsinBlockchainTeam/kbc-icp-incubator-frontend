@@ -59,7 +59,6 @@ export type DocumentContent = {
     contentType: string;
     content: Blob;
     filename: string;
-    date: Date;
 };
 
 // type DisableableElement = Omit<LabeledElement, 'type'> & {

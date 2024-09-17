@@ -173,6 +173,11 @@ export const CERTIFICATE_MESSAGE = {
         LOADING: 'Creating certification...',
         OK: 'The certification has been created.',
         ERROR: 'Error while creating certification.'
+    },
+    UPDATE: {
+        LOADING: 'Updating certification...',
+        OK: 'The certification has been updated.',
+        ERROR: 'Error while updating certification.'
     }
 };
 export const DOCUMENT_MESSAGE = {

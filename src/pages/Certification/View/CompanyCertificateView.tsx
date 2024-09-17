@@ -1,15 +1,16 @@
 import { CardPage } from '@/components/structure/CardPage/CardPage';
 import { Button } from 'antd';
-import { DeleteOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, RollbackOutlined } from '@ant-design/icons';
 import { paths } from '@/constants/paths';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CertificateNewProps } from '@/pages/Certification/New/CertificateNew';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 import { CertificateDocumentNames } from '@/constants/certificationDocument';
-import { CertificateDocumentType } from '@kbc-lib/coffee-trading-management-lib';
-import { regex } from '@/constants/regex';
+import {
+    CertificateDocumentType,
+    CompanyCertificate
+} from '@kbc-lib/coffee-trading-management-lib';
 import {
     CompanyCertificateRequest,
     useEthCertificate
@@ -17,13 +18,16 @@ import {
 import { validateDates } from '@/utils/date';
 import dayjs from 'dayjs';
 import { useSigner } from '@/providers/SignerProvider';
+import { CertificateViewProps } from '@/pages/Certification/View/CertificateView';
 
-export const CompanyCertificateNew = (props: CertificateNewProps) => {
-    const { commonElements } = props;
+export const CompanyCertificateView = (props: CertificateViewProps) => {
+    const { commonElements, editElements, detailedCertificate, disabled } = props;
+    const companyCertificate = detailedCertificate.certificate as CompanyCertificate;
+
     const { signer } = useSigner();
     const navigate = useNavigate();
     const { assessmentStandards } = useEthEnumerable();
-    const { saveCompanyCertificate } = useEthCertificate();
+    const { updateCompanyCertificate } = useEthCertificate();
 
     const elements: FormElement[] = [
         ...commonElements,
@@ -38,8 +42,8 @@ export const CompanyCertificateNew = (props: CertificateNewProps) => {
             name: 'validFrom',
             label: 'Valid From',
             required: true,
-            defaultValue: undefined,
-            disabled: false
+            defaultValue: dayjs.unix(companyCertificate.validFrom),
+            disabled
         },
         {
             type: FormElementType.DATE,
@@ -47,8 +51,8 @@ export const CompanyCertificateNew = (props: CertificateNewProps) => {
             name: 'validUntil',
             label: 'Valid Until',
             required: true,
-            defaultValue: undefined,
-            disabled: false,
+            defaultValue: dayjs.unix(companyCertificate.validUntil),
+            disabled,
             dependencies: ['validFrom'],
             validationCallback: validateDates(
                 'validUntil',
@@ -63,10 +67,12 @@ export const CompanyCertificateNew = (props: CertificateNewProps) => {
             name: 'assessmentStandard',
             label: 'Assessment Standard',
             required: true,
+            defaultValue: companyCertificate.assessmentStandard,
             options: assessmentStandards.map((standard) => ({
                 value: standard,
                 label: standard
-            }))
+            })),
+            disabled
         },
         { type: FormElementType.SPACE, span: 12 },
         {
@@ -79,8 +85,9 @@ export const CompanyCertificateNew = (props: CertificateNewProps) => {
             span: 12,
             name: 'documentReferenceId',
             label: 'Reference ID',
-            defaultValue: '',
-            required: true
+            defaultValue: detailedCertificate.document.documentReferenceId,
+            required: true,
+            disabled
         },
         {
             type: FormElementType.SELECT,
@@ -88,10 +95,12 @@ export const CompanyCertificateNew = (props: CertificateNewProps) => {
             name: 'documentType',
             label: 'Document Type',
             required: true,
+            defaultValue: detailedCertificate.document.documentType,
             options: Object.keys(CertificateDocumentNames).map((key) => ({
                 value: key,
                 label: CertificateDocumentNames[Number(key) as CertificateDocumentType]
-            }))
+            })),
+            disabled
         },
         {
             type: FormElementType.DOCUMENT,
@@ -101,27 +110,36 @@ export const CompanyCertificateNew = (props: CertificateNewProps) => {
             loading: false,
             uploadable: true,
             required: true,
-            height: '500px'
-        }
+            height: '500px',
+            content: {
+                content: new Blob([detailedCertificate.document.fileContent]),
+                contentType: detailedCertificate.document.fileType,
+                filename: detailedCertificate.document.fileName
+            }
+        },
+        ...editElements
     ];
 
     const onSubmit = async (values: any) => {
-        const saveRequest = {
+        console.log('values', values);
+        const updatedRequest: CompanyCertificateRequest = {
             issuer: values.issuer,
             subject: signer._address,
             assessmentStandard: values.assessmentStandard,
-            document: {
-                fileName: values.document.name,
-                fileType: values.document.type,
-                fileContent: new Uint8Array(await new Response(values.document).arrayBuffer())
-            },
+            document: values.document
+                ? {
+                      fileName: values.document.name,
+                      fileType: values.document.type,
+                      fileContent: new Uint8Array(await new Response(values.document).arrayBuffer())
+                  }
+                : undefined,
             documentType: values.documentType,
             documentReferenceId: values.documentReferenceId,
             validFrom: dayjs(values.validFrom).unix(),
             validUntil: dayjs(values.validUntil).unix()
-        } as CompanyCertificateRequest;
-        await saveCompanyCertificate(saveRequest);
-        navigate(paths.CERTIFICATIONS);
+        };
+        // navigate(paths.CERTIFICATIONS);
+        // await updateCompanyCertificate(updatedRequest);
     };
 
     return (
@@ -133,17 +151,10 @@ export const CompanyCertificateNew = (props: CertificateNewProps) => {
                         justifyContent: 'space-between',
                         alignItems: 'center'
                     }}>
-                    New Company Certificate
-                    <Button
-                        type="primary"
-                        danger
-                        icon={<DeleteOutlined />}
-                        onClick={() => navigate(paths.CERTIFICATIONS)}>
-                        Delete Certificate
-                    </Button>
+                    Company Certificate
                 </div>
             }>
-            <GenericForm elements={elements} onSubmit={onSubmit} submittable={true} />
+            <GenericForm elements={elements} onSubmit={onSubmit} submittable={!disabled} />
         </CardPage>
     );
 };
