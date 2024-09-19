@@ -502,8 +502,6 @@ export const GenericForm = (props: Props) => {
                     documents.forEach((value, key) => {
                         values[key] = value;
                     });
-                    console.log('values', values);
-                    console.log('documents', documents);
                     props.onSubmit(values);
                 }
             }}>
