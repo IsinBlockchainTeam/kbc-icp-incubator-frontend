@@ -93,6 +93,9 @@ export default () => {
         filename: string,
         fileContent: Blob
     ) => {
+        console.log('Document submitted');
+        console.log('file content', fileContent);
+        console.log('filename', filename);
         await addDocument(documentType, documentReferenceId, filename, fileContent);
         navigate(paths.DOCUMENTS);
     };
