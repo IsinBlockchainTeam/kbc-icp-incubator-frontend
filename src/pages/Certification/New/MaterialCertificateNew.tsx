@@ -12,18 +12,19 @@ import { CertificateDocumentType } from '@kbc-lib/coffee-trading-management-lib'
 import { regex } from '@/constants/regex';
 import {
     CompanyCertificateRequest,
+    MaterialCertificateRequest,
     useEthCertificate
 } from '@/providers/entities/EthCertificateProvider';
 import { validateDates } from '@/utils/date';
 import dayjs from 'dayjs';
 import { useSigner } from '@/providers/SignerProvider';
 
-export const CompanyCertificateNew = (props: CertificateNewProps) => {
+export const MaterialCertificateNew = (props: CertificateNewProps) => {
     const { commonElements } = props;
     const { signer } = useSigner();
     const navigate = useNavigate();
     const { assessmentStandards } = useEthEnumerable();
-    const { saveCompanyCertificate } = useEthCertificate();
+    const { saveMaterialCertificate } = useEthCertificate();
 
     const elements: FormElement[] = [
         ...commonElements,
@@ -31,31 +32,6 @@ export const CompanyCertificateNew = (props: CertificateNewProps) => {
             type: FormElementType.TITLE,
             span: 24,
             label: 'Information'
-        },
-        {
-            type: FormElementType.DATE,
-            span: 12,
-            name: 'validFrom',
-            label: 'Valid From',
-            required: true,
-            defaultValue: undefined,
-            disabled: false
-        },
-        {
-            type: FormElementType.DATE,
-            span: 12,
-            name: 'validUntil',
-            label: 'Valid Until',
-            required: true,
-            defaultValue: undefined,
-            disabled: false,
-            dependencies: ['validFrom'],
-            validationCallback: validateDates(
-                'validUntil',
-                'validFrom',
-                'greater',
-                'This must be after Valid From date'
-            )
         },
         {
             type: FormElementType.SELECT,
@@ -67,6 +43,14 @@ export const CompanyCertificateNew = (props: CertificateNewProps) => {
                 value: standard,
                 label: standard
             }))
+        },
+        {
+            type: FormElementType.INPUT,
+            span: 12,
+            name: 'materialId',
+            label: 'Material ID',
+            defaultValue: '',
+            required: true
         },
         { type: FormElementType.SPACE, span: 12 },
         {
@@ -106,7 +90,7 @@ export const CompanyCertificateNew = (props: CertificateNewProps) => {
     ];
 
     const onSubmit = async (values: any) => {
-        const saveRequest: CompanyCertificateRequest = {
+        const saveRequest: MaterialCertificateRequest = {
             issuer: values.issuer,
             subject: signer._address,
             assessmentStandard: values.assessmentStandard,
@@ -117,10 +101,9 @@ export const CompanyCertificateNew = (props: CertificateNewProps) => {
             },
             documentType: values.documentType,
             documentReferenceId: values.documentReferenceId,
-            validFrom: dayjs(values.validFrom).unix(),
-            validUntil: dayjs(values.validUntil).unix()
+            materialId: values.materialId
         };
-        await saveCompanyCertificate(saveRequest);
+        await saveMaterialCertificate(saveRequest);
         navigate(paths.CERTIFICATIONS);
     };
 
@@ -133,7 +116,7 @@ export const CompanyCertificateNew = (props: CertificateNewProps) => {
                         justifyContent: 'space-between',
                         alignItems: 'center'
                     }}>
-                    New Company Certificate
+                    New Material Certificate
                     <Button
                         type="primary"
                         danger

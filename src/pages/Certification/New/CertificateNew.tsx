@@ -6,6 +6,8 @@ import { useSigner } from '@/providers/SignerProvider';
 import { paths } from '@/constants/paths';
 import { CompanyCertificateNew } from '@/pages/Certification/New/CompanyCertificateNew';
 import { regex } from '@/constants/regex';
+import { ScopeCertificateNew } from '@/pages/Certification/New/ScopeCertificateNew';
+import { MaterialCertificateNew } from '@/pages/Certification/New/MaterialCertificateNew';
 
 export type CertificateNewProps = {
     commonElements: FormElement[];
@@ -48,8 +50,8 @@ export const CertificateNew = () => {
 
     const newCertificatesByType = [
         <CompanyCertificateNew commonElements={elements} />,
-        <div>Scope</div>,
-        <div>Material</div>
+        <ScopeCertificateNew commonElements={elements} />,
+        <MaterialCertificateNew commonElements={elements} />
     ];
 
     if (type === undefined) navigate(paths.HOME);

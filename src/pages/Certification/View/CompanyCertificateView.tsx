@@ -95,9 +95,9 @@ export const CompanyCertificateView = (props: CertificateViewProps) => {
             name: 'documentType',
             label: 'Document Type',
             required: true,
-            defaultValue: detailedCertificate.document.documentType,
+            defaultValue: detailedCertificate.certificate.document.documentType,
             options: Object.keys(CertificateDocumentNames).map((key) => ({
-                value: key,
+                value: Number(key),
                 label: CertificateDocumentNames[Number(key) as CertificateDocumentType]
             })),
             disabled
@@ -138,8 +138,9 @@ export const CompanyCertificateView = (props: CertificateViewProps) => {
             validFrom: dayjs(values.validFrom).unix(),
             validUntil: dayjs(values.validUntil).unix()
         };
-        // navigate(paths.CERTIFICATIONS);
-        // await updateCompanyCertificate(updatedRequest);
+        console.log('updatedRequest', updatedRequest);
+        await updateCompanyCertificate(updatedRequest);
+        navigate(paths.CERTIFICATIONS);
     };
 
     return (

@@ -12,18 +12,19 @@ import { CertificateDocumentType } from '@kbc-lib/coffee-trading-management-lib'
 import { regex } from '@/constants/regex';
 import {
     CompanyCertificateRequest,
+    ScopeCertificateRequest,
     useEthCertificate
 } from '@/providers/entities/EthCertificateProvider';
 import { validateDates } from '@/utils/date';
 import dayjs from 'dayjs';
 import { useSigner } from '@/providers/SignerProvider';
 
-export const CompanyCertificateNew = (props: CertificateNewProps) => {
+export const ScopeCertificateNew = (props: CertificateNewProps) => {
     const { commonElements } = props;
     const { signer } = useSigner();
     const navigate = useNavigate();
-    const { assessmentStandards } = useEthEnumerable();
-    const { saveCompanyCertificate } = useEthCertificate();
+    const { assessmentStandards, processTypes } = useEthEnumerable();
+    const { saveScopeCertificate } = useEthCertificate();
 
     const elements: FormElement[] = [
         ...commonElements,
@@ -68,6 +69,18 @@ export const CompanyCertificateNew = (props: CertificateNewProps) => {
                 label: standard
             }))
         },
+        {
+            type: FormElementType.SELECT,
+            span: 12,
+            name: 'processTypes',
+            label: 'Process Types',
+            required: true,
+            options: processTypes.map((processType) => ({
+                value: processType,
+                label: processType
+            })),
+            mode: 'multiple'
+        },
         { type: FormElementType.SPACE, span: 12 },
         {
             type: FormElementType.TITLE,
@@ -106,7 +119,7 @@ export const CompanyCertificateNew = (props: CertificateNewProps) => {
     ];
 
     const onSubmit = async (values: any) => {
-        const saveRequest: CompanyCertificateRequest = {
+        const saveRequest: ScopeCertificateRequest = {
             issuer: values.issuer,
             subject: signer._address,
             assessmentStandard: values.assessmentStandard,
@@ -118,9 +131,10 @@ export const CompanyCertificateNew = (props: CertificateNewProps) => {
             documentType: values.documentType,
             documentReferenceId: values.documentReferenceId,
             validFrom: dayjs(values.validFrom).unix(),
-            validUntil: dayjs(values.validUntil).unix()
+            validUntil: dayjs(values.validUntil).unix(),
+            processTypes: values.processTypes
         };
-        await saveCompanyCertificate(saveRequest);
+        await saveScopeCertificate(saveRequest);
         navigate(paths.CERTIFICATIONS);
     };
 
@@ -133,7 +147,7 @@ export const CompanyCertificateNew = (props: CertificateNewProps) => {
                         justifyContent: 'space-between',
                         alignItems: 'center'
                     }}>
-                    New Company Certificate
+                    New Scope Certificate
                     <Button
                         type="primary"
                         danger
