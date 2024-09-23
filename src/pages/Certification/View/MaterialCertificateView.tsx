@@ -1,6 +1,4 @@
 import { CardPage } from '@/components/structure/CardPage/CardPage';
-import { Button } from 'antd';
-import { DeleteOutlined, EditOutlined, RollbackOutlined } from '@ant-design/icons';
 import { paths } from '@/constants/paths';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -9,25 +7,25 @@ import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 import { CertificateDocumentNames } from '@/constants/certificationDocument';
 import {
     CertificateDocumentType,
-    CompanyCertificate
+    MaterialCertificate
 } from '@kbc-lib/coffee-trading-management-lib';
 import {
-    CompanyCertificateRequest,
+    MaterialCertificateRequest,
     useEthCertificate
 } from '@/providers/entities/EthCertificateProvider';
-import { validateDates } from '@/utils/date';
-import dayjs from 'dayjs';
 import { useSigner } from '@/providers/SignerProvider';
 import { CertificateViewProps } from '@/pages/Certification/View/CertificateView';
+import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 
-export const CompanyCertificateView = (props: CertificateViewProps) => {
+export const MaterialCertificateView = (props: CertificateViewProps) => {
     const { commonElements, editElements, detailedCertificate, disabled } = props;
-    const companyCertificate = detailedCertificate.certificate as CompanyCertificate;
+    const materialCertificate = detailedCertificate.certificate as MaterialCertificate;
 
     const { signer } = useSigner();
     const navigate = useNavigate();
     const { assessmentStandards } = useEthEnumerable();
-    const { updateCompanyCertificate } = useEthCertificate();
+    const { materials } = useEthMaterial();
+    const { updateMaterialCertificate } = useEthCertificate();
 
     const elements: FormElement[] = [
         ...commonElements,
@@ -37,40 +35,28 @@ export const CompanyCertificateView = (props: CertificateViewProps) => {
             label: 'Information'
         },
         {
-            type: FormElementType.DATE,
-            span: 12,
-            name: 'validFrom',
-            label: 'Valid From',
-            required: true,
-            defaultValue: dayjs.unix(companyCertificate.validFrom),
-            disabled
-        },
-        {
-            type: FormElementType.DATE,
-            span: 12,
-            name: 'validUntil',
-            label: 'Valid Until',
-            required: true,
-            defaultValue: dayjs.unix(companyCertificate.validUntil),
-            disabled,
-            dependencies: ['validFrom'],
-            validationCallback: validateDates(
-                'validUntil',
-                'validFrom',
-                'greater',
-                'This must be after Valid From date'
-            )
-        },
-        {
             type: FormElementType.SELECT,
             span: 12,
             name: 'assessmentStandard',
             label: 'Assessment Standard',
             required: true,
-            defaultValue: companyCertificate.assessmentStandard,
+            defaultValue: materialCertificate.assessmentStandard,
             options: assessmentStandards.map((standard) => ({
                 value: standard,
                 label: standard
+            })),
+            disabled
+        },
+        {
+            type: FormElementType.SELECT,
+            span: 12,
+            name: 'materialId',
+            label: 'Material ID',
+            required: true,
+            defaultValue: materialCertificate.materialId,
+            options: materials.map((material) => ({
+                value: material.id,
+                label: material.productCategory.name
             })),
             disabled
         },
@@ -122,7 +108,7 @@ export const CompanyCertificateView = (props: CertificateViewProps) => {
 
     const onSubmit = async (values: any) => {
         console.log('values', values);
-        const updatedRequest: CompanyCertificateRequest = {
+        const updatedRequest: MaterialCertificateRequest = {
             issuer: values.issuer,
             subject: signer._address,
             assessmentStandard: values.assessmentStandard,
@@ -133,11 +119,10 @@ export const CompanyCertificateView = (props: CertificateViewProps) => {
             },
             documentType: values.documentType,
             documentReferenceId: values.documentReferenceId,
-            validFrom: dayjs(values.validFrom).unix(),
-            validUntil: dayjs(values.validUntil).unix()
+            materialId: values.materialId
         };
         console.log('updatedRequest', updatedRequest);
-        await updateCompanyCertificate(updatedRequest);
+        await updateMaterialCertificate(updatedRequest);
         navigate(paths.CERTIFICATIONS);
     };
 
@@ -150,7 +135,7 @@ export const CompanyCertificateView = (props: CertificateViewProps) => {
                         justifyContent: 'space-between',
                         alignItems: 'center'
                     }}>
-                    Company Certificate
+                    Material Certificate
                 </div>
             }>
             <GenericForm elements={elements} onSubmit={onSubmit} submittable={!disabled} />

@@ -18,6 +18,7 @@ import {
 import { validateDates } from '@/utils/date';
 import dayjs from 'dayjs';
 import { useSigner } from '@/providers/SignerProvider';
+import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 
 export const MaterialCertificateNew = (props: CertificateNewProps) => {
     const { commonElements } = props;
@@ -25,6 +26,7 @@ export const MaterialCertificateNew = (props: CertificateNewProps) => {
     const navigate = useNavigate();
     const { assessmentStandards } = useEthEnumerable();
     const { saveMaterialCertificate } = useEthCertificate();
+    const { materials } = useEthMaterial();
 
     const elements: FormElement[] = [
         ...commonElements,
@@ -45,12 +47,15 @@ export const MaterialCertificateNew = (props: CertificateNewProps) => {
             }))
         },
         {
-            type: FormElementType.INPUT,
+            type: FormElementType.SELECT,
             span: 12,
             name: 'materialId',
             label: 'Material ID',
-            defaultValue: '',
-            required: true
+            required: true,
+            options: materials.map((material) => ({
+                value: material.id,
+                label: material.productCategory.name
+            }))
         },
         { type: FormElementType.SPACE, span: 12 },
         {
@@ -103,6 +108,7 @@ export const MaterialCertificateNew = (props: CertificateNewProps) => {
             documentReferenceId: values.documentReferenceId,
             materialId: values.materialId
         };
+        console.log('request', saveRequest);
         await saveMaterialCertificate(saveRequest);
         navigate(paths.CERTIFICATIONS);
     };

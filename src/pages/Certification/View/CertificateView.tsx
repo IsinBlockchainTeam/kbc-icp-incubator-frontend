@@ -6,6 +6,8 @@ import {
 } from '@/providers/entities/EthCertificateProvider';
 import { CompanyCertificateView } from '@/pages/Certification/View/CompanyCertificateView';
 import { EditOutlined, RollbackOutlined } from '@ant-design/icons';
+import { ScopeCertificateView } from '@/pages/Certification/View/ScopeCertificateView';
+import { MaterialCertificateView } from '@/pages/Certification/View/MaterialCertificateView';
 
 export type CertificateViewProps = {
     commonElements: FormElement[];
@@ -94,8 +96,18 @@ export const CertificateView = () => {
                 detailedCertificate={detailedCertificate}
                 disabled={disabled}
             />,
-            <div>Scope</div>,
-            <div>Material</div>
+            <ScopeCertificateView
+                commonElements={elements}
+                editElements={editElements}
+                detailedCertificate={detailedCertificate}
+                disabled={disabled}
+            />,
+            <MaterialCertificateView
+                commonElements={elements}
+                editElements={editElements}
+                detailedCertificate={detailedCertificate}
+                disabled={disabled}
+            />
         ];
         return certificatesViewByType[Number(detailedCertificate?.certificate.certificateType)];
     }

@@ -186,7 +186,10 @@ export const App = () => {
                                             element={
                                                 <DataLoader customUseContext={useICPOrganization}>
                                                     <DataLoader customUseContext={useEthEnumerable}>
-                                                        <CertificateNew />
+                                                        <DataLoader
+                                                            customUseContext={useEthMaterial}>
+                                                            <CertificateNew />
+                                                        </DataLoader>
                                                     </DataLoader>
                                                 </DataLoader>
                                             }

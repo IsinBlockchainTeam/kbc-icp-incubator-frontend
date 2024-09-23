@@ -5,6 +5,7 @@ import {
     CertificateManagerDriver,
     CertificateManagerService,
     DocumentDriver,
+    MaterialCertificate,
     RoleProof,
     URLStructure
 } from '@kbc-lib/coffee-trading-management-lib';
@@ -34,7 +35,7 @@ type BaseCertificateRequest = {
     issuer: string;
     subject: string;
     assessmentStandard: string;
-    document?: DocumentRequest;
+    document: DocumentRequest;
     documentType: CertificateDocumentType;
     documentReferenceId: string;
 };
@@ -107,7 +108,10 @@ export function EthCertificateProvider(props: { children: ReactNode }) {
         [signer]
     );
 
-    const getCompanyCertificate = async (roleProof: RoleProof, id: number) => {
+    const getCompanyCertificate = async (
+        roleProof: RoleProof,
+        id: number
+    ): Promise<DetailedCertificate> => {
         const certificate = await certificateManagerService.getCompanyCertificate(roleProof, id);
         return {
             certificate,
@@ -118,7 +122,10 @@ export function EthCertificateProvider(props: { children: ReactNode }) {
         };
     };
 
-    const getScopeCertificate = async (roleProof: RoleProof, id: number) => {
+    const getScopeCertificate = async (
+        roleProof: RoleProof,
+        id: number
+    ): Promise<DetailedCertificate> => {
         const certificate = await certificateManagerService.getScopeCertificate(roleProof, id);
         return {
             certificate,
@@ -129,7 +136,10 @@ export function EthCertificateProvider(props: { children: ReactNode }) {
         };
     };
 
-    const getMaterialCertificate = async (roleProof: RoleProof, id: number) => {
+    const getMaterialCertificate = async (
+        roleProof: RoleProof,
+        id: number
+    ): Promise<DetailedCertificate> => {
         const certificate = await certificateManagerService.getMaterialCertificate(roleProof, id);
         return {
             certificate,
@@ -185,6 +195,68 @@ export function EthCertificateProvider(props: { children: ReactNode }) {
             type: request.document.fileType
         };
         return { delegatedOrganizationIds, urlStructure, resourceSpec };
+    };
+
+    const _updateDocument = async (
+        delegatedOrganizationIds: number[],
+        updatedDocumentReferenceId: string,
+        updatedDocument: DocumentRequest
+    ) => {
+        if (!certificateManagerService || !detailedCertificate) return;
+
+        if (updatedDocument.fileName) {
+            await certificateManagerService.updateDocument(
+                roleProof,
+                detailedCertificate.certificate.id,
+                detailedCertificate.certificate.document.id,
+                {
+                    fileName: updatedDocument.fileName,
+                    fileType: updatedDocument.fileType,
+                    fileContent: updatedDocument.fileContent,
+                    documentReferenceId: updatedDocumentReferenceId
+                },
+                {
+                    name: updatedDocument.fileName,
+                    type: updatedDocument.fileType
+                },
+                delegatedOrganizationIds
+            );
+        } else if (
+            detailedCertificate.document.documentReferenceId !== updatedDocumentReferenceId
+        ) {
+            await certificateManagerService.updateDocumentMetadata(
+                roleProof,
+                detailedCertificate.certificate.document.id,
+                {
+                    fileName: detailedCertificate.document.fileName,
+                    fileType: detailedCertificate.document.fileType,
+                    documentReferenceId: updatedDocumentReferenceId
+                },
+                {
+                    name: detailedCertificate.document.fileName,
+                    type: detailedCertificate.document.fileType
+                },
+                delegatedOrganizationIds
+            );
+        }
+    };
+
+    const _areEthFieldsChanged = (
+        request: BaseCertificateRequest,
+        certificateSpecificFields: string[]
+    ): boolean => {
+        if (!detailedCertificate) return false;
+        const certificate = detailedCertificate.certificate;
+        const document = detailedCertificate.document;
+        return (
+            request.documentType !== certificate.document.documentType ||
+            request.assessmentStandard !== certificate.assessmentStandard ||
+            certificateSpecificFields.some(
+                (field) =>
+                    request[field as keyof BaseCertificateRequest] !==
+                    certificate[field as keyof BaseCertificate]
+            )
+        );
     };
 
     const saveCompanyCertificate = async (request: CompanyCertificateRequest) => {
@@ -326,48 +398,22 @@ export function EthCertificateProvider(props: { children: ReactNode }) {
             dispatch(addLoadingMessage(CERTIFICATE_MESSAGE.UPDATE.LOADING));
             const delegatedOrganizationIds: number[] = organizationId === 0 ? [1] : [0];
 
-            await certificateManagerService.updateCompanyCertificate(
-                roleProof,
-                detailedCertificate.certificate.id,
-                request.documentType,
-                request.assessmentStandard,
-                new Date().getTime(),
-                request.validFrom,
-                request.validUntil
-            );
-            if (detailedCertificate.document.documentReferenceId !== request.documentReferenceId) {
-                await certificateManagerService.updateDocumentMetadata(
-                    roleProof,
-                    detailedCertificate.certificate.document.id,
-                    {
-                        ...detailedCertificate.document,
-                        documentReferenceId: request.documentReferenceId
-                    },
-                    {
-                        name: detailedCertificate.document.fileName,
-                        type: detailedCertificate.document.fileType
-                    },
-                    delegatedOrganizationIds
-                );
-            }
-            if (request.document) {
-                await certificateManagerService.updateDocument(
+            if (_areEthFieldsChanged(request, ['validFrom', 'validUntil'])) {
+                await certificateManagerService.updateCompanyCertificate(
                     roleProof,
                     detailedCertificate.certificate.id,
-                    detailedCertificate.certificate.document.id,
-                    {
-                        fileName: request.document.fileName,
-                        fileType: request.document.fileType,
-                        fileContent: request.document.fileContent,
-                        documentReferenceId: request.documentReferenceId
-                    },
-                    {
-                        name: request.document.fileName,
-                        type: request.document.fileType
-                    },
-                    delegatedOrganizationIds
+                    request.documentType,
+                    request.assessmentStandard,
+                    detailedCertificate.certificate.issueDate,
+                    request.validFrom,
+                    request.validUntil
                 );
             }
+            await _updateDocument(
+                delegatedOrganizationIds,
+                request.documentReferenceId,
+                request.document
+            );
             await loadData();
         } catch (e: any) {
             console.log('Error while updating company certificate', e);
@@ -382,25 +428,98 @@ export function EthCertificateProvider(props: { children: ReactNode }) {
         }
     };
 
+    const updateScopeCertificate = async (request: ScopeCertificateRequest) => {
+        if (!certificateManagerService || !detailedCertificate) return;
+
+        try {
+            dispatch(addLoadingMessage(CERTIFICATE_MESSAGE.UPDATE.LOADING));
+            const delegatedOrganizationIds: number[] = organizationId === 0 ? [1] : [0];
+
+            if (_areEthFieldsChanged(request, ['validFrom', 'validUntil', 'processTypes'])) {
+                await certificateManagerService.updateScopeCertificate(
+                    roleProof,
+                    detailedCertificate.certificate.id,
+                    request.documentType,
+                    request.assessmentStandard,
+                    detailedCertificate.certificate.issueDate,
+                    request.validFrom,
+                    request.validUntil,
+                    request.processTypes
+                );
+            }
+            await _updateDocument(
+                delegatedOrganizationIds,
+                request.documentReferenceId,
+                request.document
+            );
+            await loadData();
+        } catch (e: any) {
+            console.log('Error while updating scope certificate', e);
+            openNotification(
+                'Error',
+                CERTIFICATE_MESSAGE.UPDATE.ERROR,
+                NotificationType.ERROR,
+                NOTIFICATION_DURATION
+            );
+        } finally {
+            dispatch(removeLoadingMessage(CERTIFICATE_MESSAGE.UPDATE.LOADING));
+        }
+    };
+
+    const updateMaterialCertificate = async (request: MaterialCertificateRequest) => {
+        if (!certificateManagerService || !detailedCertificate) return;
+
+        try {
+            dispatch(addLoadingMessage(CERTIFICATE_MESSAGE.UPDATE.LOADING));
+            const delegatedOrganizationIds: number[] = organizationId === 0 ? [1] : [0];
+
+            if (_areEthFieldsChanged(request, ['materialId'])) {
+                await certificateManagerService.updateMaterialCertificate(
+                    roleProof,
+                    detailedCertificate.certificate.id,
+                    request.documentType,
+                    request.assessmentStandard,
+                    detailedCertificate.certificate.issueDate,
+                    request.materialId
+                );
+            }
+            await _updateDocument(
+                delegatedOrganizationIds,
+                request.documentReferenceId,
+                request.document
+            );
+            await loadData();
+        } catch (e: any) {
+            console.log('Error while updating material certificate', e);
+            openNotification(
+                'Error',
+                CERTIFICATE_MESSAGE.UPDATE.ERROR,
+                NotificationType.ERROR,
+                NOTIFICATION_DURATION
+            );
+        } finally {
+            dispatch(removeLoadingMessage(CERTIFICATE_MESSAGE.UPDATE.LOADING));
+        }
+    };
+
     useEffect(() => {
         if (!id || !type) return;
-        loadData();
+        if (Number(id) !== detailedCertificate?.certificate.id) {
+            setDetailedCertificate(null);
+            loadData();
+        }
     }, [id, type]);
 
     return (
         <EthCertificateContext.Provider
             value={{
-                detailedCertificate: detailedCertificate,
+                detailedCertificate,
                 saveCompanyCertificate,
                 saveScopeCertificate,
                 saveMaterialCertificate,
                 updateCompanyCertificate,
-                updateScopeCertificate: async (request: ScopeCertificateRequest) => {
-                    console.log('updateScopeCertificate', request);
-                },
-                updateMaterialCertificate: async (request: MaterialCertificateRequest) => {
-                    console.log('updateMaterialCertificate', request);
-                }
+                updateScopeCertificate,
+                updateMaterialCertificate
             }}
             {...props}
         />
