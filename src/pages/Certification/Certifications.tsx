@@ -34,24 +34,32 @@ export const Certifications = () => {
         },
         {
             title: 'Assessment Standard',
-            dataIndex: 'assessmentStandard'
+            dataIndex: 'assessmentStandard',
+            sorter: (a, b) => a.assessmentStandard.localeCompare(b.assessmentStandard)
         },
         {
             title: 'Certifier',
             dataIndex: 'issuer',
-            render: (_, { issuer }) => getCompany(issuer).legalName
+            render: (_, { issuer }) => getCompany(issuer).legalName,
+            sorter: (a, b) =>
+                getCompany(a.issuer).legalName.localeCompare(getCompany(b.issuer).legalName)
         },
         {
             title: 'Issue date',
             dataIndex: 'issueDate',
-            render: (issueDate) => new Date(issueDate).toLocaleDateString()
+            render: (issueDate) => new Date(issueDate).toLocaleDateString(),
+            sorter: (a, b) => a.issueDate - b.issueDate
         },
         {
             title: 'Type',
             dataIndex: 'type',
             render: (_, { certificateType }) => (
                 <Tag color="geekblue">{CertificateType[certificateType]}</Tag>
-            )
+            ),
+            sorter: (a, b) =>
+                CertificateType[a.certificateType]
+                    .toLowerCase()
+                    .localeCompare(CertificateType[b.certificateType].toLowerCase())
         }
     ];
 
