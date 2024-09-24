@@ -151,6 +151,7 @@ type CardElement = Omit<BasicElement, 'type'> & {
 
 type Props = {
     elements: FormElement[];
+    formName?: string;
     confirmText?: string;
     submittable?: boolean;
     submitText?: string;
@@ -160,7 +161,9 @@ type Props = {
 export const GenericForm = (props: Props) => {
     const [form] = Form.useForm();
     const [areFieldsValid, setAreFieldsValid] = React.useState<boolean>(false);
-    const documents: Map<string, Blob | undefined> = new Map<string, Blob>();
+    const [documents, setDocuments] = React.useState<Map<string, Blob | undefined>>(
+        new Map<string, Blob>()
+    );
     const dateFormat = 'DD/MM/YYYY';
     const values = Form.useWatch([], form);
 
@@ -169,7 +172,7 @@ export const GenericForm = (props: Props) => {
             if (element.type === FormElementType.DOCUMENT) {
                 const doc = element as DocumentElement;
                 if (doc?.content?.content) {
-                    documents.set(doc.name, doc.content.content);
+                    setDocuments(documents.set(doc.name, doc.content.content));
                 }
             }
         });
@@ -183,7 +186,8 @@ export const GenericForm = (props: Props) => {
     }, [form, values]);
 
     const addDocument = (name: string, file?: Blob) => {
-        documents.set(name, file);
+        // this will update the state without re-rendering the component (the reference is the same)
+        setDocuments(documents.set(name, file));
     };
 
     const elementsComponent = {
@@ -491,7 +495,7 @@ export const GenericForm = (props: Props) => {
         <Form
             layout="horizontal"
             form={form}
-            name="generic-form"
+            name={props.formName || 'generic-form'}
             onFinish={(values) => {
                 if (props.onSubmit) {
                     documents.forEach((value, key) => {
