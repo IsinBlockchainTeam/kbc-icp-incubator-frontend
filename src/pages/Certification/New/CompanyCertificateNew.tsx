@@ -9,7 +9,6 @@ import { FormElement, FormElementType, GenericForm } from '@/components/GenericF
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 import { CertificateDocumentNames } from '@/constants/certificationDocument';
 import { CertificateDocumentType } from '@kbc-lib/coffee-trading-management-lib';
-import { regex } from '@/constants/regex';
 import {
     CompanyCertificateRequest,
     useEthCertificate

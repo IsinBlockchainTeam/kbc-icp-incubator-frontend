@@ -6,16 +6,36 @@ import { setParametersPath } from '@/utils/page';
 import { paths } from '@/constants/paths';
 import { Table, Tag } from 'antd';
 import { useEthRawCertificate } from '@/providers/entities/EthRawCertificateProvider';
-import DropdownButton from 'antd/es/dropdown/dropdown-button';
 import { PlusOutlined } from '@ant-design/icons';
 import { BaseCertificate, CertificateType } from '@kbc-lib/coffee-trading-management-lib';
 import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
+import DropdownButton from 'antd/es/dropdown/dropdown-button';
+
+export const certificationsType = [
+    {
+        key: setParametersPath(paths.CERTIFICATION_NEW, {
+            type: CertificateType.COMPANY.toString()
+        }),
+        label: 'Company Certification'
+    },
+    {
+        key: setParametersPath(paths.CERTIFICATION_NEW, {
+            type: CertificateType.SCOPE.toString()
+        }),
+        label: 'Scope Certification'
+    },
+    {
+        key: setParametersPath(paths.CERTIFICATION_NEW, {
+            type: CertificateType.MATERIAL.toString()
+        }),
+        label: 'Material Certification'
+    }
+];
 
 export const Certifications = () => {
     const navigate = useNavigate();
     const { rawCertificates } = useEthRawCertificate();
     const { getCompany } = useICPOrganization();
-    console.log('rawCertificates', rawCertificates);
     const columns: ColumnsType<BaseCertificate> = [
         {
             title: 'Id',
@@ -63,27 +83,6 @@ export const Certifications = () => {
         }
     ];
 
-    const newCertificationsType = [
-        {
-            key: setParametersPath(paths.CERTIFICATION_NEW, {
-                type: CertificateType.COMPANY.toString()
-            }),
-            label: 'Company Certification'
-        },
-        {
-            key: setParametersPath(paths.CERTIFICATION_NEW, {
-                type: CertificateType.SCOPE.toString()
-            }),
-            label: 'Scope Certification'
-        },
-        {
-            key: setParametersPath(paths.CERTIFICATION_NEW, {
-                type: CertificateType.MATERIAL.toString()
-            }),
-            label: 'Material Certification'
-        }
-    ];
-
     return (
         <CardPage
             title={
@@ -98,7 +97,7 @@ export const Certifications = () => {
                         <DropdownButton
                             trigger={['hover']}
                             type="primary"
-                            menu={{ items: newCertificationsType, onClick: (e) => navigate(e.key) }}
+                            menu={{ items: certificationsType, onClick: (e) => navigate(e.key) }}
                             icon={<PlusOutlined />}>
                             New Certification
                         </DropdownButton>

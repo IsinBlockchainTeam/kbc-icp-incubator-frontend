@@ -9,14 +9,10 @@ import { FormElement, FormElementType, GenericForm } from '@/components/GenericF
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 import { CertificateDocumentNames } from '@/constants/certificationDocument';
 import { CertificateDocumentType } from '@kbc-lib/coffee-trading-management-lib';
-import { regex } from '@/constants/regex';
 import {
-    CompanyCertificateRequest,
     MaterialCertificateRequest,
     useEthCertificate
 } from '@/providers/entities/EthCertificateProvider';
-import { validateDates } from '@/utils/date';
-import dayjs from 'dayjs';
 import { useSigner } from '@/providers/SignerProvider';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 
@@ -108,7 +104,6 @@ export const MaterialCertificateNew = (props: CertificateNewProps) => {
             documentReferenceId: values.documentReferenceId,
             materialId: values.materialId
         };
-        console.log('request', saveRequest);
         await saveMaterialCertificate(saveRequest);
         navigate(paths.CERTIFICATIONS);
     };

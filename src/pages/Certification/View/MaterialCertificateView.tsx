@@ -107,7 +107,6 @@ export const MaterialCertificateView = (props: CertificateViewProps) => {
     ];
 
     const onSubmit = async (values: any) => {
-        console.log('values', values);
         const updatedRequest: MaterialCertificateRequest = {
             issuer: values.issuer,
             subject: signer._address,

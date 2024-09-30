@@ -152,7 +152,6 @@ export const ScopeCertificateView = (props: CertificateViewProps) => {
             validUntil: dayjs(values.validUntil).unix(),
             processTypes: values.processTypes
         };
-        console.log('updatedRequest', updatedRequest);
         await updateScopeCertificate(updatedRequest);
         navigate(paths.CERTIFICATIONS);
     };

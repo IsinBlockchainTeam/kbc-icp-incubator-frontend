@@ -1,6 +1,4 @@
 import { CardPage } from '@/components/structure/CardPage/CardPage';
-import { Button } from 'antd';
-import { DeleteOutlined, EditOutlined, RollbackOutlined } from '@ant-design/icons';
 import { paths } from '@/constants/paths';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -121,7 +119,6 @@ export const CompanyCertificateView = (props: CertificateViewProps) => {
     ];
 
     const onSubmit = async (values: any) => {
-        console.log('values', values);
         const updatedRequest: CompanyCertificateRequest = {
             issuer: values.issuer,
             subject: signer._address,
@@ -136,7 +133,6 @@ export const CompanyCertificateView = (props: CertificateViewProps) => {
             validFrom: dayjs(values.validFrom).unix(),
             validUntil: dayjs(values.validUntil).unix()
         };
-        console.log('updatedRequest', updatedRequest);
         await updateCompanyCertificate(updatedRequest);
         navigate(paths.CERTIFICATIONS);
     };

@@ -96,7 +96,6 @@ describe('Trades', () => {
         const resp = columns[3].render(TradeType.BASIC);
         expect(resp).toEqual(TradeType[TradeType.BASIC]);
 
-        console.log('columns[4]: ', columns[4]);
         render(columns[4].render(null, { id: 1 }));
         expect(Tag).toHaveBeenCalledTimes(1);
         expect(AsyncComponent).toHaveBeenCalledTimes(3);

@@ -34,7 +34,7 @@ describe('EthEnumerableProvider', () => {
         expect(() => renderHook(() => useEthEnumerable())).toThrow();
     });
 
-    it('should load fiats, process types and units', async () => {
+    it('should load fiats, process types, units and assessment standards', async () => {
         const enumerableTypes = ['enumerableType'];
         getTypesList.mockResolvedValue(enumerableTypes);
         const { result } = renderHook(() => useEthEnumerable(), {
@@ -44,12 +44,13 @@ describe('EthEnumerableProvider', () => {
             await result.current.loadData();
         });
 
-        expect(dispatch).toHaveBeenCalledTimes(6);
-        expect(getTypesList).toHaveBeenCalledTimes(3);
+        expect(dispatch).toHaveBeenCalledTimes(8);
+        expect(getTypesList).toHaveBeenCalledTimes(4);
         expect(result.current.dataLoaded).toBe(true);
         expect(result.current.fiats).toEqual(enumerableTypes);
         expect(result.current.processTypes).toEqual(enumerableTypes);
         expect(result.current.units).toEqual(enumerableTypes);
+        expect(result.current.assessmentStandards).toEqual(enumerableTypes);
     });
 
     it('should handle load failure', async () => {
@@ -61,9 +62,9 @@ describe('EthEnumerableProvider', () => {
             await result.current.loadData();
         });
 
-        expect(dispatch).toHaveBeenCalledTimes(6);
-        expect(getTypesList).toHaveBeenCalledTimes(3);
-        expect(openNotification).toHaveBeenCalledTimes(3);
+        expect(dispatch).toHaveBeenCalledTimes(8);
+        expect(getTypesList).toHaveBeenCalledTimes(4);
+        expect(openNotification).toHaveBeenCalledTimes(4);
         expect(result.current.dataLoaded).toBe(true);
         expect(result.current.fiats).toEqual([]);
         expect(result.current.processTypes).toEqual([]);
