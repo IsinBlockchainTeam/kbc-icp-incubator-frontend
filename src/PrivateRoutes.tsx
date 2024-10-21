@@ -18,6 +18,7 @@ import { EthRelationshipProvider } from '@/providers/entities/EthRelationshipPro
 import { EthGraphProvider } from '@/providers/entities/EthGraphProvider';
 import { EthEscrowProvider } from '@/providers/entities/EthEscrowProvider';
 import { EthShipmentProvider } from '@/providers/entities/EthShipmentProvider';
+import { OrderProvider } from '@/providers/icp/OrderProvider';
 
 const PrivateRoutes = () => {
     const { isLogged } = useSelector((state: RootState) => state.userInfo);
@@ -33,15 +34,17 @@ const PrivateRoutes = () => {
                                         <EthAssetOperationProvider>
                                             <EthRawTradeProvider>
                                                 <EthBasicTradeProvider>
-                                                    <EthOrderTradeProvider>
-                                                        <EthEscrowProvider>
-                                                            <EthShipmentProvider>
-                                                                <EthGraphProvider>
-                                                                    <Outlet />
-                                                                </EthGraphProvider>
-                                                            </EthShipmentProvider>
-                                                        </EthEscrowProvider>
-                                                    </EthOrderTradeProvider>
+                                                    <OrderProvider>
+                                                        <EthOrderTradeProvider>
+                                                            <EthEscrowProvider>
+                                                                <EthShipmentProvider>
+                                                                    <EthGraphProvider>
+                                                                        <Outlet />
+                                                                    </EthGraphProvider>
+                                                                </EthShipmentProvider>
+                                                            </EthEscrowProvider>
+                                                        </EthOrderTradeProvider>
+                                                    </OrderProvider>
                                                 </EthBasicTradeProvider>
                                             </EthRawTradeProvider>
                                         </EthAssetOperationProvider>

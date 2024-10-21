@@ -34,6 +34,7 @@ import { useEthGraph } from '@/providers/entities/EthGraphProvider';
 import { AssetOperationView } from '@/pages/AssetOperation/AssetOperationView';
 import { WalletConnectProvider } from '@/providers/WalletConnectProvider';
 import Documents from '@/pages/Documents/Shipment/ShipmentDocuments';
+import { useOrder } from '@/providers/icp/OrderProvider';
 
 export const App = () => {
     return (
@@ -129,10 +130,8 @@ export const App = () => {
                                         <Route
                                             path={paths.TRADES}
                                             element={
-                                                <DataLoader customUseContext={useICPOrganization}>
-                                                    <DataLoader customUseContext={useEthRawTrade}>
-                                                        <Trades />
-                                                    </DataLoader>
+                                                <DataLoader customUseContext={useOrder}>
+                                                    <Trades />
                                                 </DataLoader>
                                             }
                                         />
