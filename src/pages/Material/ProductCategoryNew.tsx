@@ -6,10 +6,10 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { regex } from '@/constants/regex';
 import { paths } from '@/constants/paths';
-import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
+import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';
 
 export const ProductCategoryNew = () => {
-    const { saveProductCategory } = useEthMaterial();
+    const { saveProductCategory } = useProductCategory();
     const navigate = useNavigate();
 
     const elements: FormElement[] = [

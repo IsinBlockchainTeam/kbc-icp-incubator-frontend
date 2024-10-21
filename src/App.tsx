@@ -35,6 +35,7 @@ import { AssetOperationView } from '@/pages/AssetOperation/AssetOperationView';
 import { WalletConnectProvider } from '@/providers/WalletConnectProvider';
 import Documents from '@/pages/Documents/Shipment/ShipmentDocuments';
 import { useOrder } from '@/providers/icp/OrderProvider';
+import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';
 
 export const App = () => {
     return (
@@ -88,7 +89,7 @@ export const App = () => {
                                         <Route
                                             path={paths.MATERIALS}
                                             element={
-                                                <DataLoader customUseContext={useEthMaterial}>
+                                                <DataLoader customUseContext={useProductCategory}>
                                                     <Materials />
                                                 </DataLoader>
                                             }
@@ -104,7 +105,7 @@ export const App = () => {
                                         <Route
                                             path={paths.PRODUCT_CATEGORY_NEW}
                                             element={
-                                                <DataLoader customUseContext={useEthMaterial}>
+                                                <DataLoader customUseContext={useProductCategory}>
                                                     <ProductCategoryNew />
                                                 </DataLoader>
                                             }
