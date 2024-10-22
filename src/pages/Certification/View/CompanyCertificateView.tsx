@@ -7,7 +7,8 @@ import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 import { CertificateDocumentNames } from '@/constants/certificationDocument';
 import {
     CertificateDocumentType,
-    CompanyCertificate
+    CompanyCertificate,
+    ICPCertificateDocumentType
 } from '@kbc-lib/coffee-trading-management-lib';
 import {
     CompanyCertificateRequest,
@@ -95,8 +96,8 @@ export const CompanyCertificateView = (props: CertificateViewProps) => {
             required: true,
             defaultValue: detailedCertificate.certificate.document.documentType,
             options: Object.keys(CertificateDocumentNames).map((key) => ({
-                value: Number(key),
-                label: CertificateDocumentNames[Number(key) as CertificateDocumentType]
+                value: key,
+                label: CertificateDocumentNames[key as ICPCertificateDocumentType]
             })),
             disabled
         },

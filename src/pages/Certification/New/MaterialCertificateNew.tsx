@@ -8,7 +8,10 @@ import { CertificateNewProps } from '@/pages/Certification/New/CertificateNew';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 import { CertificateDocumentNames } from '@/constants/certificationDocument';
-import { CertificateDocumentType } from '@kbc-lib/coffee-trading-management-lib';
+import {
+    CertificateDocumentType,
+    ICPCertificateDocumentType
+} from '@kbc-lib/coffee-trading-management-lib';
 import {
     MaterialCertificateRequest,
     useEthCertificate
@@ -74,8 +77,8 @@ export const MaterialCertificateNew = (props: CertificateNewProps) => {
             label: 'Document Type',
             required: true,
             options: Object.keys(CertificateDocumentNames).map((key) => ({
-                value: Number(key),
-                label: CertificateDocumentNames[Number(key) as CertificateDocumentType]
+                value: key,
+                label: CertificateDocumentNames[key as ICPCertificateDocumentType]
             }))
         },
         {

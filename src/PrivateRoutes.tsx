@@ -22,6 +22,8 @@ import { EthRawCertificateProvider } from '@/providers/entities/EthRawCertificat
 import { EthCertificateProvider } from '@/providers/entities/EthCertificateProvider';
 import { OrderProvider } from '@/providers/icp/OrderProvider';
 import { ProductCategoryProvider } from '@/providers/icp/ProductCategoryProvider';
+import { RawCertificationProvider } from '@/providers/icp/RawCertificationProvider';
+import { CertificationProvider } from '@/providers/icp/CertificationProvider';
 
 const PrivateRoutes = () => {
     const { isLogged } = useSelector((state: RootState) => state.userInfo);
@@ -42,13 +44,17 @@ const PrivateRoutes = () => {
                                                             <EthOrderTradeProvider>
                                                                 <EthEscrowProvider>
                                                                     <EthShipmentProvider>
-                                                                        <EthRawCertificateProvider>
-                                                                            <EthCertificateProvider>
-                                                                                <EthGraphProvider>
-                                                                                    <Outlet />
-                                                                                </EthGraphProvider>
-                                                                            </EthCertificateProvider>
-                                                                        </EthRawCertificateProvider>
+                                                                        <RawCertificationProvider>
+                                                                            <CertificationProvider>
+                                                                                <EthRawCertificateProvider>
+                                                                                    <EthCertificateProvider>
+                                                                                        <EthGraphProvider>
+                                                                                            <Outlet />
+                                                                                        </EthGraphProvider>
+                                                                                    </EthCertificateProvider>
+                                                                                </EthRawCertificateProvider>
+                                                                            </CertificationProvider>
+                                                                        </RawCertificationProvider>
                                                                     </EthShipmentProvider>
                                                                 </EthEscrowProvider>
                                                             </EthOrderTradeProvider>

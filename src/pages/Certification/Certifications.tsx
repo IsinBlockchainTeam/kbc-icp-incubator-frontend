@@ -5,28 +5,28 @@ import { Link, useNavigate } from 'react-router-dom';
 import { setParametersPath } from '@/utils/page';
 import { paths } from '@/constants/paths';
 import { Table, Tag } from 'antd';
-import { useEthRawCertificate } from '@/providers/entities/EthRawCertificateProvider';
 import { PlusOutlined } from '@ant-design/icons';
-import { BaseCertificate, CertificateType } from '@kbc-lib/coffee-trading-management-lib';
+import { ICPBaseCertificate, ICPCertificateType } from '@kbc-lib/coffee-trading-management-lib';
 import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
 import DropdownButton from 'antd/es/dropdown/dropdown-button';
+import { useRawCertification } from '@/providers/icp/RawCertificationProvider';
 
 export const certificationsType = [
     {
         key: setParametersPath(paths.CERTIFICATION_NEW, {
-            type: CertificateType.COMPANY.toString()
+            type: Object.keys(ICPCertificateType).indexOf(ICPCertificateType.COMPANY).toString()
         }),
         label: 'Company Certification'
     },
     {
         key: setParametersPath(paths.CERTIFICATION_NEW, {
-            type: CertificateType.SCOPE.toString()
+            type: Object.keys(ICPCertificateType).indexOf(ICPCertificateType.SCOPE).toString()
         }),
         label: 'Scope Certification'
     },
     {
         key: setParametersPath(paths.CERTIFICATION_NEW, {
-            type: CertificateType.MATERIAL.toString()
+            type: Object.keys(ICPCertificateType).indexOf(ICPCertificateType.MATERIAL).toString()
         }),
         label: 'Material Certification'
     }
@@ -34,9 +34,9 @@ export const certificationsType = [
 
 export const Certifications = () => {
     const navigate = useNavigate();
-    const { rawCertificates } = useEthRawCertificate();
+    const { rawCertificates } = useRawCertification();
     const { getCompany } = useICPOrganization();
-    const columns: ColumnsType<BaseCertificate> = [
+    const columns: ColumnsType<ICPBaseCertificate> = [
         {
             title: 'Id',
             dataIndex: 'id',
@@ -68,18 +68,18 @@ export const Certifications = () => {
             title: 'Issue date',
             dataIndex: 'issueDate',
             render: (issueDate) => new Date(issueDate).toLocaleDateString(),
-            sorter: (a, b) => a.issueDate - b.issueDate
+            sorter: (a, b) => a.issueDate.getTime() - b.issueDate.getTime()
         },
         {
             title: 'Type',
             dataIndex: 'type',
             render: (_, { certificateType }) => (
-                <Tag color="geekblue">{CertificateType[certificateType]}</Tag>
+                <Tag color="geekblue">{ICPCertificateType[certificateType]}</Tag>
             ),
             sorter: (a, b) =>
-                CertificateType[a.certificateType]
+                ICPCertificateType[a.certificateType]
                     .toLowerCase()
-                    .localeCompare(CertificateType[b.certificateType].toLowerCase())
+                    .localeCompare(ICPCertificateType[b.certificateType].toLowerCase())
         }
     ];
 

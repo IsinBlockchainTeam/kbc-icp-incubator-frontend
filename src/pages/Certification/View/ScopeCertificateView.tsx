@@ -10,6 +10,7 @@ import { CertificateDocumentNames } from '@/constants/certificationDocument';
 import {
     CertificateDocumentType,
     CompanyCertificate,
+    ICPCertificateDocumentType,
     ScopeCertificate
 } from '@kbc-lib/coffee-trading-management-lib';
 import {
@@ -113,8 +114,8 @@ export const ScopeCertificateView = (props: CertificateViewProps) => {
             required: true,
             defaultValue: detailedCertificate.certificate.document.documentType,
             options: Object.keys(CertificateDocumentNames).map((key) => ({
-                value: Number(key),
-                label: CertificateDocumentNames[Number(key) as CertificateDocumentType]
+                value: key,
+                label: CertificateDocumentNames[key as ICPCertificateDocumentType]
             })),
             disabled
         },

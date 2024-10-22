@@ -35,12 +35,11 @@ import { AssetOperationView } from '@/pages/AssetOperation/AssetOperationView';
 import { WalletConnectProvider } from '@/providers/WalletConnectProvider';
 import Documents from '@/pages/Documents/Shipment/ShipmentDocuments';
 import { Certifications } from '@/pages/Certification/Certifications';
-import { useEthCertificate } from '@/providers/entities/EthCertificateProvider';
-import { useEthRawCertificate } from '@/providers/entities/EthRawCertificateProvider';
 import { CertificateNew } from '@/pages/Certification/New/CertificateNew';
 import { CertificateView } from '@/pages/Certification/View/CertificateView';
 import { useOrder } from '@/providers/icp/OrderProvider';
 import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';
+import { useRawCertification } from '@/providers/icp/RawCertificationProvider';
 
 export const App = () => {
     return (
@@ -176,7 +175,7 @@ export const App = () => {
                                         <Route
                                             path={paths.CERTIFICATIONS}
                                             element={
-                                                <DataLoader customUseContext={useEthRawCertificate}>
+                                                <DataLoader customUseContext={useRawCertification}>
                                                     <Certifications />
                                                 </DataLoader>
                                             }

@@ -1,11 +1,11 @@
-import { CertificateDocumentType } from '@kbc-lib/coffee-trading-management-lib';
+import { ICPCertificateDocumentType } from '@kbc-lib/coffee-trading-management-lib';
 
 export const CertificateDocumentNames: {
-    [key in CertificateDocumentType]: string;
+    [key in ICPCertificateDocumentType]: string;
 } = {
-    [CertificateDocumentType.CERTIFICATE_OF_CONFORMITY]: 'Certificate of Conformity',
-    [CertificateDocumentType.COUNTRY_OF_ORIGIN]: 'Country of Origin',
-    [CertificateDocumentType.SWISS_DECODE]: 'Swiss Decode',
-    [CertificateDocumentType.PRODUCTION_REPORT]: 'Production Report',
-    [CertificateDocumentType.PRODUCTION_FACILITY_LICENSE]: 'Production Facility License'
+    [ICPCertificateDocumentType.CERTIFICATE_OF_CONFORMITY]: 'Certificate of Conformity',
+    [ICPCertificateDocumentType.COUNTRY_OF_ORIGIN]: 'Country of Origin',
+    [ICPCertificateDocumentType.SWISS_DECODE]: 'Swiss Decode',
+    [ICPCertificateDocumentType.PRODUCTION_REPORT]: 'Production Report',
+    [ICPCertificateDocumentType.PRODUCTION_FACILITY_LICENSE]: 'Production Facility License'
 };

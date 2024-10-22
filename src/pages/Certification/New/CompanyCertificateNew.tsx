@@ -8,21 +8,26 @@ import { CertificateNewProps } from '@/pages/Certification/New/CertificateNew';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 import { CertificateDocumentNames } from '@/constants/certificationDocument';
-import { CertificateDocumentType } from '@kbc-lib/coffee-trading-management-lib';
-import {
-    CompanyCertificateRequest,
-    useEthCertificate
-} from '@/providers/entities/EthCertificateProvider';
+import { ICPCertificateDocumentType } from '@kbc-lib/coffee-trading-management-lib';
 import { validateDates } from '@/utils/date';
 import dayjs from 'dayjs';
 import { useSigner } from '@/providers/SignerProvider';
+import { CompanyCertificateRequest, useCertification } from '@/providers/icp/CertificationProvider';
 
 export const CompanyCertificateNew = (props: CertificateNewProps) => {
     const { commonElements } = props;
     const { signer } = useSigner();
     const navigate = useNavigate();
     const { assessmentStandards } = useEthEnumerable();
-    const { saveCompanyCertificate } = useEthCertificate();
+    // TODO: get these values from icp network
+    const assessmentAssuranceLevel = [
+        'Reviewed by peer members',
+        'Self assessed',
+        'Self declaration / Not verified',
+        'Verified by second party',
+        'Certified (Third Party)'
+    ];
+    const { saveCompanyCertificate } = useCertification();
 
     const elements: FormElement[] = [
         ...commonElements,
@@ -67,6 +72,17 @@ export const CompanyCertificateNew = (props: CertificateNewProps) => {
                 label: standard
             }))
         },
+        {
+            type: FormElementType.SELECT,
+            span: 12,
+            name: 'assessmentAssuranceLevel',
+            label: 'Assessment Assurance Level',
+            required: true,
+            options: assessmentAssuranceLevel.map((assuranceLevel) => ({
+                value: assuranceLevel,
+                label: assuranceLevel
+            }))
+        },
         { type: FormElementType.SPACE, span: 12 },
         {
             type: FormElementType.TITLE,
@@ -88,8 +104,8 @@ export const CompanyCertificateNew = (props: CertificateNewProps) => {
             label: 'Document Type',
             required: true,
             options: Object.keys(CertificateDocumentNames).map((key) => ({
-                value: Number(key),
-                label: CertificateDocumentNames[Number(key) as CertificateDocumentType]
+                value: key,
+                label: CertificateDocumentNames[key as ICPCertificateDocumentType]
             }))
         },
         {
@@ -109,6 +125,7 @@ export const CompanyCertificateNew = (props: CertificateNewProps) => {
             issuer: values.issuer,
             subject: signer._address,
             assessmentStandard: values.assessmentStandard,
+            assessmentAssuranceLevel: values.assessmentAssuranceLevel,
             document: {
                 fileName: values.document.name,
                 fileType: values.document.type,
