@@ -3,52 +3,49 @@ import { CardPage } from '@/components/structure/CardPage/CardPage';
 import { Table, Tag } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { Link } from 'react-router-dom';
-import { NegotiationStatus, TradeType } from '@kbc-lib/coffee-trading-management-lib';
+import { Order, OrderStatus, TradeType } from '@kbc-lib/coffee-trading-management-lib';
 import { setParametersPath } from '@/utils/page';
 import { paths } from '@/constants/paths';
-import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
-import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
-import { useEthShipment } from '@/providers/entities/EthShipmentProvider';
-import { RawTrade, useEthRawTrade } from '@/providers/entities/EthRawTradeProvider';
+import { useOrder } from '@/providers/icp/OrderProvider';
 import { AsyncComponent } from '@/components/AsyncComponent/AsyncComponent';
-import { ShipmentPhaseDisplayName } from '@/constants/shipmentPhase';
 
 export const Trades = () => {
-    const { rawTrades } = useEthRawTrade();
-    const { getSupplierAsync, getCustomerAsync, getNegotiationStatusAsync } = useEthOrderTrade();
-    const { getShipmentPhaseAsync } = useEthShipment();
-    const { getCompany } = useICPOrganization();
+    const { orders } = useOrder();
+    // const { rawTrades } = useEthRawTrade();
+    // const { getSupplierAsync, getCustomerAsync, getNegotiationStatusAsync } = useEthOrderTrade();
+    // const { getShipmentPhaseAsync } = useEthShipment();
+    // const { getCompany } = useICPOrganization();
 
-    const columns: ColumnsType<RawTrade> = [
+    const columns: ColumnsType<Order> = [
         {
             title: 'Id',
             dataIndex: 'id',
             sorter: (a, b) => a.id - b.id,
             sortDirections: ['descend'],
-            render: (id, { type }) => (
-                <Link to={setParametersPath(`${paths.TRADE_VIEW}?type=:type`, { id }, { type })}>
-                    {id}
-                </Link>
+            render: (id) => (
+                <Link to={setParametersPath(`${paths.TRADE_VIEW}?type=order`, { id })}>{id}</Link>
             )
         },
         {
             title: 'Supplier',
             dataIndex: 'supplier',
             render: (_, { id }) => (
-                <AsyncComponent
-                    asyncFunction={async () => getCompany(await getSupplierAsync(id)).legalName}
-                    defaultElement={<>Unknown</>}
-                />
+                // <AsyncComponent
+                //     asyncFunction={async () => getCompany(await getSupplierAsync(id)).legalName}
+                //     defaultElement={<>Unknown</>}
+                // />
+                <div>Company 1</div>
             )
         },
         {
             title: 'Commissioner',
             dataIndex: 'commissioner',
             render: (_, { id }) => (
-                <AsyncComponent
-                    asyncFunction={async () => getCompany(await getCustomerAsync(id)).legalName}
-                    defaultElement={<>Unknown</>}
-                />
+                // <AsyncComponent
+                //     asyncFunction={async () => getCompany(await getCustomerAsync(id)).legalName}
+                //     defaultElement={<>Unknown</>}
+                // />
+                <div>Company 2</div>
             )
         },
         {
@@ -61,12 +58,10 @@ export const Trades = () => {
         {
             title: 'Negotiation status',
             dataIndex: 'negotiationStatus',
-            render: (_, { id }) => (
+            render: (_, { id, status }) => (
                 <Tag color="geekblue">
                     <AsyncComponent
-                        asyncFunction={async () =>
-                            NegotiationStatus[await getNegotiationStatusAsync(id)]
-                        }
+                        asyncFunction={async () => OrderStatus[status]}
                         defaultElement={<>UNKNOWN</>}
                     />
                 </Tag>
@@ -76,14 +71,15 @@ export const Trades = () => {
             title: 'Shipment phase',
             dataIndex: 'shipmentPhase',
             render: (_, { id }) => (
-                <Tag color="geekblue">
-                    <AsyncComponent
-                        asyncFunction={async () =>
-                            ShipmentPhaseDisplayName[await getShipmentPhaseAsync(id)]
-                        }
-                        defaultElement={<>NOT CREATED</>}
-                    />
-                </Tag>
+                // <Tag color="geekblue">
+                //     <AsyncComponent
+                //         asyncFunction={async () =>
+                //             ShipmentPhaseDisplayName[await getShipmentPhaseAsync(id)]
+                //         }
+                //         defaultElement={<>NOT CREATED</>}
+                //     />
+                // </Tag>
+                <div>Shipment phase</div>
             )
         }
     ];
@@ -100,7 +96,7 @@ export const Trades = () => {
                     Trades
                 </div>
             }>
-            <Table columns={columns} dataSource={rawTrades} />
+            <Table columns={columns} dataSource={orders} />
         </CardPage>
     );
 };

@@ -39,6 +39,8 @@ import { useEthCertificate } from '@/providers/entities/EthCertificateProvider';
 import { useEthRawCertificate } from '@/providers/entities/EthRawCertificateProvider';
 import { CertificateNew } from '@/pages/Certification/New/CertificateNew';
 import { CertificateView } from '@/pages/Certification/View/CertificateView';
+import { useOrder } from '@/providers/icp/OrderProvider';
+import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';
 
 export const App = () => {
     return (
@@ -92,7 +94,7 @@ export const App = () => {
                                         <Route
                                             path={paths.MATERIALS}
                                             element={
-                                                <DataLoader customUseContext={useEthMaterial}>
+                                                <DataLoader customUseContext={useProductCategory}>
                                                     <Materials />
                                                 </DataLoader>
                                             }
@@ -108,7 +110,7 @@ export const App = () => {
                                         <Route
                                             path={paths.PRODUCT_CATEGORY_NEW}
                                             element={
-                                                <DataLoader customUseContext={useEthMaterial}>
+                                                <DataLoader customUseContext={useProductCategory}>
                                                     <ProductCategoryNew />
                                                 </DataLoader>
                                             }
@@ -134,10 +136,8 @@ export const App = () => {
                                         <Route
                                             path={paths.TRADES}
                                             element={
-                                                <DataLoader customUseContext={useICPOrganization}>
-                                                    <DataLoader customUseContext={useEthRawTrade}>
-                                                        <Trades />
-                                                    </DataLoader>
+                                                <DataLoader customUseContext={useOrder}>
+                                                    <Trades />
                                                 </DataLoader>
                                             }
                                         />

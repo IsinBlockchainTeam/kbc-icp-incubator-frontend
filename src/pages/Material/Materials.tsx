@@ -7,9 +7,11 @@ import { useNavigate } from 'react-router-dom';
 import { Material, ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
 import { paths } from '@/constants/paths';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
+import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';
 
 export const Materials = () => {
-    const { materials, productCategories } = useEthMaterial();
+    const { materials } = useEthMaterial();
+    const { productCategories } = useProductCategory();
     const navigate = useNavigate();
 
     const productCategoriesColumns: ColumnsType<ProductCategory> = [

@@ -20,5 +20,9 @@ export const ICP = {
     CANISTER_ID_IC_SIWE_PROVIDER: checkAndGetEnvironmentVariable(
         process.env.REACT_APP_CANISTER_ID_IC_SIWE_PROVIDER,
         'IC SIWE provider canister ID must be defined'
+    ),
+    CANISTER_ID_ENTITY_MANAGER: checkAndGetEnvironmentVariable(
+        process.env.REACT_APP_CANISTER_ID_ENTITY_MANAGER,
+        'Entity manager canister ID must be defined'
     )
 };
