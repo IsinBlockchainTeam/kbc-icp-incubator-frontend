@@ -20,6 +20,7 @@ import { EthEscrowProvider } from '@/providers/entities/EthEscrowProvider';
 import { EthShipmentProvider } from '@/providers/entities/EthShipmentProvider';
 import { OrderProvider } from '@/providers/icp/OrderProvider';
 import { ProductCategoryProvider } from '@/providers/icp/ProductCategoryProvider';
+import { MaterialProvider } from '@/providers/icp/MaterialProvider';
 
 const PrivateRoutes = () => {
     const { isLogged } = useSelector((state: RootState) => state.userInfo);
@@ -32,25 +33,27 @@ const PrivateRoutes = () => {
                             <EthEnumerableProvider>
                                 <EthMaterialProvider>
                                     <ProductCategoryProvider>
-                                        <EthOfferProvider>
-                                            <EthAssetOperationProvider>
-                                                <EthRawTradeProvider>
-                                                    <EthBasicTradeProvider>
-                                                        <OrderProvider>
-                                                            <EthOrderTradeProvider>
-                                                                <EthEscrowProvider>
-                                                                    <EthShipmentProvider>
-                                                                        <EthGraphProvider>
-                                                                            <Outlet />
-                                                                        </EthGraphProvider>
-                                                                    </EthShipmentProvider>
-                                                                </EthEscrowProvider>
-                                                            </EthOrderTradeProvider>
-                                                        </OrderProvider>
-                                                    </EthBasicTradeProvider>
-                                                </EthRawTradeProvider>
-                                            </EthAssetOperationProvider>
-                                        </EthOfferProvider>
+                                        <MaterialProvider>
+                                            <EthOfferProvider>
+                                                <EthAssetOperationProvider>
+                                                    <EthRawTradeProvider>
+                                                        <EthBasicTradeProvider>
+                                                            <OrderProvider>
+                                                                <EthOrderTradeProvider>
+                                                                    <EthEscrowProvider>
+                                                                        <EthShipmentProvider>
+                                                                            <EthGraphProvider>
+                                                                                <Outlet />
+                                                                            </EthGraphProvider>
+                                                                        </EthShipmentProvider>
+                                                                    </EthEscrowProvider>
+                                                                </EthOrderTradeProvider>
+                                                            </OrderProvider>
+                                                        </EthBasicTradeProvider>
+                                                    </EthRawTradeProvider>
+                                                </EthAssetOperationProvider>
+                                            </EthOfferProvider>
+                                        </MaterialProvider>
                                     </ProductCategoryProvider>
                                 </EthMaterialProvider>
                             </EthEnumerableProvider>

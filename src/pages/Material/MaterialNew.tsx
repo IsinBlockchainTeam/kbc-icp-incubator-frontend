@@ -5,10 +5,12 @@ import { FormElement, FormElementType, GenericForm } from '@/components/GenericF
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { paths } from '@/constants/paths';
-import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
+import { useMaterial } from '@/providers/icp/MaterialProvider';
+import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';
 
 export const MaterialNew = () => {
-    const { productCategories, saveMaterial } = useEthMaterial();
+    const { saveMaterial } = useMaterial();
+    const { productCategories } = useProductCategory();
     const navigate = useNavigate();
 
     const elements: FormElement[] = [

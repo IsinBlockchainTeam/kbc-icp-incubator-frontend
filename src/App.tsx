@@ -36,6 +36,7 @@ import { WalletConnectProvider } from '@/providers/WalletConnectProvider';
 import Documents from '@/pages/Documents/Shipment/ShipmentDocuments';
 import { useOrder } from '@/providers/icp/OrderProvider';
 import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';
+import { useMaterial } from '@/providers/icp/MaterialProvider';
 
 export const App = () => {
     return (
@@ -90,14 +91,16 @@ export const App = () => {
                                             path={paths.MATERIALS}
                                             element={
                                                 <DataLoader customUseContext={useProductCategory}>
-                                                    <Materials />
+                                                    <DataLoader customUseContext={useMaterial}>
+                                                        <Materials />
+                                                    </DataLoader>
                                                 </DataLoader>
                                             }
                                         />
                                         <Route
                                             path={paths.MATERIAL_NEW}
                                             element={
-                                                <DataLoader customUseContext={useEthMaterial}>
+                                                <DataLoader customUseContext={useMaterial}>
                                                     <MaterialNew />
                                                 </DataLoader>
                                             }

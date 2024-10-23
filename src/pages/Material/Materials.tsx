@@ -6,12 +6,12 @@ import { PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { Material, ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
 import { paths } from '@/constants/paths';
-import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';
+import { useMaterial } from '@/providers/icp/MaterialProvider';
 
 export const Materials = () => {
-    const { materials } = useEthMaterial();
     const { productCategories } = useProductCategory();
+    const { materials } = useMaterial();
     const navigate = useNavigate();
 
     const productCategoriesColumns: ColumnsType<ProductCategory> = [
