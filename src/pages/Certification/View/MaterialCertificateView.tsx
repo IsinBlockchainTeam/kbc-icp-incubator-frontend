@@ -6,27 +6,34 @@ import { FormElement, FormElementType, GenericForm } from '@/components/GenericF
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 import { CertificateDocumentNames } from '@/constants/certificationDocument';
 import {
-    CertificateDocumentType,
-    ICPCertificateDocumentType,
-    MaterialCertificate
+    ICPMaterialCertificate,
+    ICPCertificateDocumentType
 } from '@kbc-lib/coffee-trading-management-lib';
-import {
-    MaterialCertificateRequest,
-    useEthCertificate
-} from '@/providers/entities/EthCertificateProvider';
 import { useSigner } from '@/providers/SignerProvider';
 import { CertificateViewProps } from '@/pages/Certification/View/CertificateView';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
+import {
+    MaterialCertificateRequest,
+    useCertification
+} from '@/providers/icp/CertificationProvider';
 
 export const MaterialCertificateView = (props: CertificateViewProps) => {
     const { commonElements, editElements, detailedCertificate, disabled } = props;
-    const materialCertificate = detailedCertificate.certificate as MaterialCertificate;
+    const materialCertificate = detailedCertificate.certificate as ICPMaterialCertificate;
 
     const { signer } = useSigner();
     const navigate = useNavigate();
     const { assessmentStandards } = useEthEnumerable();
     const { materials } = useEthMaterial();
-    const { updateMaterialCertificate } = useEthCertificate();
+    const { updateMaterialCertificate } = useCertification();
+    // TODO: get these values from icp network
+    const assessmentAssuranceLevel = [
+        'Reviewed by peer members',
+        'Self assessed',
+        'Self declaration / Not verified',
+        'Verified by second party',
+        'Certified (Third Party)'
+    ];
 
     const elements: FormElement[] = [
         ...commonElements,
@@ -45,6 +52,19 @@ export const MaterialCertificateView = (props: CertificateViewProps) => {
             options: assessmentStandards.map((standard) => ({
                 value: standard,
                 label: standard
+            })),
+            disabled
+        },
+        {
+            type: FormElementType.SELECT,
+            span: 12,
+            name: 'assessmentAssuranceLevel',
+            label: 'Assessment Assurance Level',
+            required: true,
+            defaultValue: materialCertificate.assessmentAssuranceLevel,
+            options: assessmentAssuranceLevel.map((assuranceLevel) => ({
+                value: assuranceLevel,
+                label: assuranceLevel
             })),
             disabled
         },
@@ -72,7 +92,7 @@ export const MaterialCertificateView = (props: CertificateViewProps) => {
             span: 12,
             name: 'documentReferenceId',
             label: 'Reference ID',
-            defaultValue: detailedCertificate.document.documentReferenceId,
+            defaultValue: materialCertificate.referenceId,
             required: true,
             disabled
         },
@@ -89,21 +109,22 @@ export const MaterialCertificateView = (props: CertificateViewProps) => {
             })),
             disabled
         },
-        {
-            type: FormElementType.DOCUMENT,
-            span: 24,
-            name: 'document',
-            label: 'Document',
-            loading: false,
-            uploadable: true,
-            required: true,
-            height: '500px',
-            content: {
-                content: new Blob([detailedCertificate.document.fileContent]),
-                contentType: detailedCertificate.document.fileType,
-                filename: detailedCertificate.document.fileName
-            }
-        },
+        // TODO: re-add after icp document management is implemented
+        // {
+        //     type: FormElementType.DOCUMENT,
+        //     span: 24,
+        //     name: 'document',
+        //     label: 'Document',
+        //     loading: false,
+        //     uploadable: true,
+        //     required: true,
+        //     height: '500px',
+        //     content: {
+        //         content: new Blob([detailedCertificate.document.fileContent]),
+        //         contentType: detailedCertificate.document.fileType,
+        //         filename: detailedCertificate.document.fileName
+        //     }
+        // },
         ...editElements
     ];
 
@@ -112,6 +133,7 @@ export const MaterialCertificateView = (props: CertificateViewProps) => {
             issuer: values.issuer,
             subject: signer._address,
             assessmentStandard: values.assessmentStandard,
+            assessmentAssuranceLevel: values.assessmentAssuranceLevel,
             document: {
                 fileName: values.document.name,
                 fileType: values.document.type,
@@ -121,7 +143,6 @@ export const MaterialCertificateView = (props: CertificateViewProps) => {
             documentReferenceId: values.documentReferenceId,
             materialId: values.materialId
         };
-        console.log('updatedRequest', updatedRequest);
         await updateMaterialCertificate(updatedRequest);
         navigate(paths.CERTIFICATIONS);
     };

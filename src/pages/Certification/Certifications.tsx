@@ -46,7 +46,7 @@ export const Certifications = () => {
                 <Link
                     to={setParametersPath(`${paths.CERTIFICATION_VIEW}`, {
                         id,
-                        type: certificateType.toString()
+                        type: Object.keys(ICPCertificateType).indexOf(certificateType).toString()
                     })}>
                     {id}
                 </Link>

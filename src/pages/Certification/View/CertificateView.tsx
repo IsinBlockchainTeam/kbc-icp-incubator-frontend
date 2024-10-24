@@ -1,13 +1,11 @@
 import { FormElement, FormElementType } from '@/components/GenericForm/GenericForm';
 import React, { useMemo } from 'react';
-import {
-    DetailedCertificate,
-    useEthCertificate
-} from '@/providers/entities/EthCertificateProvider';
 import { CompanyCertificateView } from '@/pages/Certification/View/CompanyCertificateView';
 import { EditOutlined, RollbackOutlined } from '@ant-design/icons';
 import { ScopeCertificateView } from '@/pages/Certification/View/ScopeCertificateView';
 import { MaterialCertificateView } from '@/pages/Certification/View/MaterialCertificateView';
+import { DetailedCertificate, useCertification } from '@/providers/icp/CertificationProvider';
+import { ICPCertificateType } from '@kbc-lib/coffee-trading-management-lib';
 
 export type CertificateViewProps = {
     commonElements: FormElement[];
@@ -17,7 +15,7 @@ export type CertificateViewProps = {
 };
 
 export const CertificateView = () => {
-    const { detailedCertificate } = useEthCertificate();
+    const { detailedCertificate } = useCertification();
     const [disabled, setDisabled] = React.useState(true);
     const [isEditing, setIsEditing] = React.useState(false);
 
@@ -109,6 +107,12 @@ export const CertificateView = () => {
                 disabled={disabled}
             />
         ];
-        return certificatesViewByType[Number(detailedCertificate?.certificate.certificateType)];
+        return certificatesViewByType[
+            Number(
+                Object.keys(ICPCertificateType).indexOf(
+                    detailedCertificate?.certificate.certificateType
+                )
+            )
+        ];
     }
 };

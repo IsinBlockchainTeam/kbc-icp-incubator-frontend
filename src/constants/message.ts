@@ -50,6 +50,13 @@ export const ASSESSMENT_STANDARD_MESSAGE = {
         ERROR: 'Error while retrieving assessment standards.'
     }
 };
+export const ASSESSMENT_ASSURANCE_LEVEL = {
+    RETRIEVE: {
+        LOADING: 'Retrieving assessment assurance levels...',
+        OK: '',
+        ERROR: 'Error while retrieving assessment assurance levels.'
+    }
+};
 export const OFFER_MESSAGE = {
     RETRIEVE: {
         LOADING: 'Retrieving offers...',

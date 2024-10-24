@@ -6,27 +6,24 @@ import { FormElement, FormElementType, GenericForm } from '@/components/GenericF
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 import { CertificateDocumentNames } from '@/constants/certificationDocument';
 import {
-    CertificateDocumentType,
-    CompanyCertificate,
+    ICPCompanyCertificate,
     ICPCertificateDocumentType
 } from '@kbc-lib/coffee-trading-management-lib';
-import {
-    CompanyCertificateRequest,
-    useEthCertificate
-} from '@/providers/entities/EthCertificateProvider';
 import { validateDates } from '@/utils/date';
 import dayjs from 'dayjs';
 import { useSigner } from '@/providers/SignerProvider';
+import { CompanyCertificateRequest, useCertification } from '@/providers/icp/CertificationProvider';
 import { CertificateViewProps } from '@/pages/Certification/View/CertificateView';
+import { useEnumeration } from '@/providers/icp/EnumerationProvider';
 
 export const CompanyCertificateView = (props: CertificateViewProps) => {
     const { commonElements, editElements, detailedCertificate, disabled } = props;
-    const companyCertificate = detailedCertificate.certificate as CompanyCertificate;
+    const companyCertificate = detailedCertificate.certificate as ICPCompanyCertificate;
 
     const { signer } = useSigner();
     const navigate = useNavigate();
-    const { assessmentStandards } = useEthEnumerable();
-    const { updateCompanyCertificate } = useEthCertificate();
+    const { assessmentStandards, assessmentAssuranceLevel } = useEnumeration();
+    const { updateCompanyCertificate } = useCertification();
 
     const elements: FormElement[] = [
         ...commonElements,
@@ -41,7 +38,7 @@ export const CompanyCertificateView = (props: CertificateViewProps) => {
             name: 'validFrom',
             label: 'Valid From',
             required: true,
-            defaultValue: dayjs.unix(companyCertificate.validFrom),
+            defaultValue: dayjs.unix(companyCertificate.validFrom.getTime()),
             disabled
         },
         {
@@ -50,7 +47,7 @@ export const CompanyCertificateView = (props: CertificateViewProps) => {
             name: 'validUntil',
             label: 'Valid Until',
             required: true,
-            defaultValue: dayjs.unix(companyCertificate.validUntil),
+            defaultValue: dayjs.unix(companyCertificate.validUntil.getTime()),
             disabled,
             dependencies: ['validFrom'],
             validationCallback: validateDates(
@@ -73,6 +70,19 @@ export const CompanyCertificateView = (props: CertificateViewProps) => {
             })),
             disabled
         },
+        {
+            type: FormElementType.SELECT,
+            span: 12,
+            name: 'assessmentAssuranceLevel',
+            label: 'Assessment Assurance Level',
+            required: true,
+            defaultValue: companyCertificate.assessmentAssuranceLevel,
+            options: assessmentAssuranceLevel.map((assuranceLevel) => ({
+                value: assuranceLevel,
+                label: assuranceLevel
+            })),
+            disabled
+        },
         { type: FormElementType.SPACE, span: 12 },
         {
             type: FormElementType.TITLE,
@@ -84,7 +94,7 @@ export const CompanyCertificateView = (props: CertificateViewProps) => {
             span: 12,
             name: 'documentReferenceId',
             label: 'Reference ID',
-            defaultValue: detailedCertificate.document.documentReferenceId,
+            defaultValue: companyCertificate.referenceId,
             required: true,
             disabled
         },
@@ -101,21 +111,22 @@ export const CompanyCertificateView = (props: CertificateViewProps) => {
             })),
             disabled
         },
-        {
-            type: FormElementType.DOCUMENT,
-            span: 24,
-            name: 'document',
-            label: 'Document',
-            loading: false,
-            uploadable: true,
-            required: true,
-            height: '500px',
-            content: {
-                content: new Blob([detailedCertificate.document.fileContent]),
-                contentType: detailedCertificate.document.fileType,
-                filename: detailedCertificate.document.fileName
-            }
-        },
+        // TODO: re-add after icp document management is implemented
+        // {
+        //     type: FormElementType.DOCUMENT,
+        //     span: 24,
+        //     name: 'document',
+        //     label: 'Document',
+        //     loading: false,
+        //     uploadable: true,
+        //     required: true,
+        //     height: '500px',
+        //     content: {
+        //         content: new Blob([detailedCertificate.document.fileContent]),
+        //         contentType: detailedCertificate.document.fileType,
+        //         filename: detailedCertificate.document.fileName
+        //     }
+        // },
         ...editElements
     ];
 
@@ -124,6 +135,7 @@ export const CompanyCertificateView = (props: CertificateViewProps) => {
             issuer: values.issuer,
             subject: signer._address,
             assessmentStandard: values.assessmentStandard,
+            assessmentAssuranceLevel: values.assessmentAssuranceLevel,
             document: {
                 fileName: values.document.name,
                 fileType: values.document.type,

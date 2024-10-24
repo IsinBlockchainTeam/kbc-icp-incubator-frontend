@@ -1,5 +1,4 @@
 import {
-    CertificateDocument,
     ICPBaseCertificate,
     ICPCertificateDocumentInfo,
     ICPCertificateDocumentType,
@@ -24,7 +23,6 @@ import { useSiweIdentity } from '@/providers/SiweIdentityProvider';
 import { checkAndGetEnvironmentVariable } from '@/utils/env';
 import { Typography } from 'antd';
 import { getProof } from '@/providers/icp/tempProof';
-import { useEthRawCertificate } from '@/providers/entities/EthRawCertificateProvider';
 import { useRawCertification } from '@/providers/icp/RawCertificationProvider';
 
 type DocumentRequest = {

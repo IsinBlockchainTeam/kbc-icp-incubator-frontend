@@ -40,6 +40,8 @@ import { CertificateView } from '@/pages/Certification/View/CertificateView';
 import { useOrder } from '@/providers/icp/OrderProvider';
 import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';
 import { useRawCertification } from '@/providers/icp/RawCertificationProvider';
+import { useCertification } from '@/providers/icp/CertificationProvider';
+import { useEnumeration } from '@/providers/icp/EnumerationProvider';
 
 export const App = () => {
     return (
@@ -184,7 +186,7 @@ export const App = () => {
                                             path={paths.CERTIFICATION_NEW}
                                             element={
                                                 <DataLoader customUseContext={useICPOrganization}>
-                                                    <DataLoader customUseContext={useEthEnumerable}>
+                                                    <DataLoader customUseContext={useEnumeration}>
                                                         <DataLoader
                                                             customUseContext={useEthMaterial}>
                                                             <CertificateNew />
@@ -196,7 +198,7 @@ export const App = () => {
                                         <Route
                                             path={paths.CERTIFICATION_VIEW}
                                             element={
-                                                <DataLoader customUseContext={useEthEnumerable}>
+                                                <DataLoader customUseContext={useEnumeration}>
                                                     <CertificateView />
                                                 </DataLoader>
                                             }

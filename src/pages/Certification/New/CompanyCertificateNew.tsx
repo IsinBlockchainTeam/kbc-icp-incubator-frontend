@@ -13,20 +13,13 @@ import { validateDates } from '@/utils/date';
 import dayjs from 'dayjs';
 import { useSigner } from '@/providers/SignerProvider';
 import { CompanyCertificateRequest, useCertification } from '@/providers/icp/CertificationProvider';
+import { useEnumeration } from '@/providers/icp/EnumerationProvider';
 
 export const CompanyCertificateNew = (props: CertificateNewProps) => {
     const { commonElements } = props;
     const { signer } = useSigner();
     const navigate = useNavigate();
-    const { assessmentStandards } = useEthEnumerable();
-    // TODO: get these values from icp network
-    const assessmentAssuranceLevel = [
-        'Reviewed by peer members',
-        'Self assessed',
-        'Self declaration / Not verified',
-        'Verified by second party',
-        'Certified (Third Party)'
-    ];
+    const { assessmentStandards, assessmentAssuranceLevel } = useEnumeration();
     const { saveCompanyCertificate } = useCertification();
 
     const elements: FormElement[] = [

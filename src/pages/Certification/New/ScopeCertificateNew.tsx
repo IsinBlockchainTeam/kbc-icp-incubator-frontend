@@ -8,24 +8,18 @@ import { CertificateNewProps } from '@/pages/Certification/New/CertificateNew';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 import { CertificateDocumentNames } from '@/constants/certificationDocument';
-import {
-    CertificateDocumentType,
-    ICPCertificateDocumentType
-} from '@kbc-lib/coffee-trading-management-lib';
-import {
-    ScopeCertificateRequest,
-    useEthCertificate
-} from '@/providers/entities/EthCertificateProvider';
+import { ICPCertificateDocumentType } from '@kbc-lib/coffee-trading-management-lib';
 import { validateDates } from '@/utils/date';
 import dayjs from 'dayjs';
 import { useSigner } from '@/providers/SignerProvider';
+import { ScopeCertificateRequest, useCertification } from '@/providers/icp/CertificationProvider';
 
 export const ScopeCertificateNew = (props: CertificateNewProps) => {
     const { commonElements } = props;
     const { signer } = useSigner();
     const navigate = useNavigate();
     const { assessmentStandards, processTypes } = useEthEnumerable();
-    const { saveScopeCertificate } = useEthCertificate();
+    const { saveScopeCertificate } = useCertification();
 
     const elements: FormElement[] = [
         ...commonElements,
@@ -124,6 +118,7 @@ export const ScopeCertificateNew = (props: CertificateNewProps) => {
             issuer: values.issuer,
             subject: signer._address,
             assessmentStandard: values.assessmentStandard,
+            assessmentAssuranceLevel: values.assessmentAssuranceLevel,
             document: {
                 fileName: values.document.name,
                 fileType: values.document.type,
