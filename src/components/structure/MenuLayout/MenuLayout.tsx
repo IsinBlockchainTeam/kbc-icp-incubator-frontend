@@ -1,15 +1,15 @@
 import { Avatar, Layout, Menu, MenuProps, Spin, theme } from 'antd';
 import React, { useState } from 'react';
 import {
+    AuditOutlined,
+    CloudDownloadOutlined,
     ExperimentOutlined,
     GoldOutlined,
+    LogoutOutlined,
     SettingOutlined,
     SwapOutlined,
     TeamOutlined,
-    LogoutOutlined,
-    UserOutlined,
-    AuditOutlined,
-    CloudDownloadOutlined
+    UserOutlined
 } from '@ant-design/icons';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { defaultPictureURL } from '@/constants/misc';

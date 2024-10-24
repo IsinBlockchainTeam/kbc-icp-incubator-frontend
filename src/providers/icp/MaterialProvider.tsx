@@ -13,7 +13,6 @@ import { MATERIAL_MESSAGE, PRODUCT_CATEGORY_MESSAGE } from '@/constants/message'
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { useDispatch } from 'react-redux';
-import { getProof } from '@/providers/icp/tempProof';
 
 export type MaterialContextState = {
     dataLoaded: boolean;
@@ -53,8 +52,7 @@ export function MaterialProvider(props: { children: ReactNode }) {
     const loadMaterials = async () => {
         try {
             dispatch(addLoadingMessage(MATERIAL_MESSAGE.RETRIEVE.LOADING));
-            const roleProof = await getProof();
-            const materials = await productCategoryService.getMaterials(roleProof);
+            const materials = await productCategoryService.getMaterials();
             console.log('Product categories', materials);
             setMaterials(materials);
         } catch (e: any) {
@@ -73,8 +71,7 @@ export function MaterialProvider(props: { children: ReactNode }) {
     const saveMaterial = async (productCategoryId: number) => {
         try {
             dispatch(addLoadingMessage(MATERIAL_MESSAGE.SAVE.LOADING));
-            const roleProof = await getProof();
-            await productCategoryService.createMaterial(roleProof, productCategoryId);
+            await productCategoryService.createMaterial(productCategoryId);
             openNotification(
                 'Success',
                 PRODUCT_CATEGORY_MESSAGE.SAVE.OK,

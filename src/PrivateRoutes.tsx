@@ -21,6 +21,7 @@ import { EthShipmentProvider } from '@/providers/entities/EthShipmentProvider';
 import { OrderProvider } from '@/providers/icp/OrderProvider';
 import { ProductCategoryProvider } from '@/providers/icp/ProductCategoryProvider';
 import { MaterialProvider } from '@/providers/icp/MaterialProvider';
+import { AuthenticationProvider } from '@/providers/icp/AuthenticationProvider';
 
 const PrivateRoutes = () => {
     const { isLogged } = useSelector((state: RootState) => state.userInfo);
@@ -28,37 +29,39 @@ const PrivateRoutes = () => {
         <SignerProvider>
             <SiweIdentityProvider>
                 <ICPProvider>
-                    <EthRelationshipProvider>
-                        <ICPOrganizationProvider>
-                            <EthEnumerableProvider>
-                                <EthMaterialProvider>
-                                    <ProductCategoryProvider>
-                                        <MaterialProvider>
-                                            <EthOfferProvider>
-                                                <EthAssetOperationProvider>
-                                                    <EthRawTradeProvider>
-                                                        <EthBasicTradeProvider>
-                                                            <OrderProvider>
-                                                                <EthOrderTradeProvider>
-                                                                    <EthEscrowProvider>
-                                                                        <EthShipmentProvider>
-                                                                            <EthGraphProvider>
-                                                                                <Outlet />
-                                                                            </EthGraphProvider>
-                                                                        </EthShipmentProvider>
-                                                                    </EthEscrowProvider>
-                                                                </EthOrderTradeProvider>
-                                                            </OrderProvider>
-                                                        </EthBasicTradeProvider>
-                                                    </EthRawTradeProvider>
-                                                </EthAssetOperationProvider>
-                                            </EthOfferProvider>
-                                        </MaterialProvider>
-                                    </ProductCategoryProvider>
-                                </EthMaterialProvider>
-                            </EthEnumerableProvider>
-                        </ICPOrganizationProvider>
-                    </EthRelationshipProvider>
+                    <AuthenticationProvider>
+                        <EthRelationshipProvider>
+                            <ICPOrganizationProvider>
+                                <EthEnumerableProvider>
+                                    <EthMaterialProvider>
+                                        <ProductCategoryProvider>
+                                            <MaterialProvider>
+                                                <EthOfferProvider>
+                                                    <EthAssetOperationProvider>
+                                                        <EthRawTradeProvider>
+                                                            <EthBasicTradeProvider>
+                                                                <OrderProvider>
+                                                                    <EthOrderTradeProvider>
+                                                                        <EthEscrowProvider>
+                                                                            <EthShipmentProvider>
+                                                                                <EthGraphProvider>
+                                                                                    <Outlet />
+                                                                                </EthGraphProvider>
+                                                                            </EthShipmentProvider>
+                                                                        </EthEscrowProvider>
+                                                                    </EthOrderTradeProvider>
+                                                                </OrderProvider>
+                                                            </EthBasicTradeProvider>
+                                                        </EthRawTradeProvider>
+                                                    </EthAssetOperationProvider>
+                                                </EthOfferProvider>
+                                            </MaterialProvider>
+                                        </ProductCategoryProvider>
+                                    </EthMaterialProvider>
+                                </EthEnumerableProvider>
+                            </ICPOrganizationProvider>
+                        </EthRelationshipProvider>
+                    </AuthenticationProvider>
                 </ICPProvider>
             </SiweIdentityProvider>
         </SignerProvider>

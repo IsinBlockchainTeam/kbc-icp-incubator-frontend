@@ -16,6 +16,7 @@ import { ORDER_TRADE_MESSAGE } from '@/constants/message';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { getProof } from '@/providers/icp/tempProof';
+import { useSigner } from '@/providers/SignerProvider';
 
 export type OrderContextState = {
     dataLoaded: boolean;
@@ -41,6 +42,7 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
     const dispatch = useDispatch();
     const [dataLoaded, setDataLoaded] = useState<boolean>(false);
     const [orders, setOrders] = React.useState<Order[]>([]);
+    const signer = useSigner();
 
     if (!identity) {
         return <Typography.Text>Siwe identity not initialized</Typography.Text>;
@@ -63,7 +65,7 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
 
         try {
             dispatch(addLoadingMessage('Retrieving orders'));
-            const roleProof = await getProof();
+            const roleProof = await getProof(await signer.signer.getAddress());
             const resp = await orderService.getOrders(roleProof);
             console.log(resp);
             setOrders(resp);

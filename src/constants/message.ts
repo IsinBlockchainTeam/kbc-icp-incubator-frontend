@@ -189,6 +189,23 @@ export const LOGIN_MESSAGE = {
         ERROR: 'Error while logging in.'
     }
 };
+export const AUTHENTICATION_MESSAGE = {
+    LOGIN: {
+        LOADING: 'Verifying permissions...',
+        OK: '',
+        ERROR: 'Error while verifying permissions.'
+    },
+    REFRESH: {
+        LOADING: 'Refreshing permissions...',
+        OK: '',
+        ERROR: 'Error while refreshing permissions.'
+    },
+    LOGOUT: {
+        LOADING: 'Logging out...',
+        OK: '',
+        ERROR: 'Error while logging out.'
+    }
+};
 export const ESCROW_MESSAGE = {
     RETRIEVE: {
         LOADING: 'Retrieving escrow details...',

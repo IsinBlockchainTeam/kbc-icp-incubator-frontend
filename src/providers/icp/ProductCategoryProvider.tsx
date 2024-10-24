@@ -13,7 +13,6 @@ import { PRODUCT_CATEGORY_MESSAGE } from '@/constants/message';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { useDispatch } from 'react-redux';
-import { getProof } from '@/providers/icp/tempProof';
 
 export type ProductCategoryContextState = {
     dataLoaded: boolean;
@@ -58,8 +57,7 @@ export function ProductCategoryProvider(props: { children: ReactNode }) {
     const loadProductCategories = async () => {
         try {
             dispatch(addLoadingMessage(PRODUCT_CATEGORY_MESSAGE.RETRIEVE.LOADING));
-            const roleProof = await getProof();
-            const productCategories = await productCategoryService.getProductCategories(roleProof);
+            const productCategories = await productCategoryService.getProductCategories();
             console.log('Product categories', productCategories);
             setProductCategories(productCategories);
         } catch (e: any) {
@@ -78,13 +76,7 @@ export function ProductCategoryProvider(props: { children: ReactNode }) {
     const saveProductCategory = async (name: string, quality: number, description: string) => {
         try {
             dispatch(addLoadingMessage(PRODUCT_CATEGORY_MESSAGE.SAVE.LOADING));
-            const roleProof = await getProof();
-            await productCategoryService.createProductCategory(
-                roleProof,
-                name,
-                quality,
-                description
-            );
+            await productCategoryService.createProductCategory(name, quality, description);
             openNotification(
                 'Success',
                 PRODUCT_CATEGORY_MESSAGE.SAVE.OK,
