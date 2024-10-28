@@ -67,7 +67,7 @@ export const Certifications = () => {
         {
             title: 'Issue date',
             dataIndex: 'issueDate',
-            render: (issueDate) => new Date(issueDate).toLocaleDateString(),
+            render: (issueDate) => issueDate.toLocaleDateString(),
             sorter: (a, b) => a.issueDate.getTime() - b.issueDate.getTime()
         },
         {

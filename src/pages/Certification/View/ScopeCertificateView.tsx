@@ -115,7 +115,7 @@ export const ScopeCertificateView = (props: CertificateViewProps) => {
             span: 12,
             name: 'documentReferenceId',
             label: 'Reference ID',
-            defaultValue: scopeCertificate.referenceId,
+            defaultValue: scopeCertificate.document.referenceId,
             required: true,
             disabled
         },
@@ -157,7 +157,7 @@ export const ScopeCertificateView = (props: CertificateViewProps) => {
             assessmentStandard: values.assessmentStandard,
             assessmentAssuranceLevel: values.assessmentAssuranceLevel,
             document: {
-                fileName: values.document.name,
+                filename: values.document.name,
                 fileType: values.document.type,
                 fileContent: new Uint8Array(await new Response(values.document).arrayBuffer())
             },

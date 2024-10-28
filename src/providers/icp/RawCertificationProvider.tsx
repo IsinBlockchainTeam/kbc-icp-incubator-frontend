@@ -15,6 +15,7 @@ import { ICP } from '@/constants/icp';
 import { Typography } from 'antd';
 import { getProof } from '@/providers/icp/tempProof';
 import { useSigner } from '@/providers/SignerProvider';
+import { useICP } from '@/providers/ICPProvider';
 
 export type RawCertificationContextState = {
     dataLoaded: boolean;
@@ -36,6 +37,7 @@ export const useRawCertification = (): RawCertificationContextState => {
 export function RawCertificationProvider(props: { children: ReactNode }) {
     const { identity } = useSiweIdentity();
     const entityManagerCanisterId = checkAndGetEnvironmentVariable(ICP.CANISTER_ID_ENTITY_MANAGER);
+    const { fileDriver } = useICP();
     const [dataLoaded, setDataLoaded] = useState<boolean>(false);
     const [rawCertificates, setRawCertificates] = useState<ICPBaseCertificate[]>([]);
     const dispatch = useDispatch();
@@ -48,7 +50,8 @@ export function RawCertificationProvider(props: { children: ReactNode }) {
     const certificationManagerService = useMemo(
         () =>
             new ICPCertificationManagerService(
-                new ICPCertificationManagerDriver(identity, entityManagerCanisterId)
+                new ICPCertificationManagerDriver(identity, entityManagerCanisterId),
+                fileDriver
             ),
         [identity]
     );

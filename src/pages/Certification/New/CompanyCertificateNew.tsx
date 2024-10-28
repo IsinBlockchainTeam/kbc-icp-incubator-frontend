@@ -6,7 +6,6 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CertificateNewProps } from '@/pages/Certification/New/CertificateNew';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
-import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 import { CertificateDocumentNames } from '@/constants/certificationDocument';
 import { ICPCertificateDocumentType } from '@kbc-lib/coffee-trading-management-lib';
 import { validateDates } from '@/utils/date';
@@ -120,7 +119,7 @@ export const CompanyCertificateNew = (props: CertificateNewProps) => {
             assessmentStandard: values.assessmentStandard,
             assessmentAssuranceLevel: values.assessmentAssuranceLevel,
             document: {
-                fileName: values.document.name,
+                filename: values.document.name,
                 fileType: values.document.type,
                 fileContent: new Uint8Array(await new Response(values.document).arrayBuffer())
             },
@@ -129,6 +128,7 @@ export const CompanyCertificateNew = (props: CertificateNewProps) => {
             validFrom: dayjs(values.validFrom).unix(),
             validUntil: dayjs(values.validUntil).unix()
         };
+        console.log('company new - saveRequest: ', saveRequest);
         await saveCompanyCertificate(saveRequest);
         navigate(paths.CERTIFICATIONS);
     };

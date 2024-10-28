@@ -94,7 +94,7 @@ export const CompanyCertificateView = (props: CertificateViewProps) => {
             span: 12,
             name: 'documentReferenceId',
             label: 'Reference ID',
-            defaultValue: companyCertificate.referenceId,
+            defaultValue: companyCertificate.document.referenceId,
             required: true,
             disabled
         },
@@ -137,7 +137,7 @@ export const CompanyCertificateView = (props: CertificateViewProps) => {
             assessmentStandard: values.assessmentStandard,
             assessmentAssuranceLevel: values.assessmentAssuranceLevel,
             document: {
-                fileName: values.document.name,
+                filename: values.document.name,
                 fileType: values.document.type,
                 fileContent: new Uint8Array(await new Response(values.document).arrayBuffer())
             },

@@ -13,12 +13,13 @@ import { validateDates } from '@/utils/date';
 import dayjs from 'dayjs';
 import { useSigner } from '@/providers/SignerProvider';
 import { ScopeCertificateRequest, useCertification } from '@/providers/icp/CertificationProvider';
+import { useEnumeration } from '@/providers/icp/EnumerationProvider';
 
 export const ScopeCertificateNew = (props: CertificateNewProps) => {
     const { commonElements } = props;
     const { signer } = useSigner();
     const navigate = useNavigate();
-    const { assessmentStandards, processTypes } = useEthEnumerable();
+    const { assessmentAssuranceLevel, assessmentStandards, processTypes } = useEnumeration();
     const { saveScopeCertificate } = useCertification();
 
     const elements: FormElement[] = [
@@ -62,6 +63,17 @@ export const ScopeCertificateNew = (props: CertificateNewProps) => {
             options: assessmentStandards.map((standard) => ({
                 value: standard,
                 label: standard
+            }))
+        },
+        {
+            type: FormElementType.SELECT,
+            span: 12,
+            name: 'assessmentAssuranceLevel',
+            label: 'Assessment Assurance Level',
+            required: true,
+            options: assessmentAssuranceLevel.map((assuranceLevel) => ({
+                value: assuranceLevel,
+                label: assuranceLevel
             }))
         },
         {
@@ -120,7 +132,7 @@ export const ScopeCertificateNew = (props: CertificateNewProps) => {
             assessmentStandard: values.assessmentStandard,
             assessmentAssuranceLevel: values.assessmentAssuranceLevel,
             document: {
-                fileName: values.document.name,
+                filename: values.document.name,
                 fileType: values.document.type,
                 fileContent: new Uint8Array(await new Response(values.document).arrayBuffer())
             },

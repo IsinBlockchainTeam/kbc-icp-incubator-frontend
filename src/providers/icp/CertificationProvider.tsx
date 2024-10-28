@@ -24,9 +24,10 @@ import { checkAndGetEnvironmentVariable } from '@/utils/env';
 import { Typography } from 'antd';
 import { getProof } from '@/providers/icp/tempProof';
 import { useRawCertification } from '@/providers/icp/RawCertificationProvider';
+import { useICP } from '@/providers/ICPProvider';
 
 type DocumentRequest = {
-    fileName: string;
+    filename: string;
     fileType: string;
     fileContent: Uint8Array;
 };
@@ -86,6 +87,7 @@ export function CertificationProvider(props: { children: ReactNode }) {
     const { identity } = useSiweIdentity();
     const entityManagerCanisterId = checkAndGetEnvironmentVariable(ICP.CANISTER_ID_ENTITY_MANAGER);
     const { signer, waitForTransactions } = useSigner();
+    const { fileDriver } = useICP();
     const { loadData: loadRawCertificates } = useRawCertification();
     const [detailedCertificate, setDetailedCertificate] = useState<DetailedCertificate | null>(
         null
@@ -102,9 +104,10 @@ export function CertificationProvider(props: { children: ReactNode }) {
     const certificateManagerService = useMemo(
         () =>
             new ICPCertificationManagerService(
-                new ICPCertificationManagerDriver(identity, entityManagerCanisterId)
+                new ICPCertificationManagerDriver(identity, entityManagerCanisterId),
+                fileDriver
             ),
-        [signer]
+        [identity]
     );
 
     const getCompanyCertificate = async (
@@ -119,9 +122,10 @@ export function CertificationProvider(props: { children: ReactNode }) {
         return {
             certificate,
             document: {
-                id: certificate.document.id,
+                referenceId: certificate.document.referenceId,
                 documentType: certificate.document.documentType,
-                externalUrl: certificate.document.externalUrl
+                externalUrl: certificate.document.externalUrl,
+                metadata: certificate.document.metadata
             }
         };
     };
@@ -138,9 +142,10 @@ export function CertificationProvider(props: { children: ReactNode }) {
         return {
             certificate,
             document: {
-                id: certificate.document.id,
+                referenceId: certificate.document.referenceId,
                 documentType: certificate.document.documentType,
-                externalUrl: certificate.document.externalUrl
+                externalUrl: certificate.document.externalUrl,
+                metadata: certificate.document.metadata
             }
         };
     };
@@ -157,9 +162,10 @@ export function CertificationProvider(props: { children: ReactNode }) {
         return {
             certificate,
             document: {
-                id: certificate.document.id,
+                referenceId: certificate.document.referenceId,
                 documentType: certificate.document.documentType,
-                externalUrl: certificate.document.externalUrl
+                externalUrl: certificate.document.externalUrl,
+                metadata: certificate.document.metadata
             }
         };
     };
@@ -206,7 +212,7 @@ export function CertificationProvider(props: { children: ReactNode }) {
             organizationId
         };
         const resourceSpec = {
-            name: request.document.fileName,
+            name: request.document.filename,
             type: request.document.fileType
         };
         return { delegatedOrganizationIds, urlStructure, resourceSpec };
@@ -281,19 +287,23 @@ export function CertificationProvider(props: { children: ReactNode }) {
             const { delegatedOrganizationIds, urlStructure, resourceSpec } =
                 _preliminaryCertificateSaving(request);
             const roleProof = await getProof();
-            console.log('request: ', request);
-            console.log('roleProof: ', roleProof);
             await certificateManagerService.registerCompanyCertificate(
                 roleProof,
                 request.issuer,
                 request.subject,
                 request.assessmentStandard,
                 request.assessmentAssuranceLevel,
-                request.documentReferenceId,
                 {
-                    id: 0,
+                    referenceId: request.documentReferenceId,
                     documentType: request.documentType,
-                    externalUrl: ''
+                    filename: request.document.filename,
+                    fileType: request.document.fileType,
+                    fileContent: request.document.fileContent,
+                    storageConfig: {
+                        urlStructure,
+                        resourceSpec,
+                        delegatedOrganizationIds
+                    }
                 },
                 new Date(request.validFrom),
                 new Date(request.validUntil)
@@ -326,11 +336,17 @@ export function CertificationProvider(props: { children: ReactNode }) {
                 request.subject,
                 request.assessmentStandard,
                 request.assessmentAssuranceLevel,
-                request.documentReferenceId,
                 {
-                    id: 0,
+                    referenceId: request.documentReferenceId,
                     documentType: request.documentType,
-                    externalUrl: ''
+                    filename: request.document.filename,
+                    fileType: request.document.fileType,
+                    fileContent: request.document.fileContent,
+                    storageConfig: {
+                        urlStructure,
+                        resourceSpec,
+                        delegatedOrganizationIds
+                    }
                 },
                 new Date(request.validFrom),
                 new Date(request.validUntil),
@@ -364,11 +380,17 @@ export function CertificationProvider(props: { children: ReactNode }) {
                 request.subject,
                 request.assessmentStandard,
                 request.assessmentAssuranceLevel,
-                request.documentReferenceId,
                 {
-                    id: 0,
+                    referenceId: request.documentReferenceId,
                     documentType: request.documentType,
-                    externalUrl: ''
+                    filename: request.document.filename,
+                    fileType: request.document.fileType,
+                    fileContent: request.document.fileContent,
+                    storageConfig: {
+                        urlStructure,
+                        resourceSpec,
+                        delegatedOrganizationIds
+                    }
                 },
                 request.materialId
             );
@@ -400,7 +422,6 @@ export function CertificationProvider(props: { children: ReactNode }) {
                     detailedCertificate.certificate.id,
                     request.assessmentStandard,
                     request.assessmentAssuranceLevel,
-                    request.documentReferenceId,
                     new Date(request.validFrom),
                     new Date(request.validUntil)
                 );
@@ -438,7 +459,6 @@ export function CertificationProvider(props: { children: ReactNode }) {
                     detailedCertificate.certificate.id,
                     request.assessmentStandard,
                     request.assessmentAssuranceLevel,
-                    request.documentReferenceId,
                     new Date(request.validFrom),
                     new Date(request.validUntil),
                     request.processTypes
@@ -477,7 +497,6 @@ export function CertificationProvider(props: { children: ReactNode }) {
                     detailedCertificate.certificate.id,
                     request.assessmentStandard,
                     request.assessmentAssuranceLevel,
-                    request.documentReferenceId,
                     request.materialId
                 );
             }

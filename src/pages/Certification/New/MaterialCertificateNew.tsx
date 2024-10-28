@@ -6,26 +6,24 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CertificateNewProps } from '@/pages/Certification/New/CertificateNew';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
-import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 import { CertificateDocumentNames } from '@/constants/certificationDocument';
-import {
-    CertificateDocumentType,
-    ICPCertificateDocumentType
-} from '@kbc-lib/coffee-trading-management-lib';
-import {
-    MaterialCertificateRequest,
-    useEthCertificate
-} from '@/providers/entities/EthCertificateProvider';
+import { ICPCertificateDocumentType } from '@kbc-lib/coffee-trading-management-lib';
 import { useSigner } from '@/providers/SignerProvider';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
+import { useEnumeration } from '@/providers/icp/EnumerationProvider';
+import {
+    MaterialCertificateRequest,
+    useCertification
+} from '@/providers/icp/CertificationProvider';
 
 export const MaterialCertificateNew = (props: CertificateNewProps) => {
     const { commonElements } = props;
     const { signer } = useSigner();
     const navigate = useNavigate();
-    const { assessmentStandards } = useEthEnumerable();
-    const { saveMaterialCertificate } = useEthCertificate();
-    const { materials } = useEthMaterial();
+    const { assessmentAssuranceLevel, assessmentStandards } = useEnumeration();
+    const { saveMaterialCertificate } = useCertification();
+    // const { materials } = useEthMaterial();
+    const materials = [{ id: 1, productCategory: { name: 'test' } }];
 
     const elements: FormElement[] = [
         ...commonElements,
@@ -48,8 +46,19 @@ export const MaterialCertificateNew = (props: CertificateNewProps) => {
         {
             type: FormElementType.SELECT,
             span: 12,
+            name: 'assessmentAssuranceLevel',
+            label: 'Assessment Assurance Level',
+            required: true,
+            options: assessmentAssuranceLevel.map((assuranceLevel) => ({
+                value: assuranceLevel,
+                label: assuranceLevel
+            }))
+        },
+        {
+            type: FormElementType.SELECT,
+            span: 12,
             name: 'materialId',
-            label: 'Material ID',
+            label: 'Material',
             required: true,
             options: materials.map((material) => ({
                 value: material.id,
@@ -98,8 +107,9 @@ export const MaterialCertificateNew = (props: CertificateNewProps) => {
             issuer: values.issuer,
             subject: signer._address,
             assessmentStandard: values.assessmentStandard,
+            assessmentAssuranceLevel: values.assessmentAssuranceLevel,
             document: {
-                fileName: values.document.name,
+                filename: values.document.name,
                 fileType: values.document.type,
                 fileContent: new Uint8Array(await new Response(values.document).arrayBuffer())
             },
