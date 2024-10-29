@@ -1,16 +1,8 @@
 import { useSigner } from '@/providers/SignerProvider';
 import { useNavigate } from 'react-router-dom';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
-import {
-    DetailedCertificate,
-    useEthCertificate
-} from '@/providers/entities/EthCertificateProvider';
-import {
-    CertificateDocumentType,
-    CertificateType,
-    CompanyCertificate,
-    DocumentEvaluationStatus
-} from '@kbc-lib/coffee-trading-management-lib';
+import { DetailedCertificate, useEthCertificate } from '@/providers/entities/EthCertificateProvider';
+import { CertificateDocumentType, CertificateType, CompanyCertificate, DocumentEvaluationStatus } from '@kbc-lib/coffee-trading-management-lib';
 import { render, screen } from '@testing-library/react';
 import React from 'react';
 import { CompanyCertificateView } from '@/pages/Certification/View/CompanyCertificateView';
@@ -42,7 +34,7 @@ describe('CompanyCertificateNew', () => {
             new Date(new Date().setDate(new Date().getDate() + 1)).getTime()
         ),
         document: {
-            fileName: 'file.pdf',
+            filename: 'file.pdf',
             fileType: 'application/pdf',
             documentReferenceId: '123456',
             fileContent: new Uint8Array()
@@ -84,31 +76,19 @@ describe('CompanyCertificateNew', () => {
 
     it('should render correctly', async () => {
         render(
-            <CompanyCertificateView
-                detailedCertificate={detailedCertificate}
-                commonElements={commonElements}
-                editElements={[]}
-                disabled={true}
-            />
+            <CompanyCertificateView detailedCertificate={detailedCertificate} commonElements={commonElements} editElements={[]} disabled={true} />
         );
 
         expect(screen.getByText('Company Certificate')).toBeInTheDocument();
 
         expect(GenericForm).toHaveBeenCalled();
-        expect((GenericForm as jest.Mock).mock.calls[0][0].elements).toHaveLength(
-            commonElements.length + 9
-        );
+        expect((GenericForm as jest.Mock).mock.calls[0][0].elements).toHaveLength(commonElements.length + 9);
         expect((GenericForm as jest.Mock).mock.calls[0][0].submittable).toBeFalsy();
     });
 
     it('onSubmit', async () => {
         render(
-            <CompanyCertificateView
-                commonElements={commonElements}
-                editElements={[]}
-                disabled={false}
-                detailedCertificate={detailedCertificate}
-            />
+            <CompanyCertificateView commonElements={commonElements} editElements={[]} disabled={false} detailedCertificate={detailedCertificate} />
         );
         const values = {
             issuer: 'issuer',
@@ -129,7 +109,7 @@ describe('CompanyCertificateNew', () => {
             subject: signer._address,
             assessmentStandard: values.assessmentStandard,
             document: {
-                fileName: values.document.name,
+                filename: values.document.name,
                 fileType: values.document.type,
                 fileContent: new Uint8Array(await new Response(values.document).arrayBuffer())
             },

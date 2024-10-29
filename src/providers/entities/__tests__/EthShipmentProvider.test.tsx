@@ -165,7 +165,7 @@ describe('EthShipmentProvider', () => {
         ]);
         getDocument.mockResolvedValue({
             id: 2,
-            fileName: 'file.pdf',
+            filename: 'file.pdf',
             documentType: ShipmentDocumentType.BOOKING_CONFIRMATION,
             fileContent: new Uint8Array()
         });
@@ -190,18 +190,10 @@ describe('EthShipmentProvider', () => {
             });
             const detailedShipment = {
                 shipment,
-                documents: new Map(
-                    Array.from({ length: 19 }, (_, i) => [
-                        i,
-                        { id: 1, type: DocumentType.INSURANCE_CERTIFICATE }
-                    ])
-                ),
+                documents: new Map(Array.from({ length: 19 }, (_, i) => [i, { id: 1, type: DocumentType.INSURANCE_CERTIFICATE }])),
                 phase: ShipmentPhase.PHASE_1,
                 phaseDocuments: new Map(
-                    Array.from({ length: 7 }, (_, i) => [
-                        i,
-                        [{ documentType: DocumentType.INSURANCE_CERTIFICATE, required: true }]
-                    ])
+                    Array.from({ length: 7 }, (_, i) => [i, [{ documentType: DocumentType.INSURANCE_CERTIFICATE, required: true }]])
                 ),
                 orderId: 1
             };
@@ -575,9 +567,7 @@ describe('EthShipmentProvider', () => {
                 expect(result.current.detailedShipment).not.toBeNull();
             });
 
-            await expect(result.current.getDocument(1)).rejects.toThrowError(
-                'Error while retrieving document'
-            );
+            await expect(result.current.getDocument(1)).rejects.toThrowError('Error while retrieving document');
 
             expect(dispatch).toHaveBeenCalledTimes(4);
             expect(getDocument).toHaveBeenCalledTimes(1);
@@ -607,9 +597,7 @@ describe('EthShipmentProvider', () => {
                 roleProof,
                 ShipmentDocumentType.BOOKING_CONFIRMATION,
                 'refId',
-                new Uint8Array(
-                    await new Response(new Blob([], { type: 'application/pdf' })).arrayBuffer()
-                ),
+                new Uint8Array(await new Response(new Blob([], { type: 'application/pdf' })).arrayBuffer()),
                 {
                     name: 'file.pdf',
                     type: 'application/pdf'
@@ -731,9 +719,7 @@ describe('EthShipmentProvider', () => {
                 expect(result.current.detailedShipment).not.toBeNull();
             });
 
-            await expect(result.current.getShipmentPhaseAsync(1)).rejects.toThrowError(
-                'Shipment address not found'
-            );
+            await expect(result.current.getShipmentPhaseAsync(1)).rejects.toThrowError('Shipment address not found');
             expect(getOrderTradeService).toHaveBeenCalledTimes(1);
             expect(getShipmentAddress).toHaveBeenCalledTimes(1);
             expect(getPhase).toHaveBeenCalledTimes(1);

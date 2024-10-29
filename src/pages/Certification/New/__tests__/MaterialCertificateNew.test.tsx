@@ -48,15 +48,11 @@ describe('Material Certificate New', () => {
         expect(screen.getByText('New Material Certificate')).toBeInTheDocument();
 
         expect(GenericForm).toHaveBeenCalled();
-        expect((GenericForm as jest.Mock).mock.calls[0][0].elements).toHaveLength(
-            commonElements.length + 8
-        );
+        expect((GenericForm as jest.Mock).mock.calls[0][0].elements).toHaveLength(commonElements.length + 8);
         expect((GenericForm as jest.Mock).mock.calls[0][0].submittable).toBeTruthy();
 
         expect(Button).toHaveBeenCalled();
-        expect((Button as unknown as jest.Mock).mock.calls[0][0].children).toBe(
-            'Delete Certificate'
-        );
+        expect((Button as unknown as jest.Mock).mock.calls[0][0].children).toBe('Delete Certificate');
     });
 
     it('onSubmit', async () => {
@@ -80,7 +76,7 @@ describe('Material Certificate New', () => {
             subject: signer._address,
             assessmentStandard: values.assessmentStandard,
             document: {
-                fileName: values.document.name,
+                filename: values.document.name,
                 fileType: values.document.type,
                 fileContent: new Uint8Array(await new Response(values.document).arrayBuffer())
             },

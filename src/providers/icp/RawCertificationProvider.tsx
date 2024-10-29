@@ -1,7 +1,7 @@
 import {
     ICPBaseCertificate,
-    ICPCertificationManagerDriver,
-    ICPCertificationManagerService
+    ICPCertificationDriver,
+    ICPCertificationService
 } from '@kbc-lib/coffee-trading-management-lib';
 import React, { createContext, ReactNode, useContext, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -49,8 +49,8 @@ export function RawCertificationProvider(props: { children: ReactNode }) {
 
     const certificationManagerService = useMemo(
         () =>
-            new ICPCertificationManagerService(
-                new ICPCertificationManagerDriver(identity, entityManagerCanisterId),
+            new ICPCertificationService(
+                new ICPCertificationDriver(identity, entityManagerCanisterId),
                 fileDriver
             ),
         [identity]

@@ -134,10 +134,10 @@ export const ScopeCertificateNew = (props: CertificateNewProps) => {
             document: {
                 filename: values.document.name,
                 fileType: values.document.type,
-                fileContent: new Uint8Array(await new Response(values.document).arrayBuffer())
+                fileContent: new Uint8Array(await new Response(values.document).arrayBuffer()),
+                documentType: values.documentType,
+                referenceId: values.documentReferenceId
             },
-            documentType: values.documentType,
-            documentReferenceId: values.documentReferenceId,
             validFrom: dayjs(values.validFrom).unix(),
             validUntil: dayjs(values.validUntil).unix(),
             processTypes: values.processTypes

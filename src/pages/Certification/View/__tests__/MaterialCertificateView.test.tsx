@@ -1,10 +1,7 @@
 import { useSigner } from '@/providers/SignerProvider';
 import { useNavigate } from 'react-router-dom';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
-import {
-    DetailedCertificate,
-    useEthCertificate
-} from '@/providers/entities/EthCertificateProvider';
+import { DetailedCertificate, useEthCertificate } from '@/providers/entities/EthCertificateProvider';
 import {
     CertificateDocumentType,
     CertificateType,
@@ -45,7 +42,7 @@ describe('MaterialCertificateView', () => {
             3
         ),
         document: {
-            fileName: 'file.pdf',
+            filename: 'file.pdf',
             fileType: 'application/pdf',
             documentReferenceId: '123456',
             fileContent: new Uint8Array()
@@ -90,31 +87,19 @@ describe('MaterialCertificateView', () => {
 
     it('should render correctly', async () => {
         render(
-            <MaterialCertificateView
-                detailedCertificate={detailedCertificate}
-                commonElements={commonElements}
-                editElements={[]}
-                disabled={true}
-            />
+            <MaterialCertificateView detailedCertificate={detailedCertificate} commonElements={commonElements} editElements={[]} disabled={true} />
         );
 
         expect(screen.getByText('Material Certificate')).toBeInTheDocument();
 
         expect(GenericForm).toHaveBeenCalled();
-        expect((GenericForm as jest.Mock).mock.calls[0][0].elements).toHaveLength(
-            commonElements.length + 8
-        );
+        expect((GenericForm as jest.Mock).mock.calls[0][0].elements).toHaveLength(commonElements.length + 8);
         expect((GenericForm as jest.Mock).mock.calls[0][0].submittable).toBeFalsy();
     });
 
     it('onSubmit', async () => {
         render(
-            <MaterialCertificateView
-                commonElements={commonElements}
-                editElements={[]}
-                disabled={false}
-                detailedCertificate={detailedCertificate}
-            />
+            <MaterialCertificateView commonElements={commonElements} editElements={[]} disabled={false} detailedCertificate={detailedCertificate} />
         );
         const values = {
             issuer: 'issuer',
@@ -134,7 +119,7 @@ describe('MaterialCertificateView', () => {
             subject: signer._address,
             assessmentStandard: values.assessmentStandard,
             document: {
-                fileName: values.document.name,
+                filename: values.document.name,
                 fileType: values.document.type,
                 fileContent: new Uint8Array(await new Response(values.document).arrayBuffer())
             },

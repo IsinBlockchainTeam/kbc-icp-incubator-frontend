@@ -1,10 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import React from 'react';
 import { FormElementType } from '@/components/GenericForm/GenericForm';
-import {
-    DetailedCertificate,
-    useEthCertificate
-} from '@/providers/entities/EthCertificateProvider';
+import { DetailedCertificate, useEthCertificate } from '@/providers/entities/EthCertificateProvider';
 import {
     BaseCertificate,
     CertificateDocumentType,
@@ -38,7 +35,7 @@ describe('CertificateView', () => {
             new Date().getTime()
         ),
         document: {
-            fileName: 'file.pdf',
+            filename: 'file.pdf',
             fileType: 'application/pdf',
             documentReferenceId: '123456',
             fileContent: new Uint8Array()

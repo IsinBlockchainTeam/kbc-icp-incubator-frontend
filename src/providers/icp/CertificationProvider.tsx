@@ -1,9 +1,10 @@
 import {
     ICPBaseCertificate,
-    ICPCertificateDocumentInfo,
+    ICPCertificateDocument,
     ICPCertificateDocumentType,
-    ICPCertificationManagerDriver,
-    ICPCertificationManagerService,
+    ICPCertificationDriver,
+    ICPCertificationService,
+    RoleProof,
     UpdatedRoleProof,
     URLStructure
 } from '@kbc-lib/coffee-trading-management-lib';
@@ -27,6 +28,8 @@ import { useRawCertification } from '@/providers/icp/RawCertificationProvider';
 import { useICP } from '@/providers/ICPProvider';
 
 type DocumentRequest = {
+    documentType: ICPCertificateDocumentType;
+    referenceId: string;
     filename: string;
     fileType: string;
     fileContent: Uint8Array;
@@ -38,8 +41,6 @@ type BaseCertificateRequest = {
     assessmentStandard: string;
     assessmentAssuranceLevel: string;
     document: DocumentRequest;
-    documentType: ICPCertificateDocumentType;
-    documentReferenceId: string;
 };
 export type CompanyCertificateRequest = BaseCertificateRequest & {
     validFrom: number;
@@ -56,7 +57,7 @@ export type MaterialCertificateRequest = BaseCertificateRequest & {
 export type DetailedCertificate = {
     certificate: ICPBaseCertificate; // based on runtime type it will be either CompanyCertificate, ScopeCertificate or MaterialCertificate
     // TODO: it has to be replaced with the CertificateDocument entity where there is also the uint8array content
-    document: ICPCertificateDocumentInfo;
+    document: ICPCertificateDocument;
 };
 
 export type CertificationContextState = {
@@ -70,9 +71,7 @@ export type CertificationContextState = {
     updateMaterialCertificate: (request: MaterialCertificateRequest) => Promise<void>;
 };
 
-export const CertificationContext = createContext<CertificationContextState>(
-    {} as CertificationContextState
-);
+export const CertificationContext = createContext<CertificationContextState>({} as CertificationContextState);
 
 export const useCertification = (): CertificationContextState => {
     const context = useContext(CertificationContext);
@@ -89,9 +88,7 @@ export function CertificationProvider(props: { children: ReactNode }) {
     const { signer, waitForTransactions } = useSigner();
     const { fileDriver } = useICP();
     const { loadData: loadRawCertificates } = useRawCertification();
-    const [detailedCertificate, setDetailedCertificate] = useState<DetailedCertificate | null>(
-        null
-    );
+    const [detailedCertificate, setDetailedCertificate] = useState<DetailedCertificate | null>(null);
 
     const dispatch = useDispatch();
     const userInfo = useSelector((state: RootState) => state.userInfo);
@@ -101,77 +98,37 @@ export function CertificationProvider(props: { children: ReactNode }) {
         return <Typography.Text>Siwe identity not initialized</Typography.Text>;
     }
 
-    const certificateManagerService = useMemo(
-        () =>
-            new ICPCertificationManagerService(
-                new ICPCertificationManagerDriver(identity, entityManagerCanisterId),
-                fileDriver
-            ),
+    const certificationService = useMemo(
+        () => new ICPCertificationService(new ICPCertificationDriver(identity, entityManagerCanisterId), fileDriver),
         [identity]
     );
 
-    const getCompanyCertificate = async (
-        roleProof: UpdatedRoleProof,
-        id: number
-    ): Promise<DetailedCertificate> => {
-        const certificate = await certificateManagerService.getCompanyCertificate(
-            roleProof,
-            signer._address,
-            id
-        );
+    const getCompanyCertificate = async (roleProof: UpdatedRoleProof, id: number): Promise<DetailedCertificate> => {
+        const certificate = await certificationService.getCompanyCertificate(roleProof, signer._address, id);
         return {
             certificate,
-            document: {
-                referenceId: certificate.document.referenceId,
-                documentType: certificate.document.documentType,
-                externalUrl: certificate.document.externalUrl,
-                metadata: certificate.document.metadata
-            }
+            document: await certificationService.getDocument(roleProof, id)
         };
     };
 
-    const getScopeCertificate = async (
-        roleProof: UpdatedRoleProof,
-        id: number
-    ): Promise<DetailedCertificate> => {
-        const certificate = await certificateManagerService.getScopeCertificate(
-            roleProof,
-            signer._address,
-            id
-        );
+    const getScopeCertificate = async (roleProof: UpdatedRoleProof, id: number): Promise<DetailedCertificate> => {
+        const certificate = await certificationService.getScopeCertificate(roleProof, signer._address, id);
         return {
             certificate,
-            document: {
-                referenceId: certificate.document.referenceId,
-                documentType: certificate.document.documentType,
-                externalUrl: certificate.document.externalUrl,
-                metadata: certificate.document.metadata
-            }
+            document: await certificationService.getDocument(roleProof, id)
         };
     };
 
-    const getMaterialCertificate = async (
-        roleProof: UpdatedRoleProof,
-        id: number
-    ): Promise<DetailedCertificate> => {
-        const certificate = await certificateManagerService.getMaterialCertificate(
-            roleProof,
-            signer._address,
-            id
-        );
+    const getMaterialCertificate = async (roleProof: UpdatedRoleProof, id: number): Promise<DetailedCertificate> => {
+        const certificate = await certificationService.getMaterialCertificate(roleProof, signer._address, id);
         return {
             certificate,
-            document: {
-                referenceId: certificate.document.referenceId,
-                documentType: certificate.document.documentType,
-                externalUrl: certificate.document.externalUrl,
-                metadata: certificate.document.metadata
-            }
+            document: await certificationService.getDocument(roleProof, id)
         };
     };
 
     const loadData = async () => {
-        if (!certificateManagerService) return;
+        if (!certificationService) return;
 
         try {
             dispatch(addLoadingMessage(CERTIFICATE_MESSAGE.RETRIEVE.LOADING));
@@ -184,27 +141,20 @@ export function CertificationProvider(props: { children: ReactNode }) {
             setDetailedCertificate(await certificateByType[Number(type)]());
         } catch (e: any) {
             console.log('Error while loading certificate', e);
-            openNotification(
-                'Error',
-                CERTIFICATE_MESSAGE.RETRIEVE.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Error', CERTIFICATE_MESSAGE.RETRIEVE.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
             dispatch(removeLoadingMessage(CERTIFICATE_MESSAGE.RETRIEVE.LOADING));
         }
     };
 
-    const _preliminaryCertificateSaving = (
-        request: BaseCertificateRequest
+    const _computeDocumentStoreInfo = (
+        documentRequest: DocumentRequest
     ): {
         delegatedOrganizationIds: number[];
         urlStructure: URLStructure;
         resourceSpec: ICPResourceSpec;
     } => {
-        if (!request.document) throw new Error('Document is required');
-        // if (!request.document) throw new Error('Document is required');
-        dispatch(addLoadingMessage(CERTIFICATE_MESSAGE.SAVE.LOADING));
+        if (!documentRequest) throw new Error('Document is required');
         // TODO: remove this harcoded value
         const delegatedOrganizationIds: number[] = organizationId === 0 ? [1] : [0];
         const urlStructure: URLStructure = {
@@ -212,90 +162,61 @@ export function CertificationProvider(props: { children: ReactNode }) {
             organizationId
         };
         const resourceSpec = {
-            name: request.document.filename,
-            type: request.document.fileType
+            name: documentRequest.filename,
+            type: documentRequest.fileType
         };
         return { delegatedOrganizationIds, urlStructure, resourceSpec };
     };
 
-    const _updateDocument = async (
-        delegatedOrganizationIds: number[],
-        updatedDocumentReferenceId: string,
-        updatedDocument: DocumentRequest
-    ) => {
-        if (!certificateManagerService || !detailedCertificate) return;
+    const _updateDocument = async (roleProof: UpdatedRoleProof, updatedDocument: DocumentRequest) => {
+        if (!certificationService || !detailedCertificate) return;
 
-        // if (updatedDocument.fileName) {
-        //     await certificateManagerService.updateDocument(
-        //         roleProof,
-        //         detailedCertificate.certificate.id,
-        //         detailedCertificate.certificate.document.id,
-        //         {
-        //             fileName: updatedDocument.fileName,
-        //             fileType: updatedDocument.fileType,
-        //             fileContent: updatedDocument.fileContent,
-        //             documentReferenceId: updatedDocumentReferenceId
-        //         },
-        //         {
-        //             name: updatedDocument.fileName,
-        //             type: updatedDocument.fileType
-        //         },
-        //         delegatedOrganizationIds
-        //     );
-        // } else if (
-        //     detailedCertificate.document.documentReferenceId !== updatedDocumentReferenceId
-        // ) {
-        //     await certificateManagerService.updateDocumentMetadata(
-        //         roleProof,
-        //         detailedCertificate.certificate.document.id,
-        //         {
-        //             fileName: detailedCertificate.document.fileName,
-        //             fileType: detailedCertificate.document.fileType,
-        //             documentReferenceId: updatedDocumentReferenceId
-        //         },
-        //         {
-        //             name: detailedCertificate.document.fileName,
-        //             type: detailedCertificate.document.fileType
-        //         },
-        //         delegatedOrganizationIds
-        //     );
-        // }
+        const { delegatedOrganizationIds, urlStructure, resourceSpec } = _computeDocumentStoreInfo(updatedDocument);
+        console.log('Updated document', updatedDocument);
+        await certificationService.updateDocument(roleProof, detailedCertificate.certificate.id, {
+            filename: updatedDocument.filename,
+            fileType: updatedDocument.fileType,
+            fileContent: updatedDocument.fileContent,
+            referenceId: updatedDocument.referenceId,
+            documentType: updatedDocument.documentType,
+            storageConfig: {
+                urlStructure,
+                resourceSpec,
+                delegatedOrganizationIds
+            }
+        });
     };
 
-    const _areFieldsChanged = (
-        request: BaseCertificateRequest,
-        certificateSpecificFields: string[]
-    ): boolean => {
+    const _areFieldsChanged = (request: BaseCertificateRequest, certificateSpecificFields: string[]): boolean => {
         if (!detailedCertificate) return false;
         const certificate = detailedCertificate.certificate;
-        const document = detailedCertificate.document;
         return (
-            request.documentType !== certificate.document.documentType ||
+            request.document.documentType !== certificate.document.documentType ||
             request.assessmentStandard !== certificate.assessmentStandard ||
+            request.assessmentAssuranceLevel !== certificate.assessmentAssuranceLevel ||
+            JSON.stringify(request.document.documentType) !== JSON.stringify(certificate.document.documentType) ||
             certificateSpecificFields.some(
-                (field) =>
-                    request[field as keyof BaseCertificateRequest] !==
-                    certificate[field as keyof ICPBaseCertificate]
+                (field) => request[field as keyof BaseCertificateRequest] !== certificate[field as keyof ICPBaseCertificate]
             )
         );
     };
 
     const saveCompanyCertificate = async (request: CompanyCertificateRequest) => {
-        if (!certificateManagerService) return;
+        if (!certificationService) return;
 
         try {
-            const { delegatedOrganizationIds, urlStructure, resourceSpec } =
-                _preliminaryCertificateSaving(request);
+            dispatch(addLoadingMessage(CERTIFICATE_MESSAGE.SAVE.LOADING));
+            const { delegatedOrganizationIds, urlStructure, resourceSpec } = _computeDocumentStoreInfo(request.document);
             const roleProof = await getProof();
-            await certificateManagerService.registerCompanyCertificate(
+            await certificationService.registerCompanyCertificate(
                 roleProof,
                 request.issuer,
                 request.subject,
                 request.assessmentStandard,
                 request.assessmentAssuranceLevel,
                 {
-                    referenceId: request.documentReferenceId,
-                    documentType: request.documentType,
+                    referenceId: request.document.referenceId,
+                    documentType: request.document.documentType,
                     filename: request.document.filename,
                     fileType: request.document.fileType,
                     fileContent: request.document.fileContent,
@@ -311,34 +232,28 @@ export function CertificationProvider(props: { children: ReactNode }) {
             await loadRawCertificates();
         } catch (e: any) {
             console.log('Error while saving company certificate', e);
-            openNotification(
-                'Error',
-                CERTIFICATE_MESSAGE.SAVE.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Error', CERTIFICATE_MESSAGE.SAVE.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
             dispatch(removeLoadingMessage(CERTIFICATE_MESSAGE.SAVE.LOADING));
         }
     };
 
     const saveScopeCertificate = async (request: ScopeCertificateRequest) => {
-        if (!certificateManagerService) return;
+        if (!certificationService) return;
 
         try {
-            const { delegatedOrganizationIds, urlStructure, resourceSpec } =
-                _preliminaryCertificateSaving(request);
-
+            dispatch(addLoadingMessage(CERTIFICATE_MESSAGE.SAVE.LOADING));
+            const { delegatedOrganizationIds, urlStructure, resourceSpec } = _computeDocumentStoreInfo(request.document);
             const roleProof = await getProof();
-            await certificateManagerService.registerScopeCertificate(
+            await certificationService.registerScopeCertificate(
                 roleProof,
                 request.issuer,
                 request.subject,
                 request.assessmentStandard,
                 request.assessmentAssuranceLevel,
                 {
-                    referenceId: request.documentReferenceId,
-                    documentType: request.documentType,
+                    referenceId: request.document.referenceId,
+                    documentType: request.document.documentType,
                     filename: request.document.filename,
                     fileType: request.document.fileType,
                     fileContent: request.document.fileContent,
@@ -355,34 +270,28 @@ export function CertificationProvider(props: { children: ReactNode }) {
             await loadRawCertificates();
         } catch (e: any) {
             console.log('Error while saving scope certificate', e);
-            openNotification(
-                'Error',
-                CERTIFICATE_MESSAGE.SAVE.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Error', CERTIFICATE_MESSAGE.SAVE.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
             dispatch(removeLoadingMessage(CERTIFICATE_MESSAGE.SAVE.LOADING));
         }
     };
 
     const saveMaterialCertificate = async (request: MaterialCertificateRequest) => {
-        if (!certificateManagerService) return;
+        if (!certificationService) return;
 
         try {
-            const { delegatedOrganizationIds, urlStructure, resourceSpec } =
-                _preliminaryCertificateSaving(request);
-
+            dispatch(addLoadingMessage(CERTIFICATE_MESSAGE.SAVE.LOADING));
+            const { delegatedOrganizationIds, urlStructure, resourceSpec } = _computeDocumentStoreInfo(request.document);
             const roleProof = await getProof();
-            await certificateManagerService.registerMaterialCertificate(
+            await certificationService.registerMaterialCertificate(
                 roleProof,
                 request.issuer,
                 request.subject,
                 request.assessmentStandard,
                 request.assessmentAssuranceLevel,
                 {
-                    referenceId: request.documentReferenceId,
-                    documentType: request.documentType,
+                    referenceId: request.document.referenceId,
+                    documentType: request.document.documentType,
                     filename: request.document.filename,
                     fileType: request.document.fileType,
                     fileContent: request.document.fileContent,
@@ -397,27 +306,21 @@ export function CertificationProvider(props: { children: ReactNode }) {
             await loadRawCertificates();
         } catch (e: any) {
             console.log('Error while saving material certificate', e);
-            openNotification(
-                'Error',
-                CERTIFICATE_MESSAGE.SAVE.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Error', CERTIFICATE_MESSAGE.SAVE.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
             dispatch(removeLoadingMessage(CERTIFICATE_MESSAGE.SAVE.LOADING));
         }
     };
 
     const updateCompanyCertificate = async (request: CompanyCertificateRequest) => {
-        if (!certificateManagerService || !detailedCertificate) return;
+        if (!certificationService || !detailedCertificate) return;
 
         try {
             dispatch(addLoadingMessage(CERTIFICATE_MESSAGE.UPDATE.LOADING));
-            const delegatedOrganizationIds: number[] = organizationId === 0 ? [1] : [0];
+            const roleProof = await getProof();
 
             if (_areFieldsChanged(request, ['validFrom', 'validUntil'])) {
-                const roleProof = await getProof();
-                await certificateManagerService.updateCompanyCertificate(
+                await certificationService.updateCompanyCertificate(
                     roleProof,
                     detailedCertificate.certificate.id,
                     request.assessmentStandard,
@@ -425,36 +328,26 @@ export function CertificationProvider(props: { children: ReactNode }) {
                     new Date(request.validFrom),
                     new Date(request.validUntil)
                 );
+                await _updateDocument(roleProof, request.document);
+                await loadData();
             }
-            await _updateDocument(
-                delegatedOrganizationIds,
-                request.documentReferenceId,
-                request.document
-            );
-            await loadData();
         } catch (e: any) {
             console.log('Error while updating company certificate', e);
-            openNotification(
-                'Error',
-                CERTIFICATE_MESSAGE.UPDATE.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Error', CERTIFICATE_MESSAGE.UPDATE.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
             dispatch(removeLoadingMessage(CERTIFICATE_MESSAGE.UPDATE.LOADING));
         }
     };
 
     const updateScopeCertificate = async (request: ScopeCertificateRequest) => {
-        if (!certificateManagerService || !detailedCertificate) return;
+        if (!certificationService || !detailedCertificate) return;
 
         try {
             dispatch(addLoadingMessage(CERTIFICATE_MESSAGE.UPDATE.LOADING));
-            const delegatedOrganizationIds: number[] = organizationId === 0 ? [1] : [0];
+            const roleProof = await getProof();
 
             if (_areFieldsChanged(request, ['validFrom', 'validUntil', 'processTypes'])) {
-                const roleProof = await getProof();
-                await certificateManagerService.updateScopeCertificate(
+                await certificationService.updateScopeCertificate(
                     roleProof,
                     detailedCertificate.certificate.id,
                     request.assessmentStandard,
@@ -464,35 +357,25 @@ export function CertificationProvider(props: { children: ReactNode }) {
                     request.processTypes
                 );
             }
-            await _updateDocument(
-                delegatedOrganizationIds,
-                request.documentReferenceId,
-                request.document
-            );
+            await _updateDocument(roleProof, request.document);
             await loadData();
         } catch (e: any) {
             console.log('Error while updating scope certificate', e);
-            openNotification(
-                'Error',
-                CERTIFICATE_MESSAGE.UPDATE.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Error', CERTIFICATE_MESSAGE.UPDATE.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
             dispatch(removeLoadingMessage(CERTIFICATE_MESSAGE.UPDATE.LOADING));
         }
     };
 
     const updateMaterialCertificate = async (request: MaterialCertificateRequest) => {
-        if (!certificateManagerService || !detailedCertificate) return;
+        if (!certificationService || !detailedCertificate) return;
 
         try {
             dispatch(addLoadingMessage(CERTIFICATE_MESSAGE.UPDATE.LOADING));
-            const delegatedOrganizationIds: number[] = organizationId === 0 ? [1] : [0];
+            const roleProof = await getProof();
 
             if (_areFieldsChanged(request, ['materialId'])) {
-                const roleProof = await getProof();
-                await certificateManagerService.updateMaterialCertificate(
+                await certificationService.updateMaterialCertificate(
                     roleProof,
                     detailedCertificate.certificate.id,
                     request.assessmentStandard,
@@ -500,20 +383,11 @@ export function CertificationProvider(props: { children: ReactNode }) {
                     request.materialId
                 );
             }
-            await _updateDocument(
-                delegatedOrganizationIds,
-                request.documentReferenceId,
-                request.document
-            );
+            await _updateDocument(roleProof, request.document);
             await loadData();
         } catch (e: any) {
             console.log('Error while updating material certificate', e);
-            openNotification(
-                'Error',
-                CERTIFICATE_MESSAGE.UPDATE.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Error', CERTIFICATE_MESSAGE.UPDATE.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
             dispatch(removeLoadingMessage(CERTIFICATE_MESSAGE.UPDATE.LOADING));
         }

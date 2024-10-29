@@ -13,8 +13,8 @@ import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
 import {
     ICPEnumeration,
-    ICPEnumerationManagerDriver,
-    ICPEnumerationManagerService
+    ICPEnumerationDriver,
+    ICPEnumerationService
 } from '@kbc-lib/coffee-trading-management-lib';
 import { useSiweIdentity } from '@/providers/SiweIdentityProvider';
 import { checkAndGetEnvironmentVariable } from '@/utils/env';
@@ -60,9 +60,7 @@ export function EnumerationProvider(props: { children: React.ReactNode }) {
 
     const enumerationService = useMemo(
         () =>
-            new ICPEnumerationManagerService(
-                new ICPEnumerationManagerDriver(identity, entityManagerCanisterId)
-            ),
+            new ICPEnumerationService(new ICPEnumerationDriver(identity, entityManagerCanisterId)),
         [identity]
     );
 

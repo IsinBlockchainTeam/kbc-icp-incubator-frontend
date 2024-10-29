@@ -48,21 +48,14 @@ export type EthShipmentContextState = {
     rejectQuality: () => Promise<void>;
     depositFunds: (amount: number) => Promise<void>;
     getDocument: (documentId: number) => Promise<ShipmentCompleteDocument>;
-    addDocument: (
-        documentType: ShipmentDocumentType,
-        documentReferenceId: string,
-        fileName: string,
-        fileContent: Blob
-    ) => Promise<void>;
+    addDocument: (documentType: ShipmentDocumentType, documentReferenceId: string, filename: string, fileContent: Blob) => Promise<void>;
     approveDocument: (documentId: number) => Promise<void>;
     rejectDocument: (documentId: number) => Promise<void>;
     // Call these functions only if the order is not already loaded
     getShipmentPhaseAsync: (orderId: number) => Promise<ShipmentPhase>;
     getShipmentService: (address: string) => ShipmentService;
 };
-export const EthShipmentContext = createContext<EthShipmentContextState>(
-    {} as EthShipmentContextState
-);
+export const EthShipmentContext = createContext<EthShipmentContextState>({} as EthShipmentContextState);
 export const useEthShipment = (): EthShipmentContextState => {
     const context = useContext(EthShipmentContext);
     if (!context || Object.keys(context).length === 0) {
@@ -73,7 +66,7 @@ export const useEthShipment = (): EthShipmentContextState => {
 type ShipmentCompleteDocument = {
     contentType: string;
     content: Blob;
-    fileName: string;
+    filename: string;
     documentType: ShipmentDocumentType;
 };
 export type DetailedShipment = {
@@ -95,17 +88,10 @@ export function EthShipmentProvider(props: { children: ReactNode }) {
 
     const roleProof = useSelector((state: RootState) => state.userInfo.roleProof);
 
-    const tokenService = useMemo(
-        () => new TokenService(new TokenDriver(signer, CONTRACT_ADDRESSES.TOKEN())),
-        [signer]
-    );
+    const tokenService = useMemo(() => new TokenService(new TokenDriver(signer, CONTRACT_ADDRESSES.TOKEN())), [signer]);
 
     const getShipmentService = (address: string) => {
-        return new ShipmentService(
-            new ShipmentDriver(signer, address),
-            new DocumentDriver(signer, CONTRACT_ADDRESSES.DOCUMENT()),
-            fileDriver
-        );
+        return new ShipmentService(new ShipmentDriver(signer, address), new DocumentDriver(signer, CONTRACT_ADDRESSES.DOCUMENT()), fileDriver);
     };
 
     const shipmentService = useMemo(() => {
@@ -131,16 +117,9 @@ export function EthShipmentProvider(props: { children: ReactNode }) {
                 Object.keys(ShipmentDocumentType)
                     .filter((key) => isNaN(parseInt(key)))
                     .map(async (key) => {
-                        const documentType =
-                            ShipmentDocumentType[key as keyof typeof ShipmentDocumentType];
-                        const documentId = await shipmentService.getDocumentId(
-                            roleProof,
-                            documentType
-                        );
-                        const document = await shipmentService.getDocumentInfo(
-                            roleProof,
-                            documentId
-                        );
+                        const documentType = ShipmentDocumentType[key as keyof typeof ShipmentDocumentType];
+                        const documentId = await shipmentService.getDocumentId(roleProof, documentType);
+                        const document = await shipmentService.getDocumentInfo(roleProof, documentId);
                         if (document) documents.set(documentType, document);
                     })
             );
@@ -163,12 +142,7 @@ export function EthShipmentProvider(props: { children: ReactNode }) {
             });
         } catch (e) {
             console.error(e);
-            openNotification(
-                'Error',
-                SHIPMENT_MESSAGE.RETRIEVE.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Error', SHIPMENT_MESSAGE.RETRIEVE.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
             dispatch(removeLoadingMessage(SHIPMENT_MESSAGE.RETRIEVE.LOADING));
         }
@@ -203,20 +177,10 @@ export function EthShipmentProvider(props: { children: ReactNode }) {
                 grossWeight
             );
             await loadData();
-            openNotification(
-                'Success',
-                SHIPMENT_MESSAGE.SAVE_DETAILS.OK,
-                NotificationType.SUCCESS,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Success', SHIPMENT_MESSAGE.SAVE_DETAILS.OK, NotificationType.SUCCESS, NOTIFICATION_DURATION);
         } catch (e) {
             console.error(e);
-            openNotification(
-                'Error',
-                SHIPMENT_MESSAGE.SAVE_DETAILS.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Error', SHIPMENT_MESSAGE.SAVE_DETAILS.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
             dispatch(removeLoadingMessage(SHIPMENT_MESSAGE.SAVE_DETAILS.LOADING));
         }
@@ -228,20 +192,10 @@ export function EthShipmentProvider(props: { children: ReactNode }) {
             dispatch(addLoadingMessage(SHIPMENT_MESSAGE.APPROVE_SAMPLE.LOADING));
             await shipmentService.approveSample(roleProof);
             await loadData();
-            openNotification(
-                'Success',
-                SHIPMENT_MESSAGE.APPROVE_SAMPLE.OK,
-                NotificationType.SUCCESS,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Success', SHIPMENT_MESSAGE.APPROVE_SAMPLE.OK, NotificationType.SUCCESS, NOTIFICATION_DURATION);
         } catch (e) {
             console.error(e);
-            openNotification(
-                'Error',
-                SHIPMENT_MESSAGE.APPROVE_SAMPLE.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Error', SHIPMENT_MESSAGE.APPROVE_SAMPLE.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
             dispatch(removeLoadingMessage(SHIPMENT_MESSAGE.APPROVE_SAMPLE.LOADING));
         }
@@ -253,20 +207,10 @@ export function EthShipmentProvider(props: { children: ReactNode }) {
             dispatch(addLoadingMessage(SHIPMENT_MESSAGE.REJECT_SAMPLE.LOADING));
             await shipmentService.rejectSample(roleProof);
             await loadData();
-            openNotification(
-                'Success',
-                SHIPMENT_MESSAGE.REJECT_SAMPLE.OK,
-                NotificationType.SUCCESS,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Success', SHIPMENT_MESSAGE.REJECT_SAMPLE.OK, NotificationType.SUCCESS, NOTIFICATION_DURATION);
         } catch (e) {
             console.error(e);
-            openNotification(
-                'Error',
-                SHIPMENT_MESSAGE.REJECT_SAMPLE.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Error', SHIPMENT_MESSAGE.REJECT_SAMPLE.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
             dispatch(removeLoadingMessage(SHIPMENT_MESSAGE.REJECT_SAMPLE.LOADING));
         }
@@ -278,20 +222,10 @@ export function EthShipmentProvider(props: { children: ReactNode }) {
             dispatch(addLoadingMessage(SHIPMENT_MESSAGE.APPROVE_DETAILS.LOADING));
             await shipmentService.approveDetails(roleProof);
             await loadData();
-            openNotification(
-                'Success',
-                SHIPMENT_MESSAGE.APPROVE_DETAILS.OK,
-                NotificationType.SUCCESS,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Success', SHIPMENT_MESSAGE.APPROVE_DETAILS.OK, NotificationType.SUCCESS, NOTIFICATION_DURATION);
         } catch (e) {
             console.error(e);
-            openNotification(
-                'Error',
-                SHIPMENT_MESSAGE.APPROVE_DETAILS.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Error', SHIPMENT_MESSAGE.APPROVE_DETAILS.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
             dispatch(removeLoadingMessage(SHIPMENT_MESSAGE.APPROVE_DETAILS.LOADING));
         }
@@ -303,20 +237,10 @@ export function EthShipmentProvider(props: { children: ReactNode }) {
             dispatch(addLoadingMessage(SHIPMENT_MESSAGE.REJECT_DETAILS.LOADING));
             await shipmentService.rejectDetails(roleProof);
             await loadData();
-            openNotification(
-                'Success',
-                SHIPMENT_MESSAGE.REJECT_DETAILS.OK,
-                NotificationType.SUCCESS,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Success', SHIPMENT_MESSAGE.REJECT_DETAILS.OK, NotificationType.SUCCESS, NOTIFICATION_DURATION);
         } catch (e) {
             console.error(e);
-            openNotification(
-                'Error',
-                SHIPMENT_MESSAGE.REJECT_DETAILS.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Error', SHIPMENT_MESSAGE.REJECT_DETAILS.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
             dispatch(removeLoadingMessage(SHIPMENT_MESSAGE.REJECT_DETAILS.LOADING));
         }
@@ -328,20 +252,10 @@ export function EthShipmentProvider(props: { children: ReactNode }) {
             dispatch(addLoadingMessage(SHIPMENT_MESSAGE.APPROVE_QUALITY.LOADING));
             await shipmentService.approveQuality(roleProof);
             await loadData();
-            openNotification(
-                'Success',
-                SHIPMENT_MESSAGE.APPROVE_QUALITY.OK,
-                NotificationType.SUCCESS,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Success', SHIPMENT_MESSAGE.APPROVE_QUALITY.OK, NotificationType.SUCCESS, NOTIFICATION_DURATION);
         } catch (e) {
             console.error(e);
-            openNotification(
-                'Error',
-                SHIPMENT_MESSAGE.APPROVE_QUALITY.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Error', SHIPMENT_MESSAGE.APPROVE_QUALITY.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
             dispatch(removeLoadingMessage(SHIPMENT_MESSAGE.APPROVE_QUALITY.LOADING));
         }
@@ -353,20 +267,10 @@ export function EthShipmentProvider(props: { children: ReactNode }) {
             dispatch(addLoadingMessage(SHIPMENT_MESSAGE.REJECT_QUALITY.LOADING));
             await shipmentService.rejectQuality(roleProof);
             await loadData();
-            openNotification(
-                'Success',
-                SHIPMENT_MESSAGE.REJECT_QUALITY.OK,
-                NotificationType.SUCCESS,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Success', SHIPMENT_MESSAGE.REJECT_QUALITY.OK, NotificationType.SUCCESS, NOTIFICATION_DURATION);
         } catch (e) {
             console.error(e);
-            openNotification(
-                'Error',
-                SHIPMENT_MESSAGE.REJECT_QUALITY.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Error', SHIPMENT_MESSAGE.REJECT_QUALITY.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
             dispatch(removeLoadingMessage(SHIPMENT_MESSAGE.REJECT_QUALITY.LOADING));
         }
@@ -383,19 +287,9 @@ export function EthShipmentProvider(props: { children: ReactNode }) {
             await loadEscrowDetails();
             await loadTokenDetails();
             await loadData();
-            openNotification(
-                'Success',
-                SHIPMENT_MESSAGE.DEPOSIT.OK,
-                NotificationType.SUCCESS,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Success', SHIPMENT_MESSAGE.DEPOSIT.OK, NotificationType.SUCCESS, NOTIFICATION_DURATION);
         } catch (e) {
-            openNotification(
-                'Error',
-                SHIPMENT_MESSAGE.DEPOSIT.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Error', SHIPMENT_MESSAGE.DEPOSIT.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
             dispatch(removeLoadingMessage(SHIPMENT_MESSAGE.DEPOSIT.LOADING));
         }
@@ -407,42 +301,31 @@ export function EthShipmentProvider(props: { children: ReactNode }) {
             dispatch(addLoadingMessage(SHIPMENT_MESSAGE.GET_DOCUMENT.LOADING));
             const document = await shipmentService.getDocument(roleProof, documentId);
             const blob = new Blob([document!.fileContent], {
-                type: getMimeType(document.fileName)
+                type: getMimeType(document.filename)
             });
             return {
                 contentType: blob.type,
                 content: blob,
-                fileName: document.fileName,
+                filename: document.filename,
                 documentType: document.documentType
             };
         } catch (e) {
             console.log(e);
-            openNotification(
-                'Error',
-                SHIPMENT_MESSAGE.GET_DOCUMENT.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Error', SHIPMENT_MESSAGE.GET_DOCUMENT.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
             throw new Error('Error while retrieving document');
         } finally {
             dispatch(removeLoadingMessage(SHIPMENT_MESSAGE.GET_DOCUMENT.LOADING));
         }
     };
 
-    const addDocument = async (
-        documentType: ShipmentDocumentType,
-        documentReferenceId: string,
-        fileName: string,
-        fileContent: Blob
-    ) => {
+    const addDocument = async (documentType: ShipmentDocumentType, documentReferenceId: string, filename: string, fileContent: Blob) => {
         if (!shipmentService) throw new Error('ShipmentManager service not initialized');
         try {
             dispatch(addLoadingMessage(SHIPMENT_MESSAGE.ADD_DOCUMENT.LOADING));
             // TODO: remove this harcoded value
-            const delegatedOrganizationIds: number[] =
-                parseInt(userInfo.companyClaims.organizationId) === 0 ? [1] : [0];
+            const delegatedOrganizationIds: number[] = parseInt(userInfo.companyClaims.organizationId) === 0 ? [1] : [0];
             const resourceSpec: ICPResourceSpec = {
-                name: fileName,
+                name: filename,
                 type: fileContent.type
             };
             await shipmentService.addDocument(
@@ -454,20 +337,10 @@ export function EthShipmentProvider(props: { children: ReactNode }) {
                 delegatedOrganizationIds
             );
             await loadData();
-            openNotification(
-                'Success',
-                SHIPMENT_MESSAGE.ADD_DOCUMENT.OK,
-                NotificationType.SUCCESS,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Success', SHIPMENT_MESSAGE.ADD_DOCUMENT.OK, NotificationType.SUCCESS, NOTIFICATION_DURATION);
         } catch (e) {
             console.error(e);
-            openNotification(
-                'Error',
-                SHIPMENT_MESSAGE.ADD_DOCUMENT.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Error', SHIPMENT_MESSAGE.ADD_DOCUMENT.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
             dispatch(removeLoadingMessage(SHIPMENT_MESSAGE.ADD_DOCUMENT.LOADING));
         }
@@ -479,19 +352,9 @@ export function EthShipmentProvider(props: { children: ReactNode }) {
             dispatch(addLoadingMessage(SHIPMENT_MESSAGE.APPROVE_DOCUMENT.LOADING));
             await shipmentService.approveDocument(roleProof, documentId);
             await loadData();
-            openNotification(
-                'Success',
-                SHIPMENT_MESSAGE.APPROVE_DOCUMENT.OK,
-                NotificationType.SUCCESS,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Success', SHIPMENT_MESSAGE.APPROVE_DOCUMENT.OK, NotificationType.SUCCESS, NOTIFICATION_DURATION);
         } catch (e) {
-            openNotification(
-                'Error',
-                SHIPMENT_MESSAGE.APPROVE_DOCUMENT.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Error', SHIPMENT_MESSAGE.APPROVE_DOCUMENT.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
             dispatch(removeLoadingMessage(SHIPMENT_MESSAGE.APPROVE_DOCUMENT.LOADING));
         }
@@ -503,20 +366,10 @@ export function EthShipmentProvider(props: { children: ReactNode }) {
             dispatch(addLoadingMessage(SHIPMENT_MESSAGE.REJECT_DOCUMENT.LOADING));
             await shipmentService.rejectDocument(roleProof, documentId);
             await loadData();
-            openNotification(
-                'Success',
-                SHIPMENT_MESSAGE.REJECT_DOCUMENT.OK,
-                NotificationType.SUCCESS,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Success', SHIPMENT_MESSAGE.REJECT_DOCUMENT.OK, NotificationType.SUCCESS, NOTIFICATION_DURATION);
         } catch (e) {
             console.log('error: ', e);
-            openNotification(
-                'Error',
-                SHIPMENT_MESSAGE.REJECT_DOCUMENT.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Error', SHIPMENT_MESSAGE.REJECT_DOCUMENT.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
             dispatch(removeLoadingMessage(SHIPMENT_MESSAGE.REJECT_DOCUMENT.LOADING));
         }

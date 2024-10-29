@@ -26,7 +26,7 @@ import { useParams } from 'react-router-dom';
 import { ICPResourceSpec } from '@blockchain-lib/common';
 
 type DocumentRequest = {
-    fileName: string;
+    filename: string;
     fileType: string;
     fileContent: Uint8Array;
 };
@@ -67,9 +67,7 @@ export type EthCertificateContextState = {
     updateMaterialCertificate: (request: MaterialCertificateRequest) => Promise<void>;
 };
 
-export const EthCertificateContext = createContext<EthCertificateContextState>(
-    {} as EthCertificateContextState
-);
+export const EthCertificateContext = createContext<EthCertificateContextState>({} as EthCertificateContextState);
 
 export const useEthCertificate = (): EthCertificateContextState => {
     const context = useContext(EthCertificateContext);
@@ -84,69 +82,41 @@ export function EthCertificateProvider(props: { children: ReactNode }) {
     const { signer, waitForTransactions } = useSigner();
     const { fileDriver } = useICP();
     const { loadData: loadRawCertificates } = useEthRawCertificate();
-    const [detailedCertificate, setDetailedCertificate] = useState<DetailedCertificate | null>(
-        null
-    );
+    const [detailedCertificate, setDetailedCertificate] = useState<DetailedCertificate | null>(null);
 
     const dispatch = useDispatch();
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const organizationId = parseInt(userInfo.companyClaims.organizationId);
     const roleProof = useSelector((state: RootState) => state.userInfo.roleProof);
 
-    const documentDriver = useMemo(
-        () => new DocumentDriver(signer, CONTRACT_ADDRESSES.DOCUMENT()),
-        [signer]
-    );
+    const documentDriver = useMemo(() => new DocumentDriver(signer, CONTRACT_ADDRESSES.DOCUMENT()), [signer]);
 
     const certificateManagerService = useMemo(
-        () =>
-            new CertificateManagerService(
-                new CertificateManagerDriver(signer, CONTRACT_ADDRESSES.CERTIFICATE()),
-                documentDriver,
-                fileDriver
-            ),
+        () => new CertificateManagerService(new CertificateManagerDriver(signer, CONTRACT_ADDRESSES.CERTIFICATE()), documentDriver, fileDriver),
         [signer]
     );
 
-    const getCompanyCertificate = async (
-        roleProof: RoleProof,
-        id: number
-    ): Promise<DetailedCertificate> => {
+    const getCompanyCertificate = async (roleProof: RoleProof, id: number): Promise<DetailedCertificate> => {
         const certificate = await certificateManagerService.getCompanyCertificate(roleProof, id);
         return {
             certificate,
-            document: await certificateManagerService.getDocument(
-                roleProof,
-                certificate.document.id
-            )
+            document: await certificateManagerService.getDocument(roleProof, certificate.document.id)
         };
     };
 
-    const getScopeCertificate = async (
-        roleProof: RoleProof,
-        id: number
-    ): Promise<DetailedCertificate> => {
+    const getScopeCertificate = async (roleProof: RoleProof, id: number): Promise<DetailedCertificate> => {
         const certificate = await certificateManagerService.getScopeCertificate(roleProof, id);
         return {
             certificate,
-            document: await certificateManagerService.getDocument(
-                roleProof,
-                certificate.document.id
-            )
+            document: await certificateManagerService.getDocument(roleProof, certificate.document.id)
         };
     };
 
-    const getMaterialCertificate = async (
-        roleProof: RoleProof,
-        id: number
-    ): Promise<DetailedCertificate> => {
+    const getMaterialCertificate = async (roleProof: RoleProof, id: number): Promise<DetailedCertificate> => {
         const certificate = await certificateManagerService.getMaterialCertificate(roleProof, id);
         return {
             certificate,
-            document: await certificateManagerService.getDocument(
-                roleProof,
-                certificate.document.id
-            )
+            document: await certificateManagerService.getDocument(roleProof, certificate.document.id)
         };
     };
 
@@ -163,12 +133,7 @@ export function EthCertificateProvider(props: { children: ReactNode }) {
             setDetailedCertificate(await certificateByType[Number(type)]());
         } catch (e: any) {
             console.log('Error while loading certificate', e);
-            openNotification(
-                'Error',
-                CERTIFICATE_MESSAGE.RETRIEVE.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Error', CERTIFICATE_MESSAGE.RETRIEVE.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
             dispatch(removeLoadingMessage(CERTIFICATE_MESSAGE.RETRIEVE.LOADING));
         }
@@ -191,49 +156,43 @@ export function EthCertificateProvider(props: { children: ReactNode }) {
             organizationId
         };
         const resourceSpec = {
-            name: request.document.fileName,
+            name: request.document.filename,
             type: request.document.fileType
         };
         return { delegatedOrganizationIds, urlStructure, resourceSpec };
     };
 
-    const _updateDocument = async (
-        delegatedOrganizationIds: number[],
-        updatedDocumentReferenceId: string,
-        updatedDocument: DocumentRequest
-    ) => {
+    const _updateDocument = async (delegatedOrganizationIds: number[], updatedDocumentReferenceId: string, updatedDocument: DocumentRequest) => {
         if (!certificateManagerService || !detailedCertificate) return;
 
-        if (updatedDocument.fileName) {
+        if (updatedDocument.filename) {
             await certificateManagerService.updateDocument(
                 roleProof,
                 detailedCertificate.certificate.id,
                 detailedCertificate.certificate.document.id,
                 {
-                    fileName: updatedDocument.fileName,
+                    filename: updatedDocument.filename,
                     fileType: updatedDocument.fileType,
                     fileContent: updatedDocument.fileContent,
                     documentReferenceId: updatedDocumentReferenceId
                 },
                 {
-                    name: updatedDocument.fileName,
+                    name: updatedDocument.filename,
                     type: updatedDocument.fileType
                 },
                 delegatedOrganizationIds
             );
-        } else if (
-            detailedCertificate.document.documentReferenceId !== updatedDocumentReferenceId
-        ) {
+        } else if (detailedCertificate.document.documentReferenceId !== updatedDocumentReferenceId) {
             await certificateManagerService.updateDocumentMetadata(
                 roleProof,
                 detailedCertificate.certificate.document.id,
                 {
-                    fileName: detailedCertificate.document.fileName,
+                    filename: detailedCertificate.document.filename,
                     fileType: detailedCertificate.document.fileType,
                     documentReferenceId: updatedDocumentReferenceId
                 },
                 {
-                    name: detailedCertificate.document.fileName,
+                    name: detailedCertificate.document.filename,
                     type: detailedCertificate.document.fileType
                 },
                 delegatedOrganizationIds
@@ -241,21 +200,14 @@ export function EthCertificateProvider(props: { children: ReactNode }) {
         }
     };
 
-    const _areEthFieldsChanged = (
-        request: BaseCertificateRequest,
-        certificateSpecificFields: string[]
-    ): boolean => {
+    const _areEthFieldsChanged = (request: BaseCertificateRequest, certificateSpecificFields: string[]): boolean => {
         if (!detailedCertificate) return false;
         const certificate = detailedCertificate.certificate;
         const document = detailedCertificate.document;
         return (
             request.documentType !== certificate.document.documentType ||
             request.assessmentStandard !== certificate.assessmentStandard ||
-            certificateSpecificFields.some(
-                (field) =>
-                    request[field as keyof BaseCertificateRequest] !==
-                    certificate[field as keyof BaseCertificate]
-            )
+            certificateSpecificFields.some((field) => request[field as keyof BaseCertificateRequest] !== certificate[field as keyof BaseCertificate])
         );
     };
 
@@ -263,8 +215,7 @@ export function EthCertificateProvider(props: { children: ReactNode }) {
         if (!certificateManagerService) return;
 
         try {
-            const { delegatedOrganizationIds, urlStructure, resourceSpec } =
-                _preliminaryCertificateSaving(request);
+            const { delegatedOrganizationIds, urlStructure, resourceSpec } = _preliminaryCertificateSaving(request);
 
             const [_, txHash] = await certificateManagerService.registerCompanyCertificate(
                 roleProof,
@@ -276,7 +227,7 @@ export function EthCertificateProvider(props: { children: ReactNode }) {
                 request.validUntil,
                 request.documentType,
                 {
-                    fileName: request.document!.fileName,
+                    filename: request.document!.filename,
                     fileType: request.document!.fileType,
                     fileContent: request.document!.fileContent,
                     documentReferenceId: request.documentReferenceId
@@ -285,19 +236,11 @@ export function EthCertificateProvider(props: { children: ReactNode }) {
                 resourceSpec,
                 delegatedOrganizationIds
             );
-            await waitForTransactions(
-                txHash,
-                Number(process.env.REACT_APP_BC_CONFIRMATION_NUMBER || 0)
-            );
+            await waitForTransactions(txHash, Number(process.env.REACT_APP_BC_CONFIRMATION_NUMBER || 0));
             await loadRawCertificates();
         } catch (e: any) {
             console.log('Error while saving company certificate', e);
-            openNotification(
-                'Error',
-                CERTIFICATE_MESSAGE.SAVE.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Error', CERTIFICATE_MESSAGE.SAVE.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
             dispatch(removeLoadingMessage(CERTIFICATE_MESSAGE.SAVE.LOADING));
         }
@@ -307,8 +250,7 @@ export function EthCertificateProvider(props: { children: ReactNode }) {
         if (!certificateManagerService) return;
 
         try {
-            const { delegatedOrganizationIds, urlStructure, resourceSpec } =
-                _preliminaryCertificateSaving(request);
+            const { delegatedOrganizationIds, urlStructure, resourceSpec } = _preliminaryCertificateSaving(request);
 
             const [_, txHash] = await certificateManagerService.registerScopeCertificate(
                 roleProof,
@@ -321,7 +263,7 @@ export function EthCertificateProvider(props: { children: ReactNode }) {
                 request.processTypes,
                 request.documentType,
                 {
-                    fileName: request.document!.fileName,
+                    filename: request.document!.filename,
                     fileType: request.document!.fileType,
                     fileContent: request.document!.fileContent,
                     documentReferenceId: request.documentReferenceId
@@ -330,19 +272,11 @@ export function EthCertificateProvider(props: { children: ReactNode }) {
                 resourceSpec,
                 delegatedOrganizationIds
             );
-            await waitForTransactions(
-                txHash,
-                Number(process.env.REACT_APP_BC_CONFIRMATION_NUMBER || 0)
-            );
+            await waitForTransactions(txHash, Number(process.env.REACT_APP_BC_CONFIRMATION_NUMBER || 0));
             await loadRawCertificates();
         } catch (e: any) {
             console.log('Error while saving scope certificate', e);
-            openNotification(
-                'Error',
-                CERTIFICATE_MESSAGE.SAVE.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Error', CERTIFICATE_MESSAGE.SAVE.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
             dispatch(removeLoadingMessage(CERTIFICATE_MESSAGE.SAVE.LOADING));
         }
@@ -352,8 +286,7 @@ export function EthCertificateProvider(props: { children: ReactNode }) {
         if (!certificateManagerService) return;
 
         try {
-            const { delegatedOrganizationIds, urlStructure, resourceSpec } =
-                _preliminaryCertificateSaving(request);
+            const { delegatedOrganizationIds, urlStructure, resourceSpec } = _preliminaryCertificateSaving(request);
 
             const [_, txHash] = await certificateManagerService.registerMaterialCertificate(
                 roleProof,
@@ -364,7 +297,7 @@ export function EthCertificateProvider(props: { children: ReactNode }) {
                 request.materialId,
                 request.documentType,
                 {
-                    fileName: request.document!.fileName,
+                    filename: request.document!.filename,
                     fileType: request.document!.fileType,
                     fileContent: request.document!.fileContent,
                     documentReferenceId: request.documentReferenceId
@@ -373,19 +306,11 @@ export function EthCertificateProvider(props: { children: ReactNode }) {
                 resourceSpec,
                 delegatedOrganizationIds
             );
-            await waitForTransactions(
-                txHash,
-                Number(process.env.REACT_APP_BC_CONFIRMATION_NUMBER || 0)
-            );
+            await waitForTransactions(txHash, Number(process.env.REACT_APP_BC_CONFIRMATION_NUMBER || 0));
             await loadRawCertificates();
         } catch (e: any) {
             console.log('Error while saving material certificate', e);
-            openNotification(
-                'Error',
-                CERTIFICATE_MESSAGE.SAVE.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Error', CERTIFICATE_MESSAGE.SAVE.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
             dispatch(removeLoadingMessage(CERTIFICATE_MESSAGE.SAVE.LOADING));
         }
@@ -409,20 +334,11 @@ export function EthCertificateProvider(props: { children: ReactNode }) {
                     request.validUntil
                 );
             }
-            await _updateDocument(
-                delegatedOrganizationIds,
-                request.documentReferenceId,
-                request.document
-            );
+            await _updateDocument(delegatedOrganizationIds, request.documentReferenceId, request.document);
             await loadData();
         } catch (e: any) {
             console.log('Error while updating company certificate', e);
-            openNotification(
-                'Error',
-                CERTIFICATE_MESSAGE.UPDATE.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Error', CERTIFICATE_MESSAGE.UPDATE.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
             dispatch(removeLoadingMessage(CERTIFICATE_MESSAGE.UPDATE.LOADING));
         }
@@ -447,20 +363,11 @@ export function EthCertificateProvider(props: { children: ReactNode }) {
                     request.processTypes
                 );
             }
-            await _updateDocument(
-                delegatedOrganizationIds,
-                request.documentReferenceId,
-                request.document
-            );
+            await _updateDocument(delegatedOrganizationIds, request.documentReferenceId, request.document);
             await loadData();
         } catch (e: any) {
             console.log('Error while updating scope certificate', e);
-            openNotification(
-                'Error',
-                CERTIFICATE_MESSAGE.UPDATE.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Error', CERTIFICATE_MESSAGE.UPDATE.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
             dispatch(removeLoadingMessage(CERTIFICATE_MESSAGE.UPDATE.LOADING));
         }
@@ -483,20 +390,11 @@ export function EthCertificateProvider(props: { children: ReactNode }) {
                     request.materialId
                 );
             }
-            await _updateDocument(
-                delegatedOrganizationIds,
-                request.documentReferenceId,
-                request.document
-            );
+            await _updateDocument(delegatedOrganizationIds, request.documentReferenceId, request.document);
             await loadData();
         } catch (e: any) {
             console.log('Error while updating material certificate', e);
-            openNotification(
-                'Error',
-                CERTIFICATE_MESSAGE.UPDATE.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Error', CERTIFICATE_MESSAGE.UPDATE.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
             dispatch(removeLoadingMessage(CERTIFICATE_MESSAGE.UPDATE.LOADING));
         }
