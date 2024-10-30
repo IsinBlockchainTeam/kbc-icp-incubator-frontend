@@ -5,7 +5,18 @@ import { ASSESSMENT_ASSURANCE_LEVEL, ASSESSMENT_STANDARD_MESSAGE, FIAT_MESSAGE, 
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
-import { ICPEnumeration, ICPEnumerationDriver, ICPEnumerationService } from '@kbc-lib/coffee-trading-management-lib';
+import {
+    ICPAssessmentAssuranceLevelDriver,
+    ICPAssessmentAssuranceLevelService,
+    ICPAssessmentStandardDriver,
+    ICPAssessmentStandardService,
+    ICPFiatDriver,
+    ICPFiatService,
+    ICPProcessTypeDriver,
+    ICPProcessTypeService,
+    ICPUnitDriver,
+    ICPUnitService
+} from '@kbc-lib/coffee-trading-management-lib';
 import { useSiweIdentity } from '@/providers/SiweIdentityProvider';
 import { checkAndGetEnvironmentVariable } from '@/utils/env';
 import { ICP } from '@/constants/icp';
@@ -46,12 +57,22 @@ export function EnumerationProvider(props: { children: React.ReactNode }) {
         return <Typography.Text>Siwe identity not initialized</Typography.Text>;
     }
 
-    const enumerationService = useMemo(() => new ICPEnumerationService(new ICPEnumerationDriver(identity, entityManagerCanisterId)), [identity]);
+    const fiatService = useMemo(() => new ICPFiatService(new ICPFiatDriver(identity, entityManagerCanisterId)), [identity]);
+    const unitService = useMemo(() => new ICPUnitService(new ICPUnitDriver(identity, entityManagerCanisterId)), [identity]);
+    const processTypeService = useMemo(() => new ICPProcessTypeService(new ICPProcessTypeDriver(identity, entityManagerCanisterId)), [identity]);
+    const assessmentStandardService = useMemo(
+        () => new ICPAssessmentStandardService(new ICPAssessmentStandardDriver(identity, entityManagerCanisterId)),
+        [identity]
+    );
+    const assessmentAssuranceLevelService = useMemo(
+        () => new ICPAssessmentAssuranceLevelService(new ICPAssessmentAssuranceLevelDriver(identity, entityManagerCanisterId)),
+        [identity]
+    );
 
     const loadFiats = async () => {
         try {
             dispatch(addLoadingMessage(FIAT_MESSAGE.RETRIEVE.LOADING));
-            const fiats = await enumerationService.getEnumerationsByType(ICPEnumeration.FIAT);
+            const fiats = await fiatService.getAllValues();
             setFiats(fiats);
         } catch (e) {
             openNotification('Error', FIAT_MESSAGE.RETRIEVE.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
@@ -63,7 +84,7 @@ export function EnumerationProvider(props: { children: React.ReactNode }) {
     const loadProcessTypes = async () => {
         try {
             dispatch(addLoadingMessage(PROCESS_TYPE_MESSAGE.RETRIEVE.LOADING));
-            const processTypes = await enumerationService.getEnumerationsByType(ICPEnumeration.PROCESS_TYPE);
+            const processTypes = await processTypeService.getAllValues();
             setProcessTypes(processTypes);
         } catch (e) {
             openNotification('Error', PROCESS_TYPE_MESSAGE.RETRIEVE.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
@@ -75,7 +96,7 @@ export function EnumerationProvider(props: { children: React.ReactNode }) {
     const loadUnits = async () => {
         try {
             dispatch(addLoadingMessage(UNIT_MESSAGE.RETRIEVE.LOADING));
-            const units = await enumerationService.getEnumerationsByType(ICPEnumeration.UNIT);
+            const units = await unitService.getAllValues();
             setUnits(units);
         } catch (e) {
             openNotification('Error', UNIT_MESSAGE.RETRIEVE.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
@@ -87,7 +108,7 @@ export function EnumerationProvider(props: { children: React.ReactNode }) {
     const loadAssessmentStandards = async () => {
         try {
             dispatch(addLoadingMessage(ASSESSMENT_STANDARD_MESSAGE.RETRIEVE.LOADING));
-            const assessmentStandards = await enumerationService.getEnumerationsByType(ICPEnumeration.ASSESSMENT_STANDARD);
+            const assessmentStandards = await assessmentStandardService.getAllValues();
             setAssessmentStandards(assessmentStandards);
         } catch (e) {
             openNotification('Error', ASSESSMENT_STANDARD_MESSAGE.RETRIEVE.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
@@ -99,7 +120,7 @@ export function EnumerationProvider(props: { children: React.ReactNode }) {
     const loadAssessmentAssuranceLevel = async () => {
         try {
             dispatch(addLoadingMessage(ASSESSMENT_ASSURANCE_LEVEL.RETRIEVE.LOADING));
-            const assessmentAssuranceLevels = await enumerationService.getEnumerationsByType(ICPEnumeration.ASSESSMENT_ASSURANCE_LEVEL);
+            const assessmentAssuranceLevels = await assessmentAssuranceLevelService.getAllValues();
             setAssessmentAssuranceLevel(assessmentAssuranceLevels);
         } catch (e) {
             openNotification('Error', ASSESSMENT_ASSURANCE_LEVEL.RETRIEVE.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
