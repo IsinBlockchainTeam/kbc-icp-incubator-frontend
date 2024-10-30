@@ -5,10 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 import { CertificateDocumentNames } from '@/constants/certificationDocument';
-import {
-    ICPCompanyCertificate,
-    ICPCertificateDocumentType
-} from '@kbc-lib/coffee-trading-management-lib';
+import { ICPCompanyCertificate, ICPCertificateDocumentType } from '@kbc-lib/coffee-trading-management-lib';
 import { validateDates } from '@/utils/date';
 import dayjs from 'dayjs';
 import { useSigner } from '@/providers/SignerProvider';
@@ -22,7 +19,7 @@ export const CompanyCertificateView = (props: CertificateViewProps) => {
 
     const { signer } = useSigner();
     const navigate = useNavigate();
-    const { assessmentStandards, assessmentAssuranceLevel } = useEnumeration();
+    const { assessmentStandards, assessmentAssuranceLevels } = useEnumeration();
     const { updateCompanyCertificate } = useCertification();
 
     const elements: FormElement[] = [
@@ -50,12 +47,7 @@ export const CompanyCertificateView = (props: CertificateViewProps) => {
             defaultValue: dayjs.unix(companyCertificate.validUntil.getTime()),
             disabled,
             dependencies: ['validFrom'],
-            validationCallback: validateDates(
-                'validUntil',
-                'validFrom',
-                'greater',
-                'This must be after Valid From date'
-            )
+            validationCallback: validateDates('validUntil', 'validFrom', 'greater', 'This must be after Valid From date')
         },
         {
             type: FormElementType.SELECT,
@@ -77,7 +69,7 @@ export const CompanyCertificateView = (props: CertificateViewProps) => {
             label: 'Assessment Assurance Level',
             required: true,
             defaultValue: companyCertificate.assessmentAssuranceLevel,
-            options: assessmentAssuranceLevel.map((assuranceLevel) => ({
+            options: assessmentAssuranceLevels.map((assuranceLevel) => ({
                 value: assuranceLevel,
                 label: assuranceLevel
             })),
@@ -117,7 +109,7 @@ export const CompanyCertificateView = (props: CertificateViewProps) => {
             name: 'document',
             label: 'Document',
             loading: false,
-            uploadable: true,
+            uploadable: !disabled,
             required: true,
             height: '500px',
             content: {

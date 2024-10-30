@@ -18,7 +18,7 @@ export const CompanyCertificateNew = (props: CertificateNewProps) => {
     const { commonElements } = props;
     const { signer } = useSigner();
     const navigate = useNavigate();
-    const { assessmentStandards, assessmentAssuranceLevel } = useEnumeration();
+    const { assessmentStandards, assessmentAssuranceLevels } = useEnumeration();
     const { saveCompanyCertificate } = useCertification();
 
     const elements: FormElement[] = [
@@ -46,12 +46,7 @@ export const CompanyCertificateNew = (props: CertificateNewProps) => {
             defaultValue: undefined,
             disabled: false,
             dependencies: ['validFrom'],
-            validationCallback: validateDates(
-                'validUntil',
-                'validFrom',
-                'greater',
-                'This must be after Valid From date'
-            )
+            validationCallback: validateDates('validUntil', 'validFrom', 'greater', 'This must be after Valid From date')
         },
         {
             type: FormElementType.SELECT,
@@ -70,7 +65,7 @@ export const CompanyCertificateNew = (props: CertificateNewProps) => {
             name: 'assessmentAssuranceLevel',
             label: 'Assessment Assurance Level',
             required: true,
-            options: assessmentAssuranceLevel.map((assuranceLevel) => ({
+            options: assessmentAssuranceLevels.map((assuranceLevel) => ({
                 value: assuranceLevel,
                 label: assuranceLevel
             }))
@@ -142,11 +137,7 @@ export const CompanyCertificateNew = (props: CertificateNewProps) => {
                         alignItems: 'center'
                     }}>
                     New Company Certificate
-                    <Button
-                        type="primary"
-                        danger
-                        icon={<DeleteOutlined />}
-                        onClick={() => navigate(paths.CERTIFICATIONS)}>
+                    <Button type="primary" danger icon={<DeleteOutlined />} onClick={() => navigate(paths.CERTIFICATIONS)}>
                         Delete Certificate
                     </Button>
                 </div>

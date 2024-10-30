@@ -5,15 +5,13 @@ import { useNavigate } from 'react-router-dom';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 import { CertificateDocumentNames } from '@/constants/certificationDocument';
-import {
-    ICPCertificateDocumentType,
-    ICPScopeCertificate
-} from '@kbc-lib/coffee-trading-management-lib';
+import { ICPCertificateDocumentType, ICPScopeCertificate } from '@kbc-lib/coffee-trading-management-lib';
 import { validateDates } from '@/utils/date';
 import dayjs from 'dayjs';
 import { useSigner } from '@/providers/SignerProvider';
 import { CertificateViewProps } from '@/pages/Certification/View/CertificateView';
 import { ScopeCertificateRequest, useCertification } from '@/providers/icp/CertificationProvider';
+import { useEnumeration } from '@/providers/icp/EnumerationProvider';
 
 export const ScopeCertificateView = (props: CertificateViewProps) => {
     const { commonElements, editElements, detailedCertificate, disabled } = props;
@@ -21,16 +19,8 @@ export const ScopeCertificateView = (props: CertificateViewProps) => {
 
     const { signer } = useSigner();
     const navigate = useNavigate();
-    const { assessmentStandards, processTypes } = useEthEnumerable();
+    const { assessmentAssuranceLevels, assessmentStandards, processTypes } = useEnumeration();
     const { updateScopeCertificate } = useCertification();
-    // TODO: get these values from icp network
-    const assessmentAssuranceLevel = [
-        'Reviewed by peer members',
-        'Self assessed',
-        'Self declaration / Not verified',
-        'Verified by second party',
-        'Certified (Third Party)'
-    ];
 
     const elements: FormElement[] = [
         ...commonElements,
@@ -57,12 +47,7 @@ export const ScopeCertificateView = (props: CertificateViewProps) => {
             defaultValue: dayjs.unix(scopeCertificate.validUntil.getTime()),
             disabled,
             dependencies: ['validFrom'],
-            validationCallback: validateDates(
-                'validUntil',
-                'validFrom',
-                'greater',
-                'This must be after Valid From date'
-            )
+            validationCallback: validateDates('validUntil', 'validFrom', 'greater', 'This must be after Valid From date')
         },
         {
             type: FormElementType.SELECT,
@@ -71,9 +56,9 @@ export const ScopeCertificateView = (props: CertificateViewProps) => {
             label: 'Assessment Standard',
             required: true,
             defaultValue: scopeCertificate.assessmentStandard,
-            options: assessmentAssuranceLevel.map((assuranceLevel) => ({
-                value: assuranceLevel,
-                label: assuranceLevel
+            options: assessmentStandards.map((standard) => ({
+                value: standard,
+                label: standard
             })),
             disabled
         },
@@ -84,9 +69,9 @@ export const ScopeCertificateView = (props: CertificateViewProps) => {
             label: 'Assessment Assurance Level',
             required: true,
             defaultValue: scopeCertificate.assessmentAssuranceLevel,
-            options: assessmentStandards.map((standard) => ({
-                value: standard,
-                label: standard
+            options: assessmentAssuranceLevels.map((assuranceLevel) => ({
+                value: assuranceLevel,
+                label: assuranceLevel
             })),
             disabled
         },
@@ -138,7 +123,7 @@ export const ScopeCertificateView = (props: CertificateViewProps) => {
             name: 'document',
             label: 'Document',
             loading: false,
-            uploadable: true,
+            uploadable: !disabled,
             required: true,
             height: '500px',
             content: {

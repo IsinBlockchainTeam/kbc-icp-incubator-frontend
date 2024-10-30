@@ -19,7 +19,7 @@ export const ScopeCertificateNew = (props: CertificateNewProps) => {
     const { commonElements } = props;
     const { signer } = useSigner();
     const navigate = useNavigate();
-    const { assessmentAssuranceLevel, assessmentStandards, processTypes } = useEnumeration();
+    const { assessmentAssuranceLevels, assessmentStandards, processTypes } = useEnumeration();
     const { saveScopeCertificate } = useCertification();
 
     const elements: FormElement[] = [
@@ -47,12 +47,7 @@ export const ScopeCertificateNew = (props: CertificateNewProps) => {
             defaultValue: undefined,
             disabled: false,
             dependencies: ['validFrom'],
-            validationCallback: validateDates(
-                'validUntil',
-                'validFrom',
-                'greater',
-                'This must be after Valid From date'
-            )
+            validationCallback: validateDates('validUntil', 'validFrom', 'greater', 'This must be after Valid From date')
         },
         {
             type: FormElementType.SELECT,
@@ -71,7 +66,7 @@ export const ScopeCertificateNew = (props: CertificateNewProps) => {
             name: 'assessmentAssuranceLevel',
             label: 'Assessment Assurance Level',
             required: true,
-            options: assessmentAssuranceLevel.map((assuranceLevel) => ({
+            options: assessmentAssuranceLevels.map((assuranceLevel) => ({
                 value: assuranceLevel,
                 label: assuranceLevel
             }))
@@ -156,11 +151,7 @@ export const ScopeCertificateNew = (props: CertificateNewProps) => {
                         alignItems: 'center'
                     }}>
                     New Scope Certificate
-                    <Button
-                        type="primary"
-                        danger
-                        icon={<DeleteOutlined />}
-                        onClick={() => navigate(paths.CERTIFICATIONS)}>
+                    <Button type="primary" danger icon={<DeleteOutlined />} onClick={() => navigate(paths.CERTIFICATIONS)}>
                         Delete Certificate
                     </Button>
                 </div>

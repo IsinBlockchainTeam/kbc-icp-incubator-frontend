@@ -11,18 +11,16 @@ import { ICPCertificateDocumentType } from '@kbc-lib/coffee-trading-management-l
 import { useSigner } from '@/providers/SignerProvider';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useEnumeration } from '@/providers/icp/EnumerationProvider';
-import {
-    MaterialCertificateRequest,
-    useCertification
-} from '@/providers/icp/CertificationProvider';
+import { MaterialCertificateRequest, useCertification } from '@/providers/icp/CertificationProvider';
 
 export const MaterialCertificateNew = (props: CertificateNewProps) => {
     const { commonElements } = props;
     const { signer } = useSigner();
     const navigate = useNavigate();
-    const { assessmentAssuranceLevel, assessmentStandards } = useEnumeration();
+    const { assessmentAssuranceLevels, assessmentStandards } = useEnumeration();
     const { saveMaterialCertificate } = useCertification();
     // const { materials } = useEthMaterial();
+    // TODO: use the icp provider to retrieve materials
     const materials = [{ id: 1, productCategory: { name: 'test' } }];
 
     const elements: FormElement[] = [
@@ -49,7 +47,7 @@ export const MaterialCertificateNew = (props: CertificateNewProps) => {
             name: 'assessmentAssuranceLevel',
             label: 'Assessment Assurance Level',
             required: true,
-            options: assessmentAssuranceLevel.map((assuranceLevel) => ({
+            options: assessmentAssuranceLevels.map((assuranceLevel) => ({
                 value: assuranceLevel,
                 label: assuranceLevel
             }))
@@ -131,11 +129,7 @@ export const MaterialCertificateNew = (props: CertificateNewProps) => {
                         alignItems: 'center'
                     }}>
                     New Material Certificate
-                    <Button
-                        type="primary"
-                        danger
-                        icon={<DeleteOutlined />}
-                        onClick={() => navigate(paths.CERTIFICATIONS)}>
+                    <Button type="primary" danger icon={<DeleteOutlined />} onClick={() => navigate(paths.CERTIFICATIONS)}>
                         Delete Certificate
                     </Button>
                 </div>

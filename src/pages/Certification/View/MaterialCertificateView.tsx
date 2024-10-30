@@ -5,17 +5,12 @@ import { useNavigate } from 'react-router-dom';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 import { CertificateDocumentNames } from '@/constants/certificationDocument';
-import {
-    ICPMaterialCertificate,
-    ICPCertificateDocumentType
-} from '@kbc-lib/coffee-trading-management-lib';
+import { ICPMaterialCertificate, ICPCertificateDocumentType } from '@kbc-lib/coffee-trading-management-lib';
 import { useSigner } from '@/providers/SignerProvider';
 import { CertificateViewProps } from '@/pages/Certification/View/CertificateView';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
-import {
-    MaterialCertificateRequest,
-    useCertification
-} from '@/providers/icp/CertificationProvider';
+import { MaterialCertificateRequest, useCertification } from '@/providers/icp/CertificationProvider';
+import { useEnumeration } from '@/providers/icp/EnumerationProvider';
 
 export const MaterialCertificateView = (props: CertificateViewProps) => {
     const { commonElements, editElements, detailedCertificate, disabled } = props;
@@ -23,17 +18,10 @@ export const MaterialCertificateView = (props: CertificateViewProps) => {
 
     const { signer } = useSigner();
     const navigate = useNavigate();
-    const { assessmentStandards } = useEthEnumerable();
+    const { assessmentAssuranceLevels, assessmentStandards } = useEnumeration();
+    // TODO: use icp material provider to retrieve materials
     const { materials } = useEthMaterial();
     const { updateMaterialCertificate } = useCertification();
-    // TODO: get these values from icp network
-    const assessmentAssuranceLevel = [
-        'Reviewed by peer members',
-        'Self assessed',
-        'Self declaration / Not verified',
-        'Verified by second party',
-        'Certified (Third Party)'
-    ];
 
     const elements: FormElement[] = [
         ...commonElements,
@@ -62,7 +50,7 @@ export const MaterialCertificateView = (props: CertificateViewProps) => {
             label: 'Assessment Assurance Level',
             required: true,
             defaultValue: materialCertificate.assessmentAssuranceLevel,
-            options: assessmentAssuranceLevel.map((assuranceLevel) => ({
+            options: assessmentAssuranceLevels.map((assuranceLevel) => ({
                 value: assuranceLevel,
                 label: assuranceLevel
             })),
@@ -115,7 +103,7 @@ export const MaterialCertificateView = (props: CertificateViewProps) => {
             name: 'document',
             label: 'Document',
             loading: false,
-            uploadable: true,
+            uploadable: !disabled,
             required: true,
             height: '500px',
             content: {

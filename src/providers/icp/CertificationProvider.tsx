@@ -172,7 +172,6 @@ export function CertificationProvider(props: { children: ReactNode }) {
         if (!certificationService || !detailedCertificate) return;
 
         const { delegatedOrganizationIds, urlStructure, resourceSpec } = _computeDocumentStoreInfo(updatedDocument);
-        console.log('Updated document', updatedDocument);
         await certificationService.updateDocument(roleProof, detailedCertificate.certificate.id, {
             filename: updatedDocument.filename,
             fileType: updatedDocument.fileType,
@@ -356,9 +355,9 @@ export function CertificationProvider(props: { children: ReactNode }) {
                     new Date(request.validUntil),
                     request.processTypes
                 );
+                await _updateDocument(roleProof, request.document);
+                await loadData();
             }
-            await _updateDocument(roleProof, request.document);
-            await loadData();
         } catch (e: any) {
             console.log('Error while updating scope certificate', e);
             openNotification('Error', CERTIFICATE_MESSAGE.UPDATE.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
@@ -382,9 +381,9 @@ export function CertificationProvider(props: { children: ReactNode }) {
                     request.assessmentAssuranceLevel,
                     request.materialId
                 );
+                await _updateDocument(roleProof, request.document);
+                await loadData();
             }
-            await _updateDocument(roleProof, request.document);
-            await loadData();
         } catch (e: any) {
             console.log('Error while updating material certificate', e);
             openNotification('Error', CERTIFICATE_MESSAGE.UPDATE.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
