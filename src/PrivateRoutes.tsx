@@ -17,11 +17,11 @@ import { EthAssetOperationProvider } from '@/providers/entities/EthAssetOperatio
 import { EthRelationshipProvider } from '@/providers/entities/EthRelationshipProvider';
 import { EthGraphProvider } from '@/providers/entities/EthGraphProvider';
 import { EthEscrowProvider } from '@/providers/entities/EthEscrowProvider';
-import { EthShipmentProvider } from '@/providers/entities/EthShipmentProvider';
 import { OrderProvider } from '@/providers/icp/OrderProvider';
 import { ProductCategoryProvider } from '@/providers/icp/ProductCategoryProvider';
 import { MaterialProvider } from '@/providers/icp/MaterialProvider';
 import { AuthenticationProvider } from '@/providers/icp/AuthenticationProvider';
+import { ShipmentProvider } from '@/providers/icp/ShipmentProvider';
 
 const PrivateRoutes = () => {
     const { isLogged } = useSelector((state: RootState) => state.userInfo);
@@ -43,11 +43,11 @@ const PrivateRoutes = () => {
                                                                 <OrderProvider>
                                                                     <EthOrderTradeProvider>
                                                                         <EthEscrowProvider>
-                                                                            <EthShipmentProvider>
+                                                                            <ShipmentProvider>
                                                                                 <EthGraphProvider>
                                                                                     <Outlet />
                                                                                 </EthGraphProvider>
-                                                                            </EthShipmentProvider>
+                                                                            </ShipmentProvider>
                                                                         </EthEscrowProvider>
                                                                     </EthOrderTradeProvider>
                                                                 </OrderProvider>

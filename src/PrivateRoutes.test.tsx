@@ -18,7 +18,7 @@ import { EthRelationshipProvider } from '@/providers/entities/EthRelationshipPro
 import { EthGraphProvider } from '@/providers/entities/EthGraphProvider';
 import { Navigate, Outlet } from 'react-router-dom';
 import { EthEscrowProvider } from '@/providers/entities/EthEscrowProvider';
-import { EthShipmentProvider } from '@/providers/entities/EthShipmentProvider';
+import { ShipmentProvider } from '@/providers/icp/ShipmentProvider';
 
 jest.mock('react-router-dom');
 jest.mock('react-redux');
@@ -53,12 +53,11 @@ describe('PrivateRoutes', () => {
         (EthRawTradeProvider as jest.Mock).mockImplementation(renderChildren);
         (EthBasicTradeProvider as jest.Mock).mockImplementation(renderChildren);
         (EthOrderTradeProvider as jest.Mock).mockImplementation(renderChildren);
-        (EthShipmentProvider as jest.Mock).mockImplementation(renderChildren);
+        (ShipmentProvider as jest.Mock).mockImplementation(renderChildren);
         (EthAssetOperationProvider as jest.Mock).mockImplementation(renderChildren);
         (EthRelationshipProvider as jest.Mock).mockImplementation(renderChildren);
         (EthGraphProvider as jest.Mock).mockImplementation(renderChildren);
         (EthEscrowProvider as jest.Mock).mockImplementation(renderChildren);
-        (EthShipmentProvider as jest.Mock).mockImplementation(renderChildren);
 
         render(<PrivateRoutes />);
 
@@ -74,7 +73,7 @@ describe('PrivateRoutes', () => {
         expect(EthOrderTradeProvider).toHaveBeenCalled();
         expect(EthAssetOperationProvider).toHaveBeenCalled();
         expect(EthRelationshipProvider).toHaveBeenCalled();
-        expect(EthShipmentProvider).toHaveBeenCalled();
+        expect(ShipmentProvider).toHaveBeenCalled();
         expect(EthGraphProvider).toHaveBeenCalled();
         expect(EthEscrowProvider).toHaveBeenCalled();
         expect(Outlet).toHaveBeenCalled();

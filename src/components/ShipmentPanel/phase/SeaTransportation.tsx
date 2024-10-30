@@ -1,16 +1,16 @@
 import React from 'react';
-import { useEthShipment } from '@/providers/entities/EthShipmentProvider';
 import { Card, Descriptions, DescriptionsProps, Flex, Tag, Typography } from 'antd';
-import { ShipmentEvaluationStatus } from '@kbc-lib/coffee-trading-management-lib';
+import { EvaluationStatus } from '@kbc-lib/coffee-trading-management-lib';
 import { ConfirmButton } from '@/components/ConfirmButton/ConfirmButton';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { credentials } from '@/constants/ssi';
+import { useShipment } from '@/providers/icp/ShipmentProvider';
 
 const { Paragraph } = Typography;
 
 export const SeaTransportation = () => {
-    const { detailedShipment, approveQuality, rejectQuality } = useEthShipment();
+    const { detailedShipment, approveQuality, rejectQuality } = useShipment();
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const isImporter = userInfo.companyClaims.role.toUpperCase() === credentials.ROLE_IMPORTER;
 
@@ -26,15 +26,15 @@ export const SeaTransportation = () => {
                 <Tag
                     color={
                         detailedShipment.shipment.qualityEvaluationStatus ===
-                        ShipmentEvaluationStatus.NOT_EVALUATED
+                        EvaluationStatus.NOT_EVALUATED
                             ? 'orange'
                             : detailedShipment.shipment.qualityEvaluationStatus ===
-                                ShipmentEvaluationStatus.APPROVED
+                                EvaluationStatus.APPROVED
                               ? 'green'
                               : 'red'
                     }
                     key="status">
-                    {ShipmentEvaluationStatus[detailedShipment.shipment.qualityEvaluationStatus]}
+                    {EvaluationStatus[detailedShipment.shipment.qualityEvaluationStatus]}
                 </Tag>
             ),
             span: 12
@@ -42,7 +42,7 @@ export const SeaTransportation = () => {
     ];
     if (
         isImporter &&
-        detailedShipment.shipment.qualityEvaluationStatus !== ShipmentEvaluationStatus.APPROVED
+        detailedShipment.shipment.qualityEvaluationStatus !== EvaluationStatus.APPROVED
     ) {
         items.push({
             key: '2',

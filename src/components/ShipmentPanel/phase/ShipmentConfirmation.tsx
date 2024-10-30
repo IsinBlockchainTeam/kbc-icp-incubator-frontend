@@ -1,26 +1,22 @@
 import { useParams } from 'react-router-dom';
 import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
-import {
-    OrderLine,
-    ShipmentEvaluationStatus,
-    ShipmentPhase
-} from '@kbc-lib/coffee-trading-management-lib';
+import { EvaluationStatus, OrderLine, ShipmentPhase } from '@kbc-lib/coffee-trading-management-lib';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
 import { regex } from '@/constants/regex';
 import React from 'react';
-import { useEthShipment } from '@/providers/entities/EthShipmentProvider';
 import { Card, Typography } from 'antd';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { credentials } from '@/constants/ssi';
 import dayjs from 'dayjs';
 import { ShipmentDocumentTable } from '@/components/ShipmentPanel/ShipmentDocumentTable';
+import { useShipment } from '@/providers/icp/ShipmentProvider';
 
 const { Paragraph } = Typography;
 
 export const ShipmentConfirmation = () => {
     const { id } = useParams();
-    const { detailedShipment, setDetails, approveDetails } = useEthShipment();
+    const { detailedShipment, setDetails, approveDetails } = useShipment();
     const { detailedOrderTrade } = useEthOrderTrade();
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const isExporter = userInfo.companyClaims.role.toUpperCase() === credentials.ROLE_EXPORTER;
@@ -60,10 +56,10 @@ export const ShipmentConfirmation = () => {
     };
 
     const isEditable =
-        detailedShipment.shipment.detailsEvaluationStatus !== ShipmentEvaluationStatus.APPROVED &&
+        detailedShipment.shipment.detailsEvaluationStatus !== EvaluationStatus.APPROVED &&
         isExporter;
     const isSubmittable =
-        detailedShipment.shipment.detailsEvaluationStatus !== ShipmentEvaluationStatus.APPROVED;
+        detailedShipment.shipment.detailsEvaluationStatus !== EvaluationStatus.APPROVED;
 
     const elements: FormElement[] = [
         {

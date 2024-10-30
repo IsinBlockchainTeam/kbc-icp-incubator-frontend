@@ -7,13 +7,13 @@ import { WithdrawModal } from '@/components/EscrowPanel/WithdrawModal';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { credentials } from '@/constants/ssi';
-import { useEthShipment } from '@/providers/entities/EthShipmentProvider';
-import { FundsStatus } from '@kbc-lib/coffee-trading-management-lib';
+import { FundStatus } from '@kbc-lib/coffee-trading-management-lib';
+import { useShipment } from '@/providers/icp/ShipmentProvider';
 
 const { Paragraph, Text } = Typography;
 
 export const EscrowPanel = () => {
-    const { detailedShipment } = useEthShipment();
+    const { detailedShipment } = useShipment();
     const { escrowDetails, tokenDetails } = useEthEscrow();
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const isImporter = userInfo.companyClaims.role.toUpperCase() === credentials.ROLE_IMPORTER;
@@ -76,7 +76,7 @@ export const EscrowPanel = () => {
                         <Paragraph>
                             Shipping funds status:{' '}
                             <Tag color="blue">
-                                {FundsStatus[detailedShipment.shipment.fundsStatus]}
+                                {FundStatus[detailedShipment.shipment.fundsStatus]}
                             </Tag>
                         </Paragraph>
                         <Paragraph>

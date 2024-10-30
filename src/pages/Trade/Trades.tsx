@@ -23,7 +23,9 @@ export const Trades = () => {
             sorter: (a, b) => a.id - b.id,
             sortDirections: ['descend'],
             render: (id) => (
-                <Link to={setParametersPath(`${paths.TRADE_VIEW}?type=order`, { id })}>{id}</Link>
+                // TODO: was this correct?
+                // <Link to={setParametersPath(`${paths.TRADE_VIEW}?type=order`, { id })}>{id}</Link>
+                <Link to={setParametersPath(`${paths.TRADE_VIEW}?type=1`, { id })}>{id}</Link>
             )
         },
         {

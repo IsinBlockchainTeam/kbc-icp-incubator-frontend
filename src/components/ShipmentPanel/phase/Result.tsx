@@ -1,12 +1,12 @@
 import React from 'react';
-import { useEthShipment } from '@/providers/entities/EthShipmentProvider';
 import { Card, Descriptions, DescriptionsProps, Tag, Typography } from 'antd';
 import { ShipmentPhase } from '@kbc-lib/coffee-trading-management-lib';
+import { useShipment } from '@/providers/icp/ShipmentProvider';
 
 const { Paragraph } = Typography;
 
 export const Result = () => {
-    const { detailedShipment } = useEthShipment();
+    const { detailedShipment } = useShipment();
 
     if (!detailedShipment) {
         return <>Shipment not found</>;

@@ -5,11 +5,11 @@ import { DetailedOrderTrade, useEthOrderTrade } from '@/providers/entities/EthOr
 import React, { useEffect, useMemo, useState } from 'react';
 import { Alert, Empty, Flex, Tag } from 'antd';
 import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
-import { DetailedShipment, useEthShipment } from '@/providers/entities/EthShipmentProvider';
 import {
     OrderLine,
     OrderTrade,
-    ShipmentDocumentEvaluationStatus,
+    Shipment,
+    EvaluationStatus,
     ShipmentDocumentType,
     ShipmentPhaseDocument
 } from '@kbc-lib/coffee-trading-management-lib';
@@ -26,6 +26,7 @@ import { ORDER_TRADE_MESSAGE } from '@/constants/message';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { ShipmentPhaseDisplayName } from '@/constants/shipmentPhase';
+import { DetailedShipment, useShipment } from '@/providers/icp/ShipmentProvider';
 
 type SelectedOrder = {
     detailedOrder: DetailedOrderTrade;
@@ -42,7 +43,7 @@ export default () => {
     const { getCompany } = useICPOrganization();
     const [orders, setOrders] = useState<DetailedOrderTrade[]>([]);
     const { detailedOrderTrade, getDetailedTradesAsync } = useEthOrderTrade();
-    const { detailedShipment, addDocument } = useEthShipment();
+    const { detailedShipment, addDocument } = useShipment();
     const selectedDocumentType: ShipmentDocumentType | undefined =
         location.state?.selectedDocumentType;
 
@@ -99,9 +100,10 @@ export default () => {
 
     const approvedDocumentTypes: ShipmentDocumentType[] = [];
     const allPhasesDocuments: ShipmentPhaseDocument[] = [];
-    detailedShipment?.documents.forEach((value) => {
-        if (value.status === ShipmentDocumentEvaluationStatus.APPROVED)
-            approvedDocumentTypes.push(value.type);
+    detailedShipment?.shipment.documents.forEach((value) => {
+        const documentInfo = value[0];
+        if (documentInfo.evaluationStatus === EvaluationStatus.APPROVED)
+            approvedDocumentTypes.push(documentInfo.documentType);
     });
     detailedShipment?.phaseDocuments?.forEach((value) => {
         value.forEach((doc) => {
@@ -220,9 +222,13 @@ export default () => {
                         <DocumentUpload
                             documentTypes={allPhasesDocuments.map((s) => s.documentType)}
                             onSubmit={documentSubmit}
-                            oldDocumentsInfo={Array.from(
-                                tradeSelected.detailedShipment.documents.values()
-                            )}
+                            oldDocumentsInfo={
+                                tradeSelected?.detailedShipment
+                                    ? Array.from(
+                                          tradeSelected.detailedShipment.shipment.documents.values()
+                                      ).flat()
+                                    : []
+                            }
                             selectedDocumentType={selectedDocumentType}
                         />
                     </Flex>

@@ -1,7 +1,7 @@
 import { Space, Table, TableProps, Tag } from 'antd';
 import React from 'react';
 import {
-    ShipmentDocumentEvaluationStatus,
+    EvaluationStatus,
     ShipmentDocumentInfo,
     ShipmentDocumentType,
     ShipmentPhase
@@ -11,10 +11,10 @@ import { setParametersPath } from '@/utils/page';
 import { paths } from '@/constants/paths';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { PreviewModal } from '@/components/PreviewModal/PreviewModal';
-import { useEthShipment } from '@/providers/entities/EthShipmentProvider';
 import { useNavigate } from 'react-router-dom';
 import { useSigner } from '@/providers/SignerProvider';
 import { ConfirmButton } from '@/components/ConfirmButton/ConfirmButton';
+import { useShipment } from '@/providers/icp/ShipmentProvider';
 
 interface ShipmentDocumentTableProps {
     selectedPhase: ShipmentPhase;
@@ -26,7 +26,7 @@ interface DataType {
 }
 export const ShipmentDocumentTable = (props: ShipmentDocumentTableProps) => {
     const [previewDocumentId, setPreviewDocumentId] = React.useState<number | null>(null);
-    const { detailedShipment, getDocument, approveDocument, rejectDocument } = useEthShipment();
+    const { detailedShipment, getDocument, approveDocument, rejectDocument } = useShipment();
     const navigate = useNavigate();
     const { signer } = useSigner();
 
@@ -82,14 +82,14 @@ export const ShipmentDocumentTable = (props: ShipmentDocumentTableProps) => {
             render: (_, { info }) => (
                 <Tag
                     color={
-                        !info || info.status === ShipmentDocumentEvaluationStatus.NOT_EVALUATED
+                        !info || info.evaluationStatus === EvaluationStatus.NOT_EVALUATED
                             ? 'orange'
-                            : info.status === ShipmentDocumentEvaluationStatus.APPROVED
+                            : info.evaluationStatus === EvaluationStatus.APPROVED
                               ? 'green'
                               : 'red'
                     }
                     key="status">
-                    {info !== null ? ShipmentDocumentEvaluationStatus[info.status] : 'NOT UPLOADED'}
+                    {info !== null ? EvaluationStatus[info.evaluationStatus] : 'NOT UPLOADED'}
                 </Tag>
             )
         },
@@ -102,7 +102,7 @@ export const ShipmentDocumentTable = (props: ShipmentDocumentTableProps) => {
                         {info != null && (
                             <a onClick={() => setPreviewDocumentId(info.id)}>Preview</a>
                         )}
-                        {info?.status !== ShipmentDocumentEvaluationStatus.APPROVED && (
+                        {info?.evaluationStatus !== EvaluationStatus.APPROVED && (
                             <a
                                 onClick={() =>
                                     navigate(
@@ -116,8 +116,8 @@ export const ShipmentDocumentTable = (props: ShipmentDocumentTableProps) => {
                             </a>
                         )}
                         {info != null &&
-                            info.status === ShipmentDocumentEvaluationStatus.NOT_EVALUATED &&
-                            info.uploader != signer._address && (
+                            info.evaluationStatus === EvaluationStatus.NOT_EVALUATED &&
+                            info.uploadedBy != signer._address && (
                                 <>
                                     <ConfirmButton
                                         type={'link'}
@@ -146,10 +146,12 @@ export const ShipmentDocumentTable = (props: ShipmentDocumentTableProps) => {
 
     const data: DataType[] = selectedPhaseDocuments
         ? selectedPhaseDocuments.map((phaseDocument) => {
-              const documentInfo = detailedShipment.documents.get(phaseDocument.documentType);
+              const documentInfo = detailedShipment.shipment.documents.get(
+                  phaseDocument.documentType
+              );
               return {
                   type: phaseDocument.documentType,
-                  info: documentInfo || null,
+                  info: documentInfo ? documentInfo[0] : null,
                   required: phaseDocument.required
               };
           })

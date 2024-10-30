@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, InputNumber, InputNumberProps, Modal } from 'antd';
 import { useEthEscrow } from '@/providers/entities/EthEscrowProvider';
-import { useEthShipment } from '@/providers/entities/EthShipmentProvider';
+import { useShipment } from '@/providers/icp/ShipmentProvider';
 
 type DepositModalProps = {
     isOpen: boolean;
@@ -9,7 +9,7 @@ type DepositModalProps = {
 };
 export const DepositModal = ({ isOpen, onClose }: DepositModalProps) => {
     const [amount, setAmount] = React.useState<number>(0);
-    const { depositFunds } = useEthShipment();
+    const { depositFunds } = useShipment();
     const { tokenDetails } = useEthEscrow();
 
     const onChange: InputNumberProps['onChange'] = (value) => {

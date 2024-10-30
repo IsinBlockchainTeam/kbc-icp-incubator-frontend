@@ -37,6 +37,7 @@ import Documents from '@/pages/Documents/Shipment/ShipmentDocuments';
 import { useOrder } from '@/providers/icp/OrderProvider';
 import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';
 import { useMaterial } from '@/providers/icp/MaterialProvider';
+import { useShipment } from '@/providers/icp/ShipmentProvider';
 
 export const App = () => {
     return (
@@ -158,15 +159,9 @@ export const App = () => {
                                         <Route
                                             path={paths.TRADE_VIEW}
                                             element={
-                                                <DataLoader customUseContext={useICPOrganization}>
-                                                    <DataLoader customUseContext={useEthEnumerable}>
-                                                        <DataLoader
-                                                            customUseContext={useEthMaterial}>
-                                                            <DataLoader
-                                                                customUseContext={useEthRawTrade}>
-                                                                <TradeView />
-                                                            </DataLoader>
-                                                        </DataLoader>
+                                                <DataLoader customUseContext={useOrder}>
+                                                    <DataLoader customUseContext={useShipment}>
+                                                        <TradeView />
                                                     </DataLoader>
                                                 </DataLoader>
                                             }
