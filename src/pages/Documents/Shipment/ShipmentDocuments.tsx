@@ -1,6 +1,6 @@
 import { CardPage } from '@/components/structure/CardPage/CardPage';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { Alert, Empty, Flex, Tag, Typography } from 'antd';
 import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
 import {
@@ -33,7 +33,7 @@ export default () => {
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const isExporter = userInfo.companyClaims.role.toUpperCase() === credentials.ROLE_EXPORTER;
     const { getCompany } = useICPOrganization();
-    const { order, orders, loadData, dataLoaded } = useOrder();
+    const { order, orders } = useOrder();
     const { detailedShipment, addDocument } = useShipment();
     const selectedDocumentType: ShipmentDocumentType | undefined =
         location.state?.selectedDocumentType;
@@ -45,10 +45,6 @@ export default () => {
             detailedShipment
         };
     }, [order, detailedShipment]);
-
-    useEffect(() => {
-        if (!dataLoaded) loadData();
-    }, [dataLoaded]);
 
     const handleChange = (value: number) => {
         const detailedOrder = orders[value];

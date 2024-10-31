@@ -12,10 +12,9 @@ import { ICP } from '@/constants/icp';
 import { useParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
-import { ORDER_TRADE_MESSAGE } from '@/constants/message';
+import { ORDER_TRADE_MESSAGE, OrderMessage } from '@/constants/message';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
-import { useSigner } from '@/providers/SignerProvider';
 
 export type OrderContextState = {
     dataLoaded: boolean;
@@ -24,7 +23,7 @@ export type OrderContextState = {
     loadData: () => Promise<void>;
     create: (params: OrderParams) => Promise<void>;
     update: (params: OrderParams) => Promise<void>;
-    sign: (params: OrderParams) => Promise<void>;
+    sign: (id: number) => Promise<void>;
 };
 export const OrderContext = createContext<OrderContextState>({} as OrderContextState);
 export const useOrder = (): OrderContextState => {
@@ -64,7 +63,6 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
         try {
             dispatch(addLoadingMessage('Retrieving orders'));
             const resp = await orderService.getOrders();
-            console.log(resp);
             setOrders(resp);
         } catch (e) {
             console.log('Error loading orders', e);
@@ -79,6 +77,48 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
+    const writeTransaction = async (transaction: () => Promise<Order>, message: OrderMessage) => {
+        try {
+            dispatch(addLoadingMessage(message.LOADING));
+            await transaction();
+            await loadOrders();
+            openNotification(
+                'Success',
+                message.OK,
+                NotificationType.SUCCESS,
+                NOTIFICATION_DURATION
+            );
+        } catch (e) {
+            console.log('Error writing transaction', e);
+            openNotification('Error', message.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
+        } finally {
+            dispatch(removeLoadingMessage(message.LOADING));
+        }
+    };
+
+    const create = async (params: OrderParams) => {
+        if (!orderService) throw new Error('Order service not initialized');
+        await writeTransaction(() => orderService.createOrder(params), ORDER_TRADE_MESSAGE.SAVE);
+    };
+
+    const update = async (params: OrderParams) => {
+        if (!orderService) throw new Error('Order service not initialized');
+        if (!order) throw new Error('Order not found');
+
+        await writeTransaction(
+            () => orderService.updateOrder(order.id, params),
+            ORDER_TRADE_MESSAGE.UPDATE
+        );
+    };
+
+    const sign = async (id: number) => {
+        if (!orderService) throw new Error('Order service not initialized');
+        await writeTransaction(
+            () => orderService.signOrder(id),
+            ORDER_TRADE_MESSAGE.CONFIRM_NEGOTIATION
+        );
+    };
+
     return (
         <OrderContext.Provider
             value={{
@@ -86,9 +126,9 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
                 orders,
                 order,
                 loadData,
-                create: async (params: OrderParams) => {},
-                update: async (params: OrderParams) => {},
-                sign: async (params: OrderParams) => {}
+                create,
+                update,
+                sign
             }}>
             {children}
         </OrderContext.Provider>

@@ -1,3 +1,12 @@
+type Message = {
+    LOADING: string;
+    OK: string;
+    ERROR: string;
+};
+
+export type ShipmentMessage = Message;
+export type OrderMessage = Message;
+
 export const MATERIAL_MESSAGE = {
     RETRIEVE: {
         LOADING: 'Retrieving materials...',

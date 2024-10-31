@@ -6,7 +6,8 @@ import { paths } from '@/constants/paths';
 import {
     LineRequest,
     OrderLinePrice,
-    OrderLineRequest
+    OrderLineRequest,
+    OrderParams
 } from '@kbc-lib/coffee-trading-management-lib';
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -15,8 +16,8 @@ import dayjs from 'dayjs';
 import { validateDates } from '@/utils/date';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
-import { OrderTradeRequest, useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
 import { incotermsMap } from '@/constants/trade';
+import { useOrder } from '@/providers/icp/OrderProvider';
 
 type OrderTradeNewProps = {
     supplierAddress: string;
@@ -35,7 +36,7 @@ export const OrderTradeNew = ({
 
     const { productCategories } = useEthMaterial();
     const { units, fiats } = useEthEnumerable();
-    const { saveOrderTrade } = useEthOrderTrade();
+    const { create } = useOrder();
 
     const disabledDate = (current: dayjs.Dayjs): boolean => {
         return current && current <= dayjs().endOf('day');
@@ -68,24 +69,24 @@ export const OrderTradeNew = ({
                 );
             }
         }
-        const orderTrade: OrderTradeRequest = {
+        const orderTrade: OrderParams = {
             supplier: supplierAddress,
             customer: customerAddress,
             commissioner: customerAddress,
             lines: tradeLines as OrderLineRequest[],
-            paymentDeadline: dayjs(values['payment-deadline']).unix(),
-            documentDeliveryDeadline: dayjs(values['document-delivery-deadline']).unix(),
+            paymentDeadline: dayjs(values['payment-deadline']).toDate(),
+            documentDeliveryDeadline: dayjs(values['document-delivery-deadline']).toDate(),
             arbiter: values['arbiter'],
-            shippingDeadline: dayjs(values['shipping-deadline']).unix(),
-            deliveryDeadline: dayjs(values['delivery-deadline']).unix(),
+            shippingDeadline: dayjs(values['shipping-deadline']).toDate(),
+            deliveryDeadline: dayjs(values['delivery-deadline']).toDate(),
             agreedAmount: parseInt(values['agreed-amount']),
-            tokenAddress: values['token-address'],
+            token: values['token-address'],
             incoterms: values['incoterms'],
             shipper: values['shipper'],
             shippingPort: values['shipping-port'],
             deliveryPort: values['delivery-port']
         };
-        await saveOrderTrade(orderTrade);
+        await create(orderTrade);
         navigate(paths.TRADES);
     };
 

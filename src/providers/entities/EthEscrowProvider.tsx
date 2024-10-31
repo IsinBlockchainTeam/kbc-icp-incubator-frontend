@@ -12,7 +12,7 @@ import { ESCROW_MESSAGE, TOKEN_MESSAGE } from '@/constants/message';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { CONTRACT_ADDRESSES } from '@/constants/evm';
-import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
+import { useOrder } from '@/providers/icp/OrderProvider';
 
 export type EthEscrowContextState = {
     escrowDetails: EscrowDetails;
@@ -57,7 +57,7 @@ export const useEthEscrow = (): EthEscrowContextState => {
     return context;
 };
 export function EthEscrowProvider(props: { children: ReactNode }) {
-    const { detailedOrderTrade } = useEthOrderTrade();
+    const { order } = useOrder();
 
     const [escrowDetails, setEscrowDetails] = useState<EscrowDetails>(defaultEscrowDetails);
     const [tokenDetails, setTokenDetails] = useState<TokenDetails>(defaultTokenDetails);
@@ -66,9 +66,9 @@ export function EthEscrowProvider(props: { children: ReactNode }) {
     const dispatch = useDispatch();
 
     const escrowService = useMemo(() => {
-        if (!detailedOrderTrade || !detailedOrderTrade.escrowAddress) return undefined;
-        return new EscrowService(new EscrowDriver(signer, detailedOrderTrade.escrowAddress));
-    }, [signer, detailedOrderTrade]);
+        if (!order || !order.shipment?.escrowAddress) return undefined;
+        return new EscrowService(new EscrowDriver(signer, order.shipment.escrowAddress));
+    }, [signer, order]);
 
     const tokenService = useMemo(
         () => new TokenService(new TokenDriver(signer, CONTRACT_ADDRESSES.TOKEN())),
@@ -77,11 +77,11 @@ export function EthEscrowProvider(props: { children: ReactNode }) {
 
     // Update escrow when order trades change
     useEffect(() => {
-        if (detailedOrderTrade) {
+        if (order) {
             loadEscrowDetails();
             loadTokenDetails();
         }
-    }, [detailedOrderTrade]);
+    }, [order]);
 
     const loadEscrowDetails = async () => {
         if (!escrowService) return;

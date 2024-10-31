@@ -114,10 +114,11 @@ export const App = () => {
                                                 </DataLoader>
                                             }
                                         />
+                                        // TODO: are the following two duplicates?
                                         <Route
                                             path={paths.DOCUMENTS}
                                             element={
-                                                <DataLoader customUseContext={useEthRawTrade}>
+                                                <DataLoader customUseContext={useOrder}>
                                                     <Documents />
                                                 </DataLoader>
                                             }
@@ -126,7 +127,7 @@ export const App = () => {
                                             path={paths.ORDER_DOCUMENTS}
                                             element={
                                                 <DataLoader customUseContext={useICPOrganization}>
-                                                    <DataLoader customUseContext={useEthRawTrade}>
+                                                    <DataLoader customUseContext={useOrder}>
                                                         <Documents />
                                                     </DataLoader>
                                                 </DataLoader>
@@ -146,10 +147,15 @@ export const App = () => {
                                                 <DataLoader customUseContext={useICPOrganization}>
                                                     <DataLoader customUseContext={useEthEnumerable}>
                                                         <DataLoader
-                                                            customUseContext={useEthMaterial}>
+                                                            customUseContext={useProductCategory}>
                                                             <DataLoader
-                                                                customUseContext={useEthRawTrade}>
-                                                                <TradeNew />
+                                                                customUseContext={useMaterial}>
+                                                                <DataLoader
+                                                                    customUseContext={
+                                                                        useEthRawTrade
+                                                                    }>
+                                                                    <TradeNew />
+                                                                </DataLoader>
                                                             </DataLoader>
                                                         </DataLoader>
                                                     </DataLoader>
@@ -159,9 +165,23 @@ export const App = () => {
                                         <Route
                                             path={paths.TRADE_VIEW}
                                             element={
-                                                <DataLoader customUseContext={useOrder}>
-                                                    <DataLoader customUseContext={useShipment}>
-                                                        <TradeView />
+                                                <DataLoader customUseContext={useICPOrganization}>
+                                                    <DataLoader customUseContext={useEthEnumerable}>
+                                                        <DataLoader
+                                                            customUseContext={useProductCategory}>
+                                                            <DataLoader
+                                                                customUseContext={useMaterial}>
+                                                                <DataLoader
+                                                                    customUseContext={useOrder}>
+                                                                    <DataLoader
+                                                                        customUseContext={
+                                                                            useShipment
+                                                                        }>
+                                                                        <TradeView />
+                                                                    </DataLoader>
+                                                                </DataLoader>
+                                                            </DataLoader>
+                                                        </DataLoader>
                                                     </DataLoader>
                                                 </DataLoader>
                                             }
