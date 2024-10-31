@@ -1,5 +1,4 @@
 import { useParams } from 'react-router-dom';
-import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
 import { EvaluationStatus, OrderLine, ShipmentPhase } from '@kbc-lib/coffee-trading-management-lib';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
 import { regex } from '@/constants/regex';
@@ -11,17 +10,18 @@ import { credentials } from '@/constants/ssi';
 import dayjs from 'dayjs';
 import { ShipmentDocumentTable } from '@/components/ShipmentPanel/ShipmentDocumentTable';
 import { useShipment } from '@/providers/icp/ShipmentProvider';
+import { useOrder } from '@/providers/icp/OrderProvider';
 
 const { Paragraph } = Typography;
 
 export const ShipmentConfirmation = () => {
     const { id } = useParams();
     const { detailedShipment, setDetails, approveDetails } = useShipment();
-    const { detailedOrderTrade } = useEthOrderTrade();
+    const { order } = useOrder();
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const isExporter = userInfo.companyClaims.role.toUpperCase() === credentials.ROLE_EXPORTER;
 
-    if (!detailedOrderTrade) {
+    if (!order) {
         return <>Order not found</>;
     }
     if (!detailedShipment) {
@@ -83,7 +83,7 @@ export const ShipmentConfirmation = () => {
             name: 'price',
             label: 'Price',
             required: true,
-            addOnAfter: (detailedOrderTrade.trade.lines[0] as OrderLine).price.fiat,
+            addOnAfter: (order.lines[0] as OrderLine).price.fiat,
             defaultValue: detailedShipment.shipment.price,
             regex: regex.ONLY_DIGITS,
             disabled: !isEditable
@@ -138,7 +138,7 @@ export const ShipmentConfirmation = () => {
             name: 'quantity',
             label: 'Quantity',
             required: true,
-            addOnAfter: detailedOrderTrade.trade.lines[0].unit,
+            addOnAfter: order.lines[0].unit,
             defaultValue: detailedShipment.shipment.quantity,
             regex: regex.ONLY_DIGITS,
             disabled: !isEditable
