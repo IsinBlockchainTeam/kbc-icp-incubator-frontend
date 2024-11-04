@@ -8,7 +8,6 @@ import { ICPProvider } from '@/providers/ICPProvider';
 import { paths } from '@/constants/paths';
 import { EthMaterialProvider } from '@/providers/entities/EthMaterialProvider';
 import { EthEnumerableProvider } from '@/providers/entities/EthEnumerableProvider';
-import { EthOfferProvider } from '@/providers/entities/EthOfferProvider';
 import { ICPOrganizationProvider } from '@/providers/entities/ICPOrganizationProvider';
 import { EthRawTradeProvider } from '@/providers/entities/EthRawTradeProvider';
 import { EthBasicTradeProvider } from '@/providers/entities/EthBasicTradeProvider';
@@ -21,6 +20,7 @@ import { ProductCategoryProvider } from '@/providers/icp/ProductCategoryProvider
 import { MaterialProvider } from '@/providers/icp/MaterialProvider';
 import { AuthenticationProvider } from '@/providers/icp/AuthenticationProvider';
 import { ShipmentProvider } from '@/providers/icp/ShipmentProvider';
+import { OfferProvider } from '@/providers/icp/OfferProvider';
 
 const PrivateRoutes = () => {
     const { isLogged } = useSelector((state: RootState) => state.userInfo);
@@ -35,7 +35,7 @@ const PrivateRoutes = () => {
                                     <EthMaterialProvider>
                                         <ProductCategoryProvider>
                                             <MaterialProvider>
-                                                <EthOfferProvider>
+                                                <OfferProvider>
                                                     <EthAssetOperationProvider>
                                                         <EthRawTradeProvider>
                                                             <EthBasicTradeProvider>
@@ -51,7 +51,7 @@ const PrivateRoutes = () => {
                                                             </EthBasicTradeProvider>
                                                         </EthRawTradeProvider>
                                                     </EthAssetOperationProvider>
-                                                </EthOfferProvider>
+                                                </OfferProvider>
                                             </MaterialProvider>
                                         </ProductCategoryProvider>
                                     </EthMaterialProvider>

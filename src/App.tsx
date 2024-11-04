@@ -6,7 +6,6 @@ import Profile from '@/pages/Profile/Profile';
 import Partners from '@/pages/Partner/Partners';
 import Offers from '@/pages/Offer/Offers';
 import OfferNew from '@/pages/Offer/OfferNew';
-import OfferSupplierNew from '@/pages/Offer/OfferSupplierNew';
 import Materials from '@/pages/Material/Materials';
 import MaterialNew from '@/pages/Material/MaterialNew';
 import ProductCategoryNew from '@/pages/Material/ProductCategoryNew';
@@ -25,7 +24,6 @@ import { paths } from '@/constants/paths';
 import DataLoader from './DataLoader';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
-import { useEthOffer } from '@/providers/entities/EthOfferProvider';
 import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
 import { useEthRawTrade } from '@/providers/entities/EthRawTradeProvider';
 import { useEthAssetOperation } from '@/providers/entities/EthAssetOperationProvider';
@@ -38,6 +36,7 @@ import { useOrder } from '@/providers/icp/OrderProvider';
 import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';
 import { useMaterial } from '@/providers/icp/MaterialProvider';
 import { useShipment } from '@/providers/icp/ShipmentProvider';
+import { useOffer } from '@/providers/icp/OfferProvider';
 
 export const App = () => {
     return (
@@ -62,7 +61,7 @@ export const App = () => {
                                             path={paths.OFFERS}
                                             element={
                                                 <DataLoader customUseContext={useICPOrganization}>
-                                                    <DataLoader customUseContext={useEthOffer}>
+                                                    <DataLoader customUseContext={useOffer}>
                                                         <Offers />
                                                     </DataLoader>
                                                 </DataLoader>
@@ -72,19 +71,12 @@ export const App = () => {
                                             path={paths.OFFERS_NEW}
                                             element={
                                                 <DataLoader customUseContext={useICPOrganization}>
-                                                    <DataLoader customUseContext={useEthMaterial}>
-                                                        <DataLoader customUseContext={useEthOffer}>
+                                                    <DataLoader
+                                                        customUseContext={useProductCategory}>
+                                                        <DataLoader customUseContext={useOffer}>
                                                             <OfferNew />
                                                         </DataLoader>
                                                     </DataLoader>
-                                                </DataLoader>
-                                            }
-                                        />
-                                        <Route
-                                            path={paths.OFFERS_SUPPLIER_NEW}
-                                            element={
-                                                <DataLoader customUseContext={useEthOffer}>
-                                                    <OfferSupplierNew />
                                                 </DataLoader>
                                             }
                                         />
