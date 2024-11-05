@@ -3,11 +3,11 @@ import React, { useState } from 'react';
 import { ColumnsType } from 'antd/es/table';
 import { Table } from 'antd';
 import { InviteCompany } from './InviteCompany';
-import { useEthRelationship } from '@/providers/entities/EthRelationshipProvider';
 import { Relationship } from '@kbc-lib/coffee-trading-management-lib';
 
 export const Partners = () => {
-    const { relationships } = useEthRelationship();
+    // TODO: Retrieve it from icp
+    const relationships: Relationship[] = [];
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
     const columns: ColumnsType<Relationship> = [

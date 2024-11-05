@@ -15,7 +15,6 @@ import { Radio, RadioChangeEvent } from 'antd';
 import 'reactflow/dist/style.css';
 import { useParams } from 'react-router-dom';
 import { AssetOperationType } from '@kbc-lib/coffee-trading-management-lib';
-import { useEthGraph } from '@/providers/entities/EthGraphProvider';
 
 const MapNode = memo(() => {
     return (
@@ -40,7 +39,8 @@ const nodeWidth = 172;
 const nodeHeight = 36;
 
 export const GraphPage = () => {
-    const { computeGraph } = useEthGraph();
+    // TODO: Retrieve it from icp
+    const computeGraph: any = async (n: number) => null;
     const { materialId } = useParams();
     const [graphType, setGraphType] = useState('simple');
 

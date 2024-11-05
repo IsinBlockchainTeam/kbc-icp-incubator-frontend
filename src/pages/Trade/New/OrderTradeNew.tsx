@@ -18,7 +18,6 @@ import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 import { incotermsMap } from '@/constants/trade';
 import { useOrder } from '@/providers/icp/OrderProvider';
-import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';
 
 type OrderTradeNewProps = {
     supplierAddress: string;
@@ -33,9 +32,6 @@ export const OrderTradeNew = ({
     commonElements
 }: OrderTradeNewProps) => {
     const navigate = useNavigate();
-    const location = useLocation();
-
-    const { productCategories } = useProductCategory();
     const { units, fiats } = useEthEnumerable();
     const { create } = useOrder();
 

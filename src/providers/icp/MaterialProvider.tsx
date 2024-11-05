@@ -39,7 +39,7 @@ export function MaterialProvider(props: { children: ReactNode }) {
         return <Typography.Text>Siwe identity not initialized</Typography.Text>;
     }
 
-    const productCategoryService = useMemo(
+    const materialService = useMemo(
         () => new ICPMaterialService(new ICPMaterialDriver(identity, entityManagerCanisterId)),
         [identity]
     );
@@ -52,7 +52,7 @@ export function MaterialProvider(props: { children: ReactNode }) {
     const loadMaterials = async () => {
         try {
             dispatch(addLoadingMessage(MATERIAL_MESSAGE.RETRIEVE.LOADING));
-            const materials = await productCategoryService.getMaterials();
+            const materials = await materialService.getMaterials();
             setMaterials(materials);
         } catch (e: any) {
             console.log('Error while loading product categories', e);
@@ -70,7 +70,7 @@ export function MaterialProvider(props: { children: ReactNode }) {
     const saveMaterial = async (productCategoryId: number) => {
         try {
             dispatch(addLoadingMessage(MATERIAL_MESSAGE.SAVE.LOADING));
-            await productCategoryService.createMaterial(productCategoryId);
+            await materialService.createMaterial(productCategoryId);
             openNotification(
                 'Success',
                 PRODUCT_CATEGORY_MESSAGE.SAVE.OK,
