@@ -1,4 +1,4 @@
-import { Avatar, Button, Card, Col, Descriptions, Row, Space, Typography } from 'antd';
+import { Avatar, Button, Card, Col, Descriptions, Row, Typography } from 'antd';
 import styles from './Profile.module.scss';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
