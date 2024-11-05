@@ -53,7 +53,6 @@ export function MaterialProvider(props: { children: ReactNode }) {
         try {
             dispatch(addLoadingMessage(MATERIAL_MESSAGE.RETRIEVE.LOADING));
             const materials = await productCategoryService.getMaterials();
-            console.log('Product categories', materials);
             setMaterials(materials);
         } catch (e: any) {
             console.log('Error while loading product categories', e);

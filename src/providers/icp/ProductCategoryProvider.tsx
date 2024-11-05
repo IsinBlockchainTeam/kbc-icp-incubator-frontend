@@ -58,7 +58,6 @@ export function ProductCategoryProvider(props: { children: ReactNode }) {
         try {
             dispatch(addLoadingMessage(PRODUCT_CATEGORY_MESSAGE.RETRIEVE.LOADING));
             const productCategories = await productCategoryService.getProductCategories();
-            console.log('Product categories', productCategories);
             setProductCategories(productCategories);
         } catch (e: any) {
             console.log('Error while loading product categories', e);
