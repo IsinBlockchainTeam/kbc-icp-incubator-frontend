@@ -327,5 +327,10 @@ export const ORGANIZATION_MESSAGE = {
         LOADING: 'Saving organization...',
         OK: 'Organization saved successfully.',
         ERROR: 'Error while saving organization.'
+    },
+    UPDATE: {
+        LOADING: 'Updating organization...',
+        OK: 'The organization has been updated.',
+        ERROR: 'Error while updating organization.'
     }
 };

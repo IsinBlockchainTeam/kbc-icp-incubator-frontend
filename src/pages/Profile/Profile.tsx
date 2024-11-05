@@ -2,7 +2,7 @@ import { Avatar, Button, Card, Col, Descriptions, Row, Typography } from 'antd';
 import styles from './Profile.module.scss';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useBlocker } from 'react-router-dom';
 import { useSiweIdentity } from '@/providers/SiweIdentityProvider';
 import React, { useEffect, useState } from 'react';
 import { useSigner } from '@/providers/SignerProvider';
@@ -28,7 +28,8 @@ export default function Profile() {
     // const { organizationDriver } = useICP();
     const { identity } = useSiweIdentity();
     const userInfo = useSelector((state: RootState) => state.userInfo);
-    const { getOrganization, storeOrganization, organizations } = useOrganization();
+    const { getOrganization, storeOrganization, updateOrganization, organizations } =
+        useOrganization();
     const [principal, setPrincipal] = useState<string>('');
     const [showButton, setShowButton] = useState<boolean>(false);
     const [icpOrganization, setIcpOrganization] = useState<Organization | undefined>();
@@ -77,6 +78,13 @@ export default function Profile() {
         await checkIcpOrganization();
     };
 
+    const updateOrganizationWrapper = async (organizationParams: OrganizationParams) => {
+        const organizationEthAddress = userInfo.roleProof.delegator;
+
+        await updateOrganization(organizationEthAddress, organizationParams);
+        await checkIcpOrganization();
+    };
+
     const buildICPActions = () => {
         const organizationParams: OrganizationParams = {
             legalName: companyClaims.legalName,
@@ -110,6 +118,13 @@ export default function Profile() {
                             organization={icpOrganization as NarrowedOrganization}
                         />
                     </Col>
+                </Row>
+                <Row style={{ paddingTop: 8 }}>
+                    <Button
+                        size="large"
+                        onClick={() => updateOrganizationWrapper(organizationParams)}>
+                        <Text>Update organization information</Text>
+                    </Button>
                 </Row>
             </Col>
         );

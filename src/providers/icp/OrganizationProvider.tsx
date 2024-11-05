@@ -20,6 +20,7 @@ export type OrganizationContextState = {
     organizations: Map<string, Organization>;
     getOrganization: (ethAddress: string) => Organization | undefined;
     storeOrganization: (params: OrganizationParams) => Promise<void>;
+    updateOrganization: (ethAddress: string, params: OrganizationParams) => Promise<void>;
     loadData: () => Promise<void>;
 };
 
@@ -118,6 +119,13 @@ export function OrganizationProvider(props: { children: ReactNode }) {
         );
     };
 
+    const updateOrganization = async (ethAddress: string, params: OrganizationParams) => {
+        await writeTransaction(
+            () => organizationService.updateOrganization(ethAddress, params),
+            ORGANIZATION_MESSAGE.UPDATE
+        );
+    };
+
     return (
         <OrganizationContext.Provider
             value={{
@@ -125,6 +133,7 @@ export function OrganizationProvider(props: { children: ReactNode }) {
                 organizations,
                 getOrganization,
                 storeOrganization,
+                updateOrganization,
                 loadData
             }}>
             {props.children}
