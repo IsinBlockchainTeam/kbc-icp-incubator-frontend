@@ -2,7 +2,7 @@ import { Avatar, Button, Card, Col, Descriptions, Row, Typography } from 'antd';
 import styles from './Profile.module.scss';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
-import { Navigate, useBlocker } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { useSiweIdentity } from '@/providers/SiweIdentityProvider';
 import React, { useEffect, useState } from 'react';
 import { useSigner } from '@/providers/SignerProvider';
@@ -21,16 +21,19 @@ import {
 } from '@kbc-lib/coffee-trading-management-lib';
 import { BroadedOrganizationCard } from '@/components/OrganizationCards/BroadedOrganizationCard';
 import { NarrowedOrganizationCard } from '@/components/OrganizationCards/NarrowedOrganizationCard';
+import { useICP } from '@/providers/ICPProvider';
 
 const { Title, Text } = Typography;
 export default function Profile() {
     const { signer } = useSigner();
-    // const { organizationDriver } = useICP();
+    // TODO: Remove this when the organization is totally managed by the ICP ts canisters
+    const { organizationDriver } = useICP();
     const { identity } = useSiweIdentity();
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const { getOrganization, storeOrganization, updateOrganization, organizations } =
         useOrganization();
     const [principal, setPrincipal] = useState<string>('');
+    // TODO: Remove this when the organization is totally managed by the ICP ts canisters
     const [showButton, setShowButton] = useState<boolean>(false);
     const [icpOrganization, setIcpOrganization] = useState<Organization | undefined>();
 
@@ -40,10 +43,12 @@ export default function Profile() {
         if (identity) {
             setPrincipal(identity.getPrincipal().toString());
         }
+        checkIcpOrganization();
+
         checkOrganization();
     }, [identity, organizations]);
 
-    const checkIcpOrganization = async () => {
+    const checkIcpOrganization = () => {
         const organizationEthAddress = userInfo.roleProof.delegator;
 
         const foundedOrganization = getOrganization(organizationEthAddress);
@@ -53,36 +58,36 @@ export default function Profile() {
         }
     };
 
+    // TODO: Remove this when the organization is totally managed by the ICP ts canisters
     const checkOrganization = async () => {
         try {
-            // await organizationDriver.getUserOrganizations();
-
-            await checkIcpOrganization();
+            await organizationDriver.getUserOrganizations();
         } catch (e) {
             console.log('Error while checking organization', e);
             setShowButton(true);
         }
     };
 
-    // const createOrganization = async () => {
-    //     const organization = await organizationDriver.createOrganization(
-    //         userInfo.companyClaims.legalName,
-    //         `A company based in ${userInfo.companyClaims.nation}`,
-    //         { legalName: userInfo.companyClaims.legalName }
-    //     );
-    //     console.log('organization', organization);
-    // };
+    // TODO: Remove this when the organization is totally managed by the ICP ts canisters
+    const createOrganization = async () => {
+        const organization = await organizationDriver.createOrganization(
+            userInfo.companyClaims.legalName,
+            `A company based in ${userInfo.companyClaims.nation}`,
+            { legalName: userInfo.companyClaims.legalName }
+        );
+        console.log('organization', organization);
+    };
 
     const storeOrganizationWrapper = async (organizationParams: OrganizationParams) => {
         await storeOrganization(organizationParams);
-        await checkIcpOrganization();
+        checkIcpOrganization();
     };
 
     const updateOrganizationWrapper = async (organizationParams: OrganizationParams) => {
         const organizationEthAddress = userInfo.roleProof.delegator;
 
         await updateOrganization(organizationEthAddress, organizationParams);
-        await checkIcpOrganization();
+        checkIcpOrganization();
     };
 
     const buildICPActions = () => {
@@ -223,13 +228,14 @@ export default function Profile() {
                 </Row>
                 <Col>
                     <Row style={{ paddingTop: 8, paddingBottom: 8 }}>{buildICPActions()}</Row>
-                    {/*<Row>*/}
-                    {/*    {showButton && (*/}
-                    {/*        <Button size="large" onClick={createOrganization}>*/}
-                    {/*            <Text>Create organization</Text>*/}
-                    {/*        </Button>*/}
-                    {/*    )}*/}
-                    {/*</Row>*/}
+                    {/* TODO: Remove this when the organization is totally managed by the ICP ts canisters*/}
+                    <Row>
+                        {showButton && (
+                            <Button size="large" onClick={createOrganization}>
+                                <Text>Create organization</Text>
+                            </Button>
+                        )}
+                    </Row>
                 </Col>
             </Card>
         </div>
