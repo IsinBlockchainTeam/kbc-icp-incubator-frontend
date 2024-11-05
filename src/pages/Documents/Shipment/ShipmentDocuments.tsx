@@ -2,7 +2,6 @@ import { CardPage } from '@/components/structure/CardPage/CardPage';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
 import React, { useMemo } from 'react';
 import { Alert, Empty, Flex, Tag, Typography } from 'antd';
-import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
 import {
     OrderLine,
     EvaluationStatus,
@@ -21,6 +20,7 @@ import { RootState } from '@/redux/store';
 import { ShipmentPhaseDisplayName } from '@/constants/shipmentPhase';
 import { DetailedShipment, useShipment } from '@/providers/icp/ShipmentProvider';
 import { useOrder } from '@/providers/icp/OrderProvider';
+import { useOrganization } from '@/providers/icp/OrganizationProvider';
 
 type SelectedOrder = {
     order: Order | null;
@@ -32,7 +32,7 @@ export default () => {
     const location = useLocation();
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const isExporter = userInfo.companyClaims.role.toUpperCase() === credentials.ROLE_EXPORTER;
-    const { getCompany } = useICPOrganization();
+    const { getOrganization } = useOrganization();
     const { order, orders } = useOrder();
     const { detailedShipment, addDocument } = useShipment();
     const selectedDocumentType: ShipmentDocumentType | undefined =
@@ -57,8 +57,8 @@ export default () => {
 
     const computeCounterpart = (trade: Order) => {
         return isExporter
-            ? getCompany(trade.commissioner).legalName
-            : getCompany(trade.supplier).legalName;
+            ? getOrganization(trade.commissioner)!.legalName
+            : getOrganization(trade.supplier)!.legalName;
     };
 
     const documentSubmit = async (

@@ -1,4 +1,4 @@
-import { Avatar, Button, Card, Col, Descriptions, Row, Typography } from 'antd';
+import { Avatar, Button, Card, Col, Descriptions, Row, Space, Typography } from 'antd';
 import styles from './Profile.module.scss';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
@@ -6,20 +6,32 @@ import { Navigate } from 'react-router-dom';
 import { useSiweIdentity } from '@/providers/SiweIdentityProvider';
 import React, { useEffect, useState } from 'react';
 import { useSigner } from '@/providers/SignerProvider';
-import { useICP } from '@/providers/ICPProvider';
 import { paths } from '@/constants/paths';
 import { MailOutlined, PhoneOutlined, EnvironmentOutlined } from '@ant-design/icons';
 import { formatAddress, formatICPPrincipal } from '@/utils/format';
 import { fromDateToString } from '@/utils/date';
+import { useOrganization } from '@/providers/icp/OrganizationProvider';
+
+import {
+    BroadedOrganization,
+    NarrowedOrganization,
+    Organization,
+    OrganizationParams,
+    OrganizationRole
+} from '@kbc-lib/coffee-trading-management-lib';
+import { BroadedOrganizationCard } from '@/components/OrganizationCards/BroadedOrganizationCard';
+import { NarrowedOrganizationCard } from '@/components/OrganizationCards/NarrowedOrganizationCard';
 
 const { Title, Text } = Typography;
 export default function Profile() {
     const { signer } = useSigner();
-    const { organizationDriver } = useICP();
+    // const { organizationDriver } = useICP();
     const { identity } = useSiweIdentity();
     const userInfo = useSelector((state: RootState) => state.userInfo);
+    const { getOrganization, storeOrganization, organizations } = useOrganization();
     const [principal, setPrincipal] = useState<string>('');
     const [showButton, setShowButton] = useState<boolean>(false);
+    const [icpOrganization, setIcpOrganization] = useState<Organization | undefined>();
 
     const { companyClaims, employeeClaims } = userInfo;
 
@@ -28,23 +40,79 @@ export default function Profile() {
             setPrincipal(identity.getPrincipal().toString());
         }
         checkOrganization();
-    }, [identity]);
+    }, [identity, organizations]);
+
+    const checkIcpOrganization = async () => {
+        const organizationEthAddress = userInfo.roleProof.delegator;
+
+        const foundedOrganization = getOrganization(organizationEthAddress);
+
+        if (foundedOrganization) {
+            setIcpOrganization(foundedOrganization);
+        }
+    };
 
     const checkOrganization = async () => {
         try {
-            await organizationDriver.getUserOrganizations();
+            // await organizationDriver.getUserOrganizations();
+
+            await checkIcpOrganization();
         } catch (e) {
+            console.log('Error while checking organization', e);
             setShowButton(true);
         }
     };
 
-    const createOrganization = async () => {
-        const organization = await organizationDriver.createOrganization(
-            userInfo.companyClaims.legalName,
-            `A company based in ${userInfo.companyClaims.nation}`,
-            { legalName: userInfo.companyClaims.legalName }
+    // const createOrganization = async () => {
+    //     const organization = await organizationDriver.createOrganization(
+    //         userInfo.companyClaims.legalName,
+    //         `A company based in ${userInfo.companyClaims.nation}`,
+    //         { legalName: userInfo.companyClaims.legalName }
+    //     );
+    //     console.log('organization', organization);
+    // };
+
+    const storeOrganizationWrapper = async (organizationParams: OrganizationParams) => {
+        await storeOrganization(organizationParams);
+        await checkIcpOrganization();
+    };
+
+    const buildICPActions = () => {
+        const organizationParams: OrganizationParams = {
+            legalName: companyClaims.legalName,
+            industrialSector: companyClaims.industrialSector,
+            address: companyClaims.address,
+            city: 'Sao Paulo',
+            postalCode: '12345',
+            region: 'SP',
+            countryCode: companyClaims.nation,
+            role: OrganizationRole[companyClaims.role as keyof typeof OrganizationRole],
+            telephone: companyClaims.telephone,
+            email: companyClaims.email,
+            image: companyClaims.image
+        };
+
+        return icpOrganization === undefined ? (
+            <Button size="large" onClick={() => storeOrganizationWrapper(organizationParams)}>
+                <Text>Share organization information</Text>
+            </Button>
+        ) : (
+            <Col>
+                <Title level={5}>You are sharing the following data with the platform</Title>
+                <Row gutter={16}>
+                    <Col span={12}>
+                        <BroadedOrganizationCard
+                            organization={icpOrganization as BroadedOrganization}
+                        />
+                    </Col>
+                    <Col span={12}>
+                        <NarrowedOrganizationCard
+                            organization={icpOrganization as NarrowedOrganization}
+                        />
+                    </Col>
+                </Row>
+            </Col>
         );
-        console.log('organization', organization);
     };
 
     if (!userInfo.isLogged) {
@@ -138,11 +206,16 @@ export default function Profile() {
                         </Card>
                     </Col>
                 </Row>
-                {showButton && (
-                    <Button size="large" onClick={createOrganization}>
-                        <Text>Create organization</Text>
-                    </Button>
-                )}
+                <Col>
+                    <Row style={{ paddingTop: 8, paddingBottom: 8 }}>{buildICPActions()}</Row>
+                    {/*<Row>*/}
+                    {/*    {showButton && (*/}
+                    {/*        <Button size="large" onClick={createOrganization}>*/}
+                    {/*            <Text>Create organization</Text>*/}
+                    {/*        </Button>*/}
+                    {/*    )}*/}
+                    {/*</Row>*/}
+                </Col>
             </Card>
         </div>
     );

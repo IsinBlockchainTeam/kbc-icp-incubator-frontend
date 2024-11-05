@@ -6,6 +6,7 @@ type Message = {
 
 export type ShipmentMessage = Message;
 export type OrderMessage = Message;
+export type OrganizationMessage = Message;
 
 export const MATERIAL_MESSAGE = {
     RETRIEVE: {
@@ -314,5 +315,17 @@ export const SHIPMENT_MESSAGE = {
         LOADING: 'Starting arbitration...',
         OK: 'Arbitration started successfully.',
         ERROR: 'Error while starting arbitration.'
+    }
+};
+export const ORGANIZATION_MESSAGE = {
+    RETRIEVE: {
+        LOADING: 'Retrieving organizations...',
+        OK: '',
+        ERROR: 'Error while retrieving organizations.'
+    },
+    SAVE: {
+        LOADING: 'Saving organization...',
+        OK: 'Organization saved successfully.',
+        ERROR: 'Error while saving organization.'
     }
 };

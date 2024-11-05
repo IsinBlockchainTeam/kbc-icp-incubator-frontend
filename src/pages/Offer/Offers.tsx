@@ -10,8 +10,8 @@ import { RootState } from '@/redux/store';
 import { paths } from '@/constants/paths';
 import { credentials } from '@/constants/ssi';
 import { useEthOffer } from '@/providers/entities/EthOfferProvider';
-import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
 import { ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
+import { useOrganization } from '@/providers/icp/OrganizationProvider';
 
 type OfferPresentable = {
     id: number;
@@ -21,7 +21,7 @@ type OfferPresentable = {
 };
 export const Offers = () => {
     const { offers } = useEthOffer();
-    const { getCompany } = useICPOrganization();
+    const { getOrganization } = useOrganization();
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const navigate = useNavigate();
     const [productCategory, setProductCategory] = useState<string>('');
@@ -79,7 +79,7 @@ export const Offers = () => {
         )
         .map((offer) => ({
             id: offer.id,
-            supplierName: getCompany(offer.owner).legalName,
+            supplierName: getOrganization(offer.owner)!.legalName,
             supplierAddress: offer.owner,
             productCategory: offer.productCategory
         }));

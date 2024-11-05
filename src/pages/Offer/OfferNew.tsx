@@ -11,12 +11,12 @@ import { paths } from '@/constants/paths';
 import { credentials } from '@/constants/ssi';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useEthOffer } from '@/providers/entities/EthOfferProvider';
-import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
+import { useOrganization } from '@/providers/icp/OrganizationProvider';
 
 export const OfferNew = () => {
     const { productCategories } = useEthMaterial();
     const { saveOffer } = useEthOffer();
-    const { getCompany } = useICPOrganization();
+    const { getOrganization } = useOrganization();
     const { signer } = useSigner();
     const navigate = useNavigate();
     const userInfo = useSelector((state: RootState) => state.userInfo);
@@ -39,7 +39,7 @@ export const OfferNew = () => {
             name: 'offeror',
             label: 'Offeror Company Address',
             required: true,
-            defaultValue: getCompany(signer._address).legalName,
+            defaultValue: getOrganization(signer._address)!.legalName,
             disabled: true
         },
         {

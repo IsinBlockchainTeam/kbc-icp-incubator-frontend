@@ -26,7 +26,6 @@ import DataLoader from './DataLoader';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 import { useEthOffer } from '@/providers/entities/EthOfferProvider';
-import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
 import { useEthRawTrade } from '@/providers/entities/EthRawTradeProvider';
 import { useEthAssetOperation } from '@/providers/entities/EthAssetOperationProvider';
 import { useEthRelationship } from '@/providers/entities/EthRelationshipProvider';
@@ -38,6 +37,7 @@ import { useOrder } from '@/providers/icp/OrderProvider';
 import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';
 import { useMaterial } from '@/providers/icp/MaterialProvider';
 import { useShipment } from '@/providers/icp/ShipmentProvider';
+import { useOrganization } from '@/providers/icp/OrganizationProvider';
 
 export const App = () => {
     return (
@@ -49,7 +49,15 @@ export const App = () => {
                             <Routes>
                                 <Route element={<MenuLayout />}>
                                     <Route element={<PrivateRoutes />}>
-                                        <Route index path={paths.PROFILE} element={<Profile />} />
+                                        <Route
+                                            index
+                                            path={paths.PROFILE}
+                                            element={
+                                                <DataLoader customUseContext={useOrganization}>
+                                                    <Profile />
+                                                </DataLoader>
+                                            }
+                                        />
                                         <Route
                                             path={paths.PARTNERS}
                                             element={
@@ -61,7 +69,7 @@ export const App = () => {
                                         <Route
                                             path={paths.OFFERS}
                                             element={
-                                                <DataLoader customUseContext={useICPOrganization}>
+                                                <DataLoader customUseContext={useOrganization}>
                                                     <DataLoader customUseContext={useEthOffer}>
                                                         <Offers />
                                                     </DataLoader>
@@ -71,7 +79,7 @@ export const App = () => {
                                         <Route
                                             path={paths.OFFERS_NEW}
                                             element={
-                                                <DataLoader customUseContext={useICPOrganization}>
+                                                <DataLoader customUseContext={useOrganization}>
                                                     <DataLoader customUseContext={useEthMaterial}>
                                                         <DataLoader customUseContext={useEthOffer}>
                                                             <OfferNew />
@@ -126,7 +134,7 @@ export const App = () => {
                                         <Route
                                             path={paths.ORDER_DOCUMENTS}
                                             element={
-                                                <DataLoader customUseContext={useICPOrganization}>
+                                                <DataLoader customUseContext={useOrganization}>
                                                     <DataLoader customUseContext={useOrder}>
                                                         <Documents />
                                                     </DataLoader>
@@ -144,7 +152,7 @@ export const App = () => {
                                         <Route
                                             path={paths.TRADE_NEW}
                                             element={
-                                                <DataLoader customUseContext={useICPOrganization}>
+                                                <DataLoader customUseContext={useOrganization}>
                                                     <DataLoader customUseContext={useEthEnumerable}>
                                                         <DataLoader
                                                             customUseContext={useProductCategory}>
@@ -165,7 +173,7 @@ export const App = () => {
                                         <Route
                                             path={paths.TRADE_VIEW}
                                             element={
-                                                <DataLoader customUseContext={useICPOrganization}>
+                                                <DataLoader customUseContext={useOrganization}>
                                                     <DataLoader customUseContext={useEthEnumerable}>
                                                         <DataLoader
                                                             customUseContext={useProductCategory}>

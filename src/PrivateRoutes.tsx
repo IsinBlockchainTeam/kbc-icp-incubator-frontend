@@ -21,6 +21,7 @@ import { ProductCategoryProvider } from '@/providers/icp/ProductCategoryProvider
 import { MaterialProvider } from '@/providers/icp/MaterialProvider';
 import { AuthenticationProvider } from '@/providers/icp/AuthenticationProvider';
 import { ShipmentProvider } from '@/providers/icp/ShipmentProvider';
+import { OrganizationProvider } from '@/providers/icp/OrganizationProvider';
 
 const PrivateRoutes = () => {
     const { isLogged } = useSelector((state: RootState) => state.userInfo);
@@ -30,7 +31,7 @@ const PrivateRoutes = () => {
                 <ICPProvider>
                     <AuthenticationProvider>
                         <EthRelationshipProvider>
-                            <ICPOrganizationProvider>
+                            <OrganizationProvider>
                                 <EthEnumerableProvider>
                                     <EthMaterialProvider>
                                         <ProductCategoryProvider>
@@ -56,7 +57,7 @@ const PrivateRoutes = () => {
                                         </ProductCategoryProvider>
                                     </EthMaterialProvider>
                                 </EthEnumerableProvider>
-                            </ICPOrganizationProvider>
+                            </OrganizationProvider>
                         </EthRelationshipProvider>
                     </AuthenticationProvider>
                 </ICPProvider>
