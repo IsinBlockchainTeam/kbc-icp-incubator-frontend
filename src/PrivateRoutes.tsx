@@ -9,7 +9,6 @@ import { paths } from '@/constants/paths';
 import { EthMaterialProvider } from '@/providers/entities/EthMaterialProvider';
 import { EthEnumerableProvider } from '@/providers/entities/EthEnumerableProvider';
 import { EthOfferProvider } from '@/providers/entities/EthOfferProvider';
-import { ICPOrganizationProvider } from '@/providers/entities/ICPOrganizationProvider';
 import { EthRawTradeProvider } from '@/providers/entities/EthRawTradeProvider';
 import { EthBasicTradeProvider } from '@/providers/entities/EthBasicTradeProvider';
 import { EthAssetOperationProvider } from '@/providers/entities/EthAssetOperationProvider';
@@ -21,10 +20,23 @@ import { ProductCategoryProvider } from '@/providers/icp/ProductCategoryProvider
 import { MaterialProvider } from '@/providers/icp/MaterialProvider';
 import { AuthenticationProvider } from '@/providers/icp/AuthenticationProvider';
 import { ShipmentProvider } from '@/providers/icp/ShipmentProvider';
-import { OrganizationProvider } from '@/providers/icp/OrganizationProvider';
+import { OrganizationProvider, useOrganization } from '@/providers/icp/OrganizationProvider';
+import NavigationBlocker from './NavigationBlocker';
 
 const PrivateRoutes = () => {
     const { isLogged } = useSelector((state: RootState) => state.userInfo);
+
+    const isOrganizationOnIcp = () => {
+        const { getOrganization } = useOrganization();
+        const userInfo = useSelector((state: RootState) => state.userInfo);
+
+        const organizationEthAddress = userInfo.roleProof.delegator;
+
+        const foundedOrganization = getOrganization(organizationEthAddress);
+
+        return foundedOrganization !== undefined;
+    };
+
     return isLogged ? (
         <SignerProvider>
             <SiweIdentityProvider>
@@ -44,7 +56,15 @@ const PrivateRoutes = () => {
                                                                     <EthEscrowProvider>
                                                                         <ShipmentProvider>
                                                                             <EthGraphProvider>
-                                                                                <Outlet />
+                                                                                <NavigationBlocker
+                                                                                    condition={
+                                                                                        isOrganizationOnIcp
+                                                                                    }
+                                                                                    redirectPath={
+                                                                                        paths.PROFILE
+                                                                                    }>
+                                                                                    <Outlet />
+                                                                                </NavigationBlocker>
                                                                             </EthGraphProvider>
                                                                         </ShipmentProvider>
                                                                     </EthEscrowProvider>
