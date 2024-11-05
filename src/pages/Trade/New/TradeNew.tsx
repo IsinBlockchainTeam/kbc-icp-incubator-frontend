@@ -16,10 +16,15 @@ export const TradeNew = () => {
 
     const type = TradeType.ORDER;
 
+    if (location?.state === undefined) {
+        console.error('No supplier address or product category id provided');
+        navigate(paths.HOME);
+    }
+
     const elements: FormElement[] = [];
-    const supplierAddress: string = location?.state?.supplierAddress;
+    const supplierAddress: string = location.state.supplierAddress;
     const customerAddress: string = signer._address;
-    const productCategoryId: number = location?.state?.productCategoryId;
+    const productCategoryId: number = location.state.productCategoryId;
     const supplierName = getCompany(supplierAddress).legalName;
     const commissionerName = getCompany(customerAddress).legalName;
 
@@ -54,9 +59,6 @@ export const TradeNew = () => {
         }
     );
 
-    if (!supplierAddress || !productCategoryId) {
-        navigate(paths.HOME);
-    }
     if (type === TradeType.ORDER) {
         return (
             <OrderTradeNew

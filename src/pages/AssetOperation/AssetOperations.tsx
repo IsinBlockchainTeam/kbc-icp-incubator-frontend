@@ -6,11 +6,11 @@ import { AssetOperation } from '@kbc-lib/coffee-trading-management-lib';
 import { PlusOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import { paths } from '@/constants/paths';
-import { useEthAssetOperation } from '@/providers/entities/EthAssetOperationProvider';
 import { setParametersPath } from '@/utils/page';
 
 export const AssetOperations = () => {
-    const { assetOperations } = useEthAssetOperation();
+    // TODO: Retrieve it from icp
+    const assetOperations: AssetOperation[] = [];
     const navigate = useNavigate();
 
     const columns: ColumnsType<AssetOperation> = [

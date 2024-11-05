@@ -6,17 +6,15 @@ import { CardPage } from '@/components/structure/CardPage/CardPage';
 import React, { useState } from 'react';
 import { regex } from '@/constants/regex';
 import { paths } from '@/constants/paths';
-import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
-import {
-    AssetOperationRequest,
-    useEthAssetOperation
-} from '@/providers/entities/EthAssetOperationProvider';
+import { AssetOperationRequest } from '@/providers/entities/EthAssetOperationProvider';
+import { useMaterial } from '@/providers/icp/MaterialProvider';
 
 export const AssetOperationNew = () => {
-    const { materials } = useEthMaterial();
+    const { materials } = useMaterial();
     const { processTypes } = useEthEnumerable();
-    const { saveAssetOperation } = useEthAssetOperation();
+    // TODO: should use icp
+    const saveAssetOperation = async (a: AssetOperationRequest) => {};
     const navigate = useNavigate();
 
     const [inputMaterialsCount, setInputMaterialsCount] = useState<number>(1);
