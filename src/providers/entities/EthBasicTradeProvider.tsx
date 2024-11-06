@@ -14,7 +14,6 @@ import {
     TradeType,
     URLStructure
 } from '@kbc-lib/coffee-trading-management-lib';
-import { useEthRawTrade } from '@/providers/entities/EthRawTradeProvider';
 import { CONTRACT_ADDRESSES } from '@/constants/evm';
 import { useSigner } from '@/providers/SignerProvider';
 import { useICP } from '@/providers/ICPProvider';
@@ -25,9 +24,9 @@ import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { useDispatch, useSelector } from 'react-redux';
 import { getICPCanisterURL } from '@/utils/icp';
 import { ICP } from '@/constants/icp';
-import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { RootState } from '@/redux/store';
 import { useParams } from 'react-router-dom';
+import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';
 
 export type BasicTradeRequest = {
     supplier: string;
@@ -59,8 +58,9 @@ type DetailedBasicTrade = {
 export function EthBasicTradeProvider(props: { children: ReactNode }) {
     const { id } = useParams();
     const { signer, waitForTransactions } = useSigner();
-    const { rawTrades, loadData: loadRawTrades } = useEthRawTrade();
-    const { productCategories } = useEthMaterial();
+    // TODO: Retrieve it from icp
+    const { rawTrades, loadData: loadRawTrades }: any = { rawTrades: [], loadData: () => {} };
+    const { productCategories } = useProductCategory();
     const dispatch = useDispatch();
     const [detailedBasicTrade, setDetailedBasicTrade] = useState<DetailedBasicTrade | null>(null);
     const { fileDriver } = useICP();
@@ -72,7 +72,7 @@ export function EthBasicTradeProvider(props: { children: ReactNode }) {
     const rawTrade = useMemo(
         () =>
             rawTrades.find(
-                (t) => id !== undefined && t.id === Number(id) && t.type == TradeType.BASIC
+                (t: any) => id !== undefined && t.id === Number(id) && t.type == TradeType.BASIC
             ),
         [rawTrades, id]
     );

@@ -10,14 +10,14 @@ import {
     OrderParams
 } from '@kbc-lib/coffee-trading-management-lib';
 import React from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { regex } from '@/constants/regex';
 import dayjs from 'dayjs';
 import { validateDates } from '@/utils/date';
-import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 import { incotermsMap } from '@/constants/trade';
 import { useOrder } from '@/providers/icp/OrderProvider';
+import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';
 
 type OrderTradeNewProps = {
     supplierAddress: string;
@@ -32,11 +32,11 @@ export const OrderTradeNew = ({
     commonElements
 }: OrderTradeNewProps) => {
     const navigate = useNavigate();
-    const location = useLocation();
-
-    const { productCategories } = useEthMaterial();
     const { units, fiats } = useEthEnumerable();
+    const { productCategories } = useProductCategory();
     const { create } = useOrder();
+
+    const productCategory = productCategories.find((pc) => pc.id === productCategoryId);
 
     const disabledDate = (current: dayjs.Dayjs): boolean => {
         return current && current <= dayjs().endOf('day');
@@ -233,9 +233,7 @@ export const OrderTradeNew = ({
                 label: productCategory.name,
                 value: productCategory.id
             })),
-            defaultValue:
-                productCategories.find((pc) => pc.id === location?.state?.productCategoryId)?.id ||
-                -1,
+            defaultValue: productCategory ? productCategory.id : -1,
             disabled: true
         },
         {

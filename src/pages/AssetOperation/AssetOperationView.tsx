@@ -3,11 +3,12 @@ import { FormElement, FormElementType, GenericForm } from '@/components/GenericF
 import { CardPage } from '@/components/structure/CardPage/CardPage';
 import React from 'react';
 import { regex } from '@/constants/regex';
-import { useEthAssetOperation } from '@/providers/entities/EthAssetOperationProvider';
+import { AssetOperation } from '@kbc-lib/coffee-trading-management-lib';
 
 export const AssetOperationView = () => {
     const { id } = useParams();
-    const { assetOperations } = useEthAssetOperation();
+    // TODO: Retrieve it from icp
+    const assetOperations: AssetOperation[] = [];
 
     const assetOperation = assetOperations.find(
         (assetOperation) => assetOperation.id === parseInt(id || '')

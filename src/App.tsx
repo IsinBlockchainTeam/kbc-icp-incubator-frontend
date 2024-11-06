@@ -6,7 +6,6 @@ import Profile from '@/pages/Profile/Profile';
 import Partners from '@/pages/Partner/Partners';
 import Offers from '@/pages/Offer/Offers';
 import OfferNew from '@/pages/Offer/OfferNew';
-import OfferSupplierNew from '@/pages/Offer/OfferSupplierNew';
 import Materials from '@/pages/Material/Materials';
 import MaterialNew from '@/pages/Material/MaterialNew';
 import ProductCategoryNew from '@/pages/Material/ProductCategoryNew';
@@ -23,13 +22,7 @@ import { PersistGate } from 'redux-persist/integration/react';
 import { MenuLayout } from '@/components/structure/MenuLayout/MenuLayout';
 import { paths } from '@/constants/paths';
 import DataLoader from './DataLoader';
-import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
-import { useEthOffer } from '@/providers/entities/EthOfferProvider';
-import { useEthRawTrade } from '@/providers/entities/EthRawTradeProvider';
-import { useEthAssetOperation } from '@/providers/entities/EthAssetOperationProvider';
-import { useEthRelationship } from '@/providers/entities/EthRelationshipProvider';
-import { useEthGraph } from '@/providers/entities/EthGraphProvider';
 import { AssetOperationView } from '@/pages/AssetOperation/AssetOperationView';
 import { WalletConnectProvider } from '@/providers/WalletConnectProvider';
 import Documents from '@/pages/Documents/Shipment/ShipmentDocuments';
@@ -38,6 +31,7 @@ import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';
 import { useMaterial } from '@/providers/icp/MaterialProvider';
 import { useShipment } from '@/providers/icp/ShipmentProvider';
 import { useOrganization } from '@/providers/icp/OrganizationProvider';
+import { useOffer } from '@/providers/icp/OfferProvider';
 
 export const App = () => {
     return (
@@ -61,16 +55,14 @@ export const App = () => {
                                         <Route
                                             path={paths.PARTNERS}
                                             element={
-                                                <DataLoader customUseContext={useEthRelationship}>
                                                     <Partners />
-                                                </DataLoader>
                                             }
                                         />
                                         <Route
                                             path={paths.OFFERS}
                                             element={
                                                 <DataLoader customUseContext={useOrganization}>
-                                                    <DataLoader customUseContext={useEthOffer}>
+                                                    <DataLoader customUseContext={useOffer}>
                                                         <Offers />
                                                     </DataLoader>
                                                 </DataLoader>
@@ -80,19 +72,11 @@ export const App = () => {
                                             path={paths.OFFERS_NEW}
                                             element={
                                                 <DataLoader customUseContext={useOrganization}>
-                                                    <DataLoader customUseContext={useEthMaterial}>
-                                                        <DataLoader customUseContext={useEthOffer}>
+                                                    <DataLoader customUseContext={useProductCategory}>
+                                                        <DataLoader customUseContext={useOffer}>
                                                             <OfferNew />
                                                         </DataLoader>
                                                     </DataLoader>
-                                                </DataLoader>
-                                            }
-                                        />
-                                        <Route
-                                            path={paths.OFFERS_SUPPLIER_NEW}
-                                            element={
-                                                <DataLoader customUseContext={useEthOffer}>
-                                                    <OfferSupplierNew />
                                                 </DataLoader>
                                             }
                                         />
@@ -159,9 +143,7 @@ export const App = () => {
                                                             <DataLoader
                                                                 customUseContext={useMaterial}>
                                                                 <DataLoader
-                                                                    customUseContext={
-                                                                        useEthRawTrade
-                                                                    }>
+                                                                    customUseContext={useOrder}>
                                                                     <TradeNew />
                                                                 </DataLoader>
                                                             </DataLoader>
@@ -196,21 +178,14 @@ export const App = () => {
                                         />
                                         <Route
                                             path={paths.ASSET_OPERATIONS}
-                                            element={
-                                                <DataLoader customUseContext={useEthAssetOperation}>
-                                                    <AssetOperations />
-                                                </DataLoader>
-                                            }
+                                            element={<AssetOperations />}
                                         />
                                         <Route
                                             path={paths.ASSET_OPERATIONS_NEW}
                                             element={
-                                                <DataLoader customUseContext={useEthMaterial}>
+                                                <DataLoader customUseContext={useMaterial}>
                                                     <DataLoader customUseContext={useEthEnumerable}>
-                                                        <DataLoader
-                                                            customUseContext={useEthAssetOperation}>
-                                                            <AssetOperationNew />
-                                                        </DataLoader>
+                                                        <AssetOperationNew />
                                                     </DataLoader>
                                                 </DataLoader>
                                             }
@@ -218,24 +193,14 @@ export const App = () => {
                                         <Route
                                             path={paths.ASSET_OPERATIONS_VIEW}
                                             element={
-                                                <DataLoader customUseContext={useEthMaterial}>
+                                                <DataLoader customUseContext={useMaterial}>
                                                     <DataLoader customUseContext={useEthEnumerable}>
-                                                        <DataLoader
-                                                            customUseContext={useEthAssetOperation}>
-                                                            <AssetOperationView />
-                                                        </DataLoader>
+                                                        <AssetOperationView />
                                                     </DataLoader>
                                                 </DataLoader>
                                             }
                                         />
-                                        <Route
-                                            path={paths.GRAPH}
-                                            element={
-                                                <DataLoader customUseContext={useEthGraph}>
-                                                    <GraphPage />
-                                                </DataLoader>
-                                            }
-                                        />
+                                        <Route path={paths.GRAPH} element={<GraphPage />} />
                                     </Route>
                                     <Route path={paths.LOGIN} element={<Login />} />
                                     <Route path="*" element={<Navigate to={paths.LOGIN} />} />
