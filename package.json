@@ -27,7 +27,7 @@
         "ethers": "^5.7.2",
         "http-proxy-middleware": "^3.0.0",
         "ic-use-actor": "^0.0.9",
-        "pdfjs-dist": "^4.8.69",
+        "pdfjs-dist": "3.10.111",
         "react": "^18.2.0",
         "react-app-rewired": "^2.2.1",
         "react-dom": "^18.2.0",

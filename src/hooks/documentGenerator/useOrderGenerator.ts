@@ -7,6 +7,8 @@ import { generate } from '@pdfme/generator';
 import OrderTemplateSchema from '../../templates/transaction/pdf-schemas/OrderTemplateSchema.json';
 import { ESCROW_FEE } from '@/constants/misc';
 import { fixYPositions } from '@/hooks/documentGenerator/utils';
+import { useOrganization } from '@/providers/icp/OrganizationProvider';
+import { BroadedOrganization } from '@kbc-lib/coffee-trading-management-lib';
 
 const incotermsKeys = Array.from(incotermsMap.keys());
 
@@ -52,12 +54,16 @@ export default (
     generateJsonSpec: () => JSONOrderTemplate;
     generatePdf: () => Promise<Blob>;
 } => {
-    const { getCompany, getEmployee } = useICPOrganization();
+    // TODO: Substitute the useICPOrganization getEmployee with the actual function that retrieves the employee from the organization
+    const { getEmployee } = useICPOrganization();
+    const { getOrganization } = useOrganization();
 
     const generateJsonSpec = useCallback((): JSONOrderTemplate => {
-        const supplier = getCompany(orderSpec.supplierAddress);
-        const commissioner = getCompany(orderSpec.commissionerAddress);
-        const arbiter = getCompany(orderSpec.constraints.arbiterAddress);
+        const supplier = getOrganization(orderSpec.supplierAddress)! as BroadedOrganization;
+        const commissioner = getOrganization(orderSpec.commissionerAddress)! as BroadedOrganization;
+        const arbiter = getOrganization(
+            orderSpec.constraints.arbiterAddress
+        )! as BroadedOrganization;
 
         // TODO: probabilmente le informazioni dell'employee e/o della company verranno recuperate in un altro modo o in maniera "collegata" tra loro
         const supplierContact = getEmployee(orderSpec.supplierAddress);
@@ -69,7 +75,7 @@ export default (
                 OrderID: orderSpec.id,
                 IssueDate: orderSpec.issueDate,
                 Seller: {
-                    ID: supplier.id,
+                    ID: supplier.ethAddress,
                     Name: supplier.legalName,
                     Address: {
                         StreetOne: supplier.address,
@@ -86,7 +92,7 @@ export default (
                     }
                 },
                 Buyer: {
-                    ID: commissioner.id,
+                    ID: commissioner.ethAddress,
                     Name: commissioner.legalName,
                     Address: {
                         StreetOne: commissioner.address,
@@ -131,7 +137,7 @@ export default (
                     Details: incotermsMap.get(orderSpec.constraints.incoterms)!.details
                 },
                 Arbiter: {
-                    ID: arbiter.id,
+                    ID: arbiter.ethAddress,
                     Name: arbiter.legalName,
                     Address: {
                         StreetOne: arbiter.address,

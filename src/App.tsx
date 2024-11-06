@@ -32,6 +32,10 @@ import { useMaterial } from '@/providers/icp/MaterialProvider';
 import { useShipment } from '@/providers/icp/ShipmentProvider';
 import { useOrganization } from '@/providers/icp/OrganizationProvider';
 import { useOffer } from '@/providers/icp/OfferProvider';
+import {
+    ICPOrganizationProvider,
+    useICPOrganization
+} from '@/providers/entities/ICPOrganizationProvider';
 
 export const App = () => {
     return (
@@ -52,12 +56,7 @@ export const App = () => {
                                                 </DataLoader>
                                             }
                                         />
-                                        <Route
-                                            path={paths.PARTNERS}
-                                            element={
-                                                    <Partners />
-                                            }
-                                        />
+                                        <Route path={paths.PARTNERS} element={<Partners />} />
                                         <Route
                                             path={paths.OFFERS}
                                             element={
@@ -72,7 +71,8 @@ export const App = () => {
                                             path={paths.OFFERS_NEW}
                                             element={
                                                 <DataLoader customUseContext={useOrganization}>
-                                                    <DataLoader customUseContext={useProductCategory}>
+                                                    <DataLoader
+                                                        customUseContext={useProductCategory}>
                                                         <DataLoader customUseContext={useOffer}>
                                                             <OfferNew />
                                                         </DataLoader>
@@ -155,25 +155,38 @@ export const App = () => {
                                         <Route
                                             path={paths.TRADE_VIEW}
                                             element={
-                                                <DataLoader customUseContext={useOrganization}>
-                                                    <DataLoader customUseContext={useEthEnumerable}>
+                                                <ICPOrganizationProvider>
+                                                    <DataLoader
+                                                        customUseContext={useICPOrganization}>
                                                         <DataLoader
-                                                            customUseContext={useProductCategory}>
+                                                            customUseContext={useOrganization}>
                                                             <DataLoader
-                                                                customUseContext={useMaterial}>
+                                                                customUseContext={useEthEnumerable}>
                                                                 <DataLoader
-                                                                    customUseContext={useOrder}>
+                                                                    customUseContext={
+                                                                        useProductCategory
+                                                                    }>
                                                                     <DataLoader
                                                                         customUseContext={
-                                                                            useShipment
+                                                                            useMaterial
                                                                         }>
-                                                                        <TradeView />
+                                                                        <DataLoader
+                                                                            customUseContext={
+                                                                                useOrder
+                                                                            }>
+                                                                            <DataLoader
+                                                                                customUseContext={
+                                                                                    useShipment
+                                                                                }>
+                                                                                <TradeView />
+                                                                            </DataLoader>
+                                                                        </DataLoader>
                                                                     </DataLoader>
                                                                 </DataLoader>
                                                             </DataLoader>
                                                         </DataLoader>
                                                     </DataLoader>
-                                                </DataLoader>
+                                                </ICPOrganizationProvider>
                                             }
                                         />
                                         <Route
