@@ -8,9 +8,11 @@ import { setParametersPath } from '@/utils/page';
 import { paths } from '@/constants/paths';
 import { useOrder } from '@/providers/icp/OrderProvider';
 import { AsyncComponent } from '@/components/AsyncComponent/AsyncComponent';
+import { useOrganization } from '@/providers/icp/OrganizationProvider';
 
 export const Trades = () => {
     const { orders } = useOrder();
+    const { getOrganization } = useOrganization();
     // const { rawTrades } = useEthRawTrade();
     // const { getSupplierAsync, getCustomerAsync, getNegotiationStatusAsync } = useEthOrderTrade();
     // const { getShipmentPhaseAsync } = useEthShipment();
@@ -31,23 +33,23 @@ export const Trades = () => {
         {
             title: 'Supplier',
             dataIndex: 'supplier',
-            render: (_, { id }) => (
+            render: (_, { id, supplier }) => (
                 // <AsyncComponent
                 //     asyncFunction={async () => getCompany(await getSupplierAsync(id)).legalName}
                 //     defaultElement={<>Unknown</>}
                 // />
-                <div>Company 1</div>
+                <div>{getOrganization(supplier)!.legalName}</div>
             )
         },
         {
             title: 'Commissioner',
             dataIndex: 'commissioner',
-            render: (_, { id }) => (
+            render: (_, { id, commissioner }) => (
                 // <AsyncComponent
                 //     asyncFunction={async () => getCompany(await getCustomerAsync(id)).legalName}
                 //     defaultElement={<>Unknown</>}
                 // />
-                <div>Company 2</div>
+                <div>{getOrganization(commissioner)!.legalName}</div>
             )
         },
         {

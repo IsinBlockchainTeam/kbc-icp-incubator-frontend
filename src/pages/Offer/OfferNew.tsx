@@ -9,14 +9,14 @@ import { RootState } from '@/redux/store';
 import { useSigner } from '@/providers/SignerProvider';
 import { paths } from '@/constants/paths';
 import { credentials } from '@/constants/ssi';
-import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
+import { useOrganization } from '@/providers/icp/OrganizationProvider';
 import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';
 import { useOffer } from '@/providers/icp/OfferProvider';
 
 export const OfferNew = () => {
     const { productCategories } = useProductCategory();
     const { saveOffer } = useOffer();
-    const { getCompany } = useICPOrganization();
+    const { getOrganization } = useOrganization();
     const { signer } = useSigner();
     const navigate = useNavigate();
     const userInfo = useSelector((state: RootState) => state.userInfo);
@@ -39,7 +39,7 @@ export const OfferNew = () => {
             name: 'offeror',
             label: 'Offeror Company Address',
             required: true,
-            defaultValue: getCompany(signer._address).legalName,
+            defaultValue: getOrganization(signer._address)!.legalName,
             disabled: true
         },
         {

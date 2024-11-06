@@ -7,15 +7,15 @@ import { ShipmentPanel } from '@/components/ShipmentPanel/ShipmentPanel';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
 import { EscrowPanel } from '@/components/EscrowPanel/EscrowPanel';
 import OrderTradeView from '@/pages/Trade/View/OrderTradeView';
-import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
 import { useOrder } from '@/providers/icp/OrderProvider';
 import { FormElement, FormElementType } from '@/components/GenericForm/GenericForm';
+import { useOrganization } from '@/providers/icp/OrganizationProvider';
 
 export const TradeView = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
-    const { getCompany } = useICPOrganization();
+    const { getOrganization } = useOrganization();
     const { order } = useOrder();
     const [disabled, setDisabled] = useState<boolean>(true);
 
@@ -27,8 +27,8 @@ export const TradeView = () => {
 
     if (!order) return <div>Order not available</div>;
 
-    const supplierName = getCompany(order.supplier).legalName;
-    const commissionerName = getCompany(order.commissioner).legalName;
+    const supplierName = getOrganization(order.supplier)!.legalName;
+    const commissionerName = getOrganization(order.commissioner)!.legalName;
 
     const toggleDisabled = () => {
         setDisabled((d) => !d);

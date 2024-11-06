@@ -5,6 +5,9 @@ export type CompanyClaimsState = {
     legalName: string;
     industrialSector: string;
     address: string;
+    city: string;
+    postalCode: string;
+    region: string;
     email: string;
     nation: string;
     latitude: string;
@@ -39,6 +42,9 @@ export const initialState: UserInfoState = {
         legalName: '',
         industrialSector: '',
         address: '',
+        city: '',
+        postalCode: '',
+        region: '',
         email: '',
         nation: '',
         latitude: '',
