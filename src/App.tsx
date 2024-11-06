@@ -32,10 +32,6 @@ import { useMaterial } from '@/providers/icp/MaterialProvider';
 import { useShipment } from '@/providers/icp/ShipmentProvider';
 import { useOrganization } from '@/providers/icp/OrganizationProvider';
 import { useOffer } from '@/providers/icp/OfferProvider';
-import {
-    ICPOrganizationProvider,
-    useICPOrganization
-} from '@/providers/entities/ICPOrganizationProvider';
 
 export const App = () => {
     return (
@@ -155,38 +151,25 @@ export const App = () => {
                                         <Route
                                             path={paths.TRADE_VIEW}
                                             element={
-                                                <ICPOrganizationProvider>
-                                                    <DataLoader
-                                                        customUseContext={useICPOrganization}>
+                                                <DataLoader customUseContext={useOrganization}>
+                                                    <DataLoader customUseContext={useEthEnumerable}>
                                                         <DataLoader
-                                                            customUseContext={useOrganization}>
+                                                            customUseContext={useProductCategory}>
                                                             <DataLoader
-                                                                customUseContext={useEthEnumerable}>
+                                                                customUseContext={useMaterial}>
                                                                 <DataLoader
-                                                                    customUseContext={
-                                                                        useProductCategory
-                                                                    }>
+                                                                    customUseContext={useOrder}>
                                                                     <DataLoader
                                                                         customUseContext={
-                                                                            useMaterial
+                                                                            useShipment
                                                                         }>
-                                                                        <DataLoader
-                                                                            customUseContext={
-                                                                                useOrder
-                                                                            }>
-                                                                            <DataLoader
-                                                                                customUseContext={
-                                                                                    useShipment
-                                                                                }>
-                                                                                <TradeView />
-                                                                            </DataLoader>
-                                                                        </DataLoader>
+                                                                        <TradeView />
                                                                     </DataLoader>
                                                                 </DataLoader>
                                                             </DataLoader>
                                                         </DataLoader>
                                                     </DataLoader>
-                                                </ICPOrganizationProvider>
+                                                </DataLoader>
                                             }
                                         />
                                         <Route

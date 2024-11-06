@@ -1,5 +1,4 @@
 import { useCallback } from 'react';
-import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
 import { JSONOrderTemplate } from '../../templates/transaction/JSONOrderTemplate';
 import { incotermsMap } from '@/constants/trade';
 import { text, image, barcodes } from '@pdfme/schemas';
@@ -9,6 +8,8 @@ import { ESCROW_FEE } from '@/constants/misc';
 import { fixYPositions } from '@/hooks/documentGenerator/utils';
 import { useOrganization } from '@/providers/icp/OrganizationProvider';
 import { BroadedOrganization } from '@kbc-lib/coffee-trading-management-lib';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/redux/store';
 
 const incotermsKeys = Array.from(incotermsMap.keys());
 
@@ -54,9 +55,19 @@ export default (
     generateJsonSpec: () => JSONOrderTemplate;
     generatePdf: () => Promise<Blob>;
 } => {
-    // TODO: Substitute the useICPOrganization getEmployee with the actual function that retrieves the employee from the organization
-    const { getEmployee } = useICPOrganization();
+    const userInfo = useSelector((state: RootState) => state.userInfo);
     const { getOrganization } = useOrganization();
+
+    const { employeeClaims } = userInfo;
+
+    const getSigner = (companyEthAddress: string) => {
+        return {
+            name: employeeClaims.firstName,
+            lastname: employeeClaims.lastName,
+            telephone: employeeClaims.telephone,
+            email: employeeClaims.email
+        };
+    };
 
     const generateJsonSpec = useCallback((): JSONOrderTemplate => {
         const supplier = getOrganization(orderSpec.supplierAddress)! as BroadedOrganization;
@@ -66,9 +77,9 @@ export default (
         )! as BroadedOrganization;
 
         // TODO: probabilmente le informazioni dell'employee e/o della company verranno recuperate in un altro modo o in maniera "collegata" tra loro
-        const supplierContact = getEmployee(orderSpec.supplierAddress);
-        const commissionerContact = getEmployee(orderSpec.commissionerAddress);
-        const arbiterContact = getEmployee(orderSpec.constraints.arbiterAddress);
+        const supplierContact = getSigner(orderSpec.supplierAddress);
+        const commissionerContact = getSigner(orderSpec.commissionerAddress);
+        const arbiterContact = getSigner(orderSpec.constraints.arbiterAddress);
 
         return {
             Header: {
