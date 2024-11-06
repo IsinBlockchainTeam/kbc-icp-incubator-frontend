@@ -25,8 +25,6 @@ export const EscrowPanel = () => {
         return <>Shipment not created</>;
     }
 
-    console.log('details', detailedShipment);
-
     const openDepositModal = () => setIsDepositModalOpen(true);
     const closeDepositModal = () => setIsDepositModalOpen(false);
     const openWithdrawModal = () => setIsWithdrawModalOpen(true);

@@ -66,9 +66,8 @@ export function EthEscrowProvider(props: { children: ReactNode }) {
     const { signer } = useSigner();
     const dispatch = useDispatch();
 
-    console.log('escrowAddress', order?.shipment?.escrowAddress);
-
     const escrowService = useMemo(() => {
+        // TODO: order.shipment.escrowAddress in not updated
         if (!order || !order.shipment?.escrowAddress) return undefined;
         return new EscrowService(new EscrowDriver(signer, order.shipment.escrowAddress));
     }, [signer, order]);

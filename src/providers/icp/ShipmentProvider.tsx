@@ -292,7 +292,6 @@ export function ShipmentProvider(props: { children: ReactNode }) {
             const shipment = await shipmentService.determineEscrowAddress(
                 detailShipment.shipment.id
             );
-            console.log('shipment', shipment);
             await loadData();
             return shipment;
         }, SHIPMENT_MESSAGE.DETERMINE_ESCROW);
