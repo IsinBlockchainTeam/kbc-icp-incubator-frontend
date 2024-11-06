@@ -280,6 +280,11 @@ export const SHIPMENT_MESSAGE = {
         OK: 'Shipment quality rejected successfully.',
         ERROR: 'Error while rejecting shipment quality.'
     },
+    DETERMINE_ESCROW: {
+        LOADING: 'Determining escrow...',
+        OK: 'Escrow determined successfully.',
+        ERROR: 'Error while determining escrow.'
+    },
     DEPOSIT: {
         LOADING: 'Depositing funds...',
         OK: 'Funds deposited successfully.',

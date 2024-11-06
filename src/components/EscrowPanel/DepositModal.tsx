@@ -9,7 +9,7 @@ type DepositModalProps = {
 };
 export const DepositModal = ({ isOpen, onClose }: DepositModalProps) => {
     const [amount, setAmount] = React.useState<number>(0);
-    const { depositFunds } = useShipment();
+    const { depositFunds, lockFunds } = useShipment();
     const { tokenDetails } = useEthEscrow();
 
     const onChange: InputNumberProps['onChange'] = (value) => {
@@ -19,6 +19,7 @@ export const DepositModal = ({ isOpen, onClose }: DepositModalProps) => {
     const onDeposit = async () => {
         onClose();
         await depositFunds(amount);
+        await lockFunds();
     };
 
     return (

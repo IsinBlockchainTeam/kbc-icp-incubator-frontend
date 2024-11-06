@@ -15,6 +15,7 @@ import { CONTRACT_ADDRESSES } from '@/constants/evm';
 import { useOrder } from '@/providers/icp/OrderProvider';
 
 export type EthEscrowContextState = {
+    exists: boolean;
     escrowDetails: EscrowDetails;
     tokenDetails: TokenDetails;
     withdraw: (amount: number) => Promise<void>;
@@ -65,10 +66,14 @@ export function EthEscrowProvider(props: { children: ReactNode }) {
     const { signer } = useSigner();
     const dispatch = useDispatch();
 
+    console.log('escrowAddress', order?.shipment?.escrowAddress);
+
     const escrowService = useMemo(() => {
         if (!order || !order.shipment?.escrowAddress) return undefined;
         return new EscrowService(new EscrowDriver(signer, order.shipment.escrowAddress));
     }, [signer, order]);
+
+    const exists = useMemo(() => !!escrowService, [escrowService]);
 
     const tokenService = useMemo(
         () => new TokenService(new TokenDriver(signer, CONTRACT_ADDRESSES.TOKEN())),
@@ -179,6 +184,7 @@ export function EthEscrowProvider(props: { children: ReactNode }) {
     return (
         <EthEscrowContext.Provider
             value={{
+                exists,
                 escrowDetails,
                 tokenDetails,
                 withdraw,

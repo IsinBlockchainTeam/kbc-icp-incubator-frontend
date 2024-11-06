@@ -49,6 +49,7 @@ export type ShipmentContextState = {
     rejectDetails: () => Promise<void>;
     approveQuality: () => Promise<void>;
     rejectQuality: () => Promise<void>;
+    determineEscrowAddress: () => Promise<void>;
     depositFunds: (amount: number) => Promise<void>;
     lockFunds: () => Promise<void>;
     unlockFunds: () => Promise<void>;
@@ -284,11 +285,59 @@ export function ShipmentProvider(props: { children: ReactNode }) {
         );
     };
 
-    const depositFunds = async (amount: number) => {};
+    const determineEscrowAddress = async () => {
+        if (!shipmentService) throw new Error('ShipmentManager service not initialized');
+        if (!detailShipment) throw new Error('Order trade not found');
+        await writeTransaction(async () => {
+            const shipment = await shipmentService.determineEscrowAddress(
+                detailShipment.shipment.id
+            );
+            console.log('shipment', shipment);
+            await loadData();
+            return shipment;
+        }, SHIPMENT_MESSAGE.DETERMINE_ESCROW);
+    };
 
-    const lockFunds = async () => {};
+    const depositFunds = async (amount: number) => {
+        if (!shipmentService) throw new Error('ShipmentManager service not initialized');
+        if (!detailShipment) throw new Error('Order trade not found');
+        const escrowAddress = detailShipment.shipment.escrowAddress;
+        if (escrowAddress) {
+            await writeTransaction(async () => {
+                await tokenService.approve(escrowAddress, amount);
+                const shipment = await shipmentService.depositFunds(
+                    detailShipment.shipment.id,
+                    amount
+                );
+                await loadEscrowDetails();
+                await loadTokenDetails();
+                await loadData();
+                return shipment;
+            }, SHIPMENT_MESSAGE.DEPOSIT);
+        } else {
+            throw new Error('Escrow address not determined');
+        }
+    };
 
-    const unlockFunds = async () => {};
+    const lockFunds = async () => {
+        if (!shipmentService) throw new Error('ShipmentManager service not initialized');
+        if (!detailShipment) throw new Error('Order trade not found');
+
+        await writeTransaction(
+            async () => shipmentService.lockFunds(detailShipment.shipment.id),
+            SHIPMENT_MESSAGE.DEPOSIT
+        );
+    };
+
+    const unlockFunds = async () => {
+        if (!shipmentService) throw new Error('ShipmentManager service not initialized');
+        if (!detailShipment) throw new Error('Order trade not found');
+
+        await writeTransaction(
+            async () => shipmentService.unlockFunds(detailShipment.shipment.id),
+            SHIPMENT_MESSAGE.DEPOSIT
+        );
+    };
 
     const getDocument = async (documentId: number): Promise<ShipmentCompleteDocument> => {
         if (!shipmentService) throw new Error(' service not initialized');
@@ -398,6 +447,7 @@ export function ShipmentProvider(props: { children: ReactNode }) {
                 rejectDetails,
                 approveQuality,
                 rejectQuality,
+                determineEscrowAddress,
                 depositFunds,
                 lockFunds,
                 unlockFunds,
