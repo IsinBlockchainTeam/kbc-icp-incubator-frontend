@@ -4,8 +4,7 @@ import { NOTIFICATION_DURATION } from '@/constants/notification';
 import {
     ICPAuthenticationDriver,
     ICPAuthenticationService,
-    NotAuthenticatedError,
-    NotAuthorizedError
+    NotAuthenticatedError
 } from '@kbc-lib/coffee-trading-management-lib';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
 import { getProof } from '@/providers/icp/tempProof';
@@ -15,6 +14,7 @@ import { Typography } from 'antd';
 import { useSiweIdentity } from '@/providers/SiweIdentityProvider';
 import { checkAndGetEnvironmentVariable } from '@/utils/env';
 import { ICP } from '@/constants/icp';
+import { AUTHENTICATION_MESSAGE } from '@/constants/message';
 
 export type CallHandlerContextState = {
     handleICPCall: (callback: () => Promise<void>, message: string) => Promise<void>;
@@ -71,6 +71,7 @@ export function CallHandlerProvider(props: { children: React.ReactNode }) {
         if (error instanceof NotAuthenticatedError) {
             console.info('Not authenticated, retrying after authentication');
             try {
+                dispatch(addLoadingMessage(AUTHENTICATION_MESSAGE.AUTHENTICATE.LOADING));
                 await authenticate();
                 if (canRetry) await retryAfterAuth();
                 else
@@ -82,23 +83,12 @@ export function CallHandlerProvider(props: { children: React.ReactNode }) {
                     );
             } catch (e: any) {
                 await handleError(e, retryAfterAuth);
+            } finally {
+                dispatch(removeLoadingMessage(AUTHENTICATION_MESSAGE.AUTHENTICATE.LOADING));
             }
             return;
-        } else if (error instanceof NotAuthorizedError) {
-            openNotification(
-                'Error',
-                'You are not authorized to perform this action',
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
-            return;
         } else {
-            openNotification(
-                'Error',
-                'Unexpected error occurred',
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Error', error.message, NotificationType.ERROR, NOTIFICATION_DURATION);
         }
     };
 

@@ -199,7 +199,7 @@ export const LOGIN_MESSAGE = {
     }
 };
 export const AUTHENTICATION_MESSAGE = {
-    LOGIN: {
+    AUTHENTICATE: {
         LOADING: 'Verifying permissions...',
         OK: '',
         ERROR: 'Error while verifying permissions.'

@@ -58,32 +58,6 @@ export function MaterialProvider(props: { children: ReactNode }) {
         }, MATERIAL_MESSAGE.RETRIEVE.LOADING);
     };
 
-    // const loadMaterials = async () => {
-    //     const f = async () => {
-    //         console.info('Loading materials');
-    //         dispatch(addLoadingMessage(MATERIAL_MESSAGE.RETRIEVE.LOADING));
-    //         const materials = await materialService.getMaterials();
-    //         console.info('Materials loaded', materials);
-    //         setMaterials(materials);
-    //     };
-    //     try {
-    //         await f();
-    //     } catch (e: any) {
-    //         await handleError(e, f);
-    //     } finally {
-    //         dispatch(removeLoadingMessage(MATERIAL_MESSAGE.RETRIEVE.LOADING));
-    //     }
-    //
-    //     const handleIcpCall = async (f: () => Promise<void>, message: any) => {};
-    //
-    //     await handleIcpCall(async () => {
-    //         console.info('Loading materials');
-    //         const materials = await materialService.getMaterials();
-    //         console.info('Materials loaded', materials);
-    //         setMaterials(materials);
-    //     }, MATERIAL_MESSAGE.RETRIEVE);
-    // };
-
     const saveMaterial = async (productCategoryId: number) => {
         try {
             dispatch(addLoadingMessage(MATERIAL_MESSAGE.SAVE.LOADING));
