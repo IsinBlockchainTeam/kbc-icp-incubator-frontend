@@ -15,32 +15,36 @@ import { MaterialProvider } from '@/providers/icp/MaterialProvider';
 import { AuthenticationProvider } from '@/providers/icp/AuthenticationProvider';
 import { ShipmentProvider } from '@/providers/icp/ShipmentProvider';
 import { OfferProvider } from '@/providers/icp/OfferProvider';
+import { CallHandlerProvider } from '@/providers/icp/CallHandlerProvider';
 
 const PrivateRoutes = () => {
     const { isLogged } = useSelector((state: RootState) => state.userInfo);
+    // TODO: check if this provider can be moved to a higher level
     return isLogged ? (
         <SignerProvider>
             <SiweIdentityProvider>
                 <ICPProvider>
-                    <AuthenticationProvider>
-                        <ICPOrganizationProvider>
-                            <EthEnumerableProvider>
-                                <ProductCategoryProvider>
-                                    <MaterialProvider>
-                                        <OfferProvider>
-                                            <OrderProvider>
-                                                <EthEscrowProvider>
-                                                    <ShipmentProvider>
-                                                        <Outlet />
-                                                    </ShipmentProvider>
-                                                </EthEscrowProvider>
-                                            </OrderProvider>
-                                        </OfferProvider>
-                                    </MaterialProvider>
-                                </ProductCategoryProvider>
-                            </EthEnumerableProvider>
-                        </ICPOrganizationProvider>
-                    </AuthenticationProvider>
+                    <CallHandlerProvider>
+                        <AuthenticationProvider>
+                            <ICPOrganizationProvider>
+                                <EthEnumerableProvider>
+                                    <ProductCategoryProvider>
+                                        <MaterialProvider>
+                                            <OfferProvider>
+                                                <OrderProvider>
+                                                    <EthEscrowProvider>
+                                                        <ShipmentProvider>
+                                                            <Outlet />
+                                                        </ShipmentProvider>
+                                                    </EthEscrowProvider>
+                                                </OrderProvider>
+                                            </OfferProvider>
+                                        </MaterialProvider>
+                                    </ProductCategoryProvider>
+                                </EthEnumerableProvider>
+                            </ICPOrganizationProvider>
+                        </AuthenticationProvider>
+                    </CallHandlerProvider>
                 </ICPProvider>
             </SiweIdentityProvider>
         </SignerProvider>
