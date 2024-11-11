@@ -6,72 +6,72 @@ import { SignerProvider } from '@/providers/SignerProvider';
 import { SiweIdentityProvider } from '@/providers/SiweIdentityProvider';
 import { ICPProvider } from '@/providers/ICPProvider';
 import { paths } from '@/constants/paths';
-import { EthMaterialProvider } from '@/providers/entities/EthMaterialProvider';
 import { EthEnumerableProvider } from '@/providers/entities/EthEnumerableProvider';
-import { EthOfferProvider } from '@/providers/entities/EthOfferProvider';
-import { ICPOrganizationProvider } from '@/providers/entities/ICPOrganizationProvider';
-import { EthRawTradeProvider } from '@/providers/entities/EthRawTradeProvider';
-import { EthBasicTradeProvider } from '@/providers/entities/EthBasicTradeProvider';
-import { EthOrderTradeProvider } from '@/providers/entities/EthOrderTradeProvider';
-import { EthAssetOperationProvider } from '@/providers/entities/EthAssetOperationProvider';
-import { EthRelationshipProvider } from '@/providers/entities/EthRelationshipProvider';
-import { EthGraphProvider } from '@/providers/entities/EthGraphProvider';
 import { EthEscrowProvider } from '@/providers/entities/EthEscrowProvider';
-import { EthShipmentProvider } from '@/providers/entities/EthShipmentProvider';
-import { EthRawCertificateProvider } from '@/providers/entities/EthRawCertificateProvider';
-import { EthCertificateProvider } from '@/providers/entities/EthCertificateProvider';
 import { OrderProvider } from '@/providers/icp/OrderProvider';
 import { ProductCategoryProvider } from '@/providers/icp/ProductCategoryProvider';
+import { MaterialProvider } from '@/providers/icp/MaterialProvider';
+import { AuthenticationProvider } from '@/providers/icp/AuthenticationProvider';
+import { ShipmentProvider } from '@/providers/icp/ShipmentProvider';
+import { OfferProvider } from '@/providers/icp/OfferProvider';
+import { OrganizationProvider, useOrganization } from '@/providers/icp/OrganizationProvider';
+import NavigationBlocker from './NavigationBlocker';
 import { RawCertificationProvider } from '@/providers/icp/RawCertificationProvider';
 import { CertificationProvider } from '@/providers/icp/CertificationProvider';
 import { EnumerationProvider } from '@/providers/icp/EnumerationProvider';
 
 const PrivateRoutes = () => {
     const { isLogged } = useSelector((state: RootState) => state.userInfo);
+
+    const isOrganizationOnIcp = () => {
+        const { getOrganization } = useOrganization();
+        const userInfo = useSelector((state: RootState) => state.userInfo);
+
+        const organizationEthAddress = userInfo.roleProof.delegator;
+
+        const foundedOrganization = getOrganization(organizationEthAddress);
+
+        return foundedOrganization !== undefined;
+    };
+
     return isLogged ? (
         <SignerProvider>
             <SiweIdentityProvider>
                 <ICPProvider>
-                    <EthRelationshipProvider>
-                        <ICPOrganizationProvider>
+                    <AuthenticationProvider>
+                        <OrganizationProvider>
                             {/*TODO: to remove*/}
                             <EthEnumerableProvider>
                                 <EnumerationProvider>
-                                    <EthMaterialProvider>
-                                        <ProductCategoryProvider>
-                                            <EthOfferProvider>
-                                                <EthAssetOperationProvider>
-                                                    <EthRawTradeProvider>
-                                                        <EthBasicTradeProvider>
-                                                            <OrderProvider>
-                                                                <EthOrderTradeProvider>
-                                                                    <EthEscrowProvider>
-                                                                        <EthShipmentProvider>
-                                                                            <RawCertificationProvider>
-                                                                                <CertificationProvider>
-                                                                                    {/*<EthRawCertificateProvider>*/}
-                                                                                    {/*    <EthCertificateProvider>*/}
-                                                                                    <EthGraphProvider>
-                                                                                        <Outlet />
-                                                                                    </EthGraphProvider>
-                                                                                    {/*</EthCertificateProvider>*/}
-                                                                                    {/*</EthRawCertificateProvider>*/}
-                                                                                </CertificationProvider>
-                                                                            </RawCertificationProvider>
-                                                                        </EthShipmentProvider>
-                                                                    </EthEscrowProvider>
-                                                                </EthOrderTradeProvider>
-                                                            </OrderProvider>
-                                                        </EthBasicTradeProvider>
-                                                    </EthRawTradeProvider>
-                                                </EthAssetOperationProvider>
-                                            </EthOfferProvider>
-                                        </ProductCategoryProvider>
-                                    </EthMaterialProvider>
+                                    <ProductCategoryProvider>
+                                        <MaterialProvider>
+                                            <OfferProvider>
+                                                <OrderProvider>
+                                                    <EthEscrowProvider>
+                                                        <ShipmentProvider>
+                                                            <RawCertificationProvider>
+                                                                <CertificationProvider>
+                                                                    <NavigationBlocker
+                                                                        condition={
+                                                                            isOrganizationOnIcp
+                                                                        }
+                                                                        redirectPath={
+                                                                            paths.PROFILE
+                                                                        }>
+                                                                    <Outlet />
+                                                                    </NavigationBlocker>
+                                                                </CertificationProvider>
+                                                            </RawCertificationProvider>
+                                                        </ShipmentProvider>
+                                                    </EthEscrowProvider>
+                                                </OrderProvider>
+                                            </OfferProvider>
+                                        </MaterialProvider>
+                                    </ProductCategoryProvider>
                                 </EnumerationProvider>
                             </EthEnumerableProvider>
-                        </ICPOrganizationProvider>
-                    </EthRelationshipProvider>
+                        </OrganizationProvider>
+                    </AuthenticationProvider>
                 </ICPProvider>
             </SiweIdentityProvider>
         </SignerProvider>

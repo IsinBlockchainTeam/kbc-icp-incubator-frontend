@@ -6,22 +6,27 @@ import { paths } from '@/constants/paths';
 import { useSigner } from '@/providers/SignerProvider';
 import { BasicTradeNew } from '@/pages/Trade/New/BasicTradeNew';
 import { OrderTradeNew } from '@/pages/Trade/New/OrderTradeNew';
-import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
+import { useOrganization } from '@/providers/icp/OrganizationProvider';
 
 export const TradeNew = () => {
     const { signer } = useSigner();
     const navigate = useNavigate();
     const location = useLocation();
-    const { getCompany } = useICPOrganization();
+    const { getOrganization } = useOrganization();
 
     const type = TradeType.ORDER;
 
+    if (location?.state === undefined) {
+        console.error('No supplier address or product category id provided');
+        navigate(paths.HOME);
+    }
+
     const elements: FormElement[] = [];
-    const supplierAddress: string = location?.state?.supplierAddress;
+    const supplierAddress: string = location.state.supplierAddress;
     const customerAddress: string = signer._address;
-    const productCategoryId: number = location?.state?.productCategoryId;
-    const supplierName = getCompany(supplierAddress).legalName;
-    const commissionerName = getCompany(customerAddress).legalName;
+    const productCategoryId: number = location.state.productCategoryId;
+    const supplierName = getOrganization(supplierAddress)!.legalName;
+    const commissionerName = getOrganization(customerAddress)!.legalName;
 
     elements.push(
         { type: FormElementType.TITLE, span: 24, label: 'Actors' },
@@ -54,9 +59,6 @@ export const TradeNew = () => {
         }
     );
 
-    if (!supplierAddress || !productCategoryId) {
-        navigate(paths.HOME);
-    }
     if (type === TradeType.ORDER) {
         return (
             <OrderTradeNew

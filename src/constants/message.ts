@@ -1,3 +1,13 @@
+type Message = {
+    LOADING: string;
+    OK: string;
+    ERROR: string;
+};
+
+export type ShipmentMessage = Message;
+export type OrderMessage = Message;
+export type OrganizationMessage = Message;
+
 export const MATERIAL_MESSAGE = {
     RETRIEVE: {
         LOADING: 'Retrieving materials...',
@@ -227,6 +237,23 @@ export const LOGIN_MESSAGE = {
         ERROR: 'Error while logging in.'
     }
 };
+export const AUTHENTICATION_MESSAGE = {
+    LOGIN: {
+        LOADING: 'Verifying permissions...',
+        OK: '',
+        ERROR: 'Error while verifying permissions.'
+    },
+    REFRESH: {
+        LOADING: 'Refreshing permissions...',
+        OK: '',
+        ERROR: 'Error while refreshing permissions.'
+    },
+    LOGOUT: {
+        LOADING: 'Logging out...',
+        OK: '',
+        ERROR: 'Error while logging out.'
+    }
+};
 export const ESCROW_MESSAGE = {
     RETRIEVE: {
         LOADING: 'Retrieving escrow details...',
@@ -292,6 +319,11 @@ export const SHIPMENT_MESSAGE = {
         OK: 'Shipment quality rejected successfully.',
         ERROR: 'Error while rejecting shipment quality.'
     },
+    DETERMINE_ESCROW: {
+        LOADING: 'Determining escrow...',
+        OK: 'Escrow determined successfully.',
+        ERROR: 'Error while determining escrow.'
+    },
     DEPOSIT: {
         LOADING: 'Depositing funds...',
         OK: 'Funds deposited successfully.',
@@ -326,5 +358,22 @@ export const SHIPMENT_MESSAGE = {
         LOADING: 'Starting arbitration...',
         OK: 'Arbitration started successfully.',
         ERROR: 'Error while starting arbitration.'
+    }
+};
+export const ORGANIZATION_MESSAGE = {
+    RETRIEVE: {
+        LOADING: 'Retrieving organizations...',
+        OK: '',
+        ERROR: 'Error while retrieving organizations.'
+    },
+    SAVE: {
+        LOADING: 'Saving organization...',
+        OK: 'Organization saved successfully.',
+        ERROR: 'Error while saving organization.'
+    },
+    UPDATE: {
+        LOADING: 'Updating organization...',
+        OK: 'The organization has been updated.',
+        ERROR: 'Error while updating organization.'
     }
 };

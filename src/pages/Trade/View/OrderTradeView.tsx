@@ -3,7 +3,8 @@ import {
     OrderLine,
     OrderLinePrice,
     OrderLineRequest,
-    OrderTrade
+    OrderParams,
+    OrderStatus
 } from '@kbc-lib/coffee-trading-management-lib';
 import { Tooltip } from 'antd';
 import React, { useState } from 'react';
@@ -20,21 +21,19 @@ import {
     RollbackOutlined
 } from '@ant-design/icons';
 import { validateDates } from '@/utils/date';
-import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
-import { OrderTradeRequest, useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
 import useOrderGenerator, { OrderSpec } from '@/hooks/documentGenerator/useOrderGenerator';
 import PDFGenerationView from '@/components/PDFViewer/PDFGenerationView';
 import { incotermsMap } from '@/constants/trade';
+import { useOrder } from '@/providers/icp/OrderProvider';
+import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';
 
 type OrderTradeViewProps = {
-    orderTrade: OrderTrade;
     disabled: boolean;
     toggleDisabled: () => void;
     commonElements: FormElement[];
 };
 export const OrderTradeView = ({
-    orderTrade,
     disabled,
     toggleDisabled,
     commonElements
@@ -42,22 +41,24 @@ export const OrderTradeView = ({
     const navigate = useNavigate();
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const { signer } = useSigner();
-    const { productCategories } = useEthMaterial();
     const { units, fiats } = useEthEnumerable();
-    const { updateOrderTrade, confirmNegotiation } = useEthOrderTrade();
-    const negotiationStatus = NegotiationStatus[orderTrade.negotiationStatus];
+    const { order, update, sign } = useOrder();
+    const { productCategories } = useProductCategory();
+
+    if (!order) return <div>Order not available</div>;
+    const status = OrderStatus[order.status];
     const [showGeneratedDocument, setShowGeneratedDocument] = useState(false);
     // TODO: in general, remove hardcoded values and add input in the form of the negotiation
     const orderSpec: OrderSpec = {
-        id: `order_#${orderTrade.tradeId}`,
+        id: `order_#${order.id}`,
         // TODO: add issueDate to order entity, so that also in the future (not today) I know when the order has been issued
         issueDate: new Date().getTime(),
-        supplierAddress: orderTrade.supplier,
-        commissionerAddress: orderTrade.commissioner,
+        supplierAddress: order.supplier,
+        commissionerAddress: order.commissioner,
         // TODO: define the currency directly in the negotiation terms, not in lines
         currency: 'USDC',
-        items: orderTrade.lines.map((line) => ({
-            id: `order_info_line#${line.id}`,
+        items: order.lines.map((line, index) => ({
+            id: `order_info_line#${index}`,
             productCategory: line.productCategory.name || '',
             productTypology: 'Green coffee beans',
             quality: line.productCategory.quality,
@@ -81,13 +82,13 @@ export const OrderTradeView = ({
             standards: ['RFA (Rain Forest Alliance)', 'ICO (Certificate of Origin)']
         })),
         constraints: {
-            incoterms: orderTrade.metadata?.incoterms || '',
+            incoterms: order.incoterms,
             guaranteePercentage: 20,
-            arbiterAddress: orderTrade.arbiter,
-            shipper: orderTrade.metadata?.shipper || '',
-            shippingPort: orderTrade.metadata?.shippingPort || '',
-            deliveryPort: orderTrade.metadata?.deliveryPort || '',
-            deliveryDate: orderTrade.deliveryDeadline,
+            arbiterAddress: order.arbiter,
+            shipper: order.shipper,
+            shippingPort: order.shippingPort,
+            deliveryPort: order.deliveryPort,
+            deliveryDate: order.deliveryDeadline.getTime(),
             otherConditions:
                 '1) Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua\n2) Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris\n...\n....\n.....\n6) Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident'
         }
@@ -103,17 +104,32 @@ export const OrderTradeView = ({
     };
 
     const onSubmit = async (values: any) => {
-        const quantity: number = parseInt(values[`quantity-1`]);
-        const unit: string = values[`unit-1`];
-        const productCategoryId: number = parseInt(values['product-category-id-1']);
+        const quantity = parseInt(values[`quantity-1`]);
+        const unit = values[`unit-1`];
+        const productCategory = productCategories.find(
+            (productCategory) => productCategory.id === values[`product-category-id-1`]
+        );
+        if (!productCategory) throw new Error('Product Category not found');
+        const productCategoryId = productCategory?.id;
 
         const price: number = parseInt(values[`price-1`]);
         const fiat: string = values[`fiat-1`];
 
-        const updatedOrderTrade: OrderTradeRequest = {
-            supplier: values['supplier'],
-            customer: values['customer'],
-            commissioner: values['commissioner'],
+        const updatedOrderTrade: OrderParams = {
+            supplier: order.supplier,
+            customer: order.customer,
+            commissioner: order.commissioner,
+            paymentDeadline: dayjs(values['payment-deadline']).toDate(),
+            documentDeliveryDeadline: dayjs(values['document-delivery-deadline']).toDate(),
+            arbiter: values['arbiter'],
+            token: values['token-address'],
+            shippingDeadline: dayjs(values['shipping-deadline']).toDate(),
+            deliveryDeadline: dayjs(values['delivery-deadline']).toDate(),
+            agreedAmount: parseInt(values['agreed-amount']),
+            incoterms: values['incoterms'],
+            shipper: values['shipper'],
+            shippingPort: values['shipping-port'],
+            deliveryPort: values['delivery-port'],
             lines: [
                 new OrderLineRequest(
                     productCategoryId,
@@ -121,20 +137,9 @@ export const OrderTradeView = ({
                     unit,
                     new OrderLinePrice(price, fiat)
                 )
-            ],
-            paymentDeadline: dayjs(values['payment-deadline']).unix(),
-            documentDeliveryDeadline: dayjs(values['document-delivery-deadline']).unix(),
-            arbiter: values['arbiter'],
-            shippingDeadline: dayjs(values['shipping-deadline']).unix(),
-            deliveryDeadline: dayjs(values['delivery-deadline']).unix(),
-            agreedAmount: parseInt(values['agreed-amount']),
-            tokenAddress: values['token-address'],
-            incoterms: values['incoterms'],
-            shipper: values['shipper'],
-            shippingPort: values['shipping-port'],
-            deliveryPort: values['delivery-port']
+            ]
         };
-        await updateOrderTrade(updatedOrderTrade);
+        await update(updatedOrderTrade);
         toggleDisabled();
         navigate(paths.TRADES);
     };
@@ -152,7 +157,7 @@ export const OrderTradeView = ({
                 label: incoterm,
                 value: incoterm
             })),
-            defaultValue: orderTrade.metadata?.incoterms,
+            defaultValue: order.incoterms,
             disabled
         },
         {
@@ -161,7 +166,7 @@ export const OrderTradeView = ({
             name: 'arbiter',
             label: 'Arbiter',
             required: true,
-            defaultValue: orderTrade.arbiter,
+            defaultValue: order.arbiter,
             disabled,
             regex: regex.ETHEREUM_ADDRESS
         },
@@ -171,7 +176,7 @@ export const OrderTradeView = ({
             name: 'payment-deadline',
             label: 'Payment Deadline',
             required: true,
-            defaultValue: dayjs.unix(orderTrade.paymentDeadline),
+            defaultValue: dayjs(order.paymentDeadline),
             disabled,
             disableValues: disabledDate,
             dependencies: ['document-delivery-deadline']
@@ -182,7 +187,7 @@ export const OrderTradeView = ({
             name: 'document-delivery-deadline',
             label: 'Document Delivery Deadline',
             required: true,
-            defaultValue: dayjs.unix(orderTrade.documentDeliveryDeadline),
+            defaultValue: dayjs(order.documentDeliveryDeadline),
             disabled,
             dependencies: ['payment-deadline'],
             validationCallback: validateDates(
@@ -198,7 +203,7 @@ export const OrderTradeView = ({
             name: 'shipper',
             label: 'Shipper',
             required: true,
-            defaultValue: orderTrade.metadata?.shipper,
+            defaultValue: order.shipper,
             disabled
         },
         {
@@ -207,7 +212,7 @@ export const OrderTradeView = ({
             name: 'shipping-port',
             label: 'Shipping Port',
             required: true,
-            defaultValue: orderTrade.metadata?.shippingPort,
+            defaultValue: order.shippingPort,
             disabled
         },
         {
@@ -216,7 +221,7 @@ export const OrderTradeView = ({
             name: 'shipping-deadline',
             label: 'Shipping Deadline',
             required: true,
-            defaultValue: dayjs.unix(orderTrade.shippingDeadline),
+            defaultValue: dayjs(order.shippingDeadline),
             disabled,
             dependencies: ['document-delivery-deadline'],
             validationCallback: validateDates(
@@ -232,7 +237,7 @@ export const OrderTradeView = ({
             name: 'delivery-port',
             label: 'Delivery Port',
             required: true,
-            defaultValue: orderTrade.metadata?.deliveryPort,
+            defaultValue: order.deliveryPort,
             disabled
         },
         {
@@ -241,7 +246,7 @@ export const OrderTradeView = ({
             name: 'delivery-deadline',
             label: 'Delivery Deadline',
             required: true,
-            defaultValue: dayjs.unix(orderTrade.deliveryDeadline),
+            defaultValue: dayjs(order.deliveryDeadline),
             disabled,
             dependencies: ['shipping-deadline'],
             validationCallback: validateDates(
@@ -258,7 +263,7 @@ export const OrderTradeView = ({
             label: 'Agreed Amount',
             required: true,
             regex: regex.ONLY_DIGITS,
-            defaultValue: orderTrade.agreedAmount,
+            defaultValue: order.agreedAmount,
             disabled
         },
         {
@@ -268,12 +273,12 @@ export const OrderTradeView = ({
             label: 'Token Address',
             required: true,
             regex: regex.ETHEREUM_ADDRESS,
-            defaultValue: orderTrade.tokenAddress,
+            defaultValue: order.token,
             disabled
         },
         { type: FormElementType.TITLE, span: 24, label: 'Line Items' }
     ];
-    orderTrade.lines.forEach((line, index) => {
+    order.lines.forEach((line, index) => {
         elements.push(
             {
                 type: FormElementType.SELECT,
@@ -285,8 +290,7 @@ export const OrderTradeView = ({
                     label: productCategory.name,
                     value: productCategory.id
                 })),
-                defaultValue:
-                    productCategories.find((pc) => pc.id === line.productCategory?.id)?.id || -1,
+                defaultValue: line.productCategory.name,
                 disabled
             },
             {
@@ -331,7 +335,7 @@ export const OrderTradeView = ({
             }
         );
     });
-    if (negotiationStatus !== NegotiationStatus[NegotiationStatus.CONFIRMED]) {
+    if (status !== NegotiationStatus[NegotiationStatus.CONFIRMED]) {
         elements.push(
             {
                 type: FormElementType.BUTTON,
@@ -363,8 +367,8 @@ export const OrderTradeView = ({
             }
         );
         if (
-            (orderTrade.hasSupplierSigned && orderTrade.supplier !== signer._address) ||
-            (orderTrade.hasCommissionerSigned && orderTrade.commissioner !== signer._address)
+            !order.signatures.includes(signer._address) &&
+            (order.supplier !== signer._address || order.commissioner !== signer._address)
         ) {
             elements.push({
                 type: FormElementType.BUTTON,
@@ -377,7 +381,7 @@ export const OrderTradeView = ({
                 ),
                 buttonType: 'primary',
                 hidden: isEditing,
-                onClick: () => confirmNegotiation()
+                onClick: () => sign(order.id)
             });
         }
     }
@@ -411,10 +415,9 @@ export const OrderTradeView = ({
                 handleClose={() => setShowGeneratedDocument(false)}
                 useGeneration={useOrderGenerator(orderSpec)}
                 downloadable={true}
-                filename={`order_${orderTrade.tradeId}.pdf`}
+                filename={`order_${order.id}.pdf`}
             />
         </>
-
     );
 };
 export default OrderTradeView;

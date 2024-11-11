@@ -1,6 +1,6 @@
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
 import {
-    ShipmentDocumentEvaluationStatus,
+    EvaluationStatus,
     ShipmentDocumentInfo,
     ShipmentDocumentType
 } from '@kbc-lib/coffee-trading-management-lib';
@@ -25,7 +25,7 @@ export default (props: Props) => {
     const { documentTypes, onSubmit, oldDocumentsInfo, selectedDocumentType } = props;
     const mappedDocumentsInfo = documentTypes.map((type) => ({
         type,
-        info: oldDocumentsInfo.find((d) => d.type === type)
+        info: oldDocumentsInfo.find((d) => d.documentType === type)
     }));
 
     const elements: FormElement[] = useMemo(
@@ -46,9 +46,7 @@ export default (props: Props) => {
                 required: true,
                 defaultValue: selectedDocumentType !== undefined ? selectedDocumentType : undefined,
                 options: mappedDocumentsInfo
-                    .filter(
-                        ({ info }) => info?.status !== ShipmentDocumentEvaluationStatus.APPROVED
-                    )
+                    .filter(({ info }) => info?.evaluationStatus !== EvaluationStatus.APPROVED)
                     .map(({ type }) => ({
                         value: type,
                         label: ShipmentDocumentType[type]
@@ -56,7 +54,8 @@ export default (props: Props) => {
                 optionRender: ({ data }) => (
                     <Flex justify="space-between">
                         <span>{data.label}</span>
-                        {oldDocumentsInfo.findIndex((d) => d.type === data.value) !== -1 && (
+                        {oldDocumentsInfo.findIndex((d) => d.documentType === data.value) !==
+                            -1 && (
                             <Tooltip
                                 placement="right"
                                 title={

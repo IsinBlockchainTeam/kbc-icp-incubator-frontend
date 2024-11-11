@@ -1,31 +1,27 @@
 import { useParams } from 'react-router-dom';
-import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
-import {
-    OrderLine,
-    ShipmentEvaluationStatus,
-    ShipmentPhase
-} from '@kbc-lib/coffee-trading-management-lib';
+import { EvaluationStatus, OrderLine, ShipmentPhase } from '@kbc-lib/coffee-trading-management-lib';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
 import { regex } from '@/constants/regex';
 import React from 'react';
-import { useEthShipment } from '@/providers/entities/EthShipmentProvider';
 import { Card, Typography } from 'antd';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { credentials } from '@/constants/ssi';
 import dayjs from 'dayjs';
 import { ShipmentDocumentTable } from '@/components/ShipmentPanel/ShipmentDocumentTable';
+import { useShipment } from '@/providers/icp/ShipmentProvider';
+import { useOrder } from '@/providers/icp/OrderProvider';
 
 const { Paragraph } = Typography;
 
 export const ShipmentConfirmation = () => {
     const { id } = useParams();
-    const { detailedShipment, setDetails, approveDetails } = useEthShipment();
-    const { detailedOrderTrade } = useEthOrderTrade();
+    const { detailedShipment, setDetails, approveDetails } = useShipment();
+    const { order } = useOrder();
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const isExporter = userInfo.companyClaims.role.toUpperCase() === credentials.ROLE_EXPORTER;
 
-    if (!detailedOrderTrade) {
+    if (!order) {
         return <>Order not found</>;
     }
     if (!detailedShipment) {
@@ -60,10 +56,10 @@ export const ShipmentConfirmation = () => {
     };
 
     const isEditable =
-        detailedShipment.shipment.detailsEvaluationStatus !== ShipmentEvaluationStatus.APPROVED &&
+        detailedShipment.shipment.detailsEvaluationStatus !== EvaluationStatus.APPROVED &&
         isExporter;
     const isSubmittable =
-        detailedShipment.shipment.detailsEvaluationStatus !== ShipmentEvaluationStatus.APPROVED;
+        detailedShipment.shipment.detailsEvaluationStatus !== EvaluationStatus.APPROVED;
 
     const elements: FormElement[] = [
         {
@@ -87,7 +83,7 @@ export const ShipmentConfirmation = () => {
             name: 'price',
             label: 'Price',
             required: true,
-            addOnAfter: (detailedOrderTrade.trade.lines[0] as OrderLine).price.fiat,
+            addOnAfter: (order.lines[0] as OrderLine).price.fiat,
             defaultValue: detailedShipment.shipment.price,
             regex: regex.ONLY_DIGITS,
             disabled: !isEditable
@@ -142,7 +138,7 @@ export const ShipmentConfirmation = () => {
             name: 'quantity',
             label: 'Quantity',
             required: true,
-            addOnAfter: detailedOrderTrade.trade.lines[0].unit,
+            addOnAfter: order.lines[0].unit,
             defaultValue: detailedShipment.shipment.quantity,
             regex: regex.ONLY_DIGITS,
             disabled: !isEditable

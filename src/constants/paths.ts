@@ -11,7 +11,6 @@ export const paths = {
     PARTNERS: '/partners',
     OFFERS: '/offers',
     OFFERS_NEW: '/offers/new',
-    OFFERS_SUPPLIER_NEW: '/offers/supplier/new',
     GRAPH: '/graph/:materialId',
     MATERIALS: '/materials',
     MATERIAL_NEW: '/materials/new',

@@ -1,4 +1,3 @@
-import { useEthShipment } from '@/providers/entities/EthShipmentProvider';
 import React, { useEffect } from 'react';
 import { Steps } from 'antd';
 import { ShipmentPhase } from '@kbc-lib/coffee-trading-management-lib';
@@ -12,15 +11,17 @@ import { ShipmentConfirmation } from '@/components/ShipmentPanel/phase/ShipmentC
 import { Result } from '@/components/ShipmentPanel/phase/Result';
 import { SampleApproval } from '@/components/ShipmentPanel/phase/SampleApproval';
 import { ShipmentPhaseDisplayName } from '@/constants/shipmentPhase';
+import { useShipment } from '@/providers/icp/ShipmentProvider';
 
 export const ShipmentPanel = () => {
-    const { detailedShipment } = useEthShipment();
+    const { detailedShipment } = useShipment();
 
     const [currentPhase, setCurrentPhase] = React.useState<ShipmentPhase>(ShipmentPhase.PHASE_1);
 
     useEffect(() => {
         if (detailedShipment) {
-            setCurrentPhase(detailedShipment.phase > 5 ? 5 : detailedShipment.phase);
+            const phaseIndex = Object.values(ShipmentPhase).indexOf(detailedShipment.phase);
+            setCurrentPhase(phaseIndex > 5 ? ShipmentPhase.CONFIRMED : detailedShipment.phase);
         }
     }, [detailedShipment]);
 
@@ -29,8 +30,8 @@ export const ShipmentPanel = () => {
     }
 
     const onStepChange = (value: number) => {
-        if (value > detailedShipment.phase) return;
-        setCurrentPhase(value);
+        if (Object.values(ShipmentPhase)[value] > detailedShipment.phase) return;
+        setCurrentPhase(Object.values(ShipmentPhase)[value]);
     };
 
     const steps = [
@@ -71,13 +72,13 @@ export const ShipmentPanel = () => {
             <Steps
                 labelPlacement="vertical"
                 size="small"
-                current={currentPhase}
+                current={Object.values(ShipmentPhase).indexOf(currentPhase)}
                 onChange={onStepChange}
                 className="shipment-status"
                 items={steps.map((item) => ({ title: item.title, icon: item.icon }))}
                 style={{ marginBottom: '20px' }}
             />
-            {steps[currentPhase].content}
+            {steps[Object.values(ShipmentPhase).indexOf(currentPhase)].content}
         </>
     );
 };

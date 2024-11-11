@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 import { BasicTradeRequest, useEthBasicTrade } from '@/providers/entities/EthBasicTradeProvider';
-import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
+import { useOrder } from '@/providers/icp/OrderProvider';
 
 type BasicTradeViewProps = {
     basicTrade: BasicTrade;
@@ -26,7 +26,7 @@ export const BasicTradeView = ({
     const { productCategories } = useEthMaterial();
     const { units } = useEthEnumerable();
     const { updateBasicTrade } = useEthBasicTrade();
-    const { confirmNegotiation } = useEthOrderTrade();
+    const { sign } = useOrder();
     const navigate = useNavigate();
     const documentHeight = '45vh';
 
@@ -130,7 +130,7 @@ export const BasicTradeView = ({
                                 <CheckCircleOutlined
                                     role="confirm"
                                     style={{ marginLeft: '8px' }}
-                                    onClick={() => confirmNegotiation()}
+                                    onClick={() => sign(basicTrade.tradeId)}
                                 />
                             </Tooltip>
                         </div>

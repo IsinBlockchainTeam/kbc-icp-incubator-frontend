@@ -1,88 +1,83 @@
 import React, { createContext, ReactNode, useMemo, useState } from 'react';
 import {
-    ICPProductCategoryDriver,
-    ICPProductCategoryService,
-    ProductCategory
+    ICPMaterialDriver,
+    ICPMaterialService,
+    Material
 } from '@kbc-lib/coffee-trading-management-lib';
 import { useSiweIdentity } from '@/providers/SiweIdentityProvider';
 import { Typography } from 'antd';
 import { checkAndGetEnvironmentVariable } from '@/utils/env';
 import { ICP } from '@/constants/icp';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
-import { PRODUCT_CATEGORY_MESSAGE } from '@/constants/message';
+import { MATERIAL_MESSAGE, PRODUCT_CATEGORY_MESSAGE } from '@/constants/message';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { useDispatch } from 'react-redux';
 
-export type ProductCategoryContextState = {
+export type MaterialContextState = {
     dataLoaded: boolean;
-    productCategories: ProductCategory[];
+    materials: Material[];
     loadData: () => Promise<void>;
-    saveProductCategory: (name: string, quality: number, description: string) => Promise<void>;
+    saveMaterial: (productCategoryId: number) => Promise<void>;
 };
-export const ProductCategoryContext = createContext<ProductCategoryContextState>(
-    {} as ProductCategoryContextState
-);
-export const useProductCategory = (): ProductCategoryContextState => {
-    const context = React.useContext(ProductCategoryContext);
+export const MaterialContext = createContext<MaterialContextState>({} as MaterialContextState);
+export const useMaterial = (): MaterialContextState => {
+    const context = React.useContext(MaterialContext);
     if (!context || Object.keys(context).length === 0) {
-        throw new Error('useProductCategory must be used within an ProductCategoryProvider.');
+        throw new Error('useMaterial must be used within an MaterialProvider.');
     }
     return context;
 };
-export function ProductCategoryProvider(props: { children: ReactNode }) {
+export function MaterialProvider(props: { children: ReactNode }) {
     const { identity } = useSiweIdentity();
     const entityManagerCanisterId = checkAndGetEnvironmentVariable(ICP.CANISTER_ID_ENTITY_MANAGER);
     const [dataLoaded, setDataLoaded] = useState<boolean>(false);
-    const [productCategories, setProductCategories] = useState<ProductCategory[]>([]);
+    const [materials, setMaterials] = useState<Material[]>([]);
     const dispatch = useDispatch();
 
     if (!identity) {
         return <Typography.Text>Siwe identity not initialized</Typography.Text>;
     }
 
-    const productCategoryService = useMemo(
-        () =>
-            new ICPProductCategoryService(
-                new ICPProductCategoryDriver(identity, entityManagerCanisterId)
-            ),
+    const materialService = useMemo(
+        () => new ICPMaterialService(new ICPMaterialDriver(identity, entityManagerCanisterId)),
         [identity]
     );
 
     const loadData = async () => {
-        await loadProductCategories();
+        await loadMaterials();
         setDataLoaded(true);
     };
 
-    const loadProductCategories = async () => {
+    const loadMaterials = async () => {
         try {
-            dispatch(addLoadingMessage(PRODUCT_CATEGORY_MESSAGE.RETRIEVE.LOADING));
-            const productCategories = await productCategoryService.getProductCategories();
-            setProductCategories(productCategories);
+            dispatch(addLoadingMessage(MATERIAL_MESSAGE.RETRIEVE.LOADING));
+            const materials = await materialService.getMaterials();
+            setMaterials(materials);
         } catch (e: any) {
             console.log('Error while loading product categories', e);
             openNotification(
                 'Error',
-                PRODUCT_CATEGORY_MESSAGE.RETRIEVE.ERROR,
+                MATERIAL_MESSAGE.RETRIEVE.ERROR,
                 NotificationType.ERROR,
                 NOTIFICATION_DURATION
             );
         } finally {
-            dispatch(removeLoadingMessage(PRODUCT_CATEGORY_MESSAGE.RETRIEVE.LOADING));
+            dispatch(removeLoadingMessage(MATERIAL_MESSAGE.RETRIEVE.LOADING));
         }
     };
 
-    const saveProductCategory = async (name: string, quality: number, description: string) => {
+    const saveMaterial = async (productCategoryId: number) => {
         try {
-            dispatch(addLoadingMessage(PRODUCT_CATEGORY_MESSAGE.SAVE.LOADING));
-            await productCategoryService.createProductCategory(name, quality, description);
+            dispatch(addLoadingMessage(MATERIAL_MESSAGE.SAVE.LOADING));
+            await materialService.createMaterial(productCategoryId);
             openNotification(
                 'Success',
                 PRODUCT_CATEGORY_MESSAGE.SAVE.OK,
                 NotificationType.SUCCESS,
                 NOTIFICATION_DURATION
             );
-            await loadProductCategories();
+            await loadMaterials();
         } catch (e: any) {
             console.log('Error while saving product category', e);
             openNotification(
@@ -92,19 +87,19 @@ export function ProductCategoryProvider(props: { children: ReactNode }) {
                 NOTIFICATION_DURATION
             );
         } finally {
-            dispatch(removeLoadingMessage(PRODUCT_CATEGORY_MESSAGE.SAVE.LOADING));
+            dispatch(removeLoadingMessage(MATERIAL_MESSAGE.SAVE.LOADING));
         }
     };
 
     return (
-        <ProductCategoryContext.Provider
+        <MaterialContext.Provider
             value={{
                 dataLoaded,
-                productCategories,
+                materials,
                 loadData,
-                saveProductCategory
+                saveMaterial
             }}>
             {props.children}
-        </ProductCategoryContext.Provider>
+        </MaterialContext.Provider>
     );
 }

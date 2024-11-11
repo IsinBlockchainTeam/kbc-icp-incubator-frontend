@@ -9,9 +9,9 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { paths } from '@/constants/paths';
 import { credentials } from '@/constants/ssi';
-import { useEthOffer } from '@/providers/entities/EthOfferProvider';
-import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
 import { ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
+import { useOffer } from '@/providers/icp/OfferProvider';
+import { useOrganization } from '@/providers/icp/OrganizationProvider';
 
 type OfferPresentable = {
     id: number;
@@ -20,8 +20,8 @@ type OfferPresentable = {
     productCategory: ProductCategory;
 };
 export const Offers = () => {
-    const { offers } = useEthOffer();
-    const { getCompany } = useICPOrganization();
+    const { offers } = useOffer();
+    const { getOrganization } = useOrganization();
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const navigate = useNavigate();
     const [productCategory, setProductCategory] = useState<string>('');
@@ -79,7 +79,7 @@ export const Offers = () => {
         )
         .map((offer) => ({
             id: offer.id,
-            supplierName: getCompany(offer.owner).legalName,
+            supplierName: getOrganization(offer.owner)!.legalName,
             supplierAddress: offer.owner,
             productCategory: offer.productCategory
         }));
@@ -96,13 +96,6 @@ export const Offers = () => {
                     Offers
                     {userInfo.companyClaims.role.toUpperCase() === credentials.ROLE_EXPORTER && (
                         <div>
-                            <Button
-                                type="primary"
-                                icon={<PlusOutlined />}
-                                onClick={() => navigate(paths.OFFERS_SUPPLIER_NEW)}
-                                style={{ marginRight: '16px' }}>
-                                New Offer Supplier
-                            </Button>
                             <Button
                                 type="primary"
                                 icon={<PlusOutlined />}

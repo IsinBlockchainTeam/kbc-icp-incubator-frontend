@@ -1,17 +1,17 @@
 import React from 'react';
 import { Card, Descriptions, DescriptionsProps, Flex, Tag, Typography } from 'antd';
 import { ShipmentDocumentTable } from '@/components/ShipmentPanel/ShipmentDocumentTable';
-import { ShipmentEvaluationStatus, ShipmentPhase } from '@kbc-lib/coffee-trading-management-lib';
+import { EvaluationStatus, ShipmentPhase } from '@kbc-lib/coffee-trading-management-lib';
 import { ConfirmButton } from '@/components/ConfirmButton/ConfirmButton';
-import { useEthShipment } from '@/providers/entities/EthShipmentProvider';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { credentials } from '@/constants/ssi';
+import { useShipment } from '@/providers/icp/ShipmentProvider';
 
 const { Paragraph } = Typography;
 
 export const SampleApproval = () => {
-    const { detailedShipment, approveSample, rejectSample } = useEthShipment();
+    const { detailedShipment, approveSample, rejectSample } = useShipment();
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const isImporter = userInfo.companyClaims.role.toUpperCase() === credentials.ROLE_IMPORTER;
 
@@ -27,15 +27,15 @@ export const SampleApproval = () => {
                 <Tag
                     color={
                         detailedShipment.shipment.sampleEvaluationStatus ===
-                        ShipmentEvaluationStatus.NOT_EVALUATED
+                        EvaluationStatus.NOT_EVALUATED
                             ? 'orange'
                             : detailedShipment.shipment.sampleEvaluationStatus ===
-                                ShipmentEvaluationStatus.APPROVED
+                                EvaluationStatus.APPROVED
                               ? 'green'
                               : 'red'
                     }
                     key="status">
-                    {ShipmentEvaluationStatus[detailedShipment.shipment.sampleEvaluationStatus]}
+                    {EvaluationStatus[detailedShipment.shipment.sampleEvaluationStatus]}
                 </Tag>
             ),
             span: 12
@@ -43,7 +43,7 @@ export const SampleApproval = () => {
     ];
     if (
         isImporter &&
-        detailedShipment.shipment.sampleEvaluationStatus !== ShipmentEvaluationStatus.APPROVED
+        detailedShipment.shipment.sampleEvaluationStatus !== EvaluationStatus.APPROVED
     ) {
         items.push({
             key: '2',
