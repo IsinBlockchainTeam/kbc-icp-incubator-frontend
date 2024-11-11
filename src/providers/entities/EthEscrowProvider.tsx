@@ -67,7 +67,6 @@ export function EthEscrowProvider(props: { children: ReactNode }) {
     const dispatch = useDispatch();
 
     const escrowService = useMemo(() => {
-        // TODO: order.shipment.escrowAddress in not updated
         if (!order || !order.shipment?.escrowAddress) return undefined;
         return new EscrowService(new EscrowDriver(signer, order.shipment.escrowAddress));
     }, [signer, order]);
@@ -108,6 +107,7 @@ export function EthEscrowProvider(props: { children: ReactNode }) {
                 percentageFee
             });
         } catch (e) {
+            console.error('Error loading escrow details', e);
             openNotification(
                 'Error',
                 ESCROW_MESSAGE.RETRIEVE.ERROR,
