@@ -13,8 +13,9 @@ export const ICP = {
         process.env.REACT_APP_CANISTER_ID_PERMISSION,
         'Permission canister ID must be defined'
     ),
+    //TODO: To remove is not used anymore
     CANISTER_ID_ORGANIZATION: checkAndGetEnvironmentVariable(
-        process.env.REACT_APP_CANISTER_ID_ORGANIZATION,
+        'b77ix-eeaaa-aaaaa-qaada-cai',
         'Organization canister ID must be defined'
     ),
     CANISTER_ID_IC_SIWE_PROVIDER: checkAndGetEnvironmentVariable(
