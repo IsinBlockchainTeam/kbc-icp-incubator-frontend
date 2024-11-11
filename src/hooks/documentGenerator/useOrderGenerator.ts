@@ -70,11 +70,12 @@ export default (
     };
 
     const generateJsonSpec = useCallback((): JSONOrderTemplate => {
-        const supplier = getOrganization(orderSpec.supplierAddress)! as BroadedOrganization;
-        const commissioner = getOrganization(orderSpec.commissionerAddress)! as BroadedOrganization;
-        const arbiter = getOrganization(
-            orderSpec.constraints.arbiterAddress
-        )! as BroadedOrganization;
+        const supplier = getOrganization(orderSpec.supplierAddress) as BroadedOrganization;
+        const commissioner = getOrganization(orderSpec.commissionerAddress) as BroadedOrganization;
+        // FIXME: Think better what can be the arbiter
+        // const arbiter = getOrganization(
+        //     orderSpec.constraints.arbiterAddress
+        // ) as BroadedOrganization;
 
         // TODO: probabilmente le informazioni dell'employee e/o della company verranno recuperate in un altro modo o in maniera "collegata" tra loro
         const supplierContact = getSigner(orderSpec.supplierAddress);
@@ -148,14 +149,23 @@ export default (
                     Details: incotermsMap.get(orderSpec.constraints.incoterms)!.details
                 },
                 Arbiter: {
-                    ID: arbiter.ethAddress,
-                    Name: arbiter.legalName,
+                    // ID: arbiter.ethAddress,
+                    // Name: arbiter.legalName,
+                    // Address: {
+                    //     StreetOne: arbiter.address,
+                    //     PostalCode: arbiter.postalCode,
+                    //     Region: arbiter.region,
+                    //     City: arbiter.city,
+                    //     CountryCode: arbiter.countryCode
+                    // },
+                    ID: '0x3EDe384424990E429d5C58522E899A56094A048F',
+                    Name: 'Chester Myers',
                     Address: {
-                        StreetOne: arbiter.address,
-                        PostalCode: arbiter.postalCode,
-                        Region: arbiter.region,
-                        City: arbiter.city,
-                        CountryCode: arbiter.countryCode
+                        StreetOne: 'Ap #606-7666 Morbi St.',
+                        PostalCode: '067368',
+                        Region: 'South Island',
+                        City: 'Sankt Johann im Pongau',
+                        CountryCode: 'MX'
                     },
                     Contact: {
                         Name: arbiterContact.name,

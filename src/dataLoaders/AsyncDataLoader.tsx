@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-type DataLoaderProps = {
+type AsyncDataLoaderProps = {
     customUseContext: () => {
         dataLoaded: boolean;
         loadData: () => void;
@@ -9,7 +9,7 @@ type DataLoaderProps = {
     children: React.ReactNode;
 };
 
-const DataLoader = ({ customUseContext, children }: DataLoaderProps) => {
+const AsyncDataLoader = ({ customUseContext, children }: AsyncDataLoaderProps) => {
     const { dataLoaded, loadData } = customUseContext();
     useEffect(() => {
         if (!dataLoaded) {
@@ -20,4 +20,4 @@ const DataLoader = ({ customUseContext, children }: DataLoaderProps) => {
     return <>{children}</>;
 };
 
-export default DataLoader;
+export default AsyncDataLoader;

@@ -25,8 +25,8 @@ export const TradeNew = () => {
     const supplierAddress: string = location.state.supplierAddress;
     const customerAddress: string = signer._address;
     const productCategoryId: number = location.state.productCategoryId;
-    const supplierName = getOrganization(supplierAddress)!.legalName;
-    const commissionerName = getOrganization(customerAddress)!.legalName;
+    const supplierName = getOrganization(supplierAddress).legalName;
+    const commissionerName = getOrganization(customerAddress).legalName;
 
     elements.push(
         { type: FormElementType.TITLE, span: 24, label: 'Actors' },

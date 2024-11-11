@@ -27,8 +27,8 @@ export const TradeView = () => {
 
     if (!order) return <div>Order not available</div>;
 
-    const supplierName = getOrganization(order.supplier)!.legalName;
-    const commissionerName = getOrganization(order.commissioner)!.legalName;
+    const supplierName = getOrganization(order.supplier).legalName;
+    const commissionerName = getOrganization(order.commissioner).legalName;
 
     const toggleDisabled = () => {
         setDisabled((d) => !d);

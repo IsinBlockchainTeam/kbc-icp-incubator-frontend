@@ -1,6 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react';
-import DataLoader from './DataLoader';
+import AsyncDataLoader from './AsyncDataLoader';
 
 describe('DataLoader', () => {
     it('loads data on initial render when data is not loaded', () => {
@@ -9,7 +9,7 @@ describe('DataLoader', () => {
             loadData: jest.fn()
         });
 
-        render(<DataLoader customUseContext={useContextMock} children={<div />} />);
+        render(<AsyncDataLoader customUseContext={useContextMock} children={<div />} />);
 
         expect(useContextMock().loadData).toHaveBeenCalled();
     });
@@ -20,7 +20,7 @@ describe('DataLoader', () => {
             loadData: jest.fn()
         });
 
-        render(<DataLoader customUseContext={useContextMock} children={<div />} />);
+        render(<AsyncDataLoader customUseContext={useContextMock} children={<div />} />);
 
         expect(useContextMock().loadData).not.toHaveBeenCalled();
     });
@@ -32,7 +32,7 @@ describe('DataLoader', () => {
         });
 
         const { getByText } = render(
-            <DataLoader customUseContext={useContextMock} children={<div>Test Child</div>} />
+            <AsyncDataLoader customUseContext={useContextMock} children={<div>Test Child</div>} />
         );
 
         expect(getByText('Test Child')).toBeInTheDocument();
