@@ -16,6 +16,7 @@ import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { useSigner } from '@/providers/SignerProvider';
 import { useNavigate } from 'react-router-dom';
 import { paths } from '@/constants/paths';
+import LoadingPage from '@/components/loading/LoadingPage';
 
 export type AuthenticationContextState = {
     logout: () => Promise<void>;
@@ -144,7 +145,7 @@ export function AuthenticationProvider(props: { children: React.ReactNode }) {
     };
 
     if (!loggedIn) {
-        return <></>;
+        return <LoadingPage />;
     }
     return (
         <AuthenticationContext.Provider

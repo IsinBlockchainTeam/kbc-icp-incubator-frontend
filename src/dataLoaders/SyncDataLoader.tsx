@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import LoadingPage from '@/components/loading/LoadingPage';
 
 type SyncDataLoaderProps = {
     customUseContext: () => {
@@ -19,7 +20,7 @@ const SyncDataLoader = ({ customUseContext, children }: SyncDataLoaderProps) => 
 
     const buildChild = () => {
         if (!dataLoaded) {
-            return <div>Loading...</div>;
+            return <LoadingPage />;
         }
 
         return children;
