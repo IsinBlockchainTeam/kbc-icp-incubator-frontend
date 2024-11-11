@@ -52,7 +52,6 @@ export function AuthenticationProvider(props: { children: React.ReactNode }) {
             value={{
                 logout
             }}>
-            <button onClick={logout}>Logout</button>
             {props.children}
         </AuthenticationContext.Provider>
     );
