@@ -57,8 +57,8 @@ export default () => {
 
     const computeCounterpart = (trade: Order) => {
         return isExporter
-            ? getOrganization(trade.commissioner)!.legalName
-            : getOrganization(trade.supplier)!.legalName;
+            ? getOrganization(trade.commissioner).legalName
+            : getOrganization(trade.supplier).legalName;
     };
 
     const documentSubmit = async (

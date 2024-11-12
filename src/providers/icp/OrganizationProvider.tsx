@@ -13,7 +13,7 @@ import { NOTIFICATION_DURATION } from '@/constants/notification';
 export type OrganizationContextState = {
     dataLoaded: boolean;
     organizations: Map<string, Organization>;
-    getOrganization: (ethAddress: string) => Organization | undefined;
+    getOrganization: (ethAddress: string) => Organization;
     storeOrganization: (params: OrganizationParams) => Promise<void>;
     updateOrganization: (ethAddress: string, params: OrganizationParams) => Promise<void>;
     loadData: () => Promise<void>;
@@ -66,11 +66,29 @@ export function OrganizationProvider(props: { children: ReactNode }) {
     const loadData = async () => {
         setDataLoaded(false);
         await loadOrganizations();
+
+        for (let i = 0; i < 1000000000; i++) {}
+
         setDataLoaded(true);
     };
 
-    const getOrganization = (ethAddress: string): Organization | undefined => {
-        return organizations.get(ethAddress.toLowerCase());
+    const getOrganization = (ethAddress: string): Organization => {
+        const organization = organizations.get(ethAddress.toLowerCase());
+
+        console.log('organizations', organizations);
+
+        if (!organization) {
+            openNotification(
+                'Error',
+                ORGANIZATION_MESSAGE.RETRIEVE.NOT_FOUND,
+                NotificationType.ERROR,
+                NOTIFICATION_DURATION
+            );
+
+            throw new Error('Organization not found');
+        }
+
+        return organization;
     };
 
     const writeTransaction = async (transaction: () => Promise<Organization>, message: OrganizationMessage) => {

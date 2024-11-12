@@ -38,7 +38,7 @@ export const Trades = () => {
                 //     asyncFunction={async () => getCompany(await getSupplierAsync(id)).legalName}
                 //     defaultElement={<>Unknown</>}
                 // />
-                <div>{getOrganization(supplier)!.legalName}</div>
+                <div>{getOrganization(supplier).legalName}</div>
             )
         },
         {
@@ -49,7 +49,7 @@ export const Trades = () => {
                 //     asyncFunction={async () => getCompany(await getCustomerAsync(id)).legalName}
                 //     defaultElement={<>Unknown</>}
                 // />
-                <div>{getOrganization(commissioner)!.legalName}</div>
+                <div>{getOrganization(commissioner).legalName}</div>
             )
         },
         {

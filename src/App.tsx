@@ -21,7 +21,7 @@ import { persistor, store } from '@/redux/store';
 import { PersistGate } from 'redux-persist/integration/react';
 import { MenuLayout } from '@/components/structure/MenuLayout/MenuLayout';
 import { paths } from '@/constants/paths';
-import DataLoader from './DataLoader';
+import AsyncDataLoader from './dataLoaders/AsyncDataLoader';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 import { AssetOperationView } from '@/pages/AssetOperation/AssetOperationView';
 import { WalletConnectProvider } from '@/providers/WalletConnectProvider';
@@ -33,7 +33,6 @@ import { useOrder } from '@/providers/icp/OrderProvider';
 import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';
 import { useMaterial } from '@/providers/icp/MaterialProvider';
 import { useShipment } from '@/providers/icp/ShipmentProvider';
-import { useOrganization } from '@/providers/icp/OrganizationProvider';
 import { useOffer } from '@/providers/icp/OfferProvider';
 import { useRawCertification } from '@/providers/icp/RawCertificationProvider';
 import { useEnumeration } from '@/providers/icp/EnumerationProvider';
@@ -48,172 +47,166 @@ export const App = () => {
                             <Routes>
                                 <Route element={<MenuLayout />}>
                                     <Route element={<PrivateRoutes />}>
-                                        <Route
-                                            index
-                                            path={paths.PROFILE}
-                                            element={
-                                                <DataLoader customUseContext={useOrganization}>
-                                                    <Profile />
-                                                </DataLoader>
-                                            }
-                                        />
+                                        <Route index path={paths.PROFILE} element={<Profile />} />
                                         <Route path={paths.PARTNERS} element={<Partners />} />
                                         <Route
                                             path={paths.OFFERS}
                                             element={
-                                                <DataLoader customUseContext={useOrganization}>
-                                                    <DataLoader customUseContext={useOffer}>
-                                                        <Offers />
-                                                    </DataLoader>
-                                                </DataLoader>
+                                                <AsyncDataLoader customUseContext={useOffer}>
+                                                    <Offers />
+                                                </AsyncDataLoader>
                                             }
                                         />
                                         <Route
                                             path={paths.OFFERS_NEW}
                                             element={
-                                                <DataLoader customUseContext={useOrganization}>
-                                                    <DataLoader customUseContext={useProductCategory}>
-                                                        <DataLoader customUseContext={useOffer}>
-                                                            <OfferNew />
-                                                        </DataLoader>
-                                                    </DataLoader>
-                                                </DataLoader>
+                                                <AsyncDataLoader
+                                                    customUseContext={useProductCategory}>
+                                                    <AsyncDataLoader customUseContext={useOffer}>
+                                                        <OfferNew />
+                                                    </AsyncDataLoader>
+                                                </AsyncDataLoader>
                                             }
                                         />
                                         <Route
                                             path={paths.MATERIALS}
                                             element={
-                                                <DataLoader customUseContext={useProductCategory}>
-                                                    <DataLoader customUseContext={useMaterial}>
+                                                <AsyncDataLoader
+                                                    customUseContext={useProductCategory}>
+                                                    <AsyncDataLoader customUseContext={useMaterial}>
                                                         <Materials />
-                                                    </DataLoader>
-                                                </DataLoader>
+                                                    </AsyncDataLoader>
+                                                </AsyncDataLoader>
                                             }
                                         />
                                         <Route
                                             path={paths.MATERIAL_NEW}
                                             element={
-                                                <DataLoader customUseContext={useMaterial}>
+                                                <AsyncDataLoader customUseContext={useMaterial}>
                                                     <MaterialNew />
-                                                </DataLoader>
+                                                </AsyncDataLoader>
                                             }
                                         />
                                         <Route
                                             path={paths.PRODUCT_CATEGORY_NEW}
                                             element={
-                                                <DataLoader customUseContext={useProductCategory}>
+                                                <AsyncDataLoader
+                                                    customUseContext={useProductCategory}>
                                                     <ProductCategoryNew />
-                                                </DataLoader>
+                                                </AsyncDataLoader>
                                             }
                                         />
                                         // TODO: are the following two duplicates?
                                         <Route
                                             path={paths.DOCUMENTS}
                                             element={
-                                                <DataLoader customUseContext={useOrder}>
+                                                <AsyncDataLoader customUseContext={useOrder}>
                                                     <Documents />
-                                                </DataLoader>
+                                                </AsyncDataLoader>
                                             }
                                         />
                                         <Route
                                             path={paths.ORDER_DOCUMENTS}
                                             element={
-                                                <DataLoader customUseContext={useOrganization}>
-                                                    <DataLoader customUseContext={useOrder}>
-                                                        <Documents />
-                                                    </DataLoader>
-                                                </DataLoader>
+                                                <AsyncDataLoader customUseContext={useOrder}>
+                                                    <Documents />
+                                                </AsyncDataLoader>
                                             }
                                         />
                                         <Route
                                             path={paths.TRADES}
                                             element={
-                                                <DataLoader customUseContext={useOrder}>
+                                                <AsyncDataLoader customUseContext={useOrder}>
                                                     <Trades />
-                                                </DataLoader>
+                                                </AsyncDataLoader>
                                             }
                                         />
                                         <Route
                                             path={paths.TRADE_NEW}
                                             element={
-                                                <DataLoader customUseContext={useOrganization}>
-                                                    <DataLoader customUseContext={useEthEnumerable}>
-                                                        <DataLoader customUseContext={useProductCategory}>
-                                                            <DataLoader customUseContext={useMaterial}>
-                                                                <DataLoader customUseContext={useOrder}>
-                                                                    <TradeNew />
-                                                                </DataLoader>
-                                                            </DataLoader>
-                                                        </DataLoader>
-                                                    </DataLoader>
-                                                </DataLoader>
+                                                <AsyncDataLoader
+                                                    customUseContext={useEthEnumerable}>
+                                                    <AsyncDataLoader
+                                                        customUseContext={useProductCategory}>
+                                                        <AsyncDataLoader
+                                                            customUseContext={useMaterial}>
+                                                            <AsyncDataLoader
+                                                                customUseContext={useOrder}>
+                                                                <TradeNew />
+                                                            </AsyncDataLoader>
+                                                        </AsyncDataLoader>
+                                                    </AsyncDataLoader>
+                                                </AsyncDataLoader>
                                             }
                                         />
                                         <Route
                                             path={paths.TRADE_VIEW}
                                             element={
-                                                <DataLoader customUseContext={useOrganization}>
-                                                    <DataLoader customUseContext={useEthEnumerable}>
-                                                        <DataLoader customUseContext={useProductCategory}>
-                                                            <DataLoader customUseContext={useMaterial}>
-                                                                <DataLoader customUseContext={useOrder}>
-                                                                    <DataLoader customUseContext={useShipment}>
-                                                                        <TradeView />
-                                                                    </DataLoader>
-                                                                </DataLoader>
-                                                            </DataLoader>
-                                                        </DataLoader>
-                                                    </DataLoader>
-                                                </DataLoader>
+                                                <AsyncDataLoader
+                                                    customUseContext={useEthEnumerable}>
+                                                    <AsyncDataLoader
+                                                        customUseContext={useProductCategory}>
+                                                        <AsyncDataLoader
+                                                            customUseContext={useMaterial}>
+                                                            <AsyncDataLoader
+                                                                customUseContext={useOrder}>
+                                                                <AsyncDataLoader
+                                                                    customUseContext={useShipment}>
+                                                                    <TradeView />
+                                                                </AsyncDataLoader>
+                                                            </AsyncDataLoader>
+                                                        </AsyncDataLoader>
+                                                    </AsyncDataLoader>
+                                                </AsyncDataLoader>
                                             }
                                         />
                                         <Route
                                             path={paths.CERTIFICATIONS}
                                             element={
-                                                <DataLoader customUseContext={useRawCertification}>
+                                                <AsyncDataLoader customUseContext={useRawCertification}>
                                                     <Certifications />
-                                                </DataLoader>
+                                                </AsyncDataLoader>
                                             }
                                         />
                                         <Route
                                             path={paths.CERTIFICATION_NEW}
                                             element={
-                                                <DataLoader customUseContext={useOrganization}>
-                                                    <DataLoader customUseContext={useEnumeration}>
-                                                        <DataLoader customUseContext={useMaterial}>
-                                                            <CertificateNew />
-                                                        </DataLoader>
-                                                    </DataLoader>
-                                                </DataLoader>
+                                                <AsyncDataLoader customUseContext={useEnumeration}>
+                                                    <AsyncDataLoader customUseContext={useMaterial}>
+                                                        <CertificateNew />
+                                                    </AsyncDataLoader>
+                                                </AsyncDataLoader>
                                             }
                                         />
                                         <Route
                                             path={paths.CERTIFICATION_VIEW}
                                             element={
-                                                <DataLoader customUseContext={useEnumeration}>
+                                                <AsyncDataLoader customUseContext={useEnumeration}>
                                                     <CertificateView />
-                                                </DataLoader>
+                                                </AsyncDataLoader>
                                             }
                                         />
                                         <Route path={paths.ASSET_OPERATIONS} element={<AssetOperations />} />
                                         <Route
                                             path={paths.ASSET_OPERATIONS_NEW}
                                             element={
-                                                <DataLoader customUseContext={useMaterial}>
-                                                    <DataLoader customUseContext={useEthEnumerable}>
+                                                <AsyncDataLoader customUseContext={useMaterial}>
+                                                    <AsyncDataLoader
+                                                        customUseContext={useEthEnumerable}>
                                                         <AssetOperationNew />
-                                                    </DataLoader>
-                                                </DataLoader>
+                                                    </AsyncDataLoader>
+                                                </AsyncDataLoader>
                                             }
                                         />
                                         <Route
                                             path={paths.ASSET_OPERATIONS_VIEW}
                                             element={
-                                                <DataLoader customUseContext={useMaterial}>
-                                                    <DataLoader customUseContext={useEthEnumerable}>
+                                                <AsyncDataLoader customUseContext={useMaterial}>
+                                                    <AsyncDataLoader
+                                                        customUseContext={useEthEnumerable}>
                                                         <AssetOperationView />
-                                                    </DataLoader>
-                                                </DataLoader>
+                                                    </AsyncDataLoader>
+                                                </AsyncDataLoader>
                                             }
                                         />
                                         <Route path={paths.GRAPH} element={<GraphPage />} />

@@ -16,6 +16,7 @@ import { ShipmentProvider } from '@/providers/icp/ShipmentProvider';
 import { OfferProvider } from '@/providers/icp/OfferProvider';
 import { OrganizationProvider, useOrganization } from '@/providers/icp/OrganizationProvider';
 import NavigationBlocker from './NavigationBlocker';
+import SyncDataLoader from './dataLoaders/SyncDataLoader';
 import { RawCertificationProvider } from '@/providers/icp/RawCertificationProvider';
 import { CertificationProvider } from '@/providers/icp/CertificationProvider';
 import { EnumerationProvider } from '@/providers/icp/EnumerationProvider';
@@ -29,9 +30,13 @@ const PrivateRoutes = () => {
 
         const organizationEthAddress = userInfo.roleProof.delegator;
 
-        const foundedOrganization = getOrganization(organizationEthAddress);
+        try {
+            getOrganization(organizationEthAddress);
 
-        return foundedOrganization !== undefined;
+            return true;
+        } catch (error) {
+            return false;
+        }
     };
 
     return isLogged ? (
@@ -51,15 +56,15 @@ const PrivateRoutes = () => {
                                                         <ShipmentProvider>
                                                             <RawCertificationProvider>
                                                                 <CertificationProvider>
-                                                                    <NavigationBlocker
-                                                                        condition={
-                                                                            isOrganizationOnIcp
-                                                                        }
-                                                                        redirectPath={
-                                                                            paths.PROFILE
-                                                                        }>
-                                                                    <Outlet />
-                                                                    </NavigationBlocker>
+                                                                    <SyncDataLoader
+                                                                        customUseContext={useOrganization}>
+                                                                        <NavigationBlocker
+                                                                            condition={isOrganizationOnIcp}
+                                                                            redirectPath={paths.PROFILE}
+                                                                        >
+                                                                            <Outlet />
+                                                                        </NavigationBlocker>
+                                                                    </SyncDataLoader>
                                                                 </CertificationProvider>
                                                             </RawCertificationProvider>
                                                         </ShipmentProvider>
