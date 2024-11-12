@@ -2,12 +2,12 @@ import { createSlice } from '@reduxjs/toolkit';
 
 export type LoadingState = {
     isLoading: boolean;
-    loadingMessages: string[];
+    loadingMessages: { [key: string]: number };
 };
 
 const initialState: LoadingState = {
     isLoading: false,
-    loadingMessages: []
+    loadingMessages: {}
 };
 
 const loadingSlice = createSlice({
@@ -16,12 +16,19 @@ const loadingSlice = createSlice({
     reducers: {
         addLoadingMessage: (state: LoadingState, action: { payload: string; type: string }) => {
             state.isLoading = true;
-            state.loadingMessages.push(action.payload);
+            const count = state.loadingMessages[action.payload] || 0;
+            state.loadingMessages[action.payload] = count + 1;
         },
         removeLoadingMessage: (state: LoadingState, action: { payload: string; type: string }) => {
-            state.loadingMessages = state.loadingMessages.filter((msg) => msg !== action.payload);
-            if (state.loadingMessages.length === 0) {
+            let count = state.loadingMessages[action.payload];
+            if (count === undefined) return;
+            count--;
+            state.loadingMessages[action.payload] = count;
+            if (count === 0) {
                 state.isLoading = false;
+                state.loadingMessages = Object.fromEntries(
+                    Object.entries(state.loadingMessages).filter(([key]) => key !== action.payload)
+                );
             }
         }
     }

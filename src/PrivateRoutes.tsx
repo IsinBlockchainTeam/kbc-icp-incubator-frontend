@@ -17,6 +17,7 @@ import { OfferProvider } from '@/providers/icp/OfferProvider';
 import { OrganizationProvider, useOrganization } from '@/providers/icp/OrganizationProvider';
 import NavigationBlocker from './NavigationBlocker';
 import SyncDataLoader from './dataLoaders/SyncDataLoader';
+import { CallHandlerProvider } from '@/providers/icp/CallHandlerProvider';
 
 const PrivateRoutes = () => {
     const { isLogged } = useSelector((state: RootState) => state.userInfo);
@@ -36,10 +37,12 @@ const PrivateRoutes = () => {
         }
     };
 
+    // TODO: check if this provider can be moved to a higher level
     return isLogged ? (
         <SignerProvider>
             <SiweIdentityProvider>
                 <ICPProvider>
+                    <CallHandlerProvider>
                     <AuthenticationProvider>
                         <OrganizationProvider>
                             <EthEnumerableProvider>
@@ -66,6 +69,7 @@ const PrivateRoutes = () => {
                             </EthEnumerableProvider>
                         </OrganizationProvider>
                     </AuthenticationProvider>
+                    </CallHandlerProvider>
                 </ICPProvider>
             </SiweIdentityProvider>
         </SignerProvider>

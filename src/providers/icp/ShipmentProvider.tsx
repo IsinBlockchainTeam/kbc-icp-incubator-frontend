@@ -26,6 +26,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { ICPResourceSpec } from '@blockchain-lib/common';
 import { getMimeType } from '@/utils/file';
+import { useCallHandler } from '@/providers/icp/CallHandlerProvider';
 
 export type ShipmentContextState = {
     dataLoaded: boolean;
@@ -91,6 +92,7 @@ export function ShipmentProvider(props: { children: ReactNode }) {
     const { fileDriver } = useICP();
     const dispatch = useDispatch();
     const userInfo = useSelector((state: RootState) => state.userInfo);
+    const { handleICPCall } = useCallHandler();
 
     const [dataLoaded, setDataLoaded] = useState<boolean>(false);
     const [detailShipment, setDetailShipment] = useState<DetailedShipment | null>(null);
@@ -124,9 +126,10 @@ export function ShipmentProvider(props: { children: ReactNode }) {
     const loadData = async () => {
         if (!shipmentService || !order || !order.shipment) return;
 
-        try {
-            dispatch(addLoadingMessage(SHIPMENT_MESSAGE.RETRIEVE.LOADING));
+        await handleICPCall(async () => {
+            // @ts-ignore
             const shipment = await shipmentService.getShipment(order.shipment.id);
+            // @ts-ignore
             const phase = await shipmentService.getShipmentPhase(order.shipment.id);
             const phaseDocuments = new Map<ShipmentPhase, ShipmentPhaseDocument[]>();
 
@@ -141,25 +144,14 @@ export function ShipmentProvider(props: { children: ReactNode }) {
             );
 
             setDetailShipment({ shipment, phase, orderId: order.id, phaseDocuments });
-        } catch (e) {
-            console.error(e);
-            openNotification(
-                'Error',
-                SHIPMENT_MESSAGE.RETRIEVE.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
-        } finally {
-            dispatch(removeLoadingMessage(SHIPMENT_MESSAGE.RETRIEVE.LOADING));
-        }
+        }, SHIPMENT_MESSAGE.RETRIEVE.LOADING);
     };
 
     const writeTransaction = async (
         transaction: () => Promise<Shipment>,
         shipmentMessage: ShipmentMessage
     ) => {
-        try {
-            dispatch(addLoadingMessage(shipmentMessage.LOADING));
+        await handleICPCall(async () => {
             await transaction();
             await loadData();
             openNotification(
@@ -168,17 +160,7 @@ export function ShipmentProvider(props: { children: ReactNode }) {
                 NotificationType.SUCCESS,
                 NOTIFICATION_DURATION
             );
-        } catch (e) {
-            console.error(e);
-            openNotification(
-                'Error',
-                shipmentMessage.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
-        } finally {
-            dispatch(removeLoadingMessage(shipmentMessage.LOADING));
-        }
+        }, shipmentMessage.LOADING);
     };
 
     const setDetails = async (
@@ -195,8 +177,7 @@ export function ShipmentProvider(props: { children: ReactNode }) {
     ): Promise<void> => {
         if (!shipmentService) throw new Error(' service not initialized');
         if (!detailShipment) throw new Error('Shipment not initialized');
-        try {
-            dispatch(addLoadingMessage(SHIPMENT_MESSAGE.SAVE_DETAILS.LOADING));
+        await handleICPCall(async () => {
             await shipmentService.setShipmentDetails(
                 detailShipment.shipment.id,
                 shipmentNumber,
@@ -217,17 +198,7 @@ export function ShipmentProvider(props: { children: ReactNode }) {
                 NotificationType.SUCCESS,
                 NOTIFICATION_DURATION
             );
-        } catch (e) {
-            console.error(e);
-            openNotification(
-                'Error',
-                SHIPMENT_MESSAGE.SAVE_DETAILS.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
-        } finally {
-            dispatch(removeLoadingMessage(SHIPMENT_MESSAGE.SAVE_DETAILS.LOADING));
-        }
+        }, SHIPMENT_MESSAGE.SAVE_DETAILS.LOADING);
     };
 
     const approveSample = async () => {
@@ -293,6 +264,7 @@ export function ShipmentProvider(props: { children: ReactNode }) {
     const getDocument = async (documentId: number): Promise<ShipmentCompleteDocument> => {
         if (!shipmentService) throw new Error(' service not initialized');
         if (!detailShipment) throw new Error('Shipment not initialized');
+        // TODO: replace with handleICPCall
         try {
             dispatch(addLoadingMessage(SHIPMENT_MESSAGE.GET_DOCUMENT.LOADING));
             const document = await shipmentService.getDocument(
@@ -330,8 +302,7 @@ export function ShipmentProvider(props: { children: ReactNode }) {
     ) => {
         if (!shipmentService) throw new Error('Shipment service not initialized');
         if (!detailShipment) throw new Error('Shipment not initialized');
-        try {
-            dispatch(addLoadingMessage(SHIPMENT_MESSAGE.ADD_DOCUMENT.LOADING));
+        await handleICPCall(async () => {
             // TODO: remove this harcoded value
             const delegatedOrganizationIds: number[] =
                 parseInt(userInfo.companyClaims.organizationId) === 0 ? [1] : [0];
@@ -354,17 +325,7 @@ export function ShipmentProvider(props: { children: ReactNode }) {
                 NotificationType.SUCCESS,
                 NOTIFICATION_DURATION
             );
-        } catch (e) {
-            console.error(e);
-            openNotification(
-                'Error',
-                SHIPMENT_MESSAGE.ADD_DOCUMENT.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
-        } finally {
-            dispatch(removeLoadingMessage(SHIPMENT_MESSAGE.ADD_DOCUMENT.LOADING));
-        }
+        }, SHIPMENT_MESSAGE.ADD_DOCUMENT.LOADING);
     };
 
     const approveDocument = async (documentId: number) => {

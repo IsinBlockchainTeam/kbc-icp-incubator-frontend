@@ -160,7 +160,7 @@ export const MenuLayout = () => {
                         }
                         size={'large'}
                         spinning={loading.isLoading}
-                        tip={loading.loadingMessages.map((msg) => (
+                        tip={Object.keys(loading.loadingMessages).map((msg) => (
                             <div key={msg}>{msg}</div>
                         ))}>
                         <Outlet />
