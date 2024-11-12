@@ -44,6 +44,8 @@ export default function Profile() {
     const checkIcpOrganization = () => {
         const organizationEthAddress = userInfo.roleProof.delegator;
 
+        console.log(userInfo);
+
         try {
             const foundedOrganization = getOrganization(organizationEthAddress);
 

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import LoadingPage from '@/components/loading/LoadingPage';
+import LoadingPage from '@/components/Loading/LoadingPage';
 
 type SyncDataLoaderProps = {
     customUseContext: () => {
