@@ -3,14 +3,13 @@ import { paths } from '@/constants/paths';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
-import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 import { CertificateDocumentNames } from '@/constants/certificationDocument';
 import { ICPMaterialCertificate, ICPCertificateDocumentType } from '@kbc-lib/coffee-trading-management-lib';
 import { useSigner } from '@/providers/SignerProvider';
 import { CertificateViewProps } from '@/pages/Certification/View/CertificateView';
-import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { MaterialCertificateRequest, useCertification } from '@/providers/icp/CertificationProvider';
 import { useEnumeration } from '@/providers/icp/EnumerationProvider';
+import { useMaterial } from '@/providers/icp/MaterialProvider';
 
 export const MaterialCertificateView = (props: CertificateViewProps) => {
     const { commonElements, editElements, detailedCertificate, disabled } = props;
@@ -19,8 +18,7 @@ export const MaterialCertificateView = (props: CertificateViewProps) => {
     const { signer } = useSigner();
     const navigate = useNavigate();
     const { assessmentAssuranceLevels, assessmentStandards } = useEnumeration();
-    // TODO: use icp material provider to retrieve materials
-    const { materials } = useEthMaterial();
+    const { materials } = useMaterial();
     const { updateMaterialCertificate } = useCertification();
 
     const elements: FormElement[] = [
@@ -60,9 +58,9 @@ export const MaterialCertificateView = (props: CertificateViewProps) => {
             type: FormElementType.SELECT,
             span: 12,
             name: 'materialId',
-            label: 'Material ID',
+            label: 'Material',
             required: true,
-            defaultValue: materialCertificate.materialId,
+            defaultValue: materials.findIndex((material) => material.id === materialCertificate.material.id),
             options: materials.map((material) => ({
                 value: material.id,
                 label: material.productCategory.name

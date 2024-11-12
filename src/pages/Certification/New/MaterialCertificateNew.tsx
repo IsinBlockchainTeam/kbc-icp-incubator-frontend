@@ -9,9 +9,9 @@ import { FormElement, FormElementType, GenericForm } from '@/components/GenericF
 import { CertificateDocumentNames } from '@/constants/certificationDocument';
 import { ICPCertificateDocumentType } from '@kbc-lib/coffee-trading-management-lib';
 import { useSigner } from '@/providers/SignerProvider';
-import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { useEnumeration } from '@/providers/icp/EnumerationProvider';
 import { MaterialCertificateRequest, useCertification } from '@/providers/icp/CertificationProvider';
+import { useMaterial } from '@/providers/icp/MaterialProvider';
 
 export const MaterialCertificateNew = (props: CertificateNewProps) => {
     const { commonElements } = props;
@@ -19,9 +19,7 @@ export const MaterialCertificateNew = (props: CertificateNewProps) => {
     const navigate = useNavigate();
     const { assessmentAssuranceLevels, assessmentStandards } = useEnumeration();
     const { saveMaterialCertificate } = useCertification();
-    // const { materials } = useEthMaterial();
-    // TODO: use the icp provider to retrieve materials
-    const materials = [{ id: 1, productCategory: { name: 'test' } }];
+    const { materials } = useMaterial();
 
     const elements: FormElement[] = [
         ...commonElements,

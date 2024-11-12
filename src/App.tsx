@@ -60,8 +60,7 @@ export const App = () => {
                                         <Route
                                             path={paths.OFFERS_NEW}
                                             element={
-                                                <AsyncDataLoader
-                                                    customUseContext={useProductCategory}>
+                                                <AsyncDataLoader customUseContext={useProductCategory}>
                                                     <AsyncDataLoader customUseContext={useOffer}>
                                                         <OfferNew />
                                                     </AsyncDataLoader>
@@ -71,8 +70,7 @@ export const App = () => {
                                         <Route
                                             path={paths.MATERIALS}
                                             element={
-                                                <AsyncDataLoader
-                                                    customUseContext={useProductCategory}>
+                                                <AsyncDataLoader customUseContext={useProductCategory}>
                                                     <AsyncDataLoader customUseContext={useMaterial}>
                                                         <Materials />
                                                     </AsyncDataLoader>
@@ -90,8 +88,7 @@ export const App = () => {
                                         <Route
                                             path={paths.PRODUCT_CATEGORY_NEW}
                                             element={
-                                                <AsyncDataLoader
-                                                    customUseContext={useProductCategory}>
+                                                <AsyncDataLoader customUseContext={useProductCategory}>
                                                     <ProductCategoryNew />
                                                 </AsyncDataLoader>
                                             }
@@ -124,14 +121,10 @@ export const App = () => {
                                         <Route
                                             path={paths.TRADE_NEW}
                                             element={
-                                                <AsyncDataLoader
-                                                    customUseContext={useEthEnumerable}>
-                                                    <AsyncDataLoader
-                                                        customUseContext={useProductCategory}>
-                                                        <AsyncDataLoader
-                                                            customUseContext={useMaterial}>
-                                                            <AsyncDataLoader
-                                                                customUseContext={useOrder}>
+                                                <AsyncDataLoader customUseContext={useEthEnumerable}>
+                                                    <AsyncDataLoader customUseContext={useProductCategory}>
+                                                        <AsyncDataLoader customUseContext={useMaterial}>
+                                                            <AsyncDataLoader customUseContext={useOrder}>
                                                                 <TradeNew />
                                                             </AsyncDataLoader>
                                                         </AsyncDataLoader>
@@ -142,16 +135,11 @@ export const App = () => {
                                         <Route
                                             path={paths.TRADE_VIEW}
                                             element={
-                                                <AsyncDataLoader
-                                                    customUseContext={useEthEnumerable}>
-                                                    <AsyncDataLoader
-                                                        customUseContext={useProductCategory}>
-                                                        <AsyncDataLoader
-                                                            customUseContext={useMaterial}>
-                                                            <AsyncDataLoader
-                                                                customUseContext={useOrder}>
-                                                                <AsyncDataLoader
-                                                                    customUseContext={useShipment}>
+                                                <AsyncDataLoader customUseContext={useEthEnumerable}>
+                                                    <AsyncDataLoader customUseContext={useProductCategory}>
+                                                        <AsyncDataLoader customUseContext={useMaterial}>
+                                                            <AsyncDataLoader customUseContext={useOrder}>
+                                                                <AsyncDataLoader customUseContext={useShipment}>
                                                                     <TradeView />
                                                                 </AsyncDataLoader>
                                                             </AsyncDataLoader>
@@ -182,7 +170,9 @@ export const App = () => {
                                             path={paths.CERTIFICATION_VIEW}
                                             element={
                                                 <AsyncDataLoader customUseContext={useEnumeration}>
-                                                    <CertificateView />
+                                                    <AsyncDataLoader customUseContext={useMaterial}>
+                                                        <CertificateView />
+                                                    </AsyncDataLoader>
                                                 </AsyncDataLoader>
                                             }
                                         />
@@ -191,8 +181,7 @@ export const App = () => {
                                             path={paths.ASSET_OPERATIONS_NEW}
                                             element={
                                                 <AsyncDataLoader customUseContext={useMaterial}>
-                                                    <AsyncDataLoader
-                                                        customUseContext={useEthEnumerable}>
+                                                    <AsyncDataLoader customUseContext={useEthEnumerable}>
                                                         <AssetOperationNew />
                                                     </AsyncDataLoader>
                                                 </AsyncDataLoader>
@@ -202,8 +191,7 @@ export const App = () => {
                                             path={paths.ASSET_OPERATIONS_VIEW}
                                             element={
                                                 <AsyncDataLoader customUseContext={useMaterial}>
-                                                    <AsyncDataLoader
-                                                        customUseContext={useEthEnumerable}>
+                                                    <AsyncDataLoader customUseContext={useEthEnumerable}>
                                                         <AssetOperationView />
                                                     </AsyncDataLoader>
                                                 </AsyncDataLoader>
