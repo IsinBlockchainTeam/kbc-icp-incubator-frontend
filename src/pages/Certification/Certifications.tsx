@@ -10,6 +10,7 @@ import { ICPBaseCertificate, ICPCertificateType } from '@kbc-lib/coffee-trading-
 import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
 import DropdownButton from 'antd/es/dropdown/dropdown-button';
 import { useRawCertification } from '@/providers/icp/RawCertificationProvider';
+import { useOrganization } from '@/providers/icp/OrganizationProvider';
 
 export const certificationsType = [
     {
@@ -35,7 +36,7 @@ export const certificationsType = [
 export const Certifications = () => {
     const navigate = useNavigate();
     const { rawCertificates } = useRawCertification();
-    const { getCompany } = useICPOrganization();
+    const { getOrganization } = useOrganization();
     const columns: ColumnsType<ICPBaseCertificate> = [
         {
             title: 'Id',
@@ -60,9 +61,8 @@ export const Certifications = () => {
         {
             title: 'Certifier',
             dataIndex: 'issuer',
-            render: (_, { issuer }) => getCompany(issuer).legalName,
-            sorter: (a, b) =>
-                getCompany(a.issuer).legalName.localeCompare(getCompany(b.issuer).legalName)
+            render: (_, { issuer }) => getOrganization(issuer)!.legalName,
+            sorter: (a, b) => getOrganization(a.issuer)!.legalName.localeCompare(getOrganization(b.issuer)!.legalName)
         },
         {
             title: 'Issue date',
@@ -73,13 +73,8 @@ export const Certifications = () => {
         {
             title: 'Type',
             dataIndex: 'type',
-            render: (_, { certificateType }) => (
-                <Tag color="geekblue">{ICPCertificateType[certificateType]}</Tag>
-            ),
-            sorter: (a, b) =>
-                ICPCertificateType[a.certificateType]
-                    .toLowerCase()
-                    .localeCompare(ICPCertificateType[b.certificateType].toLowerCase())
+            render: (_, { certificateType }) => <Tag color="geekblue">{ICPCertificateType[certificateType]}</Tag>,
+            sorter: (a, b) => ICPCertificateType[a.certificateType].toLowerCase().localeCompare(ICPCertificateType[b.certificateType].toLowerCase())
         }
     ];
 

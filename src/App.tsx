@@ -36,7 +36,6 @@ import { useShipment } from '@/providers/icp/ShipmentProvider';
 import { useOrganization } from '@/providers/icp/OrganizationProvider';
 import { useOffer } from '@/providers/icp/OfferProvider';
 import { useRawCertification } from '@/providers/icp/RawCertificationProvider';
-import { useCertification } from '@/providers/icp/CertificationProvider';
 import { useEnumeration } from '@/providers/icp/EnumerationProvider';
 
 export const App = () => {
@@ -73,8 +72,7 @@ export const App = () => {
                                             path={paths.OFFERS_NEW}
                                             element={
                                                 <DataLoader customUseContext={useOrganization}>
-                                                    <DataLoader
-                                                        customUseContext={useProductCategory}>
+                                                    <DataLoader customUseContext={useProductCategory}>
                                                         <DataLoader customUseContext={useOffer}>
                                                             <OfferNew />
                                                         </DataLoader>
@@ -140,12 +138,9 @@ export const App = () => {
                                             element={
                                                 <DataLoader customUseContext={useOrganization}>
                                                     <DataLoader customUseContext={useEthEnumerable}>
-                                                        <DataLoader
-                                                            customUseContext={useProductCategory}>
-                                                            <DataLoader
-                                                                customUseContext={useMaterial}>
-                                                                <DataLoader
-                                                                    customUseContext={useOrder}>
+                                                        <DataLoader customUseContext={useProductCategory}>
+                                                            <DataLoader customUseContext={useMaterial}>
+                                                                <DataLoader customUseContext={useOrder}>
                                                                     <TradeNew />
                                                                 </DataLoader>
                                                             </DataLoader>
@@ -159,16 +154,10 @@ export const App = () => {
                                             element={
                                                 <DataLoader customUseContext={useOrganization}>
                                                     <DataLoader customUseContext={useEthEnumerable}>
-                                                        <DataLoader
-                                                            customUseContext={useProductCategory}>
-                                                            <DataLoader
-                                                                customUseContext={useMaterial}>
-                                                                <DataLoader
-                                                                    customUseContext={useOrder}>
-                                                                    <DataLoader
-                                                                        customUseContext={
-                                                                            useShipment
-                                                                        }>
+                                                        <DataLoader customUseContext={useProductCategory}>
+                                                            <DataLoader customUseContext={useMaterial}>
+                                                                <DataLoader customUseContext={useOrder}>
+                                                                    <DataLoader customUseContext={useShipment}>
                                                                         <TradeView />
                                                                     </DataLoader>
                                                                 </DataLoader>
@@ -189,10 +178,9 @@ export const App = () => {
                                         <Route
                                             path={paths.CERTIFICATION_NEW}
                                             element={
-                                                <DataLoader customUseContext={useICPOrganization}>
+                                                <DataLoader customUseContext={useOrganization}>
                                                     <DataLoader customUseContext={useEnumeration}>
-                                                        <DataLoader
-                                                            customUseContext={useEthMaterial}>
+                                                        <DataLoader customUseContext={useMaterial}>
                                                             <CertificateNew />
                                                         </DataLoader>
                                                     </DataLoader>
@@ -207,10 +195,7 @@ export const App = () => {
                                                 </DataLoader>
                                             }
                                         />
-                                        <Route
-                                            path={paths.ASSET_OPERATIONS}
-                                            element={<AssetOperations />}
-                                        />
+                                        <Route path={paths.ASSET_OPERATIONS} element={<AssetOperations />} />
                                         <Route
                                             path={paths.ASSET_OPERATIONS_NEW}
                                             element={

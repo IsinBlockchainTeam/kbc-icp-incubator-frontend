@@ -8,6 +8,7 @@ import { CompanyCertificateNew } from '@/pages/Certification/New/CompanyCertific
 import { regex } from '@/constants/regex';
 import { ScopeCertificateNew } from '@/pages/Certification/New/ScopeCertificateNew';
 import { MaterialCertificateNew } from '@/pages/Certification/New/MaterialCertificateNew';
+import { useOrganization } from '@/providers/icp/OrganizationProvider';
 
 export type CertificateNewProps = {
     commonElements: FormElement[];
@@ -16,10 +17,10 @@ export type CertificateNewProps = {
 export const CertificateNew = () => {
     const { type } = useParams();
     const navigate = useNavigate();
-    const { getCompany } = useICPOrganization();
+    const { getOrganization } = useOrganization();
     const { signer } = useSigner();
     const elements: FormElement[] = [];
-    const signerName = getCompany(signer._address).legalName;
+    const signerName = getOrganization(signer._address)!.legalName;
 
     elements.push(
         {

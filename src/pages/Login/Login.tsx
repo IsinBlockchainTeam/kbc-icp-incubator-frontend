@@ -70,59 +70,37 @@ export const Login = () => {
         try {
             dispatch(addLoadingMessage(LOGIN_MESSAGE.COMPUTE.LOADING));
             const id = uuid();
-            const response = await request(
-                `${requestPath.VERIFIER_BACKEND_URL}/presentations/create/selective-disclosure`,
-                {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        tag: id,
-                        claimType: 'legalName',
-                        reason: 'Please, authenticate yourself'
-                    })
-                }
-            );
+            const response = await request(`${requestPath.VERIFIER_BACKEND_URL}/presentations/create/selective-disclosure`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    tag: id,
+                    claimType: 'legalName',
+                    reason: 'Please, authenticate yourself'
+                })
+            });
             setVerifiablePresentationURL(response.qrcode);
             setChallengeId(id);
         } catch (e: any) {
-            openNotification(
-                'Error',
-                LOGIN_MESSAGE.COMPUTE.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Error', LOGIN_MESSAGE.COMPUTE.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
         }
     };
 
     const fetchResponse = async (interval: any) => {
         try {
-            const message = await request(
-                `${requestPath.VERIFIER_BACKEND_URL}/presentations/callback/validated?challengeId=${challengeId}`,
-                { method: 'GET' }
-            );
+            const message = await request(`${requestPath.VERIFIER_BACKEND_URL}/presentations/callback/validated?challengeId=${challengeId}`, {
+                method: 'GET'
+            });
             if (message) {
                 console.log('MESSAGE', message);
                 clearInterval(interval);
                 setChallengeId('');
                 const subjectDid = message.body.holder;
                 if (!subjectDid) {
-                    openNotification(
-                        'Error',
-                        'No subject DID found',
-                        NotificationType.ERROR,
-                        NOTIFICATION_DURATION
-                    );
+                    openNotification('Error', 'No subject DID found', NotificationType.ERROR, NOTIFICATION_DURATION);
                     return;
                 }
-                const {
-                    id: companyId,
-                    subjectDid: companyDid,
-                    ...companyClaims
-                } = message.body.verifiableCredential[0].credentialSubject;
-                const {
-                    id: employeeId,
-                    subjectDid: employeeDid,
-                    ...employeeClaims
-                } = message.body.verifiableCredential[1].credentialSubject;
+                const { id: companyId, subjectDid: companyDid, ...companyClaims } = message.body.verifiableCredential[0].credentialSubject;
+                const { id: employeeId, subjectDid: employeeDid, ...employeeClaims } = message.body.verifiableCredential[1].credentialSubject;
                 dispatch(
                     updateUserInfo({
                         subjectDid: employeeDid,
@@ -130,38 +108,23 @@ export const Login = () => {
                         employeeClaims,
                         roleProof: {
                             signedProof: message.body.verifiableCredential[1].signedProof,
-                            delegator: message.body.verifiableCredential[1].issuer.id.split(
-                                DID_METHOD + ':'
-                            )[1],
+                            delegator: message.body.verifiableCredential[1].issuer.id.split(DID_METHOD + ':')[1],
                             delegateCredentialIdHash: message.body.verifiableCredential[1].id,
-                            delegateCredentialExpiryDate: Math.floor(
-                                new Date(
-                                    message.body.verifiableCredential[1].expirationDate
-                                ).getTime() / 1000
-                            ),
+                            delegateCredentialExpiryDate: Math.floor(new Date(message.body.verifiableCredential[1].expirationDate).getTime() / 1000),
                             membershipProof: {
                                 signedProof: message.body.verifiableCredential[0].signedProof,
                                 delegatorCredentialIdHash: message.body.verifiableCredential[0].id,
                                 delegatorCredentialExpiryDate: Math.floor(
-                                    new Date(
-                                        message.body.verifiableCredential[0].expirationDate
-                                    ).getTime() / 1000
+                                    new Date(message.body.verifiableCredential[0].expirationDate).getTime() / 1000
                                 ),
-                                issuer: message.body.verifiableCredential[0].issuer.id.split(
-                                    DID_METHOD + ':'
-                                )[1]
+                                issuer: message.body.verifiableCredential[0].issuer.id.split(DID_METHOD + ':')[1]
                             }
                         }
                     })
                 );
             }
         } catch (error: any) {
-            openNotification(
-                'Error',
-                'Error while processing VC',
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Error', 'Error while processing VC', NotificationType.ERROR, NOTIFICATION_DURATION);
             clearInterval(interval);
         }
     };
@@ -184,11 +147,7 @@ export const Login = () => {
                         />
                     </div>
                     <Space className={styles.ChildContent} direction="vertical">
-                        <QRCode
-                            status={!qrCodeURL ? 'loading' : 'active'}
-                            value={qrCodeURL || '-'}
-                            size={300}
-                        />
+                        <QRCode status={!qrCodeURL ? 'loading' : 'active'} value={qrCodeURL || '-'} size={300} />
                     </Space>
                 </div>
             </Card>

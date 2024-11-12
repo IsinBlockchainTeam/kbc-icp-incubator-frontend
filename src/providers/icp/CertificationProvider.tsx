@@ -4,8 +4,6 @@ import {
     ICPCertificateDocumentType,
     ICPCertificationDriver,
     ICPCertificationService,
-    RoleProof,
-    UpdatedRoleProof,
     URLStructure
 } from '@kbc-lib/coffee-trading-management-lib';
 import React, { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
@@ -23,7 +21,6 @@ import { ICPResourceSpec } from '@blockchain-lib/common';
 import { useSiweIdentity } from '@/providers/SiweIdentityProvider';
 import { checkAndGetEnvironmentVariable } from '@/utils/env';
 import { Typography } from 'antd';
-import { getProof } from '@/providers/icp/tempProof';
 import { useRawCertification } from '@/providers/icp/RawCertificationProvider';
 import { useICP } from '@/providers/ICPProvider';
 
@@ -103,27 +100,27 @@ export function CertificationProvider(props: { children: ReactNode }) {
         [identity]
     );
 
-    const getCompanyCertificate = async (roleProof: UpdatedRoleProof, id: number): Promise<DetailedCertificate> => {
-        const certificate = await certificationService.getCompanyCertificate(roleProof, signer._address, id);
+    const getCompanyCertificate = async (id: number): Promise<DetailedCertificate> => {
+        const certificate = await certificationService.getCompanyCertificate(signer._address, id);
         return {
             certificate,
-            document: await certificationService.getDocument(roleProof, id)
+            document: await certificationService.getDocument(id)
         };
     };
 
-    const getScopeCertificate = async (roleProof: UpdatedRoleProof, id: number): Promise<DetailedCertificate> => {
-        const certificate = await certificationService.getScopeCertificate(roleProof, signer._address, id);
+    const getScopeCertificate = async (id: number): Promise<DetailedCertificate> => {
+        const certificate = await certificationService.getScopeCertificate(signer._address, id);
         return {
             certificate,
-            document: await certificationService.getDocument(roleProof, id)
+            document: await certificationService.getDocument(id)
         };
     };
 
-    const getMaterialCertificate = async (roleProof: UpdatedRoleProof, id: number): Promise<DetailedCertificate> => {
-        const certificate = await certificationService.getMaterialCertificate(roleProof, signer._address, id);
+    const getMaterialCertificate = async (id: number): Promise<DetailedCertificate> => {
+        const certificate = await certificationService.getMaterialCertificate(signer._address, id);
         return {
             certificate,
-            document: await certificationService.getDocument(roleProof, id)
+            document: await certificationService.getDocument(id)
         };
     };
 
@@ -132,11 +129,10 @@ export function CertificationProvider(props: { children: ReactNode }) {
 
         try {
             dispatch(addLoadingMessage(CERTIFICATE_MESSAGE.RETRIEVE.LOADING));
-            const roleProof = await getProof();
             const certificateByType = [
-                () => getCompanyCertificate(roleProof, Number(id)),
-                () => getScopeCertificate(roleProof, Number(id)),
-                () => getMaterialCertificate(roleProof, Number(id))
+                () => getCompanyCertificate(Number(id)),
+                () => getScopeCertificate(Number(id)),
+                () => getMaterialCertificate(Number(id))
             ];
             setDetailedCertificate(await certificateByType[Number(type)]());
         } catch (e: any) {
@@ -168,11 +164,11 @@ export function CertificationProvider(props: { children: ReactNode }) {
         return { delegatedOrganizationIds, urlStructure, resourceSpec };
     };
 
-    const _updateDocument = async (roleProof: UpdatedRoleProof, updatedDocument: DocumentRequest) => {
+    const _updateDocument = async (updatedDocument: DocumentRequest) => {
         if (!certificationService || !detailedCertificate) return;
 
         const { delegatedOrganizationIds, urlStructure, resourceSpec } = _computeDocumentStoreInfo(updatedDocument);
-        await certificationService.updateDocument(roleProof, detailedCertificate.certificate.id, {
+        await certificationService.updateDocument(detailedCertificate.certificate.id, {
             filename: updatedDocument.filename,
             fileType: updatedDocument.fileType,
             fileContent: updatedDocument.fileContent,
@@ -206,9 +202,7 @@ export function CertificationProvider(props: { children: ReactNode }) {
         try {
             dispatch(addLoadingMessage(CERTIFICATE_MESSAGE.SAVE.LOADING));
             const { delegatedOrganizationIds, urlStructure, resourceSpec } = _computeDocumentStoreInfo(request.document);
-            const roleProof = await getProof();
             await certificationService.registerCompanyCertificate(
-                roleProof,
                 request.issuer,
                 request.subject,
                 request.assessmentStandard,
@@ -243,9 +237,7 @@ export function CertificationProvider(props: { children: ReactNode }) {
         try {
             dispatch(addLoadingMessage(CERTIFICATE_MESSAGE.SAVE.LOADING));
             const { delegatedOrganizationIds, urlStructure, resourceSpec } = _computeDocumentStoreInfo(request.document);
-            const roleProof = await getProof();
             await certificationService.registerScopeCertificate(
-                roleProof,
                 request.issuer,
                 request.subject,
                 request.assessmentStandard,
@@ -281,9 +273,7 @@ export function CertificationProvider(props: { children: ReactNode }) {
         try {
             dispatch(addLoadingMessage(CERTIFICATE_MESSAGE.SAVE.LOADING));
             const { delegatedOrganizationIds, urlStructure, resourceSpec } = _computeDocumentStoreInfo(request.document);
-            const roleProof = await getProof();
             await certificationService.registerMaterialCertificate(
-                roleProof,
                 request.issuer,
                 request.subject,
                 request.assessmentStandard,
@@ -316,18 +306,16 @@ export function CertificationProvider(props: { children: ReactNode }) {
 
         try {
             dispatch(addLoadingMessage(CERTIFICATE_MESSAGE.UPDATE.LOADING));
-            const roleProof = await getProof();
 
             if (_areFieldsChanged(request, ['validFrom', 'validUntil'])) {
                 await certificationService.updateCompanyCertificate(
-                    roleProof,
                     detailedCertificate.certificate.id,
                     request.assessmentStandard,
                     request.assessmentAssuranceLevel,
                     new Date(request.validFrom),
                     new Date(request.validUntil)
                 );
-                await _updateDocument(roleProof, request.document);
+                await _updateDocument(request.document);
                 await loadData();
             }
         } catch (e: any) {
@@ -343,11 +331,9 @@ export function CertificationProvider(props: { children: ReactNode }) {
 
         try {
             dispatch(addLoadingMessage(CERTIFICATE_MESSAGE.UPDATE.LOADING));
-            const roleProof = await getProof();
 
             if (_areFieldsChanged(request, ['validFrom', 'validUntil', 'processTypes'])) {
                 await certificationService.updateScopeCertificate(
-                    roleProof,
                     detailedCertificate.certificate.id,
                     request.assessmentStandard,
                     request.assessmentAssuranceLevel,
@@ -355,7 +341,7 @@ export function CertificationProvider(props: { children: ReactNode }) {
                     new Date(request.validUntil),
                     request.processTypes
                 );
-                await _updateDocument(roleProof, request.document);
+                await _updateDocument(request.document);
                 await loadData();
             }
         } catch (e: any) {
@@ -371,17 +357,15 @@ export function CertificationProvider(props: { children: ReactNode }) {
 
         try {
             dispatch(addLoadingMessage(CERTIFICATE_MESSAGE.UPDATE.LOADING));
-            const roleProof = await getProof();
 
             if (_areFieldsChanged(request, ['materialId'])) {
                 await certificationService.updateMaterialCertificate(
-                    roleProof,
                     detailedCertificate.certificate.id,
                     request.assessmentStandard,
                     request.assessmentAssuranceLevel,
                     request.materialId
                 );
-                await _updateDocument(roleProof, request.document);
+                await _updateDocument(request.document);
                 await loadData();
             }
         } catch (e: any) {

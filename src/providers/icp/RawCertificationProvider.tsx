@@ -1,8 +1,4 @@
-import {
-    ICPBaseCertificate,
-    ICPCertificationDriver,
-    ICPCertificationService
-} from '@kbc-lib/coffee-trading-management-lib';
+import { ICPBaseCertificate, ICPCertificationDriver, ICPCertificationService } from '@kbc-lib/coffee-trading-management-lib';
 import React, { createContext, ReactNode, useContext, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
@@ -22,9 +18,7 @@ export type RawCertificationContextState = {
     rawCertificates: ICPBaseCertificate[];
     loadData: () => Promise<void>;
 };
-export const RawCertificationContext = createContext<RawCertificationContextState>(
-    {} as RawCertificationContextState
-);
+export const RawCertificationContext = createContext<RawCertificationContextState>({} as RawCertificationContextState);
 
 export const useRawCertification = (): RawCertificationContextState => {
     const context = useContext(RawCertificationContext);
@@ -48,11 +42,7 @@ export function RawCertificationProvider(props: { children: ReactNode }) {
     }
 
     const certificationManagerService = useMemo(
-        () =>
-            new ICPCertificationService(
-                new ICPCertificationDriver(identity, entityManagerCanisterId),
-                fileDriver
-            ),
+        () => new ICPCertificationService(new ICPCertificationDriver(identity, entityManagerCanisterId), fileDriver),
         [identity]
     );
 
@@ -61,22 +51,12 @@ export function RawCertificationProvider(props: { children: ReactNode }) {
 
         try {
             dispatch(addLoadingMessage(RAW_CERTIFICATE_MESSAGE.RETRIEVE.LOADING));
-            const roleProof = await getProof();
-            const rawCertificates =
-                await certificationManagerService.getBaseCertificatesInfoBySubject(
-                    roleProof,
-                    signer._address
-                );
+            const rawCertificates = await certificationManagerService.getBaseCertificatesInfoBySubject(signer._address);
             setRawCertificates(rawCertificates);
             setDataLoaded(true);
         } catch (e) {
             console.log('Error retrieving raw certificates', e);
-            openNotification(
-                'Error',
-                RAW_CERTIFICATE_MESSAGE.RETRIEVE.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Error', RAW_CERTIFICATE_MESSAGE.RETRIEVE.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
             dispatch(removeLoadingMessage(RAW_CERTIFICATE_MESSAGE.RETRIEVE.LOADING));
         }
