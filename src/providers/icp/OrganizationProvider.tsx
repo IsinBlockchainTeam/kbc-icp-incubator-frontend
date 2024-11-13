@@ -2,7 +2,6 @@ import React, { createContext, ReactNode, useContext, useMemo, useState } from '
 import { useSiweIdentity } from '@/providers/SiweIdentityProvider';
 import { checkAndGetEnvironmentVariable } from '@/utils/env';
 import { ICP } from '@/constants/icp';
-import { useDispatch } from 'react-redux';
 import { Typography } from 'antd';
 import {
     Organization,
@@ -11,14 +10,14 @@ import {
     OrganizationService
 } from '@kbc-lib/coffee-trading-management-lib';
 import { ORGANIZATION_MESSAGE, OrganizationMessage } from '@/constants/message';
-import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
+import { useCallHandler } from '@/providers/icp/CallHandlerProvider';
 
 export type OrganizationContextState = {
     dataLoaded: boolean;
     organizations: Map<string, Organization>;
-    getOrganization: (ethAddress: string) => Organization | undefined;
+    getOrganization: (ethAddress: string) => Organization;
     storeOrganization: (params: OrganizationParams) => Promise<void>;
     updateOrganization: (ethAddress: string, params: OrganizationParams) => Promise<void>;
     loadData: () => Promise<void>;
@@ -43,7 +42,7 @@ export function OrganizationProvider(props: { children: ReactNode }) {
     const [organizations, setOrganizations] = useState<Map<string, Organization>>(
         new Map<string, Organization>()
     );
-    const dispatch = useDispatch();
+    const { handleICPCall } = useCallHandler();
 
     if (!identity) {
         return <Typography.Text>Siwe identity not initialized</Typography.Text>;
@@ -55,29 +54,18 @@ export function OrganizationProvider(props: { children: ReactNode }) {
     );
 
     const loadOrganizations = async () => {
-        try {
-            dispatch(addLoadingMessage(ORGANIZATION_MESSAGE.RETRIEVE.LOADING));
+        await handleICPCall(async () => {
             const organizations = await organizationService.getOrganizations();
-            console.log('Organizations', organizations);
-
             const organizationsMap = new Map<string, Organization>();
+
+            console.log('Organizations:', organizations);
 
             organizations.forEach((organization) => {
                 organizationsMap.set(organization.ethAddress.toLowerCase(), organization);
             });
 
             setOrganizations(organizationsMap);
-        } catch (e: unknown) {
-            console.log('Error while loading organizations', e);
-            openNotification(
-                'Error',
-                ORGANIZATION_MESSAGE.RETRIEVE.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
-        } finally {
-            dispatch(removeLoadingMessage(ORGANIZATION_MESSAGE.RETRIEVE.LOADING));
-        }
+        }, ORGANIZATION_MESSAGE.RETRIEVE.LOADING);
     };
 
     const loadData = async () => {
@@ -86,30 +74,37 @@ export function OrganizationProvider(props: { children: ReactNode }) {
         setDataLoaded(true);
     };
 
-    const getOrganization = (ethAddress: string): Organization | undefined => {
-        return organizations.get(ethAddress.toLowerCase());
+    const getOrganization = (ethAddress: string): Organization => {
+        const organization = organizations.get(ethAddress.toLowerCase());
+
+        if (!organization) {
+            // openNotification(
+            //     'Error',
+            //     ORGANIZATION_MESSAGE.RETRIEVE.NOT_FOUND,
+            //     NotificationType.ERROR,
+            //     NOTIFICATION_DURATION
+            // );
+
+            throw new Error('Organization not found');
+        }
+
+        return organization;
     };
 
     const writeTransaction = async (
         transaction: () => Promise<Organization>,
         message: OrganizationMessage
     ) => {
-        try {
-            dispatch(addLoadingMessage(message.LOADING));
+        await handleICPCall(async () => {
             await transaction();
-            await loadOrganizations();
+            await loadData();
             openNotification(
                 'Success',
                 message.OK,
                 NotificationType.SUCCESS,
                 NOTIFICATION_DURATION
             );
-        } catch (e) {
-            console.log('Error writing transaction', e);
-            openNotification('Error', message.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
-        } finally {
-            dispatch(removeLoadingMessage(message.LOADING));
-        }
+        }, message.LOADING);
     };
 
     const storeOrganization = async (params: OrganizationParams) => {

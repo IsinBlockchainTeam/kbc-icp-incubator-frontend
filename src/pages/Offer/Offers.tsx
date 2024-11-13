@@ -79,7 +79,7 @@ export const Offers = () => {
         )
         .map((offer) => ({
             id: offer.id,
-            supplierName: getOrganization(offer.owner)!.legalName,
+            supplierName: getOrganization(offer.owner).legalName,
             supplierAddress: offer.owner,
             productCategory: offer.productCategory
         }));

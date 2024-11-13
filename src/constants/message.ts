@@ -200,7 +200,7 @@ export const LOGIN_MESSAGE = {
     }
 };
 export const AUTHENTICATION_MESSAGE = {
-    LOGIN: {
+    AUTHENTICATE: {
         LOADING: 'Verifying permissions...',
         OK: '',
         ERROR: 'Error while verifying permissions.'
@@ -326,7 +326,8 @@ export const ORGANIZATION_MESSAGE = {
     RETRIEVE: {
         LOADING: 'Retrieving organizations...',
         OK: '',
-        ERROR: 'Error while retrieving organizations.'
+        ERROR: 'Error while retrieving organizations.',
+        NOT_FOUND: 'Organization not found'
     },
     SAVE: {
         LOADING: 'Saving organization...',

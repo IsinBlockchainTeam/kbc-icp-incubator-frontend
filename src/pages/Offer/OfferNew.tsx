@@ -39,7 +39,7 @@ export const OfferNew = () => {
             name: 'offeror',
             label: 'Offeror Company Address',
             required: true,
-            defaultValue: getOrganization(signer._address)!.legalName,
+            defaultValue: getOrganization(signer._address).legalName,
             disabled: true
         },
         {

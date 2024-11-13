@@ -44,10 +44,12 @@ export default function Profile() {
     const checkIcpOrganization = () => {
         const organizationEthAddress = userInfo.roleProof.delegator;
 
-        const foundedOrganization = getOrganization(organizationEthAddress);
+        try {
+            const foundedOrganization = getOrganization(organizationEthAddress);
 
-        if (foundedOrganization) {
             setIcpOrganization(foundedOrganization);
+        } catch (e) {
+            console.log('Organization not found');
         }
     };
 
@@ -146,6 +148,9 @@ export default function Profile() {
                                         <EnvironmentOutlined style={{ marginRight: 4 }} />
                                         {companyClaims.address}, {companyClaims.nation}
                                     </span>
+                                </Descriptions.Item>
+                                <Descriptions.Item label="Ethereum Address">
+                                    {formatAddress(userInfo.roleProof.delegator)}
                                 </Descriptions.Item>
                                 <Descriptions.Item label="Latitude">
                                     {companyClaims.latitude}

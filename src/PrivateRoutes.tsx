@@ -16,6 +16,8 @@ import { ShipmentProvider } from '@/providers/icp/ShipmentProvider';
 import { OfferProvider } from '@/providers/icp/OfferProvider';
 import { OrganizationProvider, useOrganization } from '@/providers/icp/OrganizationProvider';
 import NavigationBlocker from './NavigationBlocker';
+import SyncDataLoader from './dataLoaders/SyncDataLoader';
+import { CallHandlerProvider } from '@/providers/icp/CallHandlerProvider';
 
 const PrivateRoutes = () => {
     const { isLogged } = useSelector((state: RootState) => state.userInfo);
@@ -26,15 +28,21 @@ const PrivateRoutes = () => {
 
         const organizationEthAddress = userInfo.roleProof.delegator;
 
-        const foundedOrganization = getOrganization(organizationEthAddress);
+        try {
+            getOrganization(organizationEthAddress);
 
-        return foundedOrganization !== undefined;
+            return true;
+        } catch (error) {
+            return false;
+        }
     };
 
+    // TODO: check if this provider can be moved to a higher level
     return isLogged ? (
         <SignerProvider>
             <SiweIdentityProvider>
                 <ICPProvider>
+                    <CallHandlerProvider>
                     <AuthenticationProvider>
                         <OrganizationProvider>
                             <EthEnumerableProvider>
@@ -44,15 +52,14 @@ const PrivateRoutes = () => {
                                             <OrderProvider>
                                                 <EthEscrowProvider>
                                                     <ShipmentProvider>
-                                                        <NavigationBlocker
-                                                            condition={
-                                                                isOrganizationOnIcp
-                                                            }
-                                                            redirectPath={
-                                                                paths.PROFILE
-                                                            }>
-                                                        <Outlet />
-                                                        </NavigationBlocker>
+                                                        <SyncDataLoader
+                                                            customUseContext={useOrganization}>
+                                                            <NavigationBlocker
+                                                                condition={isOrganizationOnIcp}
+                                                                redirectPath={paths.PROFILE}>
+                                                                <Outlet />
+                                                            </NavigationBlocker>
+                                                        </SyncDataLoader>
                                                     </ShipmentProvider>
                                                 </EthEscrowProvider>
                                             </OrderProvider>
@@ -62,6 +69,7 @@ const PrivateRoutes = () => {
                             </EthEnumerableProvider>
                         </OrganizationProvider>
                     </AuthenticationProvider>
+                    </CallHandlerProvider>
                 </ICPProvider>
             </SiweIdentityProvider>
         </SignerProvider>

@@ -10,11 +10,10 @@ import { Typography } from 'antd';
 import { checkAndGetEnvironmentVariable } from '@/utils/env';
 import { ICP } from '@/constants/icp';
 import { useParams } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
 import { ORDER_TRADE_MESSAGE, OrderMessage } from '@/constants/message';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
+import { useCallHandler } from '@/providers/icp/CallHandlerProvider';
 
 export type OrderContextState = {
     dataLoaded: boolean;
@@ -37,9 +36,9 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
     const { identity } = useSiweIdentity();
     const entityManagerCanisterId = checkAndGetEnvironmentVariable(ICP.CANISTER_ID_ENTITY_MANAGER);
     const { id } = useParams();
-    const dispatch = useDispatch();
     const [dataLoaded, setDataLoaded] = useState<boolean>(false);
     const [orders, setOrders] = React.useState<Order[]>([]);
+    const { handleICPCall } = useCallHandler();
 
     if (!identity) {
         return <Typography.Text>Siwe identity not initialized</Typography.Text>;
@@ -59,27 +58,14 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
 
     const loadOrders = async () => {
         if (!orderService) return;
-
-        try {
-            dispatch(addLoadingMessage('Retrieving orders'));
+        await handleICPCall(async () => {
             const resp = await orderService.getOrders();
             setOrders(resp);
-        } catch (e) {
-            console.log('Error loading orders', e);
-            openNotification(
-                'Error',
-                ORDER_TRADE_MESSAGE.RETRIEVE.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
-        } finally {
-            dispatch(removeLoadingMessage('Retrieving orders'));
-        }
+        }, ORDER_TRADE_MESSAGE.RETRIEVE.LOADING);
     };
 
     const writeTransaction = async (transaction: () => Promise<Order>, message: OrderMessage) => {
-        try {
-            dispatch(addLoadingMessage(message.LOADING));
+        await handleICPCall(async () => {
             await transaction();
             await loadOrders();
             openNotification(
@@ -88,12 +74,7 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
                 NotificationType.SUCCESS,
                 NOTIFICATION_DURATION
             );
-        } catch (e) {
-            console.log('Error writing transaction', e);
-            openNotification('Error', message.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
-        } finally {
-            dispatch(removeLoadingMessage(message.LOADING));
-        }
+        }, message.LOADING);
     };
 
     const create = async (params: OrderParams) => {

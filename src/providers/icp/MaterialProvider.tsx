@@ -54,17 +54,7 @@ export function MaterialProvider(props: { children: ReactNode }) {
             dispatch(addLoadingMessage(MATERIAL_MESSAGE.RETRIEVE.LOADING));
             const materials = await materialService.getMaterials();
             setMaterials(materials);
-        } catch (e: any) {
-            console.log('Error while loading product categories', e);
-            openNotification(
-                'Error',
-                MATERIAL_MESSAGE.RETRIEVE.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
-        } finally {
-            dispatch(removeLoadingMessage(MATERIAL_MESSAGE.RETRIEVE.LOADING));
-        }
+        }, MATERIAL_MESSAGE.RETRIEVE.LOADING);
     };
 
     const saveMaterial = async (productCategoryId: number) => {
@@ -79,7 +69,7 @@ export function MaterialProvider(props: { children: ReactNode }) {
             );
             await loadMaterials();
         } catch (e: any) {
-            console.log('Error while saving product category', e);
+            console.log('Error while saving material', e);
             openNotification(
                 'Error',
                 PRODUCT_CATEGORY_MESSAGE.SAVE.ERROR,
