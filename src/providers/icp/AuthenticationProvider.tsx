@@ -7,15 +7,15 @@ import { useSiweIdentity } from '@/providers/SiweIdentityProvider';
 import { checkAndGetEnvironmentVariable } from '@/utils/env';
 import { ICP } from '@/constants/icp';
 import { Typography } from 'antd';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
 import { AUTHENTICATION_MESSAGE } from '@/constants/message';
-import { getProof } from '@/providers/icp/tempProof';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { useSigner } from '@/providers/SignerProvider';
 import { useNavigate } from 'react-router-dom';
 import { paths } from '@/constants/paths';
+import { RootState } from '@/redux/store';
 
 export type AuthenticationContextState = {
     logout: () => Promise<void>;
@@ -38,6 +38,7 @@ export function AuthenticationProvider(props: { children: React.ReactNode }) {
     const dispatch = useDispatch();
     const [loggedIn, setLoggedIn] = useState<boolean>(false);
     const [refreshInterval, setRefreshInterval] = useState<NodeJS.Timeout | null>(null);
+    const roleProof = useSelector((state: RootState) => state.userInfo.roleProof);
 
     if (!identity) {
         return <Typography.Text>Siwe identity not initialized</Typography.Text>;
@@ -67,7 +68,7 @@ export function AuthenticationProvider(props: { children: React.ReactNode }) {
     const login = async () => {
         try {
             dispatch(addLoadingMessage(AUTHENTICATION_MESSAGE.LOGIN.LOADING));
-            const roleProof = await getProof(await signer.signer.getAddress());
+            // const roleProof = await getProof(await signer.signer.getAddress());
             console.log(roleProof);
             const success = await authenticationService.login(roleProof);
             setLoggedIn(success);

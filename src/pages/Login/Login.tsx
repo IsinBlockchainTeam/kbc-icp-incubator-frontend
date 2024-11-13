@@ -133,6 +133,12 @@ export const Login = () => {
                             delegator: message.body.verifiableCredential[1].issuer.id.split(
                                 DID_METHOD + ':'
                             )[1],
+                            delegate:
+                                message.body.verifiableCredential[1].credentialSubject.subjectDid.split(
+                                    DID_METHOD + ':'
+                                )[1],
+                            delegateRole:
+                                message.body.verifiableCredential[1].credentialSubject.role,
                             delegateCredentialIdHash: message.body.verifiableCredential[1].id,
                             delegateCredentialExpiryDate: Math.floor(
                                 new Date(
