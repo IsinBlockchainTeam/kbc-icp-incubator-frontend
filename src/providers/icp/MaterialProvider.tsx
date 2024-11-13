@@ -13,6 +13,7 @@ import { MATERIAL_MESSAGE, PRODUCT_CATEGORY_MESSAGE } from '@/constants/message'
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { useDispatch } from 'react-redux';
+import { useCallHandler } from '@/providers/icp/CallHandlerProvider';
 
 export type MaterialContextState = {
     dataLoaded: boolean;
@@ -33,6 +34,7 @@ export function MaterialProvider(props: { children: ReactNode }) {
     const entityManagerCanisterId = checkAndGetEnvironmentVariable(ICP.CANISTER_ID_ENTITY_MANAGER);
     const [dataLoaded, setDataLoaded] = useState<boolean>(false);
     const [materials, setMaterials] = useState<Material[]>([]);
+    const { handleICPCall } = useCallHandler();
     const dispatch = useDispatch();
 
     if (!identity) {
@@ -50,8 +52,7 @@ export function MaterialProvider(props: { children: ReactNode }) {
     };
 
     const loadMaterials = async () => {
-        try {
-            dispatch(addLoadingMessage(MATERIAL_MESSAGE.RETRIEVE.LOADING));
+        await handleICPCall(async () => {
             const materials = await materialService.getMaterials();
             setMaterials(materials);
         }, MATERIAL_MESSAGE.RETRIEVE.LOADING);

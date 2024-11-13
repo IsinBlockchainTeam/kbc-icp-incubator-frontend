@@ -7,14 +7,14 @@ import {
     NotAuthenticatedError
 } from '@kbc-lib/coffee-trading-management-lib';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
-import { getProof } from '@/providers/icp/tempProof';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useSigner } from '@/providers/SignerProvider';
 import { Typography } from 'antd';
 import { useSiweIdentity } from '@/providers/SiweIdentityProvider';
 import { checkAndGetEnvironmentVariable } from '@/utils/env';
 import { ICP } from '@/constants/icp';
 import { AUTHENTICATION_MESSAGE } from '@/constants/message';
+import { RootState } from '@/redux/store';
 
 export type CallHandlerContextState = {
     handleICPCall: (callback: () => Promise<void>, message: string) => Promise<void>;
@@ -34,6 +34,7 @@ export function CallHandlerProvider(props: { children: React.ReactNode }) {
     const dispatch = useDispatch();
     const signer = useSigner();
     const entityManagerCanisterId = checkAndGetEnvironmentVariable(ICP.CANISTER_ID_ENTITY_MANAGER);
+    const roleProof = useSelector((state: RootState) => state.userInfo.roleProof);
 
     if (!identity) {
         return <Typography.Text>Siwe identity not initialized</Typography.Text>;
@@ -47,7 +48,6 @@ export function CallHandlerProvider(props: { children: React.ReactNode }) {
     );
 
     const authenticate = async () => {
-        const roleProof = await getProof(await signer.signer.getAddress());
         await authenticationService.authenticate(roleProof);
     };
 
@@ -56,6 +56,7 @@ export function CallHandlerProvider(props: { children: React.ReactNode }) {
             dispatch(addLoadingMessage(message));
             await callback();
         } catch (e: any) {
+            console.log('Error occurred', e);
             await handleError(e, callback, true);
         } finally {
             dispatch(removeLoadingMessage(message));

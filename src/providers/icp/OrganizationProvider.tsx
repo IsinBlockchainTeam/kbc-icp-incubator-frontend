@@ -78,13 +78,6 @@ export function OrganizationProvider(props: { children: ReactNode }) {
         const organization = organizations.get(ethAddress.toLowerCase());
 
         if (!organization) {
-            // openNotification(
-            //     'Error',
-            //     ORGANIZATION_MESSAGE.RETRIEVE.NOT_FOUND,
-            //     NotificationType.ERROR,
-            //     NOTIFICATION_DURATION
-            // );
-
             throw new Error('Organization not found');
         }
 
