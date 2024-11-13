@@ -2,7 +2,6 @@ import React, { createContext, ReactNode, useContext, useMemo, useState } from '
 import { useSiweIdentity } from '@/providers/SiweIdentityProvider';
 import { checkAndGetEnvironmentVariable } from '@/utils/env';
 import { ICP } from '@/constants/icp';
-import { useDispatch } from 'react-redux';
 import { Typography } from 'antd';
 import {
     Organization,
@@ -58,6 +57,8 @@ export function OrganizationProvider(props: { children: ReactNode }) {
         await handleICPCall(async () => {
             const organizations = await organizationService.getOrganizations();
             const organizationsMap = new Map<string, Organization>();
+
+            console.log('Organizations:', organizations);
 
             organizations.forEach((organization) => {
                 organizationsMap.set(organization.ethAddress.toLowerCase(), organization);

@@ -23,7 +23,7 @@ export const Trades = () => {
             title: 'Id',
             dataIndex: 'id',
             sorter: (a, b) => a.id - b.id,
-            sortDirections: ['descend'],
+            sortDirections: ['descend', 'ascend'],
             render: (id) => (
                 // TODO: was this correct?
                 // <Link to={setParametersPath(`${paths.TRADE_VIEW}?type=order`, { id })}>{id}</Link>
@@ -100,7 +100,7 @@ export const Trades = () => {
                     Trades
                 </div>
             }>
-            <Table columns={columns} dataSource={orders} />
+            <Table columns={columns} dataSource={orders.sort((o1, o2) => o1.id - o2.id)} />
         </CardPage>
     );
 };

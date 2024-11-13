@@ -44,8 +44,6 @@ export default function Profile() {
     const checkIcpOrganization = () => {
         const organizationEthAddress = userInfo.roleProof.delegator;
 
-        console.log(userInfo);
-
         try {
             const foundedOrganization = getOrganization(organizationEthAddress);
 
@@ -150,6 +148,9 @@ export default function Profile() {
                                         <EnvironmentOutlined style={{ marginRight: 4 }} />
                                         {companyClaims.address}, {companyClaims.nation}
                                     </span>
+                                </Descriptions.Item>
+                                <Descriptions.Item label="Ethereum Address">
+                                    {formatAddress(userInfo.roleProof.delegator)}
                                 </Descriptions.Item>
                                 <Descriptions.Item label="Latitude">
                                     {companyClaims.latitude}
