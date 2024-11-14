@@ -53,7 +53,7 @@ export function OfferProvider(props: { children: ReactNode }) {
 
     const saveOffer = async (productCategoryId: number) => {
         await handleICPCall(async () => {
-            await offerService.createOffer(productCategoryId + 10);
+            await offerService.createOffer(productCategoryId);
             openNotification(
                 'Success',
                 PRODUCT_CATEGORY_MESSAGE.SAVE.OK,
