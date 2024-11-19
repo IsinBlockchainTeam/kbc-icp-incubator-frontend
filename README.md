@@ -1,1 +1,0 @@
-# kbc-icp-incubator-frontend
