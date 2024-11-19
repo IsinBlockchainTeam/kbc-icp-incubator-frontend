@@ -8,7 +8,7 @@
         "@dfinity/agent": "1.4.0",
         "@dfinity/candid": "1.4.0",
         "@dfinity/identity": "1.4.0",
-        "@kbc-lib/coffee-trading-management-lib": "file:../coffee-trading-management-lib/src",
+        "@kbc-lib/coffee-trading-management-lib": "file:../../n_lib_to_rule_them_all/coffee-trading-management-lib/src",
         "@pdfme/common": "^5.1.6",
         "@pdfme/generator": "^5.1.6",
         "@pdfme/ui": "^5.1.6",
@@ -76,14 +76,14 @@
         "@types/uuid": "^9.0.1",
         "babel-plugin-module-resolver": "^5.0.2",
         "dotenv-webpack": "^8.1.0",
-        "eslint": "^8.56.0",
-        "eslint-plugin-react": "^7.34.1",
+        "eslint": "^9.15.0",
+        "eslint-plugin-react": "^7.37.2",
         "globals": "^15.3.0",
         "jest-preview": "^0.3.1",
         "prettier": "3.3.1",
         "redux-mock-store": "^1.5.4",
         "ts-jest": "^29.1.4",
-        "typescript-eslint": "^7.10.0"
+        "typescript-eslint": "^8.15.0"
     },
     "jest": {
         "moduleNameMapper": {
