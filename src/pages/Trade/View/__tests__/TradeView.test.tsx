@@ -12,9 +12,6 @@ import { useOrganization } from '@/providers/icp/OrganizationProvider';
 
 jest.mock('react-router-dom');
 jest.mock('@/providers/SignerProvider');
-jest.mock('@/pages/Trade/View/BasicTradeView', () => ({
-    BasicTradeView: jest.fn()
-}));
 jest.mock('@/pages/Trade/View/OrderTradeView', () => ({
     OrderTradeView: jest.fn()
 }));

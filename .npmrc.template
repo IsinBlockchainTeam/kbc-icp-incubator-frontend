@@ -1,5 +1,3 @@
-@kbc-lib:registry=https://gitlab-core.supsi.ch/api/v4/projects/490/packages/npm/
-//gitlab-core.supsi.ch/api/v4/projects/490/packages/npm/:_authToken=<access_token>
+@kbc-lib:registry=https://github.com/IsinBlockchainTeam/kbc-icp-incubator-library
 
-@blockchain-lib:registry=https://gitlab-core.supsi.ch/api/v4/projects/230/packages/npm/
-//gitlab-core.supsi.ch/api/v4/projects/230/packages/npm/:_authToken=<access_token>
+@blockchain-lib:registry=https://github.com/IsinBlockchainTeam/kbc-icp-incubator-common

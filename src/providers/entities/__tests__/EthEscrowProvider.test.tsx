@@ -53,7 +53,6 @@ describe('EthEscrowProvider', () => {
             getSymbol,
             approve
         }));
-        (CONTRACT_ADDRESSES.ESCROW as jest.Mock).mockReturnValue('0x123');
         (CONTRACT_ADDRESSES.TOKEN as jest.Mock).mockReturnValue('0x456');
         (useDispatch as jest.Mock).mockReturnValue(dispatch);
         (useSigner as jest.Mock).mockReturnValue({ signer });
