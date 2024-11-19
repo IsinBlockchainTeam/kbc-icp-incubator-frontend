@@ -12,8 +12,6 @@ import ProductCategoryNew from '@/pages/Material/ProductCategoryNew';
 import Trades from '@/pages/Trade/Trades';
 import { TradeNew } from '@/pages/Trade/New/TradeNew';
 import TradeView from '@/pages/Trade/View/TradeView';
-import AssetOperations from '@/pages/AssetOperation/AssetOperations';
-import AssetOperationNew from '@/pages/AssetOperation/AssetOperationNew';
 import GraphPage from '@/pages/Graph/GraphPage';
 import Login from '@/pages/Login/Login';
 import { Provider as ReduxProvider } from 'react-redux/es/exports';
@@ -23,7 +21,6 @@ import { MenuLayout } from '@/components/structure/MenuLayout/MenuLayout';
 import { paths } from '@/constants/paths';
 import AsyncDataLoader from './dataLoaders/AsyncDataLoader';
 import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
-import { AssetOperationView } from '@/pages/AssetOperation/AssetOperationView';
 import { WalletConnectProvider } from '@/providers/WalletConnectProvider';
 import Documents from '@/pages/Documents/Shipment/ShipmentDocuments';
 import { useOrder } from '@/providers/icp/OrderProvider';
@@ -151,32 +148,6 @@ export const App = () => {
                                                                 </AsyncDataLoader>
                                                             </AsyncDataLoader>
                                                         </AsyncDataLoader>
-                                                    </AsyncDataLoader>
-                                                </AsyncDataLoader>
-                                            }
-                                        />
-                                        <Route
-                                            path={paths.ASSET_OPERATIONS}
-                                            element={<AssetOperations />}
-                                        />
-                                        <Route
-                                            path={paths.ASSET_OPERATIONS_NEW}
-                                            element={
-                                                <AsyncDataLoader customUseContext={useMaterial}>
-                                                    <AsyncDataLoader
-                                                        customUseContext={useEthEnumerable}>
-                                                        <AssetOperationNew />
-                                                    </AsyncDataLoader>
-                                                </AsyncDataLoader>
-                                            }
-                                        />
-                                        <Route
-                                            path={paths.ASSET_OPERATIONS_VIEW}
-                                            element={
-                                                <AsyncDataLoader customUseContext={useMaterial}>
-                                                    <AsyncDataLoader
-                                                        customUseContext={useEthEnumerable}>
-                                                        <AssetOperationView />
                                                     </AsyncDataLoader>
                                                 </AsyncDataLoader>
                                             }

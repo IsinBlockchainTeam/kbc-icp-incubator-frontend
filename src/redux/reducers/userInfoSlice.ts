@@ -67,7 +67,6 @@ export const initialState: UserInfoState = {
     roleProof: {
         signedProof: '',
         delegator: '',
-        delegate: '',
         delegateRole: '',
         delegateCredentialIdHash: '',
         delegateCredentialExpiryDate: 0,

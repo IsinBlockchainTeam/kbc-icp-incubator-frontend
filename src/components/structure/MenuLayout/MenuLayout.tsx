@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import {
     AuditOutlined,
     CloudDownloadOutlined,
-    ExperimentOutlined,
     GoldOutlined,
     LogoutOutlined,
     SettingOutlined,
@@ -49,7 +48,6 @@ const blockchainItems: MenuItem[] = [
     getItem('Trades', paths.TRADES, <SwapOutlined />),
     getItem('Documents', paths.DOCUMENTS, <CloudDownloadOutlined />),
     getItem('Materials', paths.MATERIALS, <GoldOutlined />),
-    getItem('Transformations', paths.ASSET_OPERATIONS, <ExperimentOutlined />),
     getItem('Partners', paths.PARTNERS, <TeamOutlined />),
     getItem('Offers', paths.OFFERS, <AuditOutlined />)
 ];
