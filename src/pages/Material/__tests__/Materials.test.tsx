@@ -4,11 +4,13 @@ import userEvent from '@testing-library/user-event';
 import { useNavigate } from 'react-router-dom';
 import { paths } from '@/constants/paths';
 import { Material, ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
-import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
+import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';
+import { useMaterial } from '@/providers/icp/MaterialProvider';
 
 jest.mock('react-router-dom');
 jest.mock('@/components/GenericForm/GenericForm');
-jest.mock('@/providers/entities/EthMaterialProvider');
+jest.mock('@/providers/icp/ProductCategoryProvider');
+jest.mock('@/providers/icp/MaterialProvider');
 
 describe('Materials', () => {
     beforeEach(() => {
@@ -20,11 +22,13 @@ describe('Materials', () => {
             new ProductCategory(1, 'Product category 1', 1, ''),
             new ProductCategory(2, 'Product category 2', 2, '')
         ];
-        (useEthMaterial as jest.Mock).mockReturnValue({
+        (useMaterial as jest.Mock).mockReturnValue({
             materials: [
                 new Material(1, productCategories[0]),
                 new Material(2, productCategories[1])
-            ],
+            ]
+        });
+        (useProductCategory as jest.Mock).mockReturnValue({
             productCategories
         });
     });

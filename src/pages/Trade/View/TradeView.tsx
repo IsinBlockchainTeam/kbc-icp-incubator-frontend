@@ -6,7 +6,7 @@ import { Collapse, Typography } from 'antd';
 import { ShipmentPanel } from '@/components/ShipmentPanel/ShipmentPanel';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
 import { EscrowPanel } from '@/components/EscrowPanel/EscrowPanel';
-import OrderTradeView from '@/pages/Trade/View/OrderTradeView';
+import { OrderTradeView } from '@/pages/Trade/View/OrderTradeView';
 import { useOrder } from '@/providers/icp/OrderProvider';
 import { FormElement, FormElementType } from '@/components/GenericForm/GenericForm';
 import { useOrganization } from '@/providers/icp/OrganizationProvider';

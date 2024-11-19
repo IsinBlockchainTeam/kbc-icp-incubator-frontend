@@ -6,14 +6,14 @@ import { Offer, ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
 import { useSelector } from 'react-redux';
 import { credentials } from '@/constants/ssi';
 import { useNavigate } from 'react-router-dom';
-import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
-import { useEthOffer } from '@/providers/entities/EthOfferProvider';
+import { useOffer } from '@/providers/icp/OfferProvider';
+import { useOrganization } from '@/providers/icp/OrganizationProvider';
 import { UserInfoState } from '@/redux/reducers/userInfoSlice';
 
 jest.mock('react-router-dom');
 jest.mock('@/utils/notification');
-jest.mock('@/providers/entities/EthOfferProvider');
-jest.mock('@/providers/entities/ICPOrganizationProvider');
+jest.mock('@/providers/icp/OfferProvider');
+jest.mock('@/providers/icp/OrganizationProvider');
 jest.mock('react-redux');
 
 describe('Offers', () => {
@@ -22,7 +22,7 @@ describe('Offers', () => {
             role: credentials.ROLE_EXPORTER
         }
     } as UserInfoState;
-    const getCompany = jest.fn();
+    const getOrganization = jest.fn();
     const navigate = jest.fn();
 
     beforeEach(() => {
@@ -30,11 +30,11 @@ describe('Offers', () => {
         jest.spyOn(console, 'error').mockImplementation(jest.fn());
         jest.clearAllMocks();
 
-        getCompany.mockReturnValue({ legalName: 'Supplier Name' });
-        (useICPOrganization as jest.Mock).mockReturnValue({
-            getCompany
+        getOrganization.mockReturnValue({ legalName: 'Supplier Name' });
+        (useOrganization as jest.Mock).mockReturnValue({
+            getOrganization
         });
-        (useEthOffer as jest.Mock).mockReturnValue({
+        (useOffer as jest.Mock).mockReturnValue({
             offers: [
                 new Offer(1, 'Owner 1', new ProductCategory(1, 'Product Category 1', 1, '')),
                 new Offer(2, 'Owner 2', new ProductCategory(2, 'Product Category 2', 2, ''))
@@ -49,7 +49,6 @@ describe('Offers', () => {
 
         expect(screen.getByText('Product Category 1')).toBeInTheDocument();
         expect(screen.getByText('Product Category 2')).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: 'plus New Offer Supplier' })).toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'plus New Offer' })).toBeInTheDocument();
     });
 
@@ -57,15 +56,9 @@ describe('Offers', () => {
         render(<Offers />);
 
         act(() => {
-            userEvent.click(screen.getByRole('button', { name: 'plus New Offer Supplier' }));
-        });
-        expect(navigate).toHaveBeenCalledTimes(1);
-        expect(navigate).toHaveBeenCalledWith(paths.OFFERS_SUPPLIER_NEW);
-
-        act(() => {
             userEvent.click(screen.getByRole('button', { name: 'plus New Offer' }));
         });
-        expect(navigate).toHaveBeenCalledTimes(2);
+        expect(navigate).toHaveBeenCalledTimes(1);
         expect(navigate).toHaveBeenCalledWith(paths.OFFERS_NEW);
     });
 

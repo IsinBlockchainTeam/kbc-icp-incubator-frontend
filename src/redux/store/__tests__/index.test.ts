@@ -1,4 +1,4 @@
-import { store, RootState } from '../index';
+import { RootState, store } from '../index';
 import { initialState as userInfoInitialState } from '@/redux/reducers/userInfoSlice';
 
 describe('store', () => {
@@ -10,7 +10,7 @@ describe('store', () => {
         const initialState: RootState = store.getState();
 
         expect(initialState.loading.isLoading).toBe(false);
-        expect(initialState.loading.loadingMessages).toStrictEqual([]);
+        expect(initialState.loading.loadingMessages).toStrictEqual({});
         expect(initialState.siweIdentity.isLogged).toBe(false);
         expect(initialState.siweIdentity.address).toBe('');
         expect(initialState.siweIdentity.sessionIdentity).toBe('');

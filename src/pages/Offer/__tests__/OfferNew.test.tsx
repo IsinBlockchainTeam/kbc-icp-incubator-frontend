@@ -8,18 +8,18 @@ import { useSelector } from 'react-redux';
 import { useSigner } from '@/providers/SignerProvider';
 import { GenericForm } from '@/components/GenericForm/GenericForm';
 import { ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
-import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
-import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
-import { useEthOffer } from '@/providers/entities/EthOfferProvider';
 import { UserInfoState } from '@/redux/reducers/userInfoSlice';
 import { JsonRpcSigner } from '@ethersproject/providers';
+import { useOrganization } from '@/providers/icp/OrganizationProvider';
+import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';
+import { useOffer } from '@/providers/icp/OfferProvider';
 
 jest.mock('react-router-dom');
 jest.mock('@/providers/SignerProvider');
 jest.mock('@/components/GenericForm/GenericForm');
-jest.mock('@/providers/entities/EthMaterialProvider');
-jest.mock('@/providers/entities/EthOfferProvider');
-jest.mock('@/providers/entities/ICPOrganizationProvider');
+jest.mock('@/providers/icp/ProductCategoryProvider');
+jest.mock('@/providers/icp/OfferProvider');
+jest.mock('@/providers/icp/OrganizationProvider');
 jest.mock('react-redux');
 
 describe('Offers New', () => {
@@ -29,7 +29,7 @@ describe('Offers New', () => {
             role: credentials.ROLE_EXPORTER
         }
     } as UserInfoState;
-    const getCompany = jest.fn();
+    const getOrganization = jest.fn();
     const saveOffer = jest.fn();
     const navigate = jest.fn();
 
@@ -39,17 +39,17 @@ describe('Offers New', () => {
         jest.clearAllMocks();
 
         (useNavigate as jest.Mock).mockReturnValue(navigate);
-        getCompany.mockReturnValue({ legalName: 'Supplier Name' });
-        (useICPOrganization as jest.Mock).mockReturnValue({
-            getCompany
+        getOrganization.mockReturnValue({ legalName: 'Supplier Name' });
+        (useOrganization as jest.Mock).mockReturnValue({
+            getOrganization
         });
-        (useEthMaterial as jest.Mock).mockReturnValue({
+        (useProductCategory as jest.Mock).mockReturnValue({
             productCategories: [
                 new ProductCategory(1, 'Product Category 1', 1, ''),
                 new ProductCategory(2, 'Product Category 2', 2, '')
             ]
         });
-        (useEthOffer as jest.Mock).mockReturnValue({
+        (useOffer as jest.Mock).mockReturnValue({
             saveOffer
         });
         (useSigner as jest.Mock).mockReturnValue({ signer });
@@ -84,7 +84,7 @@ describe('Offers New', () => {
         await (GenericForm as jest.Mock).mock.calls[0][0].onSubmit(values);
 
         expect(saveOffer).toHaveBeenCalledTimes(1);
-        expect(saveOffer).toHaveBeenCalledWith('0x123', 1);
+        expect(saveOffer).toHaveBeenCalledWith(1);
         expect(navigate).toHaveBeenCalledTimes(1);
         expect(navigate).toHaveBeenCalledWith(paths.OFFERS);
     });

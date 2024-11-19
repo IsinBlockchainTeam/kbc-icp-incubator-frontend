@@ -6,7 +6,7 @@ import { EthEscrowProvider, useEthEscrow } from '@/providers/entities/EthEscrowP
 import { EscrowService, TokenService } from '@kbc-lib/coffee-trading-management-lib';
 import { CONTRACT_ADDRESSES } from '@/constants/evm';
 import { JsonRpcSigner } from '@ethersproject/providers';
-import { useEthOrderTrade } from '@/providers/entities/EthOrderTradeProvider';
+import { useOrder } from '@/providers/icp/OrderProvider';
 
 jest.mock('@kbc-lib/coffee-trading-management-lib');
 jest.mock('@blockchain-lib/common');
@@ -14,7 +14,7 @@ jest.mock('@/providers/SignerProvider');
 jest.mock('react-redux');
 jest.mock('@/utils/notification');
 jest.mock('@/constants/evm');
-jest.mock('@/providers/entities/EthOrderTradeProvider');
+jest.mock('@/providers/icp/OrderProvider');
 
 describe('EthEscrowProvider', () => {
     const signer = { _address: '0x123' } as JsonRpcSigner;
@@ -57,8 +57,8 @@ describe('EthEscrowProvider', () => {
         (CONTRACT_ADDRESSES.TOKEN as jest.Mock).mockReturnValue('0x456');
         (useDispatch as jest.Mock).mockReturnValue(dispatch);
         (useSigner as jest.Mock).mockReturnValue({ signer });
-        (useEthOrderTrade as jest.Mock).mockReturnValue({
-            detailedOrderTrade: { trade: { id: '1' }, escrowAddress: '0x123' }
+        (useOrder as jest.Mock).mockReturnValue({
+            order: { shipment: { escrowAddress: '0x123' } }
         });
     });
 
