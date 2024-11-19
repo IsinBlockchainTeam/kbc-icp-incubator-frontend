@@ -9,7 +9,7 @@ import { Typography } from 'antd';
 import { checkAndGetEnvironmentVariable } from '@/utils/env';
 import { ICP } from '@/constants/icp';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
-import { MATERIAL_MESSAGE, PRODUCT_CATEGORY_MESSAGE } from '@/constants/message';
+import { MATERIAL_MESSAGE } from '@/constants/message';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { useDispatch } from 'react-redux';
@@ -64,7 +64,7 @@ export function MaterialProvider(props: { children: ReactNode }) {
             await materialService.createMaterial(productCategoryId);
             openNotification(
                 'Success',
-                PRODUCT_CATEGORY_MESSAGE.SAVE.OK,
+                MATERIAL_MESSAGE.SAVE.OK,
                 NotificationType.SUCCESS,
                 NOTIFICATION_DURATION
             );
@@ -73,7 +73,7 @@ export function MaterialProvider(props: { children: ReactNode }) {
             console.log('Error while saving material', e);
             openNotification(
                 'Error',
-                PRODUCT_CATEGORY_MESSAGE.SAVE.ERROR,
+                MATERIAL_MESSAGE.SAVE.ERROR,
                 NotificationType.ERROR,
                 NOTIFICATION_DURATION
             );

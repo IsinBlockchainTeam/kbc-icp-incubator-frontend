@@ -45,8 +45,9 @@
     },
     "scripts": {
         "start": "react-app-rewired start",
-        "start:dev": "./scripts/dfx_config.sh && react-app-rewired start",
-        "build": "./scripts/dfx_config.sh && react-app-rewired build",
+        "start:icp": "./scripts/dfx_config.sh && react-app-rewired start",
+        "build": "react-app-rewired build",
+        "build:icp": "./scripts/dfx_config.sh && react-app-rewired build",
         "test": "react-app-rewired test",
         "coverage": "npm run test -- --coverage .",
         "eject": "react-app-rewired eject",
