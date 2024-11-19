@@ -1,4 +1,4 @@
-# KBC Platform
+# kbc-icp-incubator-frontend
 
 This project is a [_React_](https://reactjs.org/) webapp that serves as the entry point to the KBC Coffee Trading Project's platform. It allows visualizing the operations performed on-chain
 
