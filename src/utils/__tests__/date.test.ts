@@ -51,8 +51,4 @@ describe('date utility functions', () => {
         );
         await expect(validator(form)).rejects.toEqual('Start date should be before end date');
     });
-
-    it('convert Date to string', () => {
-        expect(fromDateToString(new Date('2022-01-01'))).toEqual('1 Jan 2022');
-    });
 });

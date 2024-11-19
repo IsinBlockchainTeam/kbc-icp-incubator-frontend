@@ -25,7 +25,12 @@ describe('MenuLayout', () => {
     });
     it('should render menu when user is not logged in', () => {
         render(
-            <MemoryRouter initialEntries={[{ pathname: '/test' }]}>
+            <MemoryRouter
+                initialEntries={[{ pathname: '/test' }]}
+                future={{
+                    v7_startTransition: true,
+                    v7_relativeSplatPath: true
+                }}>
                 <Provider store={store}>
                     <MenuLayout />
                 </Provider>
@@ -62,7 +67,12 @@ describe('MenuLayout', () => {
             } as UserInfoState)
         );
         render(
-            <MemoryRouter initialEntries={[{ pathname: '/test' }]}>
+            <MemoryRouter
+                initialEntries={[{ pathname: '/test' }]}
+                future={{
+                    v7_startTransition: true,
+                    v7_relativeSplatPath: true
+                }}>
                 <Provider store={store}>
                     <MenuLayout />
                 </Provider>
