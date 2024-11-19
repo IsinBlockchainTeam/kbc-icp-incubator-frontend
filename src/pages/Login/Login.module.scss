@@ -1,0 +1,20 @@
+.LoginContainer {
+    display: flex;
+    flex-direction: column;
+    padding: 32px 64px 64px;
+    position: relative;
+    text-align: center;
+    max-width: 75%;
+    margin: auto;
+}
+
+.ContentContainer {
+    display: flex;
+    flex-direction: row;
+
+    .ChildContent {
+        width: 50%;
+        text-align: center;
+        margin: auto;
+    }
+}

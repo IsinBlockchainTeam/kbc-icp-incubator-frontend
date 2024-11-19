@@ -1,0 +1,3 @@
+@kbc-lib:registry=https://github.com/IsinBlockchainTeam/kbc-icp-incubator-library
+
+@blockchain-lib:registry=https://github.com/IsinBlockchainTeam/kbc-icp-incubator-common

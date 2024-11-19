@@ -1,0 +1,14 @@
+/clients
+/build
+/node_modules
+/coverage
+junit.xml
+.env
+.env.tmp
+
+.dfx
+.idea
+
+.npmrc
+
+package-lock.json

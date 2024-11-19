@@ -1,0 +1,8 @@
+{
+    "canisters": {
+        "kbc-platform": {
+            "source": ["./build"],
+            "type": "assets"
+        }
+    }
+}
