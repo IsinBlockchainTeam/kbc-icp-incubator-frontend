@@ -91,7 +91,7 @@ export const TradeView = () => {
 
                         {
                             key: '3',
-                            label: 'Escrow',
+                            label: 'Down payment',
                             children: <EscrowPanel />
                         },
                         {
