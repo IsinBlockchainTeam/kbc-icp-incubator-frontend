@@ -13,12 +13,12 @@ export interface PDFViewerProps {
 
 export default function PDFViewer(props: PDFViewerProps) {
     const { element, onDocumentChange, validationStatus } = props;
-    const { height = '100%', uploadable, loading, info, name } = element;
+    const { height = '100%', uploadable, loading, content, name } = element;
     const [file, setFile] = useState<Blob | undefined>(undefined);
 
     useEffect(() => {
-        if (info) setFile(info.content);
-    }, [info?.content]);
+        if (content) setFile(content.content);
+    }, [content?.content]);
 
     const onFileUpload = (file: Blob) => {
         setFile(file);
@@ -26,11 +26,10 @@ export default function PDFViewer(props: PDFViewerProps) {
     };
 
     const onRevert = () => {
-        setFile(info?.content);
-        onDocumentChange(name, info?.content);
+        setFile(content?.content);
+        onDocumentChange(name, content?.content);
     };
 
-    console.log('validationStatus: ', validationStatus);
     return (
         <Badge.Ribbon
             text={

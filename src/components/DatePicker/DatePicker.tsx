@@ -1,6 +1,6 @@
 import React from 'react';
 import { DatePicker } from 'antd';
-import { utils } from '@/constants/index';
+import { utils } from '@/constants/misc';
 
 type Props = {
     style?: any;
@@ -12,6 +12,7 @@ export default (props: Props) => {
 
     return (
         <DatePicker
+            role="date-picker"
             style={{ width: '100%', ...style }}
             {...additionalProps}
             format={utils.DATE_FORMAT}

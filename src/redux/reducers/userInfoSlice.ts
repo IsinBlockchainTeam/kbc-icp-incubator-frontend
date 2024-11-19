@@ -1,31 +1,82 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { RoleProof } from '@kbc-lib/coffee-trading-management-lib';
 
-export type UserInfoState = {
-    isLogged: boolean;
-    id: string;
+export type CompanyClaimsState = {
     legalName: string;
-    email: string;
+    industrialSector: string;
     address: string;
+    city: string;
+    postalCode: string;
+    region: string;
+    email: string;
     nation: string;
+    latitude: string;
+    longitude: string;
     telephone: string;
     image: string;
     role: string;
     organizationId: string;
-    privateKey: string;
+};
+export type EmployeeClaimsState = {
+    firstName: string;
+    lastName: string;
+    address: string;
+    birthDate: string;
+    email: string;
+    telephone: string;
+    role: string;
+    image: string;
+};
+export type UserInfoState = {
+    isLogged: boolean;
+    subjectDid: string;
+    companyClaims: CompanyClaimsState;
+    employeeClaims: EmployeeClaimsState;
+    roleProof: RoleProof;
 };
 
 export const initialState: UserInfoState = {
     isLogged: false,
-    id: '',
-    legalName: '',
-    email: '',
-    address: '',
-    nation: '',
-    telephone: '',
-    image: '',
-    role: '',
-    organizationId: '',
-    privateKey: ''
+    subjectDid: '',
+    companyClaims: {
+        legalName: '',
+        industrialSector: '',
+        address: '',
+        city: '',
+        postalCode: '',
+        region: '',
+        email: '',
+        nation: '',
+        latitude: '',
+        longitude: '',
+        telephone: '',
+        image: '',
+        role: '',
+        organizationId: ''
+    },
+    employeeClaims: {
+        firstName: '',
+        lastName: '',
+        address: '',
+        birthDate: '',
+        email: '',
+        telephone: '',
+        role: '',
+        image: ''
+    },
+    roleProof: {
+        signedProof: '',
+        delegator: '',
+        delegateRole: '',
+        delegateCredentialIdHash: '',
+        delegateCredentialExpiryDate: 0,
+        membershipProof: {
+            signedProof: '',
+            delegatorCredentialIdHash: '',
+            delegatorCredentialExpiryDate: 0,
+            issuer: ''
+        }
+    }
 };
 export type UpdatableUserInfoState = Omit<UserInfoState, 'isLogged'>;
 
@@ -37,35 +88,21 @@ const userInfoSlice = createSlice({
             state: UserInfoState,
             action: { payload: UpdatableUserInfoState; type: string }
         ) => {
-            state.id = action.payload.id;
-            state.legalName = action.payload.legalName;
-            state.email = action.payload.email;
-            state.address = action.payload.address;
-            state.nation = action.payload.nation;
-            state.telephone = action.payload.telephone;
-            state.image = action.payload.image;
-            state.role = action.payload.role;
-            state.organizationId = action.payload.organizationId;
-            state.privateKey = action.payload.privateKey;
+            state.isLogged = true;
+            state.subjectDid = action.payload.subjectDid;
+            state.companyClaims = action.payload.companyClaims;
+            state.employeeClaims = action.payload.employeeClaims;
+            state.roleProof = action.payload.roleProof;
         },
         resetUserInfo: (state: UserInfoState) => {
             state.isLogged = false;
-            state.id = '';
-            state.legalName = '';
-            state.email = '';
-            state.address = '';
-            state.nation = '';
-            state.telephone = '';
-            state.image = '';
-            state.role = '';
-            state.organizationId = '';
-            state.privateKey = '';
-        },
-        setLogged: (state: UserInfoState, action: { payload: boolean; type: string }) => {
-            state.isLogged = action.payload;
+            state.subjectDid = initialState.subjectDid;
+            state.companyClaims = initialState.companyClaims;
+            state.employeeClaims = initialState.employeeClaims;
+            state.roleProof = initialState.roleProof;
         }
     }
 });
-export const { updateUserInfo, resetUserInfo, setLogged } = userInfoSlice.actions;
+export const { updateUserInfo, resetUserInfo } = userInfoSlice.actions;
 
 export default userInfoSlice.reducer;

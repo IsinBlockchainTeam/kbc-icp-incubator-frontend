@@ -15,7 +15,7 @@ import {
     selectSiweIdentity,
     updateSiweIdentity
 } from '@/redux/reducers/siweIdentitySlice';
-import { SignerContext } from './SignerProvider';
+import { useSigner } from './SignerProvider';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { RootState } from '@/redux/store';
 import { Typography } from 'antd';
@@ -27,7 +27,8 @@ import {
     type ISignedDelegation as ServiceSignedDelegation,
     type State
 } from '@blockchain-lib/common';
-import { ICP } from '@/constants/index';
+import { ICP } from '@/constants/icp';
+import { NOTIFICATION_DURATION } from '@/constants/notification';
 
 /**
  * Re-export types
@@ -68,7 +69,7 @@ export function SiweIdentityProvider({
 }) {
     const siweIdentity = useSelector(selectSiweIdentity);
     const dispatch = useDispatch();
-    const { signer } = useContext(SignerContext);
+    const { signer } = useSigner();
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const icpSiweDriver = new ICPSiweDriver(ICP.CANISTER_ID_IC_SIWE_PROVIDER);
 
@@ -79,9 +80,7 @@ export function SiweIdentityProvider({
     });
 
     useEffect(() => {
-        console.log(state.anonymousActor, !siweIdentity);
         if (state.anonymousActor && !siweIdentity) {
-            console.log('Trying siwe login...');
             tryLogin();
         }
     }, [siweIdentity, state.anonymousActor]);
@@ -91,17 +90,23 @@ export function SiweIdentityProvider({
             await login();
             openNotification(
                 'Authenticated',
-                `Login succeed. Welcome ${userInfo.legalName}!`,
-                NotificationType.SUCCESS
+                `Login succeed. Welcome ${userInfo.employeeClaims.firstName}!`,
+                NotificationType.SUCCESS,
+                NOTIFICATION_DURATION
             );
         } catch (e) {
             console.error('Error in SiweIdentityProvider', e);
-            openNotification('Error', 'Error while logging in', NotificationType.ERROR);
+            openNotification(
+                'Error',
+                'Error while logging in',
+                NotificationType.ERROR,
+                NOTIFICATION_DURATION
+            );
         }
     }
 
     const signMessageEthers = async (message: string) => {
-        return signer?.signMessage(message);
+        return signer.signMessage(message);
     };
 
     async function updateState(newState: Partial<State>) {
@@ -122,7 +127,7 @@ export function SiweIdentityProvider({
      * is optional, as it will be called automatically on login if not called manually.
      */
     async function prepareLogin(): Promise<string | undefined> {
-        const connectedEthAddress = (signer?.address || '0xabc') as `0x${string}`;
+        const connectedEthAddress = signer._address as `0x${string}`;
         if (!state.anonymousActor) {
             throw new Error(
                 'Hook not initialized properly. Make sure to supply all required props to the SiweIdentityProvider.'
@@ -182,7 +187,7 @@ export function SiweIdentityProvider({
         loginSignature: `0x${string}` | undefined,
         error: Error | null
     ) {
-        const connectedEthAddress = (signer?.address || '0xabc') as `0x${string}`;
+        const connectedEthAddress = signer._address as `0x${string}`;
         if (error) {
             rejectLoginWithError(error, 'An error occurred while signing the login message.');
             return;
@@ -273,7 +278,7 @@ export function SiweIdentityProvider({
      */
 
     async function login() {
-        const connectedEthAddress = signer?.address || '';
+        const connectedEthAddress = signer._address;
         const promise = new Promise<DelegationIdentity>((resolve, reject) => {
             loginPromiseHandlers.current = { resolve, reject };
         });

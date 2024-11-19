@@ -1,20 +1,16 @@
 import { CardPage } from '@/components/structure/CardPage/CardPage';
 import { Button } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
-import { paths } from '@/constants/index';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
-import React, { useContext, useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { NotificationType, openNotification } from '@/utils/notification';
-import { regex } from '@/utils/regex';
-import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
-import { useDispatch } from 'react-redux';
-import { EthContext } from '@/providers/EthProvider';
+import { regex } from '@/constants/regex';
+import { paths } from '@/constants/paths';
+import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';
 
 export const ProductCategoryNew = () => {
-    const { ethMaterialService } = useContext(EthContext);
+    const { saveProductCategory } = useProductCategory();
     const navigate = useNavigate();
-    const dispatch = useDispatch();
 
     const elements: FormElement[] = [
         { type: FormElementType.TITLE, span: 24, label: 'Data' },
@@ -49,33 +45,9 @@ export const ProductCategoryNew = () => {
     ];
 
     const onSubmit = async (values: any) => {
-        try {
-            dispatch(showLoading('Creating product category...'));
-            await ethMaterialService.saveProductCategory(
-                values.name,
-                values.quality,
-                values.description
-            );
-            openNotification(
-                'Product category registered',
-                `Product category "${values.name}" has been registered correctly!`,
-                NotificationType.SUCCESS,
-                1
-            );
-            navigate(paths.MATERIALS);
-        } catch (e: any) {
-            console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR);
-        } finally {
-            dispatch(hideLoading());
-        }
+        await saveProductCategory(values.name, values.quality, values.description);
+        navigate(paths.MATERIALS);
     };
-
-    useEffect(() => {
-        return () => {
-            dispatch(hideLoading());
-        };
-    }, []);
 
     return (
         <CardPage
@@ -96,7 +68,12 @@ export const ProductCategoryNew = () => {
                     </Button>
                 </div>
             }>
-            <GenericForm elements={elements} submittable={true} onSubmit={onSubmit} />
+            <GenericForm
+                elements={elements}
+                confirmText="Are you sure you want to create this product category?"
+                submittable={true}
+                onSubmit={onSubmit}
+            />
         </CardPage>
     );
 };

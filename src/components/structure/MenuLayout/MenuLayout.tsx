@@ -1,23 +1,27 @@
 import { Avatar, Layout, Menu, MenuProps, Spin, theme } from 'antd';
 import React, { useState } from 'react';
 import {
-    ExperimentOutlined,
+    AuditOutlined,
+    CloudDownloadOutlined,
     GoldOutlined,
+    LogoutOutlined,
     SettingOutlined,
     SwapOutlined,
     TeamOutlined,
-    LogoutOutlined,
-    UserOutlined,
-    AuditOutlined
+    UserOutlined
 } from '@ant-design/icons';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { defaultPictureURL, paths } from '@/constants/index';
+import { defaultPictureURL } from '@/constants/misc';
 import KBCLogo from '@/assets/logo.png';
 import styles from './MenuLayout.module.scss';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { resetUserInfo } from '@/redux/reducers/userInfoSlice';
 import { clearSiweIdentity } from '@/redux/reducers/siweIdentitySlice';
+import { paths } from '@/constants/paths';
+import { useWalletConnect } from '@/providers/WalletConnectProvider';
+import loadingLogo from '@/assets/coffee-loading.gif';
+
 const { Content, Footer, Sider } = Layout;
 
 type MenuItem = Required<MenuProps>['items'][number];
@@ -42,8 +46,8 @@ const getItem = (
 
 const blockchainItems: MenuItem[] = [
     getItem('Trades', paths.TRADES, <SwapOutlined />),
+    getItem('Documents', paths.DOCUMENTS, <CloudDownloadOutlined />),
     getItem('Materials', paths.MATERIALS, <GoldOutlined />),
-    getItem('Transformations', paths.ASSET_OPERATIONS, <ExperimentOutlined />),
     getItem('Partners', paths.PARTNERS, <TeamOutlined />),
     getItem('Offers', paths.OFFERS, <AuditOutlined />)
 ];
@@ -54,7 +58,12 @@ const settingItems: MenuItem[] = [
     ])
 ];
 
-const getUserItemLoggedIn = (name: string, picture: string, dispatch: any) => [
+const getUserItemLoggedIn = (
+    name: string,
+    picture: string,
+    dispatch: any,
+    disconnect: () => void
+) => [
     getItem(
         `${name}`,
         'profile',
@@ -64,12 +73,14 @@ const getUserItemLoggedIn = (name: string, picture: string, dispatch: any) => [
             getItem('Logout', paths.LOGIN, <LogoutOutlined />, undefined, undefined, () => {
                 dispatch(resetUserInfo());
                 dispatch(clearSiweIdentity());
+                disconnect();
             })
         ]
     )
 ];
 
 export const MenuLayout = () => {
+    const { disconnect } = useWalletConnect();
     const location = useLocation();
     const navigate = useNavigate();
     const [collapsed, setCollapsed] = useState<boolean>(false);
@@ -116,9 +127,12 @@ export const MenuLayout = () => {
                             items={
                                 userInfo.isLogged
                                     ? getUserItemLoggedIn(
-                                          userInfo.legalName,
-                                          userInfo.image || defaultPictureURL,
-                                          dispatch
+                                          userInfo.employeeClaims.lastName +
+                                              ', ' +
+                                              userInfo.companyClaims.legalName,
+                                          userInfo.employeeClaims.image || defaultPictureURL,
+                                          dispatch,
+                                          disconnect
                                       )
                                     : settingItems
                             }
@@ -129,7 +143,24 @@ export const MenuLayout = () => {
             </Sider>
             <Layout>
                 <Content className={styles.MainContent} style={{ background: colorBgContainer }}>
-                    <Spin spinning={loading.isLoading} size="large" tip={loading.loadingMessage}>
+                    <Spin
+                        indicator={
+                            <img
+                                src={loadingLogo}
+                                alt="loading..."
+                                style={{
+                                    width: 150,
+                                    height: 'auto',
+                                    marginLeft: -70,
+                                    marginTop: -100
+                                }}
+                            />
+                        }
+                        size={'large'}
+                        spinning={loading.isLoading}
+                        tip={Object.keys(loading.loadingMessages).map((msg) => (
+                            <div key={msg}>{msg}</div>
+                        ))}>
                         <Outlet />
                     </Spin>
                 </Content>

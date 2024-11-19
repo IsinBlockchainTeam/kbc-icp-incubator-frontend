@@ -1,35 +1,18 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React from 'react';
 import { Button, Table } from 'antd';
-import { NotificationType, openNotification } from '@/utils/notification';
 import { ColumnsType } from 'antd/es/table';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
 import { PlusOutlined } from '@ant-design/icons';
-import { paths } from '@/constants/index';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { hideLoading, showLoading } from '@/redux/reducers/loadingSlice';
 import { Material, ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
-import { EthContext } from '@/providers/EthProvider';
+import { paths } from '@/constants/paths';
+import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';
+import { useMaterial } from '@/providers/icp/MaterialProvider';
 
 export const Materials = () => {
-    const { ethMaterialService } = useContext(EthContext);
+    const { productCategories } = useProductCategory();
+    const { materials } = useMaterial();
     const navigate = useNavigate();
-    const [materials, setMaterials] = useState<Material[]>();
-    const [productCategories, setProductCategories] = useState<ProductCategory[]>();
-    const dispatch = useDispatch();
-
-    const loadData = async () => {
-        try {
-            dispatch(showLoading('Retrieving product categories and materials...'));
-            setProductCategories(await ethMaterialService.getProductCategories());
-            setMaterials(await ethMaterialService.getMaterials());
-        } catch (e: any) {
-            console.log('error: ', e);
-            openNotification('Error', e.message, NotificationType.ERROR);
-        } finally {
-            dispatch(hideLoading());
-        }
-    };
 
     const productCategoriesColumns: ColumnsType<ProductCategory> = [
         {
@@ -46,7 +29,7 @@ export const Materials = () => {
         {
             title: 'Quality',
             dataIndex: 'quality',
-            sorter: (a, b) => a.name.localeCompare(b.name)
+            sorter: (a, b) => (a.quality && b.quality ? a.quality - b.quality : 0)
         }
     ];
 
@@ -64,13 +47,6 @@ export const Materials = () => {
             sorter: (a, b) => a.productCategory.name.localeCompare(b.productCategory.name)
         }
     ];
-
-    useEffect(() => {
-        loadData();
-        return () => {
-            dispatch(hideLoading());
-        };
-    }, []);
 
     return (
         <>

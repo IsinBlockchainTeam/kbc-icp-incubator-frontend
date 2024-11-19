@@ -1,7 +1,9 @@
 import React, { ReactNode, useEffect } from 'react';
 import {
     Alert,
+    AlertProps,
     Button,
+    Card,
     Col,
     DatePicker,
     Divider,
@@ -14,9 +16,10 @@ import {
 } from 'antd';
 import PDFViewer from '../PDFViewer/PDFViewer';
 import { DownloadOutlined } from '@ant-design/icons';
-import { createDownloadWindow, showTextWithHtmlLinebreaks } from '@/utils/utils';
-import { DocumentPresentable } from '@/api/types/DocumentPresentable';
-import { FormItemInputProps } from 'antd/es/form/FormItemInput';
+import { createDownloadWindow } from '@/utils/page';
+import { DocumentStatus } from '@kbc-lib/coffee-trading-management-lib';
+import { ConfirmButton } from '@/components/ConfirmButton/ConfirmButton';
+import { CardSize } from 'antd/es/card/Card';
 
 export enum FormElementType {
     TITLE = 'title',
@@ -26,7 +29,8 @@ export enum FormElementType {
     DATE = 'date',
     SPACE = 'space',
     BUTTON = 'button',
-    DOCUMENT = 'document'
+    DOCUMENT = 'document',
+    CARD = 'card'
 }
 
 export type FormElement =
@@ -35,17 +39,27 @@ export type FormElement =
     | ClickableElement
     | SelectableElement
     | EditableElement
-    | DocumentElement;
+    | DocumentElement
+    | CardElement;
 
 type BasicElement = {
     type: FormElementType.SPACE;
     span: number;
+    hidden?: boolean;
 };
 
 type LabeledElement = Omit<BasicElement, 'type'> & {
     type: FormElementType.TITLE | FormElementType.TIP;
-    label: string;
+    label: ReactNode;
+    background?: AlertProps['type'];
     marginVertical?: string;
+};
+
+export type DocumentContent = {
+    contentType: string;
+    content: Blob;
+    filename: string;
+    date: Date;
 };
 
 // type DisableableElement = Omit<LabeledElement, 'type'> & {
@@ -57,13 +71,14 @@ type LabeledElement = Omit<BasicElement, 'type'> & {
 
 export type ClickableElement = Omit<LabeledElement, 'type'> & {
     type: FormElementType.BUTTON;
-    onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+    onClick: (event: React.MouseEvent<HTMLElement>) => void;
     name: string;
     disabled?: boolean;
     block?: boolean;
     buttonType?: 'primary' | 'default' | 'dashed' | 'text' | 'link';
     icon?: React.ReactNode;
     additionalProperties?: AdditionalButtonProperties;
+    resetFormValues?: boolean;
 };
 type AdditionalButtonProperties = 'danger' | 'ghost' | 'loading';
 const mapAdditionalPropertiesToButtonProps: Record<
@@ -78,9 +93,17 @@ const mapAdditionalPropertiesToButtonProps: Record<
 type SelectableElement = Omit<LabeledElement, 'type'> & {
     type: FormElementType.SELECT;
     name: string;
-    options: { label: string; value: string | number }[];
+    options: { label: React.ReactNode; value: string | number }[];
     required: boolean;
-    defaultValue?: string | number;
+    onChange?: (value: any) => any;
+    search?: {
+        showIcon: boolean;
+        filterOption: (input: string, option: any) => boolean;
+    };
+    optionRender?: (option: any) => React.ReactNode;
+    onSelect?: (value: string | number) => void;
+    // if 'number', it refers to the index of the options array
+    defaultValue?: string | number | string[];
     mode?: 'multiple';
     disabled?: boolean;
     block?: boolean;
@@ -91,53 +114,81 @@ type EditableElement = Omit<LabeledElement, 'type'> & {
     name: string;
     defaultValue: any;
     required: boolean;
+    addOnAfter?: string;
     disabled?: boolean;
+    disableValues?: (...args: any[]) => boolean;
     block?: boolean;
     regex?: string;
     dependencies?: string[];
     validationCallback?: (form: FormInstance) => Promise<void>;
 };
 
+export type DocumentValidationCallback = {
+    onApprove: () => Promise<void>;
+    onReject: () => Promise<void>;
+};
 export type DocumentElement = Omit<LabeledElement, 'type'> & {
     type: FormElementType.DOCUMENT;
     name: string;
     uploadable: boolean;
     required: boolean;
     loading: boolean;
-    info?: DocumentPresentable;
+    content?: DocumentContent;
+    status?: DocumentStatus;
     height?: `${number}px` | `${number}%` | `${number}vh` | 'auto';
-    validationCallback?: {
-        approve: (...args: any[]) => Promise<void>;
-        reject: (...args: any[]) => Promise<void>;
-    };
+    validationCallbacks?: DocumentValidationCallback;
+};
+
+type CardElement = Omit<BasicElement, 'type'> & {
+    type: FormElementType.CARD;
+    name: string;
+    title: string;
+    content: React.ReactNode;
+    actions?: React.ReactNode[];
+    bordered?: boolean;
+    size?: CardSize;
+    extra?: React.ReactNode;
 };
 
 type Props = {
     elements: FormElement[];
+    formName?: string;
+    confirmText?: string;
     submittable?: boolean;
+    submitText?: string;
     onSubmit?: (values: any) => void;
 };
 
-export type ElementStatus = { type: FormItemInputProps['status']; message: ReactNode };
-
 export const GenericForm = (props: Props) => {
     const [form] = Form.useForm();
-    const documents: Map<string, Blob | undefined> = new Map<string, Blob>();
+    const [areFieldsValid, setAreFieldsValid] = React.useState<boolean>(false);
+    const [documents, setDocuments] = React.useState<Map<string, Blob | undefined>>(
+        new Map<string, Blob>()
+    );
     const dateFormat = 'DD/MM/YYYY';
+    const values = Form.useWatch([], form);
 
     useEffect(() => {
         props.elements.forEach((element) => {
             if (element.type === FormElementType.DOCUMENT) {
                 const doc = element as DocumentElement;
-                if (doc?.info?.content) {
-                    documents.set(doc.name, doc.info.content);
+                if (doc?.content?.content) {
+                    setDocuments(documents.set(doc.name, doc.content.content));
                 }
             }
         });
+        form.resetFields();
     }, [props.elements]);
 
+    useEffect(() => {
+        form.validateFields({ validateOnly: true })
+            .then(() => setAreFieldsValid(true))
+            .catch(() => setAreFieldsValid(false));
+    }, [form, values]);
+
     const addDocument = (name: string, file?: Blob) => {
-        documents.set(name, file);
+        // this will update the state without re-rendering the component (the reference is the same)
+        setDocuments(documents.set(name, file));
     };
 
     const elementsComponent = {
@@ -150,22 +201,29 @@ export const GenericForm = (props: Props) => {
             element = element as LabeledElement;
             const { span, label } = element;
             return (
-                <Col span={span} key={`title_${index}`}>
+                <Col
+                    span={span}
+                    key={`title_${index}`}
+                    style={{ display: `${element.hidden ? 'none' : 'block'}` }}>
                     <Divider>{label}</Divider>
                 </Col>
             );
         },
         [FormElementType.TIP]: (element: FormElement, index: number) => {
             element = element as LabeledElement;
-            const { span, label } = element;
+            const { span, label, background = 'info' } = element;
             return (
                 <Col
                     span={span}
                     key={`tip_${label}`}
-                    style={{ margin: `${element.marginVertical} 0` }}>
+                    style={{
+                        margin: `${element.marginVertical} 0`,
+                        display: `${element.hidden ? 'none' : 'block'}`
+                    }}>
                     <Alert
                         style={{ textAlign: 'center' }}
-                        message={showTextWithHtmlLinebreaks(label)}
+                        message={element.label}
+                        type={background}
                     />
                 </Col>
             );
@@ -181,20 +239,27 @@ export const GenericForm = (props: Props) => {
                 buttonType = 'default',
                 icon = undefined,
                 block = true,
-                additionalProperties = undefined
+                additionalProperties = undefined,
+                resetFormValues
             } = element;
             const additionalProps = additionalProperties
                 ? mapAdditionalPropertiesToButtonProps[additionalProperties]
                 : {};
 
             return (
-                <Col span={span} key={`button_${element.name}`}>
+                <Col
+                    span={span}
+                    key={`button_${element.name}`}
+                    style={{ display: `${element.hidden ? 'none' : 'block'}` }}>
                     <Form.Item labelCol={{ span: 24 }} label={' '} name={name}>
                         <Button
                             type={buttonType}
                             block={block}
                             disabled={disabled}
-                            onClick={onClick}
+                            onClick={(e) => {
+                                onClick(e);
+                                if (resetFormValues) form.resetFields();
+                            }}
                             icon={icon}
                             {...additionalProps}>
                             {label}
@@ -207,12 +272,17 @@ export const GenericForm = (props: Props) => {
             element = element as SelectableElement;
             const { disabled = false } = element;
             return (
-                <Col span={element.span} key={`select_${element.name}`}>
+                <Col
+                    span={element.span}
+                    key={`select_${element.name}`}
+                    style={{ display: `${element.hidden ? 'none' : 'block'}` }}>
                     <Form.Item
                         labelCol={{ span: 24 }}
                         label={element.label}
                         name={element.name}
-                        initialValue={element.defaultValue ? element.defaultValue : undefined}
+                        initialValue={
+                            element.defaultValue !== undefined ? element.defaultValue : undefined
+                        }
                         rules={[
                             {
                                 required: element.required,
@@ -225,6 +295,11 @@ export const GenericForm = (props: Props) => {
                             placeholder={`Select ${element.label}`}
                             // defaultValue={element.defaultValue}
                             options={element.options}
+                            onChange={element.onChange}
+                            optionRender={element.optionRender}
+                            onSelect={element.onSelect}
+                            showSearch={element.search?.showIcon}
+                            filterOption={element.search?.filterOption}
                         />
                     </Form.Item>
                 </Col>
@@ -234,7 +309,10 @@ export const GenericForm = (props: Props) => {
             element = element as EditableElement;
             const { disabled = false, validationCallback } = element;
             return (
-                <Col span={element.span} key={`input_${element.name}`}>
+                <Col
+                    span={element.span}
+                    key={`input_${element.name}`}
+                    style={{ display: `${element.hidden ? 'none' : 'block'}` }}>
                     <Form.Item
                         labelCol={{ span: 24 }}
                         label={element.label}
@@ -263,9 +341,11 @@ export const GenericForm = (props: Props) => {
                             type={element.type}
                             disabled={disabled}
                             placeholder={`Enter ${element.label}`}
+                            addonAfter={element.addOnAfter}
                             // defaultValue={element.defaultValue}
                             // value={element.defaultValue}
                             className="ant-input"
+                            style={{ padding: element.addOnAfter ? 0 : undefined }}
                         />
                     </Form.Item>
                 </Col>
@@ -273,9 +353,12 @@ export const GenericForm = (props: Props) => {
         },
         [FormElementType.DATE]: (element: FormElement, index: number) => {
             element = element as EditableElement;
-            const { disabled = false, validationCallback } = element;
+            const { disabled = false, validationCallback, disableValues } = element;
             return (
-                <Col span={element.span} key={`date_${element.name}`}>
+                <Col
+                    span={element.span}
+                    key={`date_${element.name}`}
+                    style={{ display: `${element.hidden ? 'none' : 'block'}` }}>
                     <Form.Item
                         labelCol={{ span: 24 }}
                         label={element.label}
@@ -300,6 +383,7 @@ export const GenericForm = (props: Props) => {
                             placeholder={`Enter ${element.label}`}
                             format={dateFormat}
                             className="ant-input"
+                            disabledDate={disableValues}
                         />
                     </Form.Item>
                 </Col>
@@ -307,10 +391,14 @@ export const GenericForm = (props: Props) => {
         },
         [FormElementType.DOCUMENT]: (element: FormElement, index: number) => {
             element = element as DocumentElement;
-            const docInfo = element.info!;
+            const docInfo = element.content!;
+            const status = element.status!;
 
             return (
-                <Col span={element.span} key={`document_${element.name}`}>
+                <Col
+                    span={element.span}
+                    key={`document_${element.name}`}
+                    style={{ display: `${element.hidden ? 'none' : 'block'}` }}>
                     <Form.Item
                         labelCol={{ span: 24 }}
                         label={element.label}
@@ -321,9 +409,9 @@ export const GenericForm = (props: Props) => {
                         <PDFViewer
                             element={element}
                             onDocumentChange={addDocument}
-                            validationStatus={docInfo?.status}
+                            validationStatus={status}
                         />
-                        {element.validationCallback && (
+                        {element.validationCallbacks && (
                             <Popover
                                 title="Validate the document"
                                 trigger="click"
@@ -350,7 +438,7 @@ export const GenericForm = (props: Props) => {
                                             <Button
                                                 type="primary"
                                                 style={{ width: '100%' }}
-                                                onClick={element.validationCallback.approve}>
+                                                onClick={element.validationCallbacks.onApprove}>
                                                 Approve
                                             </Button>
                                         </Col>
@@ -359,7 +447,7 @@ export const GenericForm = (props: Props) => {
                                                 danger
                                                 type="primary"
                                                 style={{ width: '100%' }}
-                                                onClick={element.validationCallback.reject}>
+                                                onClick={element.validationCallbacks.onReject}>
                                                 Reject
                                             </Button>
                                         </Col>
@@ -380,14 +468,35 @@ export const GenericForm = (props: Props) => {
                     </Form.Item>
                 </Col>
             );
+        },
+        [FormElementType.CARD]: (element: FormElement, index: number) => {
+            element = element as CardElement;
+            const { title, content, actions, bordered = true, size = 'default', extra } = element;
+
+            return (
+                <Col
+                    span={element.span}
+                    key={`date_${element.name}`}
+                    style={{ display: `${element.hidden ? 'none' : 'block'}` }}>
+                    <Form.Item labelCol={{ span: 24 }} name={element.name}>
+                        <Card
+                            title={title}
+                            bordered={bordered}
+                            size={size}
+                            extra={extra}
+                            actions={actions}>
+                            {content}
+                        </Card>
+                    </Form.Item>
+                </Col>
+            );
         }
     };
-
     return (
         <Form
             layout="horizontal"
             form={form}
-            name="generic-form"
+            name={props.formName || 'generic-form'}
             onFinish={(values) => {
                 if (props.onSubmit) {
                     documents.forEach((value, key) => {
@@ -403,9 +512,16 @@ export const GenericForm = (props: Props) => {
                 {props.submittable && (
                     <Col span={24}>
                         <Form.Item>
-                            <Button type="primary" htmlType="submit" block>
-                                Submit
-                            </Button>
+                            <ConfirmButton
+                                text={props.submitText || 'Submit'}
+                                disabled={!areFieldsValid}
+                                confirmText={
+                                    props.confirmText || 'Are you sure you want to submit?'
+                                }
+                                onConfirm={form.submit}
+                                type="primary"
+                                block
+                            />
                         </Form.Item>
                     </Col>
                 )}

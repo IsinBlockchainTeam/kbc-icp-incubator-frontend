@@ -10,6 +10,7 @@ jest.mock('antd', () => {
             {children}
         </form>
     );
+    MockForm.useWatch = antd.Form.useWatch;
     MockForm.useForm = antd.Form.useForm;
     MockForm.Item = ({ children, ...props }: any) => (
         <div {...props} data-testid="form-item">
@@ -34,6 +35,11 @@ jest.mock('antd', () => {
                 {children}
             </div>
         ),
+        Select: ({ children, ...props }: any) => (
+            <div {...props} data-testid="select">
+                {children}
+            </div>
+        ),
         Input: ({ children, ...props }: any) => (
             <div {...props} data-testid="input">
                 {children}
@@ -41,6 +47,17 @@ jest.mock('antd', () => {
         ),
         DatePicker: ({ children, ...props }: any) => (
             <div {...props} data-testid="datepicker">
+                {children}
+            </div>
+        ),
+        Card: ({ children, ...props }: any) => (
+            <div {...props} data-testid="card">
+                {children}
+            </div>
+        ),
+        Alert: ({ children, message, ...props }: any) => (
+            <div {...props} data-testid="alert">
+                {message}
                 {children}
             </div>
         )
@@ -61,6 +78,7 @@ jest.mock('../../PDFViewer/PDFViewer', () => ({ onDocumentChange }: PDFViewerPro
         </button>
     </div>
 ));
+jest.mock('@/components/ConfirmButton/ConfirmButton');
 
 describe('GenericForm', () => {
     beforeEach(() => {
@@ -81,7 +99,8 @@ describe('GenericForm', () => {
     it('should render correctly LabeledElements', () => {
         const elements: FormElement[] = [
             { type: FormElementType.TITLE, span: 24, label: 'Text 1' },
-            { type: FormElementType.TITLE, span: 12, label: 'Text 2' }
+            { type: FormElementType.TITLE, span: 12, label: 'Text 2' },
+            { type: FormElementType.TIP, span: 12, label: 'Tip 1' }
         ];
         const tree = render(<GenericForm elements={elements} />);
 
@@ -89,6 +108,9 @@ describe('GenericForm', () => {
         expect(dividers.length).toBe(2);
         expect(dividers[0].innerHTML).toContain('Text 1');
         expect(dividers[1].innerHTML).toContain('Text 2');
+        const alerts = tree.getAllByTestId('alert');
+        expect(alerts.length).toBe(1);
+        expect(alerts[0].innerHTML).toContain('Tip 1');
     });
     it('should render correctly ClickableElements', () => {
         const mockedOnClick = jest.fn();
@@ -123,6 +145,27 @@ describe('GenericForm', () => {
         expect(buttons[0].innerHTML).toContain('Button 1');
         expect(buttons[1]).toHaveAttribute('disabled');
         expect(buttons[1].innerHTML).toContain('Button 2');
+    });
+    it('should render correctly SelectableElement', () => {
+        const elements: FormElement[] = [
+            {
+                type: FormElementType.SELECT,
+                name: 'select',
+                options: [{ label: 'option 1', value: 'option1' }],
+                required: true,
+                span: 4,
+                label: 'Option 1',
+                disabled: false
+            }
+        ];
+        const tree = render(<GenericForm elements={elements} />);
+
+        const formitems = tree.getAllByTestId('form-item');
+        expect(formitems[0]).toHaveAttribute('label', 'Option 1');
+        expect(formitems[0]).toHaveAttribute('name', 'select');
+
+        const selects = tree.getAllByTestId('select');
+        expect(selects[0]).not.toHaveAttribute('disabled');
     });
     it('should render correctly EditableElements', () => {
         const elements: FormElement[] = [
@@ -215,7 +258,6 @@ describe('GenericForm', () => {
                 name: 'document',
                 label: 'Document 1',
                 required: true,
-                content: new Blob(),
                 uploadable: true,
                 loading: false
             }
@@ -229,6 +271,27 @@ describe('GenericForm', () => {
         const pdfViewer = tree.getByTestId('pdfviewer');
         expect(pdfViewer).toBeDefined();
     });
+    it('should render correctly CardElements', () => {
+        const elements: FormElement[] = [
+            {
+                type: FormElementType.CARD,
+                span: 24,
+                name: 'card',
+                title: 'Card 1',
+                content: "This is the card's content"
+            }
+        ];
+        const tree = render(<GenericForm elements={elements} />);
+
+        const formitem = tree.getByTestId('form-item');
+        expect(formitem).toHaveAttribute('name', 'card');
+
+        const card = tree.getByTestId('card');
+        expect(card).toHaveAttribute('title', 'Card 1');
+        expect(card).not.toHaveAttribute('size');
+        expect(card).not.toHaveAttribute('extra');
+        expect(card).not.toHaveAttribute('actions');
+    });
     it('should call onSubmit', () => {
         const elements: FormElement[] = [
             {
@@ -237,7 +300,6 @@ describe('GenericForm', () => {
                 name: 'document',
                 label: 'Document 1',
                 required: true,
-                content: new Blob(),
                 uploadable: true,
                 loading: false
             },
@@ -247,7 +309,6 @@ describe('GenericForm', () => {
                 name: 'empty-document',
                 label: 'Document 2',
                 required: false,
-                content: undefined,
                 uploadable: true,
                 loading: false
             }

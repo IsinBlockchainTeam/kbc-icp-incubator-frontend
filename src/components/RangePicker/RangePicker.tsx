@@ -1,5 +1,5 @@
 import React from 'react';
-import { utils } from '@/constants/index';
+import { utils } from '@/constants/misc';
 import { DatePicker } from 'antd';
 const { RangePicker } = DatePicker;
 
@@ -13,6 +13,7 @@ export default (props: Props) => {
 
     return (
         <RangePicker
+            role="range-picker"
             style={{ width: '100%', ...style }}
             {...additionalProps}
             format={utils.DATE_FORMAT}
