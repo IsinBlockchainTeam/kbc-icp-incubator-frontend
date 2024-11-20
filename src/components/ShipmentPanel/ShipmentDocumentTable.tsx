@@ -5,7 +5,7 @@ import {
     ShipmentDocumentInfo,
     ShipmentDocumentType,
     ShipmentPhase
-} from '@kbc-lib/coffee-trading-management-lib';
+} from '@isinblockchainteam/kbc-icp-incubator-library';
 import { ShipmentDocumentRules } from '@/constants/shipmentDocument';
 import { setParametersPath } from '@/utils/page';
 import { paths } from '@/constants/paths';

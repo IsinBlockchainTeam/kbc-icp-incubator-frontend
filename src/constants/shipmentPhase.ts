@@ -1,4 +1,4 @@
-import { ShipmentPhase } from '@kbc-lib/coffee-trading-management-lib';
+import { ShipmentPhase } from '@isinblockchainteam/kbc-icp-incubator-library';
 
 export const ShipmentPhaseDisplayName: {
     [key in ShipmentPhase]: string;

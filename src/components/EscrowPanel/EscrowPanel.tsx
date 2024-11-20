@@ -6,7 +6,7 @@ import { WithdrawModal } from '@/components/EscrowPanel/WithdrawModal';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { credentials } from '@/constants/ssi';
-import { FundStatus } from '@kbc-lib/coffee-trading-management-lib';
+import { FundStatus } from '@isinblockchainteam/kbc-icp-incubator-library';
 import { useShipment } from '@/providers/icp/ShipmentProvider';
 
 const { Paragraph, Text } = Typography;

@@ -9,6 +9,4 @@ junit.xml
 .dfx
 .idea
 
-.npmrc
-
 package-lock.json

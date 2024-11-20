@@ -1,4 +1,4 @@
-import { ShipmentDocumentType } from '@kbc-lib/coffee-trading-management-lib';
+import { ShipmentDocumentType } from '@isinblockchainteam/kbc-icp-incubator-library';
 
 export const ShipmentDocumentRules: {
     [key in ShipmentDocumentType]: { name: string; isExporterSuggestedUploader: boolean };

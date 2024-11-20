@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, Typography } from 'antd';
 import { ShipmentDocumentTable } from '@/components/ShipmentPanel/ShipmentDocumentTable';
-import { ShipmentPhase } from '@kbc-lib/coffee-trading-management-lib';
+import { ShipmentPhase } from '@isinblockchainteam/kbc-icp-incubator-library';
 import { useShipment } from '@/providers/icp/ShipmentProvider';
 
 const { Paragraph } = Typography;

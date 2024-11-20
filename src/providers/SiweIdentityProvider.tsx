@@ -26,7 +26,7 @@ import {
     type LoginOkResponse,
     type ISignedDelegation as ServiceSignedDelegation,
     type State
-} from '@blockchain-lib/common';
+} from '@isinblockchainteam/kbc-icp-incubator-common';
 import { ICP } from '@/constants/icp';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
 

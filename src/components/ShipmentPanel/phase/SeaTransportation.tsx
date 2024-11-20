@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, Descriptions, DescriptionsProps, Flex, Tag, Typography } from 'antd';
-import { EvaluationStatus } from '@kbc-lib/coffee-trading-management-lib';
+import { EvaluationStatus } from '@isinblockchainteam/kbc-icp-incubator-library';
 import { ConfirmButton } from '@/components/ConfirmButton/ConfirmButton';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';

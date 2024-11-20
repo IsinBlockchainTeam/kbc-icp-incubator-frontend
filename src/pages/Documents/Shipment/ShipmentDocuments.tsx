@@ -8,7 +8,7 @@ import {
     ShipmentDocumentType,
     ShipmentPhaseDocument,
     Order
-} from '@kbc-lib/coffee-trading-management-lib';
+} from '@isinblockchainteam/kbc-icp-incubator-library';
 import DocumentUpload from '@/pages/Documents/DocumentUpload';
 import { ConfirmButton } from '@/components/ConfirmButton/ConfirmButton';
 import { useLocation, useNavigate } from 'react-router-dom';

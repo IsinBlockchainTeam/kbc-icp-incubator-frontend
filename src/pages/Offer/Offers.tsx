@@ -9,7 +9,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { paths } from '@/constants/paths';
 import { credentials } from '@/constants/ssi';
-import { ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
+import { ProductCategory } from '@isinblockchainteam/kbc-icp-incubator-library';
 import { useOffer } from '@/providers/icp/OfferProvider';
 import { useOrganization } from '@/providers/icp/OrganizationProvider';
 

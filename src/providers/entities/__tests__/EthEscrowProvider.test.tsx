@@ -3,13 +3,13 @@ import { useDispatch } from 'react-redux';
 import { useSigner } from '@/providers/SignerProvider';
 import { openNotification } from '@/utils/notification';
 import { EthEscrowProvider, useEthEscrow } from '@/providers/entities/EthEscrowProvider';
-import { EscrowService, TokenService } from '@kbc-lib/coffee-trading-management-lib';
+import { EscrowService, TokenService } from '@isinblockchainteam/kbc-icp-incubator-library';
 import { CONTRACT_ADDRESSES } from '@/constants/evm';
 import { JsonRpcSigner } from '@ethersproject/providers';
 import { useOrder } from '@/providers/icp/OrderProvider';
 
-jest.mock('@kbc-lib/coffee-trading-management-lib');
-jest.mock('@blockchain-lib/common');
+jest.mock('@isinblockchainteam/kbc-icp-incubator-library');
+jest.mock('@isinblockchainteam/kbc-icp-incubator-common');
 jest.mock('@/providers/SignerProvider');
 jest.mock('react-redux');
 jest.mock('@/utils/notification');

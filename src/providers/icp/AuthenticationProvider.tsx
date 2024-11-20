@@ -2,7 +2,7 @@ import React, { createContext, useMemo } from 'react';
 import {
     ICPAuthenticationDriver,
     ICPAuthenticationService
-} from '@kbc-lib/coffee-trading-management-lib';
+} from '@isinblockchainteam/kbc-icp-incubator-library';
 import { useSiweIdentity } from '@/providers/SiweIdentityProvider';
 import { checkAndGetEnvironmentVariable } from '@/utils/env';
 import { ICP } from '@/constants/icp';

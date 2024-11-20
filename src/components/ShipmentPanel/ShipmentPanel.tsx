@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Steps } from 'antd';
-import { ShipmentPhase } from '@kbc-lib/coffee-trading-management-lib';
+import { ShipmentPhase } from '@isinblockchainteam/kbc-icp-incubator-library';
 import { FlagOutlined, FormOutlined, InboxOutlined, TruckOutlined } from '@ant-design/icons';
 import { Cargo } from '@/components/ShipmentPanel/svg/Cargo';
 import { WaitingForLandTransportation } from '@/components/ShipmentPanel/phase/WaitingForLandTransportation';

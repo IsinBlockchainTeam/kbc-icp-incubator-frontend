@@ -1,5 +1,5 @@
 import { FormElement, FormElementType } from '@/components/GenericForm/GenericForm';
-import { TradeType } from '@kbc-lib/coffee-trading-management-lib';
+import { TradeType } from '@isinblockchainteam/kbc-icp-incubator-library';
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { paths } from '@/constants/paths';

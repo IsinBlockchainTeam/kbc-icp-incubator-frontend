@@ -8,7 +8,7 @@ import {
     OrganizationDriver,
     OrganizationParams,
     OrganizationService
-} from '@kbc-lib/coffee-trading-management-lib';
+} from '@isinblockchainteam/kbc-icp-incubator-library';
 import { ORGANIZATION_MESSAGE, OrganizationMessage } from '@/constants/message';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';

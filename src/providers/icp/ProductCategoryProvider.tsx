@@ -3,7 +3,7 @@ import {
     ICPProductCategoryDriver,
     ICPProductCategoryService,
     ProductCategory
-} from '@kbc-lib/coffee-trading-management-lib';
+} from '@isinblockchainteam/kbc-icp-incubator-library';
 import { useSiweIdentity } from '@/providers/SiweIdentityProvider';
 import { Typography } from 'antd';
 import { checkAndGetEnvironmentVariable } from '@/utils/env';

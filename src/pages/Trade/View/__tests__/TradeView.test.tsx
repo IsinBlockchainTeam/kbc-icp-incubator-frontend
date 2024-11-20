@@ -3,7 +3,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { act, render } from '@testing-library/react';
 import { TradeView } from '@/pages/Trade/View/TradeView';
 import { OrderTradeView } from '@/pages/Trade/View/OrderTradeView';
-import { TradeType } from '@kbc-lib/coffee-trading-management-lib';
+import { TradeType } from '@isinblockchainteam/kbc-icp-incubator-library';
 import { paths } from '@/constants/paths';
 import { useOrder } from '@/providers/icp/OrderProvider';
 import { ShipmentPanel } from '@/components/ShipmentPanel/ShipmentPanel';

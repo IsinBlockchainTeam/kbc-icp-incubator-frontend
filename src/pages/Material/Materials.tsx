@@ -4,7 +4,7 @@ import { ColumnsType } from 'antd/es/table';
 import { CardPage } from '@/components/structure/CardPage/CardPage';
 import { PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { Material, ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
+import { Material, ProductCategory } from '@isinblockchainteam/kbc-icp-incubator-library';
 import { paths } from '@/constants/paths';
 import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';
 import { useMaterial } from '@/providers/icp/MaterialProvider';

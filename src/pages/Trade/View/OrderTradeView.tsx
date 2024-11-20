@@ -5,7 +5,7 @@ import {
     OrderLineRequest,
     OrderParams,
     OrderStatus
-} from '@kbc-lib/coffee-trading-management-lib';
+} from '@isinblockchainteam/kbc-icp-incubator-library';
 import { Tooltip } from 'antd';
 import React, { useState } from 'react';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
@@ -132,10 +132,10 @@ export const OrderTradeView = ({
             deliveryPort: values['delivery-port'],
             lines: [
                 new OrderLineRequest(
-                    productCategoryId,
+                    productCategoryId!,
                     quantity,
                     unit,
-                    new OrderLinePrice(price, fiat)
+                    { amount: price, fiat: fiat } as OrderLinePrice
                 )
             ]
         };

@@ -4,8 +4,8 @@ import { ICPProvider, ICPContext, useICP } from '../ICPProvider';
 import { useSiweIdentity } from '../SiweIdentityProvider';
 import { checkAndGetEnvironmentVariable } from '@/utils/env';
 import { request } from '@/utils/request';
-import { ICPOrganizationDriver, ICPStorageDriver, ICPIdentityDriver } from '@blockchain-lib/common';
-import { ICPFileDriver } from '@kbc-lib/coffee-trading-management-lib';
+import { ICPOrganizationDriver, ICPStorageDriver, ICPIdentityDriver } from '@isinblockchainteam/kbc-icp-incubator-common';
+import { ICPFileDriver } from '@isinblockchainteam/kbc-icp-incubator-library';
 
 jest.mock('../SiweIdentityProvider', () => ({
     useSiweIdentity: jest.fn()
@@ -21,12 +21,12 @@ jest.mock('@/utils/env', () => ({
 jest.mock('@/utils/request', () => ({
     request: jest.fn()
 }));
-jest.mock('@blockchain-lib/common', () => ({
+jest.mock('@isinblockchainteam/kbc-icp-incubator-common', () => ({
     ICPIdentityDriver: jest.fn(),
     ICPOrganizationDriver: jest.fn(),
     ICPStorageDriver: jest.fn()
 }));
-jest.mock('@kbc-lib/coffee-trading-management-lib', () => ({
+jest.mock('@isinblockchainteam/kbc-icp-incubator-library', () => ({
     ICPFileDriver: jest.fn(),
     URL_SEGMENT_INDEXES: {
         CANISTER_ID: 0,

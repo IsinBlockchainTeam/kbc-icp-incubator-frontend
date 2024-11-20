@@ -1,6 +1,6 @@
 import { Avatar, Card, Descriptions } from 'antd';
 
-import { BroadedOrganization } from '@kbc-lib/coffee-trading-management-lib';
+import { BroadedOrganization } from '@isinblockchainteam/kbc-icp-incubator-library';
 import React from 'react';
 import { EnvironmentOutlined, MailOutlined, PhoneOutlined } from '@ant-design/icons';
 

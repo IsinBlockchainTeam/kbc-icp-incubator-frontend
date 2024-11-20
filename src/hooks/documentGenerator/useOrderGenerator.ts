@@ -7,7 +7,7 @@ import OrderTemplateSchema from '../../templates/transaction/pdf-schemas/OrderTe
 import { ESCROW_FEE } from '@/constants/misc';
 import { fixYPositions } from '@/hooks/documentGenerator/utils';
 import { useOrganization } from '@/providers/icp/OrganizationProvider';
-import { BroadedOrganization } from '@kbc-lib/coffee-trading-management-lib';
+import { BroadedOrganization } from '@isinblockchainteam/kbc-icp-incubator-library';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TradeType } from '@kbc-lib/coffee-trading-management-lib';
+import { TradeType } from '@isinblockchainteam/kbc-icp-incubator-library';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { paths } from '@/constants/paths';
 import { Collapse, Typography } from 'antd';

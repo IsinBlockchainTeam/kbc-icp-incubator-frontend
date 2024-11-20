@@ -1,4 +1,4 @@
-import { TradeType } from '@kbc-lib/coffee-trading-management-lib';
+import { TradeType } from '@isinblockchainteam/kbc-icp-incubator-library';
 
 export const setParametersPath = (
     path = '',

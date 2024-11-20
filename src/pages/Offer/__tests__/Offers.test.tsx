@@ -2,7 +2,7 @@ import { act, render, screen } from '@testing-library/react';
 import Offers from '../Offers';
 import userEvent from '@testing-library/user-event';
 import { paths } from '@/constants/paths';
-import { Offer, ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
+import { Offer, ProductCategory } from '@isinblockchainteam/kbc-icp-incubator-library';
 import { useSelector } from 'react-redux';
 import { credentials } from '@/constants/ssi';
 import { useNavigate } from 'react-router-dom';

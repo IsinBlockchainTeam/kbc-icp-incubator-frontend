@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import { EvaluationStatus, OrderLine, ShipmentPhase } from '@kbc-lib/coffee-trading-management-lib';
+import { EvaluationStatus, OrderLine, ShipmentPhase } from '@isinblockchainteam/kbc-icp-incubator-library';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
 import { regex } from '@/constants/regex';
 import React from 'react';

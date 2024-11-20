@@ -6,11 +6,11 @@ import {
     EthEnumerableProvider,
     useEthEnumerable
 } from '@/providers/entities/EthEnumerableProvider';
-import { EnumerableTypeService } from '@blockchain-lib/common';
+import { EnumerableTypeService } from '@isinblockchainteam/kbc-icp-incubator-common';
 import { JsonRpcSigner } from '@ethersproject/providers';
 
-jest.mock('@kbc-lib/coffee-trading-management-lib');
-jest.mock('@blockchain-lib/common');
+jest.mock('@isinblockchainteam/kbc-icp-incubator-library');
+jest.mock('@isinblockchainteam/kbc-icp-incubator-common');
 jest.mock('@/providers/SignerProvider');
 jest.mock('react-redux');
 jest.mock('@/utils/notification');

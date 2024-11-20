@@ -3,7 +3,7 @@ import MaterialNew from '../MaterialNew';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { paths } from '@/constants/paths';
-import { ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
+import { ProductCategory } from '@isinblockchainteam/kbc-icp-incubator-library';
 import { GenericForm } from '@/components/GenericForm/GenericForm';
 import { useMaterial } from '@/providers/icp/MaterialProvider';
 import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';

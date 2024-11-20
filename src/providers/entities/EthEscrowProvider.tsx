@@ -3,7 +3,7 @@ import {
     EscrowService,
     TokenDriver,
     TokenService
-} from '@kbc-lib/coffee-trading-management-lib';
+} from '@isinblockchainteam/kbc-icp-incubator-library';
 import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 import { useSigner } from '@/providers/SignerProvider';
 import { useDispatch } from 'react-redux';

@@ -3,7 +3,7 @@ import Materials from '../Materials';
 import userEvent from '@testing-library/user-event';
 import { useNavigate } from 'react-router-dom';
 import { paths } from '@/constants/paths';
-import { Material, ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
+import { Material, ProductCategory } from '@isinblockchainteam/kbc-icp-incubator-library';
 import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';
 import { useMaterial } from '@/providers/icp/MaterialProvider';
 

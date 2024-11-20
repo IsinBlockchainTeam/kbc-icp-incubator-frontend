@@ -18,7 +18,7 @@ import {
     Organization,
     OrganizationParams,
     OrganizationRole
-} from '@kbc-lib/coffee-trading-management-lib';
+} from '@isinblockchainteam/kbc-icp-incubator-library';
 import { BroadedOrganizationCard } from '@/components/OrganizationCards/BroadedOrganizationCard';
 import { NarrowedOrganizationCard } from '@/components/OrganizationCards/NarrowedOrganizationCard';
 

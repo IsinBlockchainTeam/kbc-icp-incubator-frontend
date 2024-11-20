@@ -8,7 +8,7 @@ import {
     OrderLinePrice,
     OrderLineRequest,
     OrderParams
-} from '@kbc-lib/coffee-trading-management-lib';
+} from '@isinblockchainteam/kbc-icp-incubator-library';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { regex } from '@/constants/regex';
@@ -64,7 +64,7 @@ export const OrderTradeNew = ({
                         productCategoryId,
                         quantity,
                         unit,
-                        new OrderLinePrice(price, fiat)
+                        { amount: price, fiat: fiat } as OrderLinePrice
                     )
                 );
             }

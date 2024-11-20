@@ -17,7 +17,7 @@ import {
 import PDFViewer from '../PDFViewer/PDFViewer';
 import { DownloadOutlined } from '@ant-design/icons';
 import { createDownloadWindow } from '@/utils/page';
-import { DocumentStatus } from '@kbc-lib/coffee-trading-management-lib';
+import { DocumentStatus } from '@isinblockchainteam/kbc-icp-incubator-library';
 import { ConfirmButton } from '@/components/ConfirmButton/ConfirmButton';
 import { CardSize } from 'antd/es/card/Card';
 

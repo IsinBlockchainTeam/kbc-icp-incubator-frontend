@@ -7,7 +7,7 @@ import { credentials } from '@/constants/ssi';
 import { useSelector } from 'react-redux';
 import { useSigner } from '@/providers/SignerProvider';
 import { GenericForm } from '@/components/GenericForm/GenericForm';
-import { ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
+import { ProductCategory } from '@isinblockchainteam/kbc-icp-incubator-library';
 import { UserInfoState } from '@/redux/reducers/userInfoSlice';
 import { JsonRpcSigner } from '@ethersproject/providers';
 import { useOrganization } from '@/providers/icp/OrganizationProvider';

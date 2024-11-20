@@ -1,5 +1,5 @@
 import React, { createContext, ReactNode, useMemo, useState } from 'react';
-import { ICPOfferDriver, ICPOfferService, Offer } from '@kbc-lib/coffee-trading-management-lib';
+import { ICPOfferDriver, ICPOfferService, Offer } from '@isinblockchainteam/kbc-icp-incubator-library';
 import { useSiweIdentity } from '@/providers/SiweIdentityProvider';
 import { checkAndGetEnvironmentVariable } from '@/utils/env';
 import { ICP } from '@/constants/icp';

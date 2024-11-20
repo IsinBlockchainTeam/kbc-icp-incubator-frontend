@@ -18,11 +18,10 @@ This package is written in TypeScript.
 1. First, ensure you have configured and run the ICP network with the [kbc-icp-incubator-library](https://github.com/IsinBlockchainTeam/kbc-icp-incubator-library) canisters deployed, Ethereum network with the [kbc-icp-incubator-library](https://github.com/IsinBlockchainTeam/kbc-icp-incubator-library) smart contracts deployed
 2. Clone this repository using command `git clone https://github.com/IsinBlockchainTeam/kbc-icp-incubator-frontend.git`
 3. Enter the newly created folder using `cd kbc-platform`
-4. Rename the `.npmrc.template` file to `.npmrc`
-5. Run `npm i` to install the required dependencies
-6. Rename the `.env.local.template` file to `.env.local` and fill in the missing information
-7. Run `npm run start` to start the application
-8. Open your browser and navigate to `http://localhost:3000` to see the _React_ webapp
+4. Run `npm install` to install the required dependencies
+5. Rename the `.env.local.template` file to `.env.local` and fill in the missing information
+6. Run `npm run start:icp` to start the application
+7. Open your browser and navigate to `http://localhost:3000` to see the _React_ webapp
 
 ## Deploy React App on ICP - Local Replica
 
@@ -43,18 +42,11 @@ To deploy the project on the ICP mainnet, follow these steps:
 4. Build the project using `npm run build:icp`
 5. Deploy canister using `dfx canister install --network ic --mode <mode> kbc-platform`. Mode "reinstall" is suggested
 
-### `npmrc` Configuration
-
-| Registry name              | Description                                                                                                                                                                        |
-| -------------------------- |------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `@kbc-lib:registry`        | Needed for **installing** dependencies. It's the place where you can find the [kbc-icp-incubator-library](https://github.com/IsinBlockchainTeam/kbc-icp-incubator-library) library |
-| `@blockchain-lib:registry` | Needed for **installing** dependencies. It's the place where you can find the [kbc-icp-incubator-common](https://github.com/IsinBlockchainTeam/kbc-icp-incubator-common) library   |
-
 ### Environment Variables Configuration
 
 | Variable                                       | Description                                                                                                                                                                                              |
-| ---------------------------------------------- |----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `REACT_APP_CANISTER_ENV_GLOB` | The absolute path to the dfx generated .env file that contains the canister ids. This file is generated when you run `dfx deploy` command                                                                |
+|------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `REACT_APP_CANISTER_ENV_GLOB`                  | The absolute path to the dfx generated .env file that contains the canister ids. This file is generated when you run `dfx deploy` command                                                                |
 | `DFX_NETWORK` & `REACT_APP_CANISTER_ID_<name>` | Leave this fields untouched, as they will be automatically filled by the app                                                                                                                             |
 | `REACT_APP_WALLET_CONNECT_PROJECT_ID`          | Your Wallet Connect's project ID. You can create one in [Wallet Connect Cloud](https://cloud.walletconnect.com/app)                                                                                      |
 | `REACT_APP_VERIFIER_BACKEND_URL`               | The URL where the `verifier_backend` project is running                                                                                                                                                  |
@@ -67,6 +59,4 @@ To deploy the project on the ICP mainnet, follow these steps:
 If you want to develop locally:
 
 -   Make sure you have built the [kbc-icp-incubator-common](https://github.com/IsinBlockchainTeam/kbc-icp-incubator-common) `package/` package
--   Inside file `package.json` change the `@blockchain-lib/common` dependency to the local path of the `package/` package. Use the following format: `"@blockchain-lib/common": "file:<relative-path-to-packes-package>"`
 -   Make sure you have built the [kbc-icp-incubator-library](https://github.com/IsinBlockchainTeam/kbc-icp-incubator-library) `src` package
--   Inside file `package.json` change the `@kbc-lib/coffee-trading-management-lib` dependency to the local path of the `src` package. Use the following format: `"@kbc-lib/coffee-trading-management-lib": "file:<relative-path-to-src-package>"`

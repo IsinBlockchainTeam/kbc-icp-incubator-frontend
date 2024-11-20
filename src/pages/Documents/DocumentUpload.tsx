@@ -3,7 +3,7 @@ import {
     EvaluationStatus,
     ShipmentDocumentInfo,
     ShipmentDocumentType
-} from '@kbc-lib/coffee-trading-management-lib';
+} from '@isinblockchainteam/kbc-icp-incubator-library';
 import React, { useMemo } from 'react';
 import { Flex, Tooltip } from 'antd';
 import { WarningOutlined } from '@ant-design/icons';

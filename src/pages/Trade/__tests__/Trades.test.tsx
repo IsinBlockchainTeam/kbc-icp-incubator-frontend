@@ -1,7 +1,7 @@
 import { render } from '@testing-library/react';
 import Trades from '@/pages/Trade/Trades';
 import { Table, Tag } from 'antd';
-import { NegotiationStatus, Order, TradeType } from '@kbc-lib/coffee-trading-management-lib';
+import { NegotiationStatus, Order, TradeType } from '@isinblockchainteam/kbc-icp-incubator-library';
 import { Link } from 'react-router-dom';
 import { AsyncComponent } from '@/components/AsyncComponent/AsyncComponent';
 import { useOrder } from '@/providers/icp/OrderProvider';

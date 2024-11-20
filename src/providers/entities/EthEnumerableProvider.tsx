@@ -1,7 +1,7 @@
 import { createContext, useContext, useMemo, useState } from 'react';
 import { useSigner } from '@/providers/SignerProvider';
 import { useDispatch } from 'react-redux';
-import { EnumerableTypeReadDriver, EnumerableTypeService } from '@blockchain-lib/common';
+import { EnumerableTypeReadDriver, EnumerableTypeService } from '@isinblockchainteam/kbc-icp-incubator-common';
 import { CONTRACT_ADDRESSES } from '@/constants/evm';
 import { FIAT_MESSAGE, PROCESS_TYPE_MESSAGE, UNIT_MESSAGE } from '@/constants/message';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';

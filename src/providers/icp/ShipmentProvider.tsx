@@ -7,7 +7,7 @@ import {
     ShipmentService,
     TokenDriver,
     TokenService
-} from '@kbc-lib/coffee-trading-management-lib';
+} from '@isinblockchainteam/kbc-icp-incubator-library';
 import React, { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 import { useSigner } from '@/providers/SignerProvider';
 import { useOrder } from '@/providers/icp/OrderProvider';
@@ -24,7 +24,7 @@ import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
-import { ICPResourceSpec } from '@blockchain-lib/common';
+import { ICPResourceSpec } from '@isinblockchainteam/kbc-icp-incubator-common';
 import { getMimeType } from '@/utils/file';
 import { useCallHandler } from '@/providers/icp/CallHandlerProvider';
 

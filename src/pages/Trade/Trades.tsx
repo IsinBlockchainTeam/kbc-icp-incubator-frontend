@@ -3,7 +3,7 @@ import { CardPage } from '@/components/structure/CardPage/CardPage';
 import { Table, Tag } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { Link } from 'react-router-dom';
-import { Order, OrderStatus, TradeType } from '@kbc-lib/coffee-trading-management-lib';
+import { Order, OrderStatus, TradeType } from '@isinblockchainteam/kbc-icp-incubator-library';
 import { setParametersPath } from '@/utils/page';
 import { paths } from '@/constants/paths';
 import { useOrder } from '@/providers/icp/OrderProvider';

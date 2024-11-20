@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { RoleProof } from '@kbc-lib/coffee-trading-management-lib';
+import { RoleProof } from '@isinblockchainteam/kbc-icp-incubator-library';
 
 export type CompanyClaimsState = {
     legalName: string;
