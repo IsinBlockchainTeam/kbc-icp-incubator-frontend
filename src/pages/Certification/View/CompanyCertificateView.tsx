@@ -3,7 +3,6 @@ import { paths } from '@/constants/paths';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
-import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 import { CertificateDocumentNames } from '@/constants/certificationDocument';
 import { ICPCompanyCertificate, ICPCertificateDocumentType } from '@kbc-lib/coffee-trading-management-lib';
 import { validateDates } from '@/utils/date';
@@ -113,9 +112,9 @@ export const CompanyCertificateView = (props: CertificateViewProps) => {
             required: true,
             height: '500px',
             content: {
-                content: new Blob([detailedCertificate.document.fileContent]),
-                contentType: detailedCertificate.document.metadata.fileType,
-                filename: detailedCertificate.document.metadata.filename
+                content: new Blob([detailedCertificate.documentContent]),
+                contentType: detailedCertificate.certificate.document.metadata.fileType,
+                filename: detailedCertificate.certificate.document.metadata.filename
             }
         },
         ...editElements

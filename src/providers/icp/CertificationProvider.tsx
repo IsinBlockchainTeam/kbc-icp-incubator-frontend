@@ -53,8 +53,7 @@ export type MaterialCertificateRequest = BaseCertificateRequest & {
 };
 export type DetailedCertificate = {
     certificate: ICPBaseCertificate; // based on runtime type it will be either CompanyCertificate, ScopeCertificate or MaterialCertificate
-    // TODO: it has to be replaced with the CertificateDocument entity where there is also the uint8array content
-    document: ICPCertificateDocument;
+    documentContent: Uint8Array;
 };
 
 export type CertificationContextState = {
@@ -104,7 +103,7 @@ export function CertificationProvider(props: { children: ReactNode }) {
         const certificate = await certificationService.getCompanyCertificate(signer._address, id);
         return {
             certificate,
-            document: await certificationService.getDocument(id)
+            documentContent: (await certificationService.getDocument(id)).fileContent
         };
     };
 
@@ -112,7 +111,7 @@ export function CertificationProvider(props: { children: ReactNode }) {
         const certificate = await certificationService.getScopeCertificate(signer._address, id);
         return {
             certificate,
-            document: await certificationService.getDocument(id)
+            documentContent: (await certificationService.getDocument(id)).fileContent
         };
     };
 
@@ -120,7 +119,7 @@ export function CertificationProvider(props: { children: ReactNode }) {
         const certificate = await certificationService.getMaterialCertificate(signer._address, id);
         return {
             certificate,
-            document: await certificationService.getDocument(id)
+            documentContent: (await certificationService.getDocument(id)).fileContent
         };
     };
 

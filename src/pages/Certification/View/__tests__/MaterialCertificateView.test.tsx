@@ -1,52 +1,55 @@
 import { useSigner } from '@/providers/SignerProvider';
 import { useNavigate } from 'react-router-dom';
-import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
-import { DetailedCertificate, useEthCertificate } from '@/providers/entities/EthCertificateProvider';
 import {
-    CertificateDocumentType,
-    CertificateType,
-    DocumentEvaluationStatus,
-    MaterialCertificate,
-    ScopeCertificate
+    EvaluationStatus,
+    ICPCertificateDocumentType,
+    ICPCertificateType,
+    ICPMaterialCertificate,
+    Material,
+    ProductCategory
 } from '@kbc-lib/coffee-trading-management-lib';
 import { render, screen } from '@testing-library/react';
 import React from 'react';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
-import dayjs from 'dayjs';
 import { MaterialCertificateView } from '@/pages/Certification/View/MaterialCertificateView';
-import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
+import { DetailedCertificate, useCertification } from '@/providers/icp/CertificationProvider';
+import { useMaterial } from '@/providers/icp/MaterialProvider';
+import { useEnumeration } from '@/providers/icp/EnumerationProvider';
 
 jest.mock('@/providers/SignerProvider');
 jest.mock('react-router-dom');
-jest.mock('@/providers/entities/EthEnumerableProvider');
-jest.mock('@/providers/entities/EthCertificateProvider');
-jest.mock('@/providers/entities/EthMaterialProvider');
+jest.mock('@/providers/icp/EnumerationProvider');
+jest.mock('@/providers/icp/CertificationProvider');
+jest.mock('@/providers/icp/MaterialProvider');
 jest.mock('@/components/GenericForm/GenericForm');
 
 describe('MaterialCertificateView', () => {
     const signer = { _address: '0x123' };
     const navigate = jest.fn();
     const assessmentStandards = ['assessmentStandard'];
+    const assessmentAssuranceLevels = ['assessmentAssuranceLevel'];
     const materials = [{ id: 3, productCategory: { name: 'productCategory' } }];
     const updateMaterialCertificate = jest.fn();
     const detailedCertificate: DetailedCertificate = {
-        certificate: new MaterialCertificate(
+        certificate: new ICPMaterialCertificate(
             1,
             'issuer',
             'subject',
+            'uploadedBy',
             'assessmentStandard',
-            { id: 1, documentType: CertificateDocumentType.CERTIFICATE_OF_CONFORMITY },
-            DocumentEvaluationStatus.NOT_EVALUATED,
-            CertificateType.SCOPE,
-            new Date().getTime(),
-            3
+            'assessmentAssuranceLevel',
+            {
+                referenceId: '123456',
+                documentType: ICPCertificateDocumentType.PRODUCTION_FACILITY_LICENSE,
+                externalUrl: 'url',
+                metadata: { filename: 'file.pdf', fileType: 'application/pdf' }
+            },
+            EvaluationStatus.NOT_EVALUATED,
+            ICPCertificateType.MATERIAL,
+            new Date(),
+            new Material(2, new ProductCategory(3, 'productCategory', 85, 'description'))
         ),
-        document: {
-            filename: 'file.pdf',
-            fileType: 'application/pdf',
-            documentReferenceId: '123456',
-            fileContent: new Uint8Array()
-        }
+        documentContent: new Uint8Array()
     };
     const commonElements: FormElement[] = [
         {
@@ -78,9 +81,9 @@ describe('MaterialCertificateView', () => {
         jest.clearAllMocks();
         (useSigner as jest.Mock).mockReturnValue({ signer });
         (useNavigate as jest.Mock).mockReturnValue(navigate);
-        (useEthEnumerable as jest.Mock).mockReturnValue({ assessmentStandards });
-        (useEthMaterial as jest.Mock).mockReturnValue({ materials });
-        (useEthCertificate as jest.Mock).mockReturnValue({
+        (useEnumeration as jest.Mock).mockReturnValue({ assessmentStandards, assessmentAssuranceLevels });
+        (useMaterial as jest.Mock).mockReturnValue({ materials });
+        (useCertification as jest.Mock).mockReturnValue({
             updateMaterialCertificate
         });
     });
@@ -93,7 +96,7 @@ describe('MaterialCertificateView', () => {
         expect(screen.getByText('Material Certificate')).toBeInTheDocument();
 
         expect(GenericForm).toHaveBeenCalled();
-        expect((GenericForm as jest.Mock).mock.calls[0][0].elements).toHaveLength(commonElements.length + 8);
+        expect((GenericForm as jest.Mock).mock.calls[0][0].elements).toHaveLength(commonElements.length + 9);
         expect((GenericForm as jest.Mock).mock.calls[0][0].submittable).toBeFalsy();
     });
 
@@ -103,11 +106,13 @@ describe('MaterialCertificateView', () => {
         );
         const values = {
             issuer: 'issuer',
+            subject: 'subject',
             assessmentStandard: assessmentStandards[0],
+            assessmentAssuranceLevel: assessmentAssuranceLevels[0],
             document: new File([new Blob(['document'])], 'example.txt', {
                 type: 'application/pdf'
             }),
-            documentType: 'documentType',
+            documentType: ICPCertificateDocumentType.CERTIFICATE_OF_CONFORMITY,
             documentReferenceId: 'documentReferenceId',
             materialId: 3
         };
@@ -118,13 +123,14 @@ describe('MaterialCertificateView', () => {
             issuer: values.issuer,
             subject: signer._address,
             assessmentStandard: values.assessmentStandard,
+            assessmentAssuranceLevel: values.assessmentAssuranceLevel,
             document: {
                 filename: values.document.name,
                 fileType: values.document.type,
-                fileContent: new Uint8Array(await new Response(values.document).arrayBuffer())
+                fileContent: new Uint8Array(await new Response(values.document).arrayBuffer()),
+                documentType: values.documentType,
+                referenceId: values.documentReferenceId
             },
-            documentType: values.documentType,
-            documentReferenceId: values.documentReferenceId,
             materialId: values.materialId
         });
     });

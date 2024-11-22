@@ -105,9 +105,9 @@ export const MaterialCertificateView = (props: CertificateViewProps) => {
             required: true,
             height: '500px',
             content: {
-                content: new Blob([detailedCertificate.document.fileContent]),
-                contentType: detailedCertificate.document.metadata.fileType,
-                filename: detailedCertificate.document.metadata.filename
+                content: new Blob([detailedCertificate.documentContent]),
+                contentType: detailedCertificate.certificate.document.metadata.fileType,
+                filename: detailedCertificate.certificate.document.metadata.filename
             }
         },
         ...editElements

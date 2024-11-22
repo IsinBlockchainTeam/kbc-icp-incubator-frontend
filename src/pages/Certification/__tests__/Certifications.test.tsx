@@ -1,16 +1,15 @@
 import { act, render } from '@testing-library/react';
 import React from 'react';
 import { Certifications, certificationsType } from '@/pages/Certification/Certifications';
-import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
-import { CertificateType } from '@kbc-lib/coffee-trading-management-lib';
-import { useEthRawCertificate } from '@/providers/entities/EthRawCertificateProvider';
+import { ICPCertificateType } from '@kbc-lib/coffee-trading-management-lib';
 import { Table, Tag } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
-import { PlusOutlined } from '@ant-design/icons';
 import DropdownButton from 'antd/es/dropdown/dropdown-button';
+import { useRawCertification } from '@/providers/icp/RawCertificationProvider';
+import { useOrganization } from '@/providers/icp/OrganizationProvider';
 
-jest.mock('@/providers/entities/EthRawCertificateProvider');
-jest.mock('@/providers/entities/ICPOrganizationProvider');
+jest.mock('@/providers/icp/RawCertificationProvider');
+jest.mock('@/providers/icp/OrganizationProvider');
 jest.mock('react-router-dom', () => {
     return {
         ...jest.requireActual('react-router-dom'),
@@ -33,20 +32,20 @@ describe('Certifications', () => {
             id: 1,
             assessmentStandard: 'assessmentStandard',
             issuer: 'issuer',
-            issueDate: 1,
-            certificateType: CertificateType.COMPANY
+            issueDate: new Date(),
+            certificateType: ICPCertificateType.COMPANY
         }
     ];
     const navigate = jest.fn();
-    const getCompany = jest.fn().mockImplementation((name) => ({ legalName: name }));
+    const getOrganization = jest.fn().mockImplementation((name) => ({ legalName: name }));
     beforeEach(() => {
         jest.spyOn(console, 'log').mockImplementation(jest.fn());
         jest.spyOn(console, 'error').mockImplementation(jest.fn());
         jest.clearAllMocks();
 
-        (useEthRawCertificate as jest.Mock).mockReturnValue({ rawCertificates: certificates });
-        (useICPOrganization as jest.Mock).mockReturnValue({ getCompany });
-        getCompany.mockReturnValue({ legalName: 'actor' });
+        (useRawCertification as jest.Mock).mockReturnValue({ rawCertificates: certificates });
+        (useOrganization as jest.Mock).mockReturnValue({ getOrganization });
+        getOrganization.mockReturnValue({ legalName: 'actor' });
         (useNavigate as jest.Mock).mockReturnValue(navigate);
         (Tag as unknown as jest.Mock).mockImplementation(({ children }) => <div>{children}</div>);
     });
@@ -76,15 +75,9 @@ describe('Certifications', () => {
         // );
         expect((DropdownButton as jest.Mock).mock.calls[0][0].trigger).toEqual(['hover']);
         expect((DropdownButton as jest.Mock).mock.calls[0][0].type).toEqual('primary');
-        expect((DropdownButton as jest.Mock).mock.calls[0][0].children).toEqual(
-            'New Certification'
-        );
-        expect((DropdownButton as jest.Mock).mock.calls[0][0].menu.items).toEqual(
-            certificationsType
-        );
-        expect((DropdownButton as jest.Mock).mock.calls[0][0].menu.onClick).toEqual(
-            expect.any(Function)
-        );
+        expect((DropdownButton as jest.Mock).mock.calls[0][0].children).toEqual('New Certification');
+        expect((DropdownButton as jest.Mock).mock.calls[0][0].menu.items).toEqual(certificationsType);
+        expect((DropdownButton as jest.Mock).mock.calls[0][0].menu.onClick).toEqual(expect.any(Function));
         act(() => {
             (DropdownButton as jest.Mock).mock.calls[0][0].menu.onClick({ key: 'key' });
         });
@@ -111,44 +104,28 @@ describe('Certifications', () => {
         expect(Table).toHaveBeenCalledTimes(1);
         const columns = (Table as unknown as jest.Mock).mock.calls[0][0].columns;
         expect(columns[0].sorter({ id: 1 }, { id: 2 })).toBeLessThan(0);
-        expect(columns[1].sorter({ assessmentStandard: 'c' }, { assessmentStandard: 'a' })).toEqual(
-            1
-        );
-        expect(
-            columns[2].sorter(
-                { legalName: getCompany('company1') },
-                { legalName: getCompany('company2') }
-            )
-        ).toEqual(0);
-        expect(columns[3].sorter({ issueDate: 1 }, { issueDate: 2 })).toBeLessThan(0);
-        expect(
-            columns[4].sorter(
-                { certificateType: CertificateType.SCOPE },
-                { certificateType: CertificateType.MATERIAL }
-            )
-        ).toEqual(1);
+        expect(columns[1].sorter({ assessmentStandard: 'c' }, { assessmentStandard: 'a' })).toEqual(1);
+        expect(columns[2].sorter({ legalName: getOrganization('company1') }, { legalName: getOrganization('company2') })).toEqual(0);
+        expect(columns[3].sorter({ issueDate: new Date() }, { issueDate: new Date(new Date().setDate(new Date().getDate() + 1)) })).toBeLessThan(0);
+        expect(columns[4].sorter({ certificateType: ICPCertificateType.SCOPE }, { certificateType: ICPCertificateType.MATERIAL })).toEqual(1);
     });
 
     it('columns render', async () => {
         render(<Certifications />);
         expect(Table).toHaveBeenCalledTimes(1);
         const columns = (Table as unknown as jest.Mock).mock.calls[0][0].columns;
-        render(columns[0].render(1, { certificateType: CertificateType.COMPANY }));
+        render(columns[0].render(1, { certificateType: ICPCertificateType.COMPANY }));
         expect(Link).toHaveBeenCalled();
 
         render(columns[2].render(0, { issuer: 'issuer' }));
-        expect(getCompany).toHaveBeenCalledTimes(1);
-        expect(getCompany).toHaveBeenNthCalledWith(1, 'issuer');
+        expect(getOrganization).toHaveBeenCalledTimes(1);
+        expect(getOrganization).toHaveBeenNthCalledWith(1, 'issuer');
 
-        const col3 = render(columns[3].render(1));
+        const col3 = render(columns[3].render(new Date(1)));
         expect(col3.getByText(new Date(1).toLocaleDateString())).toBeInTheDocument();
 
-        render(columns[4].render(0, { certificateType: CertificateType.COMPANY }));
+        render(columns[4].render(0, { certificateType: ICPCertificateType.COMPANY }));
         expect(Tag).toHaveBeenCalled();
-        expect(Tag).toHaveBeenNthCalledWith(
-            1,
-            { color: 'geekblue', children: CertificateType[CertificateType.COMPANY] },
-            {}
-        );
+        expect(Tag).toHaveBeenNthCalledWith(1, { color: 'geekblue', children: ICPCertificateType[ICPCertificateType.COMPANY] }, {});
     });
 });

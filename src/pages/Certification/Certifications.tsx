@@ -7,7 +7,6 @@ import { paths } from '@/constants/paths';
 import { Table, Tag } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { ICPBaseCertificate, ICPCertificateType } from '@kbc-lib/coffee-trading-management-lib';
-import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
 import DropdownButton from 'antd/es/dropdown/dropdown-button';
 import { useRawCertification } from '@/providers/icp/RawCertificationProvider';
 import { useOrganization } from '@/providers/icp/OrganizationProvider';

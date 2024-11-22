@@ -1,49 +1,53 @@
 import { render, screen } from '@testing-library/react';
 import React from 'react';
 import { FormElementType } from '@/components/GenericForm/GenericForm';
-import { DetailedCertificate, useEthCertificate } from '@/providers/entities/EthCertificateProvider';
 import {
-    BaseCertificate,
-    CertificateDocumentType,
-    CertificateType,
-    CompanyCertificate,
-    DocumentEvaluationStatus,
-    MaterialCertificate,
-    ScopeCertificate
+    ICPCertificateDocumentType,
+    ICPBaseCertificate,
+    EvaluationStatus,
+    ICPCertificateType,
+    ICPCompanyCertificate,
+    ICPScopeCertificate,
+    ICPMaterialCertificate,
+    Material,
+    ProductCategory
 } from '@kbc-lib/coffee-trading-management-lib';
 import { CertificateView } from '@/pages/Certification/View/CertificateView';
 import { CompanyCertificateView } from '@/pages/Certification/View/CompanyCertificateView';
 import { ScopeCertificateView } from '@/pages/Certification/View/ScopeCertificateView';
 import { MaterialCertificateView } from '@/pages/Certification/View/MaterialCertificateView';
+import { DetailedCertificate, useCertification } from '@/providers/icp/CertificationProvider';
 
 jest.mock('react-router-dom');
 jest.mock('@/pages/Certification/View/CompanyCertificateView');
 jest.mock('@/pages/Certification/View/ScopeCertificateView');
 jest.mock('@/pages/Certification/View/MaterialCertificateView');
-jest.mock('@/providers/entities/EthCertificateProvider');
+jest.mock('@/providers/icp/CertificationProvider');
 
 describe('CertificateView', () => {
     const detailedBaseCertificate: DetailedCertificate = {
-        certificate: new BaseCertificate(
+        certificate: new ICPBaseCertificate(
             1,
             'issuer',
             'subject',
+            'uploadedBy',
             'assessmentStandard',
-            { id: 1, documentType: CertificateDocumentType.CERTIFICATE_OF_CONFORMITY },
-            DocumentEvaluationStatus.NOT_EVALUATED,
-            CertificateType.COMPANY,
-            new Date().getTime()
+            'assessmentAssuranceLevel',
+            {
+                referenceId: '123456',
+                documentType: ICPCertificateDocumentType.PRODUCTION_FACILITY_LICENSE,
+                externalUrl: 'url',
+                metadata: { filename: 'file.pdf', fileType: 'application/pdf' }
+            },
+            EvaluationStatus.NOT_EVALUATED,
+            ICPCertificateType.COMPANY,
+            new Date()
         ),
-        document: {
-            filename: 'file.pdf',
-            fileType: 'application/pdf',
-            documentReferenceId: '123456',
-            fileContent: new Uint8Array()
-        }
+        documentContent: new Uint8Array()
     };
 
     it('should shows no specific components if detailed certificate is not found', async () => {
-        (useEthCertificate as jest.Mock).mockReturnValue({ detailedCertificate: null });
+        (useCertification as jest.Mock).mockReturnValue({ detailedCertificate: null });
         render(<CertificateView />);
         expect(CompanyCertificateView).not.toHaveBeenCalled();
         expect(ScopeCertificateView).not.toHaveBeenCalled();
@@ -110,21 +114,23 @@ describe('CertificateView', () => {
 
         it('should render company certificate view', async () => {
             const detailedCertificate: DetailedCertificate = {
-                certificate: new CompanyCertificate(
+                certificate: new ICPCompanyCertificate(
                     detailedBaseCertificate.certificate.id,
                     detailedBaseCertificate.certificate.issuer,
                     detailedBaseCertificate.certificate.subject,
+                    detailedBaseCertificate.certificate.uploadedBy,
                     detailedBaseCertificate.certificate.assessmentStandard,
+                    detailedBaseCertificate.certificate.assessmentAssuranceLevel,
                     detailedBaseCertificate.certificate.document,
                     detailedBaseCertificate.certificate.evaluationStatus,
-                    CertificateType.COMPANY,
+                    ICPCertificateType.COMPANY,
                     detailedBaseCertificate.certificate.issueDate,
-                    new Date().getTime(),
-                    new Date(new Date().setDate(new Date().getDate() + 1)).getTime()
+                    new Date(),
+                    new Date(new Date().setDate(new Date().getDate() + 1))
                 ),
-                document: detailedBaseCertificate.document
+                documentContent: detailedBaseCertificate.documentContent
             };
-            (useEthCertificate as jest.Mock).mockReturnValue({ detailedCertificate });
+            (useCertification as jest.Mock).mockReturnValue({ detailedCertificate });
 
             render(<CertificateView />);
             expect(CompanyCertificateView).toHaveBeenCalled();
@@ -141,22 +147,24 @@ describe('CertificateView', () => {
 
         it('should render scope certificate view', async () => {
             const detailedCertificate: DetailedCertificate = {
-                certificate: new ScopeCertificate(
+                certificate: new ICPScopeCertificate(
                     detailedBaseCertificate.certificate.id,
                     detailedBaseCertificate.certificate.issuer,
                     detailedBaseCertificate.certificate.subject,
+                    detailedBaseCertificate.certificate.uploadedBy,
                     detailedBaseCertificate.certificate.assessmentStandard,
+                    detailedBaseCertificate.certificate.assessmentAssuranceLevel,
                     detailedBaseCertificate.certificate.document,
                     detailedBaseCertificate.certificate.evaluationStatus,
-                    CertificateType.SCOPE,
+                    ICPCertificateType.SCOPE,
                     detailedBaseCertificate.certificate.issueDate,
                     ['process1', 'process2'],
-                    new Date().getTime(),
-                    new Date(new Date().setDate(new Date().getDate() + 1)).getTime()
+                    new Date(),
+                    new Date(new Date().setDate(new Date().getDate() + 1))
                 ),
-                document: detailedBaseCertificate.document
+                documentContent: detailedBaseCertificate.documentContent
             };
-            (useEthCertificate as jest.Mock).mockReturnValue({ detailedCertificate });
+            (useCertification as jest.Mock).mockReturnValue({ detailedCertificate });
 
             render(<CertificateView />);
             expect(ScopeCertificateView).toHaveBeenCalled();
@@ -173,20 +181,22 @@ describe('CertificateView', () => {
 
         it('should render material certificate view', async () => {
             const detailedCertificate: DetailedCertificate = {
-                certificate: new MaterialCertificate(
+                certificate: new ICPMaterialCertificate(
                     detailedBaseCertificate.certificate.id,
                     detailedBaseCertificate.certificate.issuer,
                     detailedBaseCertificate.certificate.subject,
+                    detailedBaseCertificate.certificate.uploadedBy,
                     detailedBaseCertificate.certificate.assessmentStandard,
+                    detailedBaseCertificate.certificate.assessmentAssuranceLevel,
                     detailedBaseCertificate.certificate.document,
                     detailedBaseCertificate.certificate.evaluationStatus,
-                    CertificateType.MATERIAL,
+                    ICPCertificateType.MATERIAL,
                     detailedBaseCertificate.certificate.issueDate,
-                    1
+                    new Material(1, new ProductCategory(1, 'category', 80, 'description'))
                 ),
-                document: detailedBaseCertificate.document
+                documentContent: detailedBaseCertificate.documentContent
             };
-            (useEthCertificate as jest.Mock).mockReturnValue({ detailedCertificate });
+            (useCertification as jest.Mock).mockReturnValue({ detailedCertificate });
 
             render(<CertificateView />);
             expect(MaterialCertificateView).toHaveBeenCalled();

@@ -126,9 +126,7 @@ export type ICPOrganizationContextState = {
     getEmployee: (address: string) => EmployeeInfo;
     loadData: () => Promise<void>;
 };
-export const ICPOrganizationContext = createContext<ICPOrganizationContextState>(
-    {} as ICPOrganizationContextState
-);
+export const ICPOrganizationContext = createContext<ICPOrganizationContextState>({} as ICPOrganizationContextState);
 export const useICPOrganization = (): ICPOrganizationContextState => {
     const context = useContext(ICPOrganizationContext);
     if (!context || Object.keys(context).length === 0) {
@@ -138,9 +136,7 @@ export const useICPOrganization = (): ICPOrganizationContextState => {
 };
 export function ICPOrganizationProvider(props: { children: React.ReactNode }) {
     const [dataLoaded, setDataLoaded] = useState<boolean>(false);
-    const [companies, setCompanies] = useState<Map<string, CompanyInfo>>(
-        new Map<string, CompanyInfo>()
-    );
+    const [companies, setCompanies] = useState<Map<string, CompanyInfo>>(new Map<string, CompanyInfo>());
     const emptyCompany: CompanyInfo = {
         id: 'Unknown',
         legalName: 'Unknown',
@@ -176,12 +172,9 @@ export function ICPOrganizationProvider(props: { children: React.ReactNode }) {
         let serviceUrl;
 
         try {
-            const didDocument = await request(
-                `${requestPath.VERIFIER_BACKEND_URL}/identifiers/resolve?did-url=${did}`,
-                {
-                    method: 'GET'
-                }
-            );
+            const didDocument = await request(`${requestPath.VERIFIER_BACKEND_URL}/identifiers/resolve?did-url=${did}`, {
+                method: 'GET'
+            });
             serviceUrl = didDocument.didDocument.service[0].serviceEndpoint;
         } catch (e) {
             return emptyCompany;
@@ -193,8 +186,7 @@ export function ICPOrganizationProvider(props: { children: React.ReactNode }) {
         const organizationId = serviceUrl.split('/')[URL_SEGMENT_INDEXES.ORGANIZATION_ID];
         let verifiablePresentation;
         try {
-            verifiablePresentation =
-                await organizationDriver.getVerifiablePresentation(organizationId);
+            verifiablePresentation = await organizationDriver.getVerifiablePresentation(organizationId);
         } catch (e) {
             return emptyCompany;
         }
@@ -231,8 +223,6 @@ export function ICPOrganizationProvider(props: { children: React.ReactNode }) {
     };
 
     return (
-        <ICPOrganizationContext.Provider value={{ dataLoaded, getCompany, getEmployee, loadData }}>
-            {props.children}
-        </ICPOrganizationContext.Provider>
+        <ICPOrganizationContext.Provider value={{ dataLoaded, getCompany, getEmployee, loadData }}>{props.children}</ICPOrganizationContext.Provider>
     );
 }
