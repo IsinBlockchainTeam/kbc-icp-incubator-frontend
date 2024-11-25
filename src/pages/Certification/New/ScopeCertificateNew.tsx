@@ -6,7 +6,6 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CertificateNewProps } from '@/pages/Certification/New/CertificateNew';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
-import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 import { CertificateDocumentNames } from '@/constants/certificationDocument';
 import { ICPCertificateDocumentType } from '@kbc-lib/coffee-trading-management-lib';
 import { validateDates } from '@/utils/date';

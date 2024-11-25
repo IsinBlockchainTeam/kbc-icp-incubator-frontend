@@ -1,7 +1,6 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FormElement, FormElementType } from '@/components/GenericForm/GenericForm';
-import { useICPOrganization } from '@/providers/entities/ICPOrganizationProvider';
 import { useSigner } from '@/providers/SignerProvider';
 import { paths } from '@/constants/paths';
 import { CompanyCertificateNew } from '@/pages/Certification/New/CompanyCertificateNew';

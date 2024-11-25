@@ -11,9 +11,10 @@ import { FormElementType } from '@/components/GenericForm/GenericForm';
 import { regex } from '@/constants/regex';
 import { ScopeCertificateNew } from '@/pages/Certification/New/ScopeCertificateNew';
 import { MaterialCertificateNew } from '@/pages/Certification/New/MaterialCertificateNew';
+import { useOrganization } from '@/providers/icp/OrganizationProvider';
 
 jest.mock('react-router-dom');
-jest.mock('@/providers/entities/ICPOrganizationProvider');
+jest.mock('@/providers/icp/OrganizationProvider');
 jest.mock('@/providers/SignerProvider');
 jest.mock('@/pages/Certification/New/CompanyCertificateNew');
 jest.mock('@/pages/Certification/New/ScopeCertificateNew');
@@ -25,8 +26,8 @@ describe('CertificateNew', () => {
     const navigate = jest.fn();
 
     beforeEach(() => {
-        (useICPOrganization as jest.Mock).mockReturnValue({
-            getCompany: jest.fn().mockReturnValue({ legalName: signerName })
+        (useOrganization as jest.Mock).mockReturnValue({
+            getOrganization: jest.fn().mockReturnValue({ legalName: signerName })
         });
         (useNavigate as jest.Mock).mockReturnValue(navigate);
         (useSigner as jest.Mock).mockReturnValue({ signer });

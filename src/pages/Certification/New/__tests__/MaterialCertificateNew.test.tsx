@@ -9,13 +9,17 @@ import { Button } from 'antd';
 import { paths } from '@/constants/paths';
 import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { MaterialCertificateNew } from '@/pages/Certification/New/MaterialCertificateNew';
+import { useCertification } from '@/providers/icp/CertificationProvider';
+import { useMaterial } from '@/providers/icp/MaterialProvider';
+import { useEnumeration } from '@/providers/icp/EnumerationProvider';
+import { ICPCertificateDocumentType } from '../../../../../../coffee-trading-management-lib/src/index';
 
 jest.mock('@/providers/SignerProvider');
 jest.mock('react-router-dom');
 jest.mock('@/components/GenericForm/GenericForm');
-jest.mock('@/providers/entities/EthEnumerableProvider');
-jest.mock('@/providers/entities/EthCertificateProvider');
-jest.mock('@/providers/entities/EthMaterialProvider');
+jest.mock('@/providers/icp/EnumerationProvider');
+jest.mock('@/providers/icp/CertificationProvider');
+jest.mock('@/providers/icp/MaterialProvider');
 jest.mock('@/utils/date');
 jest.mock('antd', () => ({
     ...jest.requireActual('antd'),
@@ -26,6 +30,7 @@ describe('Material Certificate New', () => {
     const signer = { _address: '0x123' };
     const navigate = jest.fn();
     const assessmentStandards = ['assessmentStandard'];
+    const assessmentAssuranceLevels = ['assessmentAssuranceLevel'];
     const materials = [{ id: 1, productCategory: { name: 'Product Category 1' } }];
     const saveMaterialCertificate = jest.fn();
     const commonElements: FormElement[] = [{ type: FormElementType.SPACE, span: 24 }];
@@ -35,9 +40,9 @@ describe('Material Certificate New', () => {
 
         (useSigner as jest.Mock).mockReturnValue({ signer });
         (useNavigate as jest.Mock).mockReturnValue(navigate);
-        (useEthEnumerable as jest.Mock).mockReturnValue({ assessmentStandards });
-        (useEthMaterial as jest.Mock).mockReturnValue({ materials });
-        (useEthCertificate as jest.Mock).mockReturnValue({
+        (useEnumeration as jest.Mock).mockReturnValue({ assessmentStandards, assessmentAssuranceLevels });
+        (useMaterial as jest.Mock).mockReturnValue({ materials });
+        (useCertification as jest.Mock).mockReturnValue({
             saveMaterialCertificate
         });
     });
@@ -48,7 +53,7 @@ describe('Material Certificate New', () => {
         expect(screen.getByText('New Material Certificate')).toBeInTheDocument();
 
         expect(GenericForm).toHaveBeenCalled();
-        expect((GenericForm as jest.Mock).mock.calls[0][0].elements).toHaveLength(commonElements.length + 8);
+        expect((GenericForm as jest.Mock).mock.calls[0][0].elements).toHaveLength(commonElements.length + 9);
         expect((GenericForm as jest.Mock).mock.calls[0][0].submittable).toBeTruthy();
 
         expect(Button).toHaveBeenCalled();
@@ -59,13 +64,15 @@ describe('Material Certificate New', () => {
         render(<MaterialCertificateNew commonElements={commonElements} />);
         const values = {
             issuer: 'issuer',
+            subject: 'subject',
             assessmentStandard: assessmentStandards[0],
+            assessmentAssuranceLevel: assessmentAssuranceLevels[0],
             document: new File([new Blob(['document'])], 'example.txt', {
                 type: 'application/pdf'
             }),
-            documentType: 'documentType',
+            documentType: ICPCertificateDocumentType.CERTIFICATE_OF_CONFORMITY,
             documentReferenceId: 'documentReferenceId',
-            materialId: materials[0].id
+            materialId: 3
         };
 
         await (GenericForm as jest.Mock).mock.calls[0][0].onSubmit(values);
@@ -75,13 +82,14 @@ describe('Material Certificate New', () => {
             issuer: values.issuer,
             subject: signer._address,
             assessmentStandard: values.assessmentStandard,
+            assessmentAssuranceLevel: values.assessmentAssuranceLevel,
             document: {
                 filename: values.document.name,
                 fileType: values.document.type,
-                fileContent: new Uint8Array(await new Response(values.document).arrayBuffer())
+                fileContent: new Uint8Array(await new Response(values.document).arrayBuffer()),
+                documentType: values.documentType,
+                referenceId: values.documentReferenceId
             },
-            documentType: values.documentType,
-            documentReferenceId: values.documentReferenceId,
             materialId: values.materialId
         });
 
