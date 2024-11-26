@@ -149,6 +149,9 @@ export default function Profile() {
                                         {companyClaims.address}, {companyClaims.nation}
                                     </span>
                                 </Descriptions.Item>
+                                <Descriptions.Item label="Ethereum Address">
+                                    {formatAddress(userInfo.roleProof.delegator)}
+                                </Descriptions.Item>
                                 <Descriptions.Item label="Latitude">
                                     {companyClaims.latitude}
                                 </Descriptions.Item>

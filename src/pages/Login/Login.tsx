@@ -108,7 +108,10 @@ export const Login = () => {
                         employeeClaims,
                         roleProof: {
                             signedProof: message.body.verifiableCredential[1].signedProof,
-                            delegator: message.body.verifiableCredential[1].issuer.id.split(DID_METHOD + ':')[1],
+                            delegator: message.body.verifiableCredential[1].issuer.id.split(
+                                DID_METHOD + ':'
+                            )[1],
+                            delegateRole: message.body.verifiableCredential[1].credentialSubject.role,
                             delegateCredentialIdHash: message.body.verifiableCredential[1].id,
                             delegateCredentialExpiryDate: Math.floor(new Date(message.body.verifiableCredential[1].expirationDate).getTime() / 1000),
                             membershipProof: {

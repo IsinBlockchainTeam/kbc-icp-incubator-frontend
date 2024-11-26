@@ -5,11 +5,13 @@ import userEvent from '@testing-library/user-event';
 import { paths } from '@/constants/paths';
 import { ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
 import { GenericForm } from '@/components/GenericForm/GenericForm';
-import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
+import { useMaterial } from '@/providers/icp/MaterialProvider';
+import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';
 
 jest.mock('react-router-dom');
 jest.mock('@/components/GenericForm/GenericForm');
-jest.mock('@/providers/entities/EthMaterialProvider');
+jest.mock('@/providers/icp/MaterialProvider');
+jest.mock('@/providers/icp/ProductCategoryProvider');
 
 describe('Materials New', () => {
     const saveMaterial = jest.fn();
@@ -19,12 +21,14 @@ describe('Materials New', () => {
         jest.spyOn(console, 'error').mockImplementation(jest.fn());
         jest.clearAllMocks();
 
-        (useEthMaterial as jest.Mock).mockReturnValue({
+        (useMaterial as jest.Mock).mockReturnValue({
+            saveMaterial
+        });
+        (useProductCategory as jest.Mock).mockReturnValue({
             productCategories: [
                 new ProductCategory(1, 'Product category 1', 1, ''),
                 new ProductCategory(2, 'Product category 2', 2, '')
-            ],
-            saveMaterial
+            ]
         });
     });
 

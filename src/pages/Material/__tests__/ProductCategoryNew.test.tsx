@@ -4,11 +4,11 @@ import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { paths } from '@/constants/paths';
 import { GenericForm } from '@/components/GenericForm/GenericForm';
-import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
+import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';
 
 jest.mock('react-router-dom');
 jest.mock('@/components/GenericForm/GenericForm');
-jest.mock('@/providers/entities/EthMaterialProvider');
+jest.mock('@/providers/icp/ProductCategoryProvider');
 
 describe('Product Category New', () => {
     const saveProductCategory = jest.fn();
@@ -18,7 +18,7 @@ describe('Product Category New', () => {
         jest.spyOn(console, 'error').mockImplementation(jest.fn());
         jest.clearAllMocks();
 
-        (useEthMaterial as jest.Mock).mockReturnValue({
+        (useProductCategory as jest.Mock).mockReturnValue({
             saveProductCategory
         });
     });

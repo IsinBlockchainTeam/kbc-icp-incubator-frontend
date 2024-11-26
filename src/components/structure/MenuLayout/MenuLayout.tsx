@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import {
     AuditOutlined,
     CloudDownloadOutlined,
-    ExperimentOutlined,
     GoldOutlined,
     LogoutOutlined,
     SettingOutlined,
@@ -50,7 +49,6 @@ const blockchainItems: MenuItem[] = [
     getItem('Trades', paths.TRADES, <SwapOutlined />),
     getItem('Documents', paths.DOCUMENTS, <CloudDownloadOutlined />),
     getItem('Materials', paths.MATERIALS, <GoldOutlined />),
-    getItem('Transformations', paths.ASSET_OPERATIONS, <ExperimentOutlined />),
     getItem('Partners', paths.PARTNERS, <TeamOutlined />),
     getItem('Offers', paths.OFFERS, <AuditOutlined />),
     getItem('Certifications', paths.CERTIFICATIONS, <FileDoneOutlined />)
@@ -162,7 +160,7 @@ export const MenuLayout = () => {
                         }
                         size={'large'}
                         spinning={loading.isLoading}
-                        tip={loading.loadingMessages.map((msg) => (
+                        tip={Object.keys(loading.loadingMessages).map((msg) => (
                             <div key={msg}>{msg}</div>
                         ))}>
                         <Outlet />

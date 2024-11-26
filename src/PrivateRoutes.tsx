@@ -17,6 +17,7 @@ import { OfferProvider } from '@/providers/icp/OfferProvider';
 import { OrganizationProvider, useOrganization } from '@/providers/icp/OrganizationProvider';
 import NavigationBlocker from './NavigationBlocker';
 import SyncDataLoader from './dataLoaders/SyncDataLoader';
+import { CallHandlerProvider } from '@/providers/icp/CallHandlerProvider';
 import { RawCertificationProvider } from '@/providers/icp/RawCertificationProvider';
 import { CertificationProvider } from '@/providers/icp/CertificationProvider';
 import { EnumerationProvider } from '@/providers/icp/EnumerationProvider';
@@ -39,10 +40,12 @@ const PrivateRoutes = () => {
         }
     };
 
+    // TODO: check if this provider can be moved to a higher level
     return isLogged ? (
         <SignerProvider>
             <SiweIdentityProvider>
                 <ICPProvider>
+                    <CallHandlerProvider>
                     <AuthenticationProvider>
                         <OrganizationProvider>
                             {/*TODO: to remove*/}
@@ -77,6 +80,7 @@ const PrivateRoutes = () => {
                             </EthEnumerableProvider>
                         </OrganizationProvider>
                     </AuthenticationProvider>
+                    </CallHandlerProvider>
                 </ICPProvider>
             </SiweIdentityProvider>
         </SignerProvider>

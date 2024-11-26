@@ -4,7 +4,6 @@ import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { paths } from '@/constants/paths';
 import { useSigner } from '@/providers/SignerProvider';
-import { BasicTradeNew } from '@/pages/Trade/New/BasicTradeNew';
 import { OrderTradeNew } from '@/pages/Trade/New/OrderTradeNew';
 import { useOrganization } from '@/providers/icp/OrganizationProvider';
 
@@ -59,18 +58,8 @@ export const TradeNew = () => {
         }
     );
 
-    if (type === TradeType.ORDER) {
-        return (
-            <OrderTradeNew
-                supplierAddress={supplierAddress}
-                customerAddress={customerAddress}
-                productCategoryId={productCategoryId}
-                commonElements={elements}
-            />
-        );
-    }
     return (
-        <BasicTradeNew
+        <OrderTradeNew
             supplierAddress={supplierAddress}
             customerAddress={customerAddress}
             productCategoryId={productCategoryId}

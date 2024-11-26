@@ -3,12 +3,11 @@ import { ICPOfferDriver, ICPOfferService, Offer } from '@kbc-lib/coffee-trading-
 import { useSiweIdentity } from '@/providers/SiweIdentityProvider';
 import { checkAndGetEnvironmentVariable } from '@/utils/env';
 import { ICP } from '@/constants/icp';
-import { useDispatch } from 'react-redux';
 import { Typography } from 'antd';
 import { OFFER_MESSAGE, PRODUCT_CATEGORY_MESSAGE } from '@/constants/message';
-import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
+import { useCallHandler } from '@/providers/icp/CallHandlerProvider';
 
 export type OfferContextState = {
     dataLoaded: boolean;
@@ -29,7 +28,7 @@ export function OfferProvider(props: { children: ReactNode }) {
     const entityManagerCanisterId = checkAndGetEnvironmentVariable(ICP.CANISTER_ID_ENTITY_MANAGER);
     const [dataLoaded, setDataLoaded] = useState<boolean>(false);
     const [offers, setOffers] = useState<Offer[]>([]);
-    const dispatch = useDispatch();
+    const { handleICPCall } = useCallHandler();
 
     if (!identity) {
         return <Typography.Text>Siwe identity not initialized</Typography.Text>;
@@ -46,26 +45,14 @@ export function OfferProvider(props: { children: ReactNode }) {
     };
 
     const loadOffers = async () => {
-        try {
-            dispatch(addLoadingMessage(OFFER_MESSAGE.RETRIEVE.LOADING));
+        await handleICPCall(async () => {
             const offers = await offerService.getOffers();
             setOffers(offers);
-        } catch (e: any) {
-            console.log('Error while loading offers', e);
-            openNotification(
-                'Error',
-                OFFER_MESSAGE.RETRIEVE.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
-        } finally {
-            dispatch(removeLoadingMessage(OFFER_MESSAGE.RETRIEVE.LOADING));
-        }
+        }, OFFER_MESSAGE.RETRIEVE.LOADING);
     };
 
     const saveOffer = async (productCategoryId: number) => {
-        try {
-            dispatch(addLoadingMessage(OFFER_MESSAGE.SAVE.LOADING));
+        await handleICPCall(async () => {
             await offerService.createOffer(productCategoryId);
             openNotification(
                 'Success',
@@ -74,17 +61,7 @@ export function OfferProvider(props: { children: ReactNode }) {
                 NOTIFICATION_DURATION
             );
             await loadOffers();
-        } catch (e: any) {
-            console.log('Error while saving offer', e);
-            openNotification(
-                'Error',
-                OFFER_MESSAGE.SAVE.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
-        } finally {
-            dispatch(removeLoadingMessage(OFFER_MESSAGE.SAVE.LOADING));
-        }
+        }, OFFER_MESSAGE.SAVE.LOADING);
     };
 
     return (

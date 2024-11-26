@@ -1,5 +1,4 @@
-import { Card, Col, Row, Skeleton, Spin, Typography } from 'antd';
-import loadingLogo from '@/assets/coffee-loading.gif';
+import { Card, Col, Row, Skeleton, Typography } from 'antd';
 import React from 'react';
 
 const { Text } = Typography;
@@ -12,20 +11,6 @@ const LoadingPage = () => {
                 justifyContent: 'center',
                 flexDirection: 'column'
             }}>
-            <Spin
-                indicator={
-                    <img
-                        src={loadingLogo}
-                        alt="loading..."
-                        style={{
-                            width: 150,
-                            height: 'auto'
-                        }}
-                    />
-                }
-                size={'large'}
-            />
-
             <Card>
                 <Skeleton.Input active size="large" block />
 

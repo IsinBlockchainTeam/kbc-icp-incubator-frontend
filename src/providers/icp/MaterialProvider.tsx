@@ -9,10 +9,11 @@ import { Typography } from 'antd';
 import { checkAndGetEnvironmentVariable } from '@/utils/env';
 import { ICP } from '@/constants/icp';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
-import { MATERIAL_MESSAGE, PRODUCT_CATEGORY_MESSAGE } from '@/constants/message';
+import { MATERIAL_MESSAGE } from '@/constants/message';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { useDispatch } from 'react-redux';
+import { useCallHandler } from '@/providers/icp/CallHandlerProvider';
 
 export type MaterialContextState = {
     dataLoaded: boolean;
@@ -33,6 +34,7 @@ export function MaterialProvider(props: { children: ReactNode }) {
     const entityManagerCanisterId = checkAndGetEnvironmentVariable(ICP.CANISTER_ID_ENTITY_MANAGER);
     const [dataLoaded, setDataLoaded] = useState<boolean>(false);
     const [materials, setMaterials] = useState<Material[]>([]);
+    const { handleICPCall } = useCallHandler();
     const dispatch = useDispatch();
 
     if (!identity) {
@@ -50,21 +52,10 @@ export function MaterialProvider(props: { children: ReactNode }) {
     };
 
     const loadMaterials = async () => {
-        try {
-            dispatch(addLoadingMessage(MATERIAL_MESSAGE.RETRIEVE.LOADING));
+        await handleICPCall(async () => {
             const materials = await materialService.getMaterials();
             setMaterials(materials);
-        } catch (e: any) {
-            console.log('Error while loading product categories', e);
-            openNotification(
-                'Error',
-                MATERIAL_MESSAGE.RETRIEVE.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
-        } finally {
-            dispatch(removeLoadingMessage(MATERIAL_MESSAGE.RETRIEVE.LOADING));
-        }
+        }, MATERIAL_MESSAGE.RETRIEVE.LOADING);
     };
 
     const saveMaterial = async (productCategoryId: number) => {
@@ -73,16 +64,16 @@ export function MaterialProvider(props: { children: ReactNode }) {
             await materialService.createMaterial(productCategoryId);
             openNotification(
                 'Success',
-                PRODUCT_CATEGORY_MESSAGE.SAVE.OK,
+                MATERIAL_MESSAGE.SAVE.OK,
                 NotificationType.SUCCESS,
                 NOTIFICATION_DURATION
             );
             await loadMaterials();
         } catch (e: any) {
-            console.log('Error while saving product category', e);
+            console.log('Error while saving material', e);
             openNotification(
                 'Error',
-                PRODUCT_CATEGORY_MESSAGE.SAVE.ERROR,
+                MATERIAL_MESSAGE.SAVE.ERROR,
                 NotificationType.ERROR,
                 NOTIFICATION_DURATION
             );
