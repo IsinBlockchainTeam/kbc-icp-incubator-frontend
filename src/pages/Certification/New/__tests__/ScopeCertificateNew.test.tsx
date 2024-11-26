@@ -1,8 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSigner } from '@/providers/SignerProvider';
-import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
-import { useEthCertificate } from '@/providers/entities/EthCertificateProvider';
 import { render, screen } from '@testing-library/react';
 import { ScopeCertificateNew } from '@/pages/Certification/New/ScopeCertificateNew';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';

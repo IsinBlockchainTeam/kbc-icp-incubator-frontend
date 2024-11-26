@@ -6,7 +6,6 @@ import { SignerProvider } from '@/providers/SignerProvider';
 import { SiweIdentityProvider } from '@/providers/SiweIdentityProvider';
 import { ICPProvider } from '@/providers/ICPProvider';
 import { paths } from '@/constants/paths';
-import { EthEnumerableProvider } from '@/providers/entities/EthEnumerableProvider';
 import { EthEscrowProvider } from '@/providers/entities/EthEscrowProvider';
 import { OrderProvider } from '@/providers/icp/OrderProvider';
 import { ProductCategoryProvider } from '@/providers/icp/ProductCategoryProvider';
@@ -46,10 +45,8 @@ const PrivateRoutes = () => {
             <SiweIdentityProvider>
                 <ICPProvider>
                     <CallHandlerProvider>
-                    <AuthenticationProvider>
-                        <OrganizationProvider>
-                            {/*TODO: to remove*/}
-                            <EthEnumerableProvider>
+                        <AuthenticationProvider>
+                            <OrganizationProvider>
                                 <EnumerationProvider>
                                     <ProductCategoryProvider>
                                         <MaterialProvider>
@@ -59,12 +56,10 @@ const PrivateRoutes = () => {
                                                         <ShipmentProvider>
                                                             <RawCertificationProvider>
                                                                 <CertificationProvider>
-                                                                    <SyncDataLoader
-                                                                        customUseContext={useOrganization}>
+                                                                    <SyncDataLoader customUseContext={useOrganization}>
                                                                         <NavigationBlocker
                                                                             condition={isOrganizationOnIcp}
-                                                                            redirectPath={paths.PROFILE}
-                                                                        >
+                                                                            redirectPath={paths.PROFILE}>
                                                                             <Outlet />
                                                                         </NavigationBlocker>
                                                                     </SyncDataLoader>
@@ -77,9 +72,8 @@ const PrivateRoutes = () => {
                                         </MaterialProvider>
                                     </ProductCategoryProvider>
                                 </EnumerationProvider>
-                            </EthEnumerableProvider>
-                        </OrganizationProvider>
-                    </AuthenticationProvider>
+                            </OrganizationProvider>
+                        </AuthenticationProvider>
                     </CallHandlerProvider>
                 </ICPProvider>
             </SiweIdentityProvider>

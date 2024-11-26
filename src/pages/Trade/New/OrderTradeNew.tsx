@@ -3,21 +3,16 @@ import { CardPage } from '@/components/structure/CardPage/CardPage';
 import { Button } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import { paths } from '@/constants/paths';
-import {
-    LineRequest,
-    OrderLinePrice,
-    OrderLineRequest,
-    OrderParams
-} from '@kbc-lib/coffee-trading-management-lib';
+import { OrderLineRequest, OrderParams } from '@kbc-lib/coffee-trading-management-lib';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { regex } from '@/constants/regex';
 import dayjs from 'dayjs';
 import { validateDates } from '@/utils/date';
-import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 import { incotermsMap } from '@/constants/trade';
 import { useOrder } from '@/providers/icp/OrderProvider';
 import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';
+import { useEnumeration } from '@/providers/icp/EnumerationProvider';
 
 type OrderTradeNewProps = {
     supplierAddress: string;
@@ -25,14 +20,9 @@ type OrderTradeNewProps = {
     productCategoryId: number;
     commonElements: FormElement[];
 };
-export const OrderTradeNew = ({
-    supplierAddress,
-    customerAddress,
-    productCategoryId,
-    commonElements
-}: OrderTradeNewProps) => {
+export const OrderTradeNew = ({ supplierAddress, customerAddress, productCategoryId, commonElements }: OrderTradeNewProps) => {
     const navigate = useNavigate();
-    const { units, fiats } = useEthEnumerable();
+    const { units, fiats } = useEnumeration();
     const { productCategories } = useProductCategory();
     const { create } = useOrder();
 
@@ -49,7 +39,7 @@ export const OrderTradeNew = ({
         values['commissioner'] = customerAddress;
         values['product-category-id-1'] = productCategoryId;
 
-        const tradeLines: LineRequest[] = [];
+        const tradeLines: OrderLineRequest[] = [];
         for (const key in values) {
             let id: string;
             if (key.startsWith('product-category-id-')) {
@@ -57,23 +47,21 @@ export const OrderTradeNew = ({
                 const quantity: number = parseInt(values[`quantity-${id}`]);
                 const unit: string = values[`unit-${id}`];
                 const productCategoryId: number = parseInt(values[key]);
-                const price: number = parseInt(values[`price-${id}`]);
+                const amount: number = parseInt(values[`price-${id}`]);
                 const fiat: string = values[`fiat-${id}`];
-                tradeLines.push(
-                    new OrderLineRequest(
-                        productCategoryId,
-                        quantity,
-                        unit,
-                        new OrderLinePrice(price, fiat)
-                    )
-                );
+                tradeLines.push({
+                    quantity,
+                    unit,
+                    productCategoryId,
+                    price: { amount, fiat }
+                });
             }
         }
         const orderTrade: OrderParams = {
             supplier: supplierAddress,
             customer: customerAddress,
             commissioner: customerAddress,
-            lines: tradeLines as OrderLineRequest[],
+            lines: tradeLines,
             paymentDeadline: dayjs(values['payment-deadline']).toDate(),
             documentDeliveryDeadline: dayjs(values['document-delivery-deadline']).toDate(),
             arbiter: values['arbiter'],
@@ -136,12 +124,7 @@ export const OrderTradeNew = ({
             defaultValue: '',
             disabled: false,
             dependencies: ['payment-deadline'],
-            validationCallback: validateDates(
-                'document-delivery-deadline',
-                'payment-deadline',
-                'greater',
-                'This must be after Payment Deadline'
-            )
+            validationCallback: validateDates('document-delivery-deadline', 'payment-deadline', 'greater', 'This must be after Payment Deadline')
         },
         {
             type: FormElementType.INPUT,
@@ -195,12 +178,7 @@ export const OrderTradeNew = ({
             defaultValue: '',
             disabled: false,
             dependencies: ['shipping-deadline'],
-            validationCallback: validateDates(
-                'delivery-deadline',
-                'shipping-deadline',
-                'greater',
-                'This must be after Shipping Deadline'
-            )
+            validationCallback: validateDates('delivery-deadline', 'shipping-deadline', 'greater', 'This must be after Shipping Deadline')
         },
         {
             type: FormElementType.INPUT,
@@ -287,11 +265,7 @@ export const OrderTradeNew = ({
                         alignItems: 'center'
                     }}>
                     New Trade
-                    <Button
-                        type="primary"
-                        danger
-                        icon={<DeleteOutlined />}
-                        onClick={() => navigate(paths.TRADES)}>
+                    <Button type="primary" danger icon={<DeleteOutlined />} onClick={() => navigate(paths.TRADES)}>
                         Delete Trade
                     </Button>
                 </div>

@@ -7,7 +7,7 @@ import { SignerProvider } from '@/providers/SignerProvider';
 import { SiweIdentityProvider } from '@/providers/SiweIdentityProvider';
 import { ICPProvider } from '@/providers/ICPProvider';
 import { MaterialProvider } from '@/providers/icp/MaterialProvider';
-import { EthEnumerableProvider } from '@/providers/entities/EthEnumerableProvider';
+import { EnumerationProvider } from '@/providers/icp/EnumerationProvider';
 import { OfferProvider } from '@/providers/icp/OfferProvider';
 import { OrganizationProvider } from '@/providers/icp/OrganizationProvider';
 import { OrderProvider } from '@/providers/icp/OrderProvider';
@@ -19,8 +19,8 @@ import { AuthenticationProvider } from '@/providers/icp/AuthenticationProvider';
 import { ProductCategoryProvider } from '@/providers/icp/ProductCategoryProvider';
 import NavigationBlocker from './NavigationBlocker';
 import SyncDataLoader from './dataLoaders/SyncDataLoader';
-import { EthCertificateProvider } from '@/providers/entities/EthCertificateProvider';
-import { EthRawCertificateProvider } from '@/providers/entities/EthRawCertificateProvider';
+import { CertificationProvider } from '@/providers/icp/CertificationProvider';
+import { RawCertificationProvider } from '@/providers/icp/RawCertificationProvider';
 
 jest.mock('react-router-dom');
 jest.mock('react-redux');
@@ -29,7 +29,7 @@ jest.mock('@/providers/SiweIdentityProvider');
 jest.mock('@/providers/ICPProvider');
 jest.mock('@/providers/icp/MaterialProvider');
 jest.mock('@/providers/icp/ProductCategoryProvider');
-jest.mock('@/providers/entities/EthEnumerableProvider');
+jest.mock('@/providers/icp/EnumerationProvider');
 jest.mock('@/providers/icp/OfferProvider');
 jest.mock('@/providers/icp/OrganizationProvider');
 jest.mock('@/providers/icp/OrderProvider');
@@ -39,8 +39,8 @@ jest.mock('@/providers/icp/CallHandlerProvider');
 jest.mock('@/providers/icp/AuthenticationProvider');
 jest.mock('./NavigationBlocker');
 jest.mock('./dataLoaders/SyncDataLoader');
-jest.mock('@/providers/entities/EthCertificateProvider');
-jest.mock('@/providers/entities/EthRawCertificateProvider');
+jest.mock('@/providers/icp/CertificationProvider');
+jest.mock('@/providers/icp/RawCertificationProvider');
 
 describe('PrivateRoutes', () => {
     it('renders when user is logged in', () => {
@@ -51,7 +51,7 @@ describe('PrivateRoutes', () => {
         (ICPProvider as jest.Mock).mockImplementation(renderChildren);
         (MaterialProvider as jest.Mock).mockImplementation(renderChildren);
         (ProductCategoryProvider as jest.Mock).mockImplementation(renderChildren);
-        (EthEnumerableProvider as jest.Mock).mockImplementation(renderChildren);
+        (EnumerationProvider as jest.Mock).mockImplementation(renderChildren);
         (OfferProvider as jest.Mock).mockImplementation(renderChildren);
         (OrganizationProvider as jest.Mock).mockImplementation(renderChildren);
         (OrderProvider as jest.Mock).mockImplementation(renderChildren);
@@ -62,8 +62,8 @@ describe('PrivateRoutes', () => {
         (NavigationBlocker as jest.Mock).mockImplementation(renderChildren);
         (SyncDataLoader as jest.Mock).mockImplementation(renderChildren);
 
-        (EthCertificateProvider as jest.Mock).mockImplementation(renderChildren);
-        (EthRawCertificateProvider as jest.Mock).mockImplementation(renderChildren);
+        (CertificationProvider as jest.Mock).mockImplementation(renderChildren);
+        (RawCertificationProvider as jest.Mock).mockImplementation(renderChildren);
         render(<PrivateRoutes />);
 
         expect(SignerProvider).toHaveBeenCalled();
@@ -73,7 +73,7 @@ describe('PrivateRoutes', () => {
         expect(ICPProvider).toHaveBeenCalled();
         expect(MaterialProvider).toHaveBeenCalled();
         expect(ProductCategoryProvider).toHaveBeenCalled();
-        expect(EthEnumerableProvider).toHaveBeenCalled();
+        expect(EnumerationProvider).toHaveBeenCalled();
         expect(OfferProvider).toHaveBeenCalled();
         expect(OrganizationProvider).toHaveBeenCalled();
         expect(OrderProvider).toHaveBeenCalled();
@@ -81,8 +81,8 @@ describe('PrivateRoutes', () => {
         expect(EthEscrowProvider).toHaveBeenCalled();
         expect(NavigationBlocker).toHaveBeenCalled();
         expect(SyncDataLoader).toHaveBeenCalled();
-        expect(EthCertificateProvider).toHaveBeenCalled();
-        expect(EthRawCertificateProvider).toHaveBeenCalled();
+        expect(CertificationProvider).toHaveBeenCalled();
+        expect(RawCertificationProvider).toHaveBeenCalled();
         expect(Outlet).toHaveBeenCalled();
     });
 

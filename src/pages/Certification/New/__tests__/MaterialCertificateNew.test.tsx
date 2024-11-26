@@ -1,13 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSigner } from '@/providers/SignerProvider';
-import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
-import { useEthCertificate } from '@/providers/entities/EthCertificateProvider';
 import { render, screen } from '@testing-library/react';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
 import { Button } from 'antd';
 import { paths } from '@/constants/paths';
-import { useEthMaterial } from '@/providers/entities/EthMaterialProvider';
 import { MaterialCertificateNew } from '@/pages/Certification/New/MaterialCertificateNew';
 import { useCertification } from '@/providers/icp/CertificationProvider';
 import { useMaterial } from '@/providers/icp/MaterialProvider';

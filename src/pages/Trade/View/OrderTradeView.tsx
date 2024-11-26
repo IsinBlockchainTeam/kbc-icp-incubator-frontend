@@ -1,11 +1,4 @@
-import {
-    NegotiationStatus,
-    OrderLine,
-    OrderLinePrice,
-    OrderLineRequest,
-    OrderParams,
-    OrderStatus
-} from '@kbc-lib/coffee-trading-management-lib';
+import { NegotiationStatus, OrderLine, OrderParams, OrderStatus } from '@kbc-lib/coffee-trading-management-lib';
 import { Tooltip } from 'antd';
 import React, { useState } from 'react';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
@@ -14,34 +7,25 @@ import dayjs from 'dayjs';
 import { useSigner } from '@/providers/SignerProvider';
 import { paths } from '@/constants/paths';
 import { useNavigate } from 'react-router-dom';
-import {
-    CheckCircleOutlined,
-    EditOutlined,
-    FilePdfOutlined,
-    RollbackOutlined
-} from '@ant-design/icons';
+import { CheckCircleOutlined, EditOutlined, FilePdfOutlined, RollbackOutlined } from '@ant-design/icons';
 import { validateDates } from '@/utils/date';
-import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 import useOrderGenerator, { OrderSpec } from '@/hooks/documentGenerator/useOrderGenerator';
 import PDFGenerationView from '@/components/PDFViewer/PDFGenerationView';
 import { incotermsMap } from '@/constants/trade';
 import { useOrder } from '@/providers/icp/OrderProvider';
 import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';
+import { useEnumeration } from '@/providers/icp/EnumerationProvider';
 
 type OrderTradeViewProps = {
     disabled: boolean;
     toggleDisabled: () => void;
     commonElements: FormElement[];
 };
-export const OrderTradeView = ({
-    disabled,
-    toggleDisabled,
-    commonElements
-}: OrderTradeViewProps) => {
+export const OrderTradeView = ({ disabled, toggleDisabled, commonElements }: OrderTradeViewProps) => {
     const navigate = useNavigate();
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const { signer } = useSigner();
-    const { units, fiats } = useEthEnumerable();
+    const { units, fiats } = useEnumeration();
     const { order, update, sign } = useOrder();
     const { productCategories } = useProductCategory();
 
@@ -106,13 +90,11 @@ export const OrderTradeView = ({
     const onSubmit = async (values: any) => {
         const quantity = parseInt(values[`quantity-1`]);
         const unit = values[`unit-1`];
-        const productCategory = productCategories.find(
-            (productCategory) => productCategory.id === values[`product-category-id-1`]
-        );
+        const productCategory = productCategories.find((productCategory) => productCategory.id === values[`product-category-id-1`]);
         if (!productCategory) throw new Error('Product Category not found');
         const productCategoryId = productCategory?.id;
 
-        const price: number = parseInt(values[`price-1`]);
+        const amount: number = parseInt(values[`price-1`]);
         const fiat: string = values[`fiat-1`];
 
         const updatedOrderTrade: OrderParams = {
@@ -131,12 +113,12 @@ export const OrderTradeView = ({
             shippingPort: values['shipping-port'],
             deliveryPort: values['delivery-port'],
             lines: [
-                new OrderLineRequest(
-                    productCategoryId,
+                {
                     quantity,
                     unit,
-                    new OrderLinePrice(price, fiat)
-                )
+                    productCategoryId,
+                    price: { amount, fiat }
+                }
             ]
         };
         await update(updatedOrderTrade);
@@ -190,12 +172,7 @@ export const OrderTradeView = ({
             defaultValue: dayjs(order.documentDeliveryDeadline),
             disabled,
             dependencies: ['payment-deadline'],
-            validationCallback: validateDates(
-                'document-delivery-deadline',
-                'payment-deadline',
-                'greater',
-                'This must be after Payment Deadline'
-            )
+            validationCallback: validateDates('document-delivery-deadline', 'payment-deadline', 'greater', 'This must be after Payment Deadline')
         },
         {
             type: FormElementType.INPUT,
@@ -249,12 +226,7 @@ export const OrderTradeView = ({
             defaultValue: dayjs(order.deliveryDeadline),
             disabled,
             dependencies: ['shipping-deadline'],
-            validationCallback: validateDates(
-                'delivery-deadline',
-                'shipping-deadline',
-                'greater',
-                'This must be after Shipping Deadline'
-            )
+            validationCallback: validateDates('delivery-deadline', 'shipping-deadline', 'greater', 'This must be after Shipping Deadline')
         },
         {
             type: FormElementType.INPUT,
@@ -366,10 +338,7 @@ export const OrderTradeView = ({
                 onClick: toggleEditing
             }
         );
-        if (
-            !order.signatures.includes(signer._address) &&
-            (order.supplier !== signer._address || order.commissioner !== signer._address)
-        ) {
+        if (!order.signatures.includes(signer._address) && (order.supplier !== signer._address || order.commissioner !== signer._address)) {
             elements.push({
                 type: FormElementType.BUTTON,
                 span: 12,
@@ -402,12 +371,7 @@ export const OrderTradeView = ({
 
     return (
         <>
-            <GenericForm
-                elements={elements}
-                confirmText="Are you sure you want to proceed?"
-                submittable={!disabled}
-                onSubmit={onSubmit}
-            />
+            <GenericForm elements={elements} confirmText="Are you sure you want to proceed?" submittable={!disabled} onSubmit={onSubmit} />
             <PDFGenerationView
                 title={'Generated Order'}
                 centered={true}

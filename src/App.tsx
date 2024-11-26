@@ -20,7 +20,6 @@ import { PersistGate } from 'redux-persist/integration/react';
 import { MenuLayout } from '@/components/structure/MenuLayout/MenuLayout';
 import { paths } from '@/constants/paths';
 import AsyncDataLoader from './dataLoaders/AsyncDataLoader';
-import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 import { WalletConnectProvider } from '@/providers/WalletConnectProvider';
 import Documents from '@/pages/Documents/Shipment/ShipmentDocuments';
 import { Certifications } from '@/pages/Certification/Certifications';
@@ -118,12 +117,10 @@ export const App = () => {
                                         <Route
                                             path={paths.TRADE_NEW}
                                             element={
-                                                <AsyncDataLoader customUseContext={useEthEnumerable}>
-                                                    <AsyncDataLoader customUseContext={useProductCategory}>
-                                                        <AsyncDataLoader customUseContext={useMaterial}>
-                                                            <AsyncDataLoader customUseContext={useOrder}>
-                                                                <TradeNew />
-                                                            </AsyncDataLoader>
+                                                <AsyncDataLoader customUseContext={useProductCategory}>
+                                                    <AsyncDataLoader customUseContext={useMaterial}>
+                                                        <AsyncDataLoader customUseContext={useOrder}>
+                                                            <TradeNew />
                                                         </AsyncDataLoader>
                                                     </AsyncDataLoader>
                                                 </AsyncDataLoader>
@@ -132,13 +129,11 @@ export const App = () => {
                                         <Route
                                             path={paths.TRADE_VIEW}
                                             element={
-                                                <AsyncDataLoader customUseContext={useEthEnumerable}>
-                                                    <AsyncDataLoader customUseContext={useProductCategory}>
-                                                        <AsyncDataLoader customUseContext={useMaterial}>
-                                                            <AsyncDataLoader customUseContext={useOrder}>
-                                                                <AsyncDataLoader customUseContext={useShipment}>
-                                                                    <TradeView />
-                                                                </AsyncDataLoader>
+                                                <AsyncDataLoader customUseContext={useProductCategory}>
+                                                    <AsyncDataLoader customUseContext={useMaterial}>
+                                                        <AsyncDataLoader customUseContext={useOrder}>
+                                                            <AsyncDataLoader customUseContext={useShipment}>
+                                                                <TradeView />
                                                             </AsyncDataLoader>
                                                         </AsyncDataLoader>
                                                     </AsyncDataLoader>
