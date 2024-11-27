@@ -1,11 +1,6 @@
 import { Space, Table, TableProps, Tag } from 'antd';
 import React from 'react';
-import {
-    EvaluationStatus,
-    ShipmentDocumentInfo,
-    ShipmentDocumentType,
-    ShipmentPhase
-} from '@kbc-lib/coffee-trading-management-lib';
+import { EvaluationStatus, DocumentInfo, DocumentType, ShipmentPhase } from '@kbc-lib/coffee-trading-management-lib';
 import { ShipmentDocumentRules } from '@/constants/shipmentDocument';
 import { setParametersPath } from '@/utils/page';
 import { paths } from '@/constants/paths';
@@ -20,8 +15,8 @@ interface ShipmentDocumentTableProps {
     selectedPhase: ShipmentPhase;
 }
 interface DataType {
-    type: ShipmentDocumentType;
-    info: ShipmentDocumentInfo | null;
+    type: DocumentType;
+    info: DocumentInfo | null;
     required: boolean;
 }
 export const ShipmentDocumentTable = (props: ShipmentDocumentTableProps) => {
@@ -34,12 +29,12 @@ export const ShipmentDocumentTable = (props: ShipmentDocumentTableProps) => {
         return <>Shipment not found</>;
     }
 
-    const onApprove = async (info: ShipmentDocumentInfo) => {
+    const onApprove = async (info: DocumentInfo) => {
         if (!info) return;
         await approveDocument(info.id);
     };
 
-    const onReject = async (info: ShipmentDocumentInfo) => {
+    const onReject = async (info: DocumentInfo) => {
         if (!info) return;
         await rejectDocument(info.id);
     };
@@ -61,13 +56,7 @@ export const ShipmentDocumentTable = (props: ShipmentDocumentTableProps) => {
             title: 'Suggested party',
             dataIndex: 'suggestedParty',
             key: 'suggestedParty',
-            render: (_, { type }) => (
-                <>
-                    {ShipmentDocumentRules[type].isExporterSuggestedUploader
-                        ? 'Exporter'
-                        : 'Importer'}
-                </>
-            )
+            render: (_, { type }) => <>{ShipmentDocumentRules[type].isExporterSuggestedUploader ? 'Exporter' : 'Importer'}</>
         },
         {
             title: 'Required',
@@ -99,9 +88,7 @@ export const ShipmentDocumentTable = (props: ShipmentDocumentTableProps) => {
             render: (_, { info, type }) => {
                 return (
                     <Space size="middle">
-                        {info != null && (
-                            <a onClick={() => setPreviewDocumentId(info.id)}>Preview</a>
-                        )}
+                        {info != null && <a onClick={() => setPreviewDocumentId(info.id)}>Preview</a>}
                         {info?.evaluationStatus !== EvaluationStatus.APPROVED && (
                             <a
                                 onClick={() =>
@@ -115,28 +102,22 @@ export const ShipmentDocumentTable = (props: ShipmentDocumentTableProps) => {
                                 Go to upload page
                             </a>
                         )}
-                        {info != null &&
-                            info.evaluationStatus === EvaluationStatus.NOT_EVALUATED &&
-                            info.uploadedBy != signer._address && (
-                                <>
-                                    <ConfirmButton
-                                        type={'link'}
-                                        text={'Approve'}
-                                        confirmText={
-                                            'Are you sure you want to approve this document?'
-                                        }
-                                        onConfirm={() => onApprove(info)}
-                                    />
-                                    <ConfirmButton
-                                        type={'link'}
-                                        text={'Reject'}
-                                        confirmText={
-                                            'Are you sure you want to reject this document?'
-                                        }
-                                        onConfirm={() => onReject(info)}
-                                    />
-                                </>
-                            )}
+                        {info != null && info.evaluationStatus === EvaluationStatus.NOT_EVALUATED && info.uploadedBy != signer._address && (
+                            <>
+                                <ConfirmButton
+                                    type={'link'}
+                                    text={'Approve'}
+                                    confirmText={'Are you sure you want to approve this document?'}
+                                    onConfirm={() => onApprove(info)}
+                                />
+                                <ConfirmButton
+                                    type={'link'}
+                                    text={'Reject'}
+                                    confirmText={'Are you sure you want to reject this document?'}
+                                    onConfirm={() => onReject(info)}
+                                />
+                            </>
+                        )}
                     </Space>
                 );
             }
@@ -146,9 +127,7 @@ export const ShipmentDocumentTable = (props: ShipmentDocumentTableProps) => {
 
     const data: DataType[] = selectedPhaseDocuments
         ? selectedPhaseDocuments.map((phaseDocument) => {
-              const documentInfo = detailedShipment.shipment.documents.get(
-                  phaseDocument.documentType
-              );
+              const documentInfo = detailedShipment.shipment.documents.get(phaseDocument.documentType);
               return {
                   type: phaseDocument.documentType,
                   info: documentInfo ? documentInfo[0] : null,
@@ -159,11 +138,7 @@ export const ShipmentDocumentTable = (props: ShipmentDocumentTableProps) => {
 
     return (
         <>
-            <PreviewModal
-                open={previewDocumentId != null}
-                getDocument={retrieveDocument}
-                onClose={() => setPreviewDocumentId(null)}
-            />
+            <PreviewModal open={previewDocumentId != null} getDocument={retrieveDocument} onClose={() => setPreviewDocumentId(null)} />
             <Table columns={columns} dataSource={data} />
         </>
     );

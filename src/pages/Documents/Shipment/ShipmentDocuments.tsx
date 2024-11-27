@@ -2,7 +2,7 @@ import { CardPage } from '@/components/structure/CardPage/CardPage';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
 import React, { useMemo } from 'react';
 import { Alert, Empty, Flex, Tag, Typography } from 'antd';
-import { EvaluationStatus, ShipmentDocumentType, ShipmentPhaseDocument, Order, OrderLine } from '@kbc-lib/coffee-trading-management-lib';
+import { EvaluationStatus, DocumentType, ShipmentPhaseDocument, Order, OrderLine } from '@kbc-lib/coffee-trading-management-lib';
 import DocumentUpload from '@/pages/Documents/DocumentUpload';
 import { ConfirmButton } from '@/components/ConfirmButton/ConfirmButton';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -29,7 +29,7 @@ export default () => {
     const { getOrganization } = useOrganization();
     const { order, orders } = useOrder();
     const { detailedShipment, addDocument } = useShipment();
-    const selectedDocumentType: ShipmentDocumentType | undefined = location.state?.selectedDocumentType;
+    const selectedDocumentType: DocumentType | undefined = location.state?.selectedDocumentType;
 
     const tradeSelected: SelectedOrder | undefined = useMemo(() => {
         if (!order) return undefined;
@@ -52,12 +52,12 @@ export default () => {
         return isExporter ? getOrganization(trade.commissioner).legalName : getOrganization(trade.supplier).legalName;
     };
 
-    const documentSubmit = async (documentType: ShipmentDocumentType, documentReferenceId: string, filename: string, fileContent: Blob) => {
+    const documentSubmit = async (documentType: DocumentType, documentReferenceId: string, filename: string, fileContent: Blob) => {
         await addDocument(documentType, documentReferenceId, filename, fileContent);
         navigate(paths.DOCUMENTS);
     };
 
-    const approvedDocumentTypes: ShipmentDocumentType[] = [];
+    const approvedDocumentTypes: DocumentType[] = [];
     const allPhasesDocuments: ShipmentPhaseDocument[] = [];
     detailedShipment?.shipment.documents.forEach((value) => {
         const documentInfo = value[0];

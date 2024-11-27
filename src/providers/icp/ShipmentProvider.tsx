@@ -1,6 +1,6 @@
 import {
     Shipment,
-    ShipmentDocumentType,
+    DocumentType,
     ShipmentDriver,
     ShipmentPhase,
     ShipmentPhaseDocument,
@@ -55,12 +55,7 @@ export type ShipmentContextState = {
     lockFunds: () => Promise<void>;
     unlockFunds: () => Promise<void>;
     getDocument(documentId: number): Promise<ShipmentCompleteDocument>;
-    addDocument: (
-        documentType: ShipmentDocumentType,
-        documentReferenceId: string,
-        fileName: string,
-        fileContent: Blob
-    ) => Promise<void>;
+    addDocument: (documentType: DocumentType, documentReferenceId: string, fileName: string, fileContent: Blob) => Promise<void>;
     approveDocument: (documentId: number) => Promise<void>;
     rejectDocument: (documentId: number) => Promise<void>;
 };
@@ -76,7 +71,7 @@ type ShipmentCompleteDocument = {
     contentType: string;
     content: Blob;
     fileName: string;
-    documentType: ShipmentDocumentType;
+    documentType: DocumentType;
 };
 export type DetailedShipment = {
     shipment: Shipment;
@@ -102,21 +97,14 @@ export function ShipmentProvider(props: { children: ReactNode }) {
         return <Typography.Text>Siwe identity not initialized</Typography.Text>;
     }
 
-    const tokenService = useMemo(
-        () => new TokenService(new TokenDriver(signer, CONTRACT_ADDRESSES.TOKEN())),
-        [signer]
-    );
+    const tokenService = useMemo(() => new TokenService(new TokenDriver(signer, CONTRACT_ADDRESSES.TOKEN())), [signer]);
 
     const shipmentService = useMemo(() => {
         if (!order) return undefined;
 
         // TODO: remove this hardcoded value
         const externalUrl = `https://${checkAndGetEnvironmentVariable(ICP.CANISTER_ID_STORAGE)}.localhost:4943/organization/0/transactions/${order.id}`;
-        return new ShipmentService(
-            new ShipmentDriver(identity, entityManagerCanisterId),
-            fileDriver,
-            externalUrl
-        );
+        return new ShipmentService(new ShipmentDriver(identity, entityManagerCanisterId), fileDriver, externalUrl);
     }, [identity, order]);
 
     // Update shipments when order trades change
@@ -148,19 +136,11 @@ export function ShipmentProvider(props: { children: ReactNode }) {
         }, SHIPMENT_MESSAGE.RETRIEVE.LOADING);
     };
 
-    const writeTransaction = async (
-        transaction: () => Promise<Shipment>,
-        shipmentMessage: ShipmentMessage
-    ) => {
+    const writeTransaction = async (transaction: () => Promise<Shipment>, shipmentMessage: ShipmentMessage) => {
         await handleICPCall(async () => {
             await transaction();
             await loadData();
-            openNotification(
-                'Success',
-                shipmentMessage.OK,
-                NotificationType.SUCCESS,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Success', shipmentMessage.OK, NotificationType.SUCCESS, NOTIFICATION_DURATION);
         }, shipmentMessage.LOADING);
     };
 
@@ -193,76 +173,51 @@ export function ShipmentProvider(props: { children: ReactNode }) {
                 grossWeight
             );
             await loadData();
-            openNotification(
-                'Success',
-                SHIPMENT_MESSAGE.SAVE_DETAILS.OK,
-                NotificationType.SUCCESS,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Success', SHIPMENT_MESSAGE.SAVE_DETAILS.OK, NotificationType.SUCCESS, NOTIFICATION_DURATION);
         }, SHIPMENT_MESSAGE.SAVE_DETAILS.LOADING);
     };
 
     const approveSample = async () => {
         if (!shipmentService) throw new Error(' service not initialized');
         if (!detailShipment) throw new Error('Shipment not initialized');
-        await writeTransaction(
-            async () => shipmentService.approveSample(detailShipment.shipment.id),
-            SHIPMENT_MESSAGE.APPROVE_SAMPLE
-        );
+        await writeTransaction(async () => shipmentService.approveSample(detailShipment.shipment.id), SHIPMENT_MESSAGE.APPROVE_SAMPLE);
     };
 
     const rejectSample = async () => {
         if (!shipmentService) throw new Error(' service not initialized');
         if (!detailShipment) throw new Error('Shipment not initialized');
-        await writeTransaction(
-            async () => shipmentService.rejectSample(detailShipment.shipment.id),
-            SHIPMENT_MESSAGE.REJECT_SAMPLE
-        );
+        await writeTransaction(async () => shipmentService.rejectSample(detailShipment.shipment.id), SHIPMENT_MESSAGE.REJECT_SAMPLE);
     };
 
     const approveDetails = async () => {
         if (!shipmentService) throw new Error(' service not initialized');
         if (!detailShipment) throw new Error('Shipment not initialized');
-        await writeTransaction(
-            async () => shipmentService.approveShipmentDetails(detailShipment.shipment.id),
-            SHIPMENT_MESSAGE.APPROVE_DETAILS
-        );
+        await writeTransaction(async () => shipmentService.approveShipmentDetails(detailShipment.shipment.id), SHIPMENT_MESSAGE.APPROVE_DETAILS);
     };
 
     const rejectDetails = async () => {
         if (!shipmentService) throw new Error(' service not initialized');
         if (!detailShipment) throw new Error('Shipment not initialized');
-        await writeTransaction(
-            async () => shipmentService.rejectShipmentDetails(detailShipment.shipment.id),
-            SHIPMENT_MESSAGE.REJECT_DETAILS
-        );
+        await writeTransaction(async () => shipmentService.rejectShipmentDetails(detailShipment.shipment.id), SHIPMENT_MESSAGE.REJECT_DETAILS);
     };
 
     const approveQuality = async () => {
         if (!shipmentService) throw new Error(' service not initialized');
         if (!detailShipment) throw new Error('Shipment not initialized');
-        await writeTransaction(
-            async () => shipmentService.approveQuality(detailShipment.shipment.id),
-            SHIPMENT_MESSAGE.APPROVE_QUALITY
-        );
+        await writeTransaction(async () => shipmentService.approveQuality(detailShipment.shipment.id), SHIPMENT_MESSAGE.APPROVE_QUALITY);
     };
 
     const rejectQuality = async () => {
         if (!shipmentService) throw new Error(' service not initialized');
         if (!detailShipment) throw new Error('Shipment not initialized');
-        await writeTransaction(
-            async () => shipmentService.rejectQuality(detailShipment.shipment.id),
-            SHIPMENT_MESSAGE.REJECT_QUALITY
-        );
+        await writeTransaction(async () => shipmentService.rejectQuality(detailShipment.shipment.id), SHIPMENT_MESSAGE.REJECT_QUALITY);
     };
 
     const determineEscrowAddress = async () => {
         if (!shipmentService) throw new Error('ShipmentManager service not initialized');
         if (!detailShipment) throw new Error('Order trade not found');
         await writeTransaction(async () => {
-            const shipment = await shipmentService.determineEscrowAddress(
-                detailShipment.shipment.id
-            );
+            const shipment = await shipmentService.determineEscrowAddress(detailShipment.shipment.id);
             await loadData();
             return shipment;
         }, SHIPMENT_MESSAGE.DETERMINE_ESCROW);
@@ -275,10 +230,7 @@ export function ShipmentProvider(props: { children: ReactNode }) {
         if (escrowAddress) {
             await writeTransaction(async () => {
                 await tokenService.approve(escrowAddress, amount);
-                const shipment = await shipmentService.depositFunds(
-                    detailShipment.shipment.id,
-                    amount
-                );
+                const shipment = await shipmentService.depositFunds(detailShipment.shipment.id, amount);
                 await loadEscrowDetails();
                 await loadTokenDetails();
                 await loadData();
@@ -293,20 +245,14 @@ export function ShipmentProvider(props: { children: ReactNode }) {
         if (!shipmentService) throw new Error('ShipmentManager service not initialized');
         if (!detailShipment) throw new Error('Order trade not found');
 
-        await writeTransaction(
-            async () => shipmentService.lockFunds(detailShipment.shipment.id),
-            SHIPMENT_MESSAGE.DEPOSIT
-        );
+        await writeTransaction(async () => shipmentService.lockFunds(detailShipment.shipment.id), SHIPMENT_MESSAGE.DEPOSIT);
     };
 
     const unlockFunds = async () => {
         if (!shipmentService) throw new Error('ShipmentManager service not initialized');
         if (!detailShipment) throw new Error('Order trade not found');
 
-        await writeTransaction(
-            async () => shipmentService.unlockFunds(detailShipment.shipment.id),
-            SHIPMENT_MESSAGE.DEPOSIT
-        );
+        await writeTransaction(async () => shipmentService.unlockFunds(detailShipment.shipment.id), SHIPMENT_MESSAGE.DEPOSIT);
     };
 
     const getDocument = async (documentId: number): Promise<ShipmentCompleteDocument> => {
@@ -315,10 +261,7 @@ export function ShipmentProvider(props: { children: ReactNode }) {
         // TODO: replace with handleICPCall
         try {
             dispatch(addLoadingMessage(SHIPMENT_MESSAGE.GET_DOCUMENT.LOADING));
-            const document = await shipmentService.getDocument(
-                detailShipment.shipment.id,
-                documentId
-            );
+            const document = await shipmentService.getDocument(detailShipment.shipment.id, documentId);
             const blob = new Blob([document!.fileContent], {
                 type: getMimeType(document.fileName)
             });
@@ -330,30 +273,19 @@ export function ShipmentProvider(props: { children: ReactNode }) {
             };
         } catch (e) {
             console.error('Error while retrieving document:', e);
-            openNotification(
-                'Error',
-                SHIPMENT_MESSAGE.GET_DOCUMENT.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Error', SHIPMENT_MESSAGE.GET_DOCUMENT.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
             throw new Error('Error while retrieving document');
         } finally {
             dispatch(removeLoadingMessage(SHIPMENT_MESSAGE.GET_DOCUMENT.LOADING));
         }
     };
 
-    const addDocument = async (
-        documentType: ShipmentDocumentType,
-        documentReferenceId: string,
-        fileName: string,
-        fileContent: Blob
-    ) => {
+    const addDocument = async (documentType: DocumentType, documentReferenceId: string, fileName: string, fileContent: Blob) => {
         if (!shipmentService) throw new Error('Shipment service not initialized');
         if (!detailShipment) throw new Error('Shipment not initialized');
         await handleICPCall(async () => {
             // TODO: remove this harcoded value
-            const delegatedOrganizationIds: number[] =
-                parseInt(userInfo.companyClaims.organizationId) === 0 ? [1] : [0];
+            const delegatedOrganizationIds: number[] = parseInt(userInfo.companyClaims.organizationId) === 0 ? [1] : [0];
             const resourceSpec: ICPResourceSpec = {
                 name: fileName,
                 type: fileContent.type
@@ -367,31 +299,20 @@ export function ShipmentProvider(props: { children: ReactNode }) {
                 delegatedOrganizationIds
             );
             await loadData();
-            openNotification(
-                'Success',
-                SHIPMENT_MESSAGE.ADD_DOCUMENT.OK,
-                NotificationType.SUCCESS,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Success', SHIPMENT_MESSAGE.ADD_DOCUMENT.OK, NotificationType.SUCCESS, NOTIFICATION_DURATION);
         }, SHIPMENT_MESSAGE.ADD_DOCUMENT.LOADING);
     };
 
     const approveDocument = async (documentId: number) => {
         if (!shipmentService) throw new Error(' service not initialized');
         if (!detailShipment) throw new Error('Shipment not initialized');
-        await writeTransaction(
-            () => shipmentService.approveDocument(detailShipment.shipment.id, documentId),
-            SHIPMENT_MESSAGE.APPROVE_DOCUMENT
-        );
+        await writeTransaction(() => shipmentService.approveDocument(detailShipment.shipment.id, documentId), SHIPMENT_MESSAGE.APPROVE_DOCUMENT);
     };
 
     const rejectDocument = async (documentId: number) => {
         if (!shipmentService) throw new Error(' service not initialized');
         if (!detailShipment) throw new Error('Shipment not initialized');
-        await writeTransaction(
-            () => shipmentService.rejectDocument(detailShipment.shipment.id, documentId),
-            SHIPMENT_MESSAGE.REJECT_DOCUMENT
-        );
+        await writeTransaction(() => shipmentService.rejectDocument(detailShipment.shipment.id, documentId), SHIPMENT_MESSAGE.REJECT_DOCUMENT);
     };
 
     return (
