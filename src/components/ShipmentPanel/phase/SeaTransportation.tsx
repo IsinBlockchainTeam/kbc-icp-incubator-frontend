@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, Descriptions, DescriptionsProps, Flex, Tag, Typography } from 'antd';
-import { EvaluationStatus } from '@kbc-lib/coffee-trading-management-lib';
+import { EvaluationStatus, FundStatus } from '@kbc-lib/coffee-trading-management-lib';
 import { ConfirmButton } from '@/components/ConfirmButton/ConfirmButton';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
@@ -10,9 +10,15 @@ import { useShipment } from '@/providers/icp/ShipmentProvider';
 const { Paragraph } = Typography;
 
 export const SeaTransportation = () => {
-    const { detailedShipment, approveQuality, rejectQuality } = useShipment();
+    const { detailedShipment, unlockFunds, approveQuality, rejectQuality } = useShipment();
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const isImporter = userInfo.companyClaims.role.toUpperCase() === credentials.ROLE_IMPORTER;
+
+    useEffect(() => {
+        if (detailedShipment?.shipment.fundsStatus === FundStatus.LOCKED) {
+            unlockFunds();
+        }
+    }, [detailedShipment?.shipment.fundsStatus]);
 
     if (!detailedShipment) {
         return <>Shipment not found</>;
