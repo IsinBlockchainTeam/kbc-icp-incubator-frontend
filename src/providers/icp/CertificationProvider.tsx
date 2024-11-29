@@ -316,6 +316,7 @@ export function CertificationProvider(props: { children: ReactNode }) {
                 );
                 await _updateDocument(request.document);
                 await loadData();
+                await loadRawCertificates();
             }
         } catch (e: any) {
             console.log('Error while updating company certificate', e);
@@ -342,6 +343,7 @@ export function CertificationProvider(props: { children: ReactNode }) {
                 );
                 await _updateDocument(request.document);
                 await loadData();
+                await loadRawCertificates();
             }
         } catch (e: any) {
             console.log('Error while updating scope certificate', e);
@@ -366,6 +368,7 @@ export function CertificationProvider(props: { children: ReactNode }) {
                 );
                 await _updateDocument(request.document);
                 await loadData();
+                await loadRawCertificates();
             }
         } catch (e: any) {
             console.log('Error while updating material certificate', e);
