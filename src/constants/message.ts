@@ -256,9 +256,9 @@ export const AUTHENTICATION_MESSAGE = {
 };
 export const ESCROW_MESSAGE = {
     RETRIEVE: {
-        LOADING: 'Retrieving escrow details...',
+        LOADING: 'Retrieving down payment details...',
         OK: '',
-        ERROR: 'Error while retrieving escrow details.'
+        ERROR: 'Error while retrieving down payment details.'
     },
     DEPOSIT: {
         LOADING: 'Depositing...',
@@ -320,9 +320,9 @@ export const SHIPMENT_MESSAGE = {
         ERROR: 'Error while rejecting shipment quality.'
     },
     DETERMINE_ESCROW: {
-        LOADING: 'Determining escrow...',
-        OK: 'Escrow determined successfully.',
-        ERROR: 'Error while determining escrow.'
+        LOADING: 'Determining down payment...',
+        OK: 'Down payment determined successfully.',
+        ERROR: 'Error while determining down payment.'
     },
     DEPOSIT: {
         LOADING: 'Depositing funds...',
