@@ -1,34 +1,23 @@
 /* eslint-disable */
-import React, {
-    createContext,
-    useContext,
-    type ReactNode,
-    useEffect,
-    useState,
-    useRef
-} from 'react';
+import React, { createContext, useContext, type ReactNode, useEffect, useState, useRef } from 'react';
 import { type ActorConfig, type HttpAgentOptions } from '@dfinity/agent';
 import { DelegationIdentity, Ed25519KeyIdentity } from '@dfinity/identity';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-    clearSiweIdentity,
-    selectSiweIdentity,
-    updateSiweIdentity
-} from '@/redux/reducers/siweIdentitySlice';
+import { clearSiweIdentity, selectSiweIdentity, updateSiweIdentity } from '@/redux/reducers/siweIdentitySlice';
 import { useSigner } from './SignerProvider';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { RootState } from '@/redux/store';
 import { Typography } from 'antd';
 import ICPLoading from '@/components/ICPLoading/ICPLoading';
+import { ICP } from '@/constants/icp';
+import { NOTIFICATION_DURATION } from '@/constants/notification';
 import {
-    ICPSiweDriver,
     type SiweIdentityContextType,
     type LoginOkResponse,
     type ISignedDelegation as ServiceSignedDelegation,
-    type State
-} from '@blockchain-lib/common';
-import { ICP } from '@/constants/icp';
-import { NOTIFICATION_DURATION } from '@/constants/notification';
+    type State,
+    SiweDriver
+} from '@kbc-lib/coffee-trading-management-lib';
 
 /**
  * Re-export types
@@ -71,7 +60,7 @@ export function SiweIdentityProvider({
     const dispatch = useDispatch();
     const { signer } = useSigner();
     const userInfo = useSelector((state: RootState) => state.userInfo);
-    const icpSiweDriver = new ICPSiweDriver(ICP.CANISTER_ID_IC_SIWE_PROVIDER);
+    const icpSiweDriver = new SiweDriver(ICP.CANISTER_ID_IC_SIWE_PROVIDER);
 
     const [state, setState] = useState<State>({
         isInitializing: true,
@@ -96,12 +85,7 @@ export function SiweIdentityProvider({
             );
         } catch (e) {
             console.error('Error in SiweIdentityProvider', e);
-            openNotification(
-                'Error',
-                'Error while logging in',
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Error', 'Error while logging in', NotificationType.ERROR, NOTIFICATION_DURATION);
         }
     }
 
@@ -129,14 +113,10 @@ export function SiweIdentityProvider({
     async function prepareLogin(): Promise<string | undefined> {
         const connectedEthAddress = signer._address as `0x${string}`;
         if (!state.anonymousActor) {
-            throw new Error(
-                'Hook not initialized properly. Make sure to supply all required props to the SiweIdentityProvider.'
-            );
+            throw new Error('Hook not initialized properly. Make sure to supply all required props to the SiweIdentityProvider.');
         }
         if (!connectedEthAddress) {
-            throw new Error(
-                'No Ethereum address available. Call prepareLogin after the user has connected their wallet.'
-            );
+            throw new Error('No Ethereum address available. Call prepareLogin after the user has connected their wallet.');
         }
 
         updateState({
@@ -145,10 +125,7 @@ export function SiweIdentityProvider({
         });
 
         try {
-            const siweMessage = await icpSiweDriver.callPrepareLogin(
-                state.anonymousActor,
-                connectedEthAddress
-            );
+            const siweMessage = await icpSiweDriver.callPrepareLogin(state.anonymousActor, connectedEthAddress);
             updateState({
                 siweMessage,
                 prepareLoginStatus: 'success'
@@ -183,10 +160,7 @@ export function SiweIdentityProvider({
      * This function is called when the signMessage hook has settled, that is, when the
      * user has signed the message or canceled the signing process.
      */
-    async function onLoginSignatureSettled(
-        loginSignature: `0x${string}` | undefined,
-        error: Error | null
-    ) {
+    async function onLoginSignatureSettled(loginSignature: `0x${string}` | undefined, error: Error | null) {
         const connectedEthAddress = signer._address as `0x${string}`;
         if (error) {
             rejectLoginWithError(error, 'An error occurred while signing the login message.');
@@ -211,12 +185,7 @@ export function SiweIdentityProvider({
 
         let loginOkResponse: LoginOkResponse;
         try {
-            loginOkResponse = await icpSiweDriver.callLogin(
-                state.anonymousActor,
-                loginSignature,
-                connectedEthAddress,
-                sessionPublicKey
-            );
+            loginOkResponse = await icpSiweDriver.callLogin(state.anonymousActor, loginSignature, connectedEthAddress, sessionPublicKey);
         } catch (e) {
             rejectLoginWithError(e, 'Unable to login.');
             return;
@@ -237,10 +206,7 @@ export function SiweIdentityProvider({
         }
 
         // Create a new delegation chain from the delegation.
-        const delegationChain = icpSiweDriver.createDelegationChain(
-            signedDelegation,
-            loginOkResponse.user_canister_pubkey
-        );
+        const delegationChain = icpSiweDriver.createDelegationChain(signedDelegation, loginOkResponse.user_canister_pubkey);
 
         // Create a new delegation identity from the session identity and the
         // delegation chain.
@@ -285,19 +251,11 @@ export function SiweIdentityProvider({
         // Set the promise handlers immediately to ensure they are available for error handling.
 
         if (!state.anonymousActor) {
-            rejectLoginWithError(
-                new Error(
-                    'Hook not initialized properly. Make sure to supply all required props to the SiweIdentityProvider.'
-                )
-            );
+            rejectLoginWithError(new Error('Hook not initialized properly. Make sure to supply all required props to the SiweIdentityProvider.'));
             return promise;
         }
         if (!connectedEthAddress) {
-            rejectLoginWithError(
-                new Error(
-                    'No Ethereum address available. Call login after the user has connected their wallet.'
-                )
-            );
+            rejectLoginWithError(new Error('No Ethereum address available. Call login after the user has connected their wallet.'));
             return promise;
         }
         if (state.prepareLoginStatus === 'preparing') {

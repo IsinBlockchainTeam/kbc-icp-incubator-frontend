@@ -4,6 +4,7 @@ import {
     ICPCertificateDocumentType,
     ICPCertificationDriver,
     ICPCertificationService,
+    ResourceSpec,
     URLStructure
 } from '@kbc-lib/coffee-trading-management-lib';
 import React, { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
@@ -17,7 +18,6 @@ import { CERTIFICATE_MESSAGE } from '@/constants/message';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
 import { useParams } from 'react-router-dom';
-import { ICPResourceSpec } from '@blockchain-lib/common';
 import { useSiweIdentity } from '@/providers/SiweIdentityProvider';
 import { checkAndGetEnvironmentVariable } from '@/utils/env';
 import { Typography } from 'antd';
@@ -147,7 +147,7 @@ export function CertificationProvider(props: { children: ReactNode }) {
     ): {
         delegatedOrganizationIds: number[];
         urlStructure: URLStructure;
-        resourceSpec: ICPResourceSpec;
+        resourceSpec: ResourceSpec;
     } => {
         if (!documentRequest) throw new Error('Document is required');
         // TODO: remove this harcoded value

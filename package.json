@@ -3,7 +3,6 @@
     "version": "0.1.0",
     "private": true,
     "dependencies": {
-        "@blockchain-lib/common": "2.0.5",
         "@dagrejs/dagre": "^1.0.2",
         "@dfinity/agent": "1.4.0",
         "@dfinity/candid": "1.4.0",

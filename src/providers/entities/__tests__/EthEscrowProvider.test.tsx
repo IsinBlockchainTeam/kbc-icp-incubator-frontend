@@ -9,7 +9,6 @@ import { JsonRpcSigner } from '@ethersproject/providers';
 import { useOrder } from '@/providers/icp/OrderProvider';
 
 jest.mock('@kbc-lib/coffee-trading-management-lib');
-jest.mock('@blockchain-lib/common');
 jest.mock('@/providers/SignerProvider');
 jest.mock('react-redux');
 jest.mock('@/utils/notification');

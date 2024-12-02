@@ -67,6 +67,5 @@ To deploy the project on the ICP mainnet, follow these steps:
 If you want to develop locally:
 
 -   Make sure you have built the [kbc-icp-incubator-common](https://github.com/IsinBlockchainTeam/kbc-icp-incubator-common) `package/` package
--   Inside file `package.json` change the `@blockchain-lib/common` dependency to the local path of the `package/` package. Use the following format: `"@blockchain-lib/common": "file:<relative-path-to-packes-package>"`
 -   Make sure you have built the [kbc-icp-incubator-library](https://github.com/IsinBlockchainTeam/kbc-icp-incubator-library) `src` package
 -   Inside file `package.json` change the `@kbc-lib/coffee-trading-management-lib` dependency to the local path of the `src` package. Use the following format: `"@kbc-lib/coffee-trading-management-lib": "file:<relative-path-to-src-package>"`

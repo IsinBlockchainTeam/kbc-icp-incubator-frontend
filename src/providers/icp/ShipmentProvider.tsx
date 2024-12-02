@@ -24,9 +24,9 @@ import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
-import { ICPResourceSpec } from '@blockchain-lib/common';
 import { getMimeType } from '@/utils/file';
 import { useCallHandler } from '@/providers/icp/CallHandlerProvider';
+import { ResourceSpec } from '@kbc-lib/coffee-trading-management-lib';
 
 export type ShipmentContextState = {
     dataLoaded: boolean;
@@ -286,7 +286,7 @@ export function ShipmentProvider(props: { children: ReactNode }) {
         await handleICPCall(async () => {
             // TODO: remove this harcoded value
             const delegatedOrganizationIds: number[] = parseInt(userInfo.companyClaims.organizationId) === 0 ? [1] : [0];
-            const resourceSpec: ICPResourceSpec = {
+            const resourceSpec: ResourceSpec = {
                 name: fileName,
                 type: fileContent.type
             };
