@@ -117,10 +117,12 @@ export const App = () => {
                                         <Route
                                             path={paths.TRADE_NEW}
                                             element={
-                                                <AsyncDataLoader customUseContext={useProductCategory}>
-                                                    <AsyncDataLoader customUseContext={useMaterial}>
-                                                        <AsyncDataLoader customUseContext={useOrder}>
-                                                            <TradeNew />
+                                                <AsyncDataLoader customUseContext={useEnumeration}>
+                                                    <AsyncDataLoader customUseContext={useProductCategory}>
+                                                        <AsyncDataLoader customUseContext={useMaterial}>
+                                                            <AsyncDataLoader customUseContext={useOrder}>
+                                                                <TradeNew />
+                                                            </AsyncDataLoader>
                                                         </AsyncDataLoader>
                                                     </AsyncDataLoader>
                                                 </AsyncDataLoader>

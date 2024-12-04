@@ -3,7 +3,6 @@ import { render, renderHook, screen } from '@testing-library/react';
 import { ICPProvider, ICPContext, useICP } from '../ICPProvider';
 import { useSiweIdentity } from '../SiweIdentityProvider';
 import { checkAndGetEnvironmentVariable } from '@/utils/env';
-import { request } from '@/utils/request';
 import { FileDriver, IdentityDriver, StorageDriver } from '@kbc-lib/coffee-trading-management-lib';
 
 jest.mock('../SiweIdentityProvider', () => ({
@@ -27,27 +26,9 @@ jest.mock('@kbc-lib/coffee-trading-management-lib', () => ({
         ORGANIZATION_ID: 1
     },
     IdentityDriver: jest.fn(),
-    OrganizationDriver: jest.fn(),
     StorageDriver: jest.fn()
 }));
-const mockCanisterIdOrganizationGetter = jest.fn();
-jest.mock('@/constants/icp', () => ({
-    ICP: {
-        get CANISTER_ID_ORGANIZATION() {
-            return mockCanisterIdOrganizationGetter();
-        }
-    }
-}));
 
-const mockedDidDocument = {
-    didDocument: {
-        service: [
-            {
-                serviceEndpoint: 'mock-canister-id/mock-organization-id'
-            }
-        ]
-    }
-};
 describe('ICPProvider', () => {
     beforeEach(() => {
         jest.clearAllMocks();
@@ -91,11 +72,9 @@ describe('ICPProvider', () => {
 
         const TestComponent = () => {
             const context = React.useContext(ICPContext);
-            expect(context).toHaveProperty('organizationDriver');
             expect(context).toHaveProperty('storageDriver');
             expect(context).toHaveProperty('fileDriver');
             expect(context).toHaveProperty('identityDriver');
-            expect(context).toHaveProperty('getNameByDID');
             return null;
         };
 
@@ -110,7 +89,6 @@ describe('ICPProvider', () => {
         const mockIdentity = { id: 'test-id' };
         (useSiweIdentity as jest.Mock).mockReturnValue({ identity: mockIdentity });
         (checkAndGetEnvironmentVariable as jest.Mock).mockReturnValue('mock-canister-id');
-        (request as jest.Mock).mockResolvedValue(mockedDidDocument);
 
         const { result } = renderHook(() => useICP(), {
             wrapper: ICPProvider
@@ -123,7 +101,6 @@ describe('ICPProvider', () => {
         const mockIdentity = { id: 'test-id' };
         (useSiweIdentity as jest.Mock).mockReturnValue({ identity: mockIdentity });
         (checkAndGetEnvironmentVariable as jest.Mock).mockReturnValue('mock-canister-id');
-        (request as jest.Mock).mockResolvedValue(mockedDidDocument);
 
         const { result } = renderHook(() => useICP(), {
             wrapper: ICPProvider
@@ -136,7 +113,6 @@ describe('ICPProvider', () => {
         const mockIdentity = { id: 'test-id' };
         (useSiweIdentity as jest.Mock).mockReturnValue({ identity: mockIdentity });
         (checkAndGetEnvironmentVariable as jest.Mock).mockReturnValue('mock-canister-id');
-        (request as jest.Mock).mockResolvedValue(mockedDidDocument);
 
         const { result } = renderHook(() => useICP(), {
             wrapper: ICPProvider

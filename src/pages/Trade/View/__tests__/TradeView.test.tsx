@@ -59,8 +59,8 @@ describe('Trade View', () => {
         await act(async () => getByText('Shipment').click());
         expect(ShipmentPanel).toHaveBeenCalledTimes(1);
 
-        expect(getByText('Escrow')).toBeInTheDocument();
-        await act(async () => getByText('Escrow').click());
+        expect(getByText('Down payment')).toBeInTheDocument();
+        await act(async () => getByText('Down payment').click());
         expect(EscrowPanel).toHaveBeenCalledTimes(1);
     });
 
