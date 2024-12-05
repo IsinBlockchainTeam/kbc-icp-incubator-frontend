@@ -11,7 +11,7 @@ import {
 import React, { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 import { useSigner } from '@/providers/SignerProvider';
 import { useOrder } from '@/providers/icp/OrderProvider';
-import { useEthEscrow } from '@/providers/entities/EthEscrowProvider';
+import { useEthDownPayment } from '@/providers/entities/EthDownPaymentProvider';
 import { useICP } from '@/providers/ICPProvider';
 import { useSiweIdentity } from '@/providers/SiweIdentityProvider';
 import { checkAndGetEnvironmentVariable } from '@/utils/env';
@@ -50,7 +50,7 @@ export type ShipmentContextState = {
     rejectDetails: () => Promise<void>;
     approveQuality: () => Promise<void>;
     rejectQuality: () => Promise<void>;
-    determineEscrowAddress: () => Promise<void>;
+    determineDownPaymentAddress: () => Promise<void>;
     depositFunds: (amount: number) => Promise<void>;
     lockFunds: () => Promise<void>;
     unlockFunds: () => Promise<void>;
@@ -84,7 +84,7 @@ export function ShipmentProvider(props: { children: ReactNode }) {
     const entityManagerCanisterId = checkAndGetEnvironmentVariable(ICP.CANISTER_ID_ENTITY_MANAGER);
     const { signer } = useSigner();
     const { order } = useOrder();
-    const { loadEscrowDetails, loadTokenDetails } = useEthEscrow();
+    const { loadDownPaymentDetails, loadTokenDetails } = useEthDownPayment();
     const { fileDriver } = useICP();
     const dispatch = useDispatch();
     const userInfo = useSelector((state: RootState) => state.userInfo);
@@ -134,6 +134,7 @@ export function ShipmentProvider(props: { children: ReactNode }) {
 
             setDetailShipment({ shipment, phase, orderId: order.id, phaseDocuments });
         }, SHIPMENT_MESSAGE.RETRIEVE.LOADING);
+        setDataLoaded(true);
     };
 
     const writeTransaction = async (transaction: () => Promise<Shipment>, shipmentMessage: ShipmentMessage) => {
@@ -213,31 +214,31 @@ export function ShipmentProvider(props: { children: ReactNode }) {
         await writeTransaction(async () => shipmentService.rejectQuality(detailShipment.shipment.id), SHIPMENT_MESSAGE.REJECT_QUALITY);
     };
 
-    const determineEscrowAddress = async () => {
+    const determineDownPaymentAddress = async () => {
         if (!shipmentService) throw new Error('ShipmentManager service not initialized');
         if (!detailShipment) throw new Error('Order trade not found');
         await writeTransaction(async () => {
-            const shipment = await shipmentService.determineEscrowAddress(detailShipment.shipment.id);
+            const shipment = await shipmentService.determineDownPaymentAddress(detailShipment.shipment.id);
             await loadData();
             return shipment;
-        }, SHIPMENT_MESSAGE.DETERMINE_ESCROW);
+        }, SHIPMENT_MESSAGE.DETERMINE_DOWN_PAYMENT);
     };
 
     const depositFunds = async (amount: number) => {
         if (!shipmentService) throw new Error('ShipmentManager service not initialized');
         if (!detailShipment) throw new Error('Order trade not found');
-        const escrowAddress = detailShipment.shipment.escrowAddress;
-        if (escrowAddress) {
+        const downPaymentAddress = detailShipment.shipment.downPaymentAddress;
+        if (downPaymentAddress) {
             await writeTransaction(async () => {
-                await tokenService.approve(escrowAddress, amount);
+                await tokenService.approve(downPaymentAddress, amount);
                 const shipment = await shipmentService.depositFunds(detailShipment.shipment.id, amount);
-                await loadEscrowDetails();
+                await loadDownPaymentDetails();
                 await loadTokenDetails();
                 await loadData();
                 return shipment;
             }, SHIPMENT_MESSAGE.DEPOSIT);
         } else {
-            throw new Error('Escrow address not determined');
+            throw new Error('Down payment address not determined');
         }
     };
 
@@ -328,7 +329,7 @@ export function ShipmentProvider(props: { children: ReactNode }) {
                 rejectDetails,
                 approveQuality,
                 rejectQuality,
-                determineEscrowAddress,
+                determineDownPaymentAddress: determineDownPaymentAddress,
                 depositFunds,
                 lockFunds,
                 unlockFunds,

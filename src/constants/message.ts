@@ -254,7 +254,7 @@ export const AUTHENTICATION_MESSAGE = {
         ERROR: 'Error while logging out.'
     }
 };
-export const ESCROW_MESSAGE = {
+export const DOWN_PAYMENT_MESSAGE = {
     RETRIEVE: {
         LOADING: 'Retrieving down payment details...',
         OK: '',
@@ -319,7 +319,7 @@ export const SHIPMENT_MESSAGE = {
         OK: 'Shipment quality rejected successfully.',
         ERROR: 'Error while rejecting shipment quality.'
     },
-    DETERMINE_ESCROW: {
+    DETERMINE_DOWN_PAYMENT: {
         LOADING: 'Determining down payment...',
         OK: 'Down payment determined successfully.',
         ERROR: 'Error while determining down payment.'

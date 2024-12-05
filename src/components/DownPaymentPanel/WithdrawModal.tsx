@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, InputNumber, InputNumberProps, Modal, Skeleton } from 'antd';
-import { useEthEscrow } from '@/providers/entities/EthEscrowProvider';
+import { useEthDownPayment } from '@/providers/entities/EthDownPaymentProvider';
 
 type WithdrawModalProps = {
     isOpen: boolean;
@@ -11,7 +11,7 @@ export const WithdrawModal = ({ isOpen, onClose }: WithdrawModalProps) => {
     const [fees, setFees] = React.useState<number>(0);
     const [feesLoading, setFeesLoading] = React.useState<boolean>(false);
 
-    const { escrowDetails, tokenDetails, withdraw, getFees } = useEthEscrow();
+    const { downPaymentDetails, tokenDetails, withdraw, getFees } = useEthDownPayment();
 
     const onChange: InputNumberProps['onChange'] = async (value) => {
         const amount = value as number;
@@ -29,11 +29,7 @@ export const WithdrawModal = ({ isOpen, onClose }: WithdrawModalProps) => {
         await withdraw(amount);
     };
 
-    const feesElement = feesLoading ? (
-        <Skeleton.Input active size="small" />
-    ) : (
-        `${fees} ${tokenDetails.symbol}`
-    );
+    const feesElement = feesLoading ? <Skeleton.Input active size="small" /> : `${fees} ${tokenDetails.symbol}`;
 
     return (
         <Modal
@@ -44,22 +40,14 @@ export const WithdrawModal = ({ isOpen, onClose }: WithdrawModalProps) => {
                 <Button key="back" style={{ width: '49%' }} onClick={onClose}>
                     Cancel
                 </Button>,
-                <Button
-                    type="primary"
-                    style={{ width: '49%' }}
-                    onClick={onWithdraw}
-                    disabled={amount <= 0}>
+                <Button type="primary" style={{ width: '49%' }} onClick={onWithdraw} disabled={amount <= 0}>
                     Withdraw
                 </Button>
             ]}>
-            <InputNumber
-                addonAfter={tokenDetails.symbol}
-                placeholder="Amount"
-                onChange={onChange}
-            />
+            <InputNumber addonAfter={tokenDetails.symbol} placeholder="Amount" onChange={onChange} />
             <p style={{ height: 25 }}>Fees: {feesElement}</p>
             <p>
-                Withdrawable amount: {escrowDetails.withdrawableAmount} {tokenDetails.symbol}
+                Withdrawable amount: {downPaymentDetails.withdrawableAmount} {tokenDetails.symbol}
             </p>
         </Modal>
     );

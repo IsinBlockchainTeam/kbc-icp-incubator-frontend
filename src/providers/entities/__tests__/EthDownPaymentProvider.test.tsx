@@ -2,8 +2,8 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import { useDispatch } from 'react-redux';
 import { useSigner } from '@/providers/SignerProvider';
 import { openNotification } from '@/utils/notification';
-import { EthEscrowProvider, useEthEscrow } from '@/providers/entities/EthEscrowProvider';
-import { EscrowService, TokenService } from '@kbc-lib/coffee-trading-management-lib';
+import { EthDownPaymentProvider, useEthDownPayment } from '@/providers/entities/EthDownPaymentProvider';
+import { DownPaymentService, TokenService } from '@kbc-lib/coffee-trading-management-lib';
 import { CONTRACT_ADDRESSES } from '@/constants/evm';
 import { JsonRpcSigner } from '@ethersproject/providers';
 import { useOrder } from '@/providers/icp/OrderProvider';
@@ -15,7 +15,7 @@ jest.mock('@/utils/notification');
 jest.mock('@/constants/evm');
 jest.mock('@/providers/icp/OrderProvider');
 
-describe('EthEscrowProvider', () => {
+describe('EthDownPaymentProvider', () => {
     const signer = { _address: '0x123' } as JsonRpcSigner;
     const dispatch = jest.fn();
     const getDepositedAmount = jest.fn();
@@ -35,7 +35,7 @@ describe('EthEscrowProvider', () => {
         jest.clearAllMocks();
         jest.spyOn(console, 'error').mockImplementation(jest.fn());
 
-        (EscrowService as jest.Mock).mockImplementation(() => ({
+        (DownPaymentService as jest.Mock).mockImplementation(() => ({
             getDepositedAmount,
             getTotalDepositedAmount,
             getLockedAmount,
@@ -56,15 +56,15 @@ describe('EthEscrowProvider', () => {
         (useDispatch as jest.Mock).mockReturnValue(dispatch);
         (useSigner as jest.Mock).mockReturnValue({ signer });
         (useOrder as jest.Mock).mockReturnValue({
-            order: { shipment: { escrowAddress: '0x123' } }
+            order: { shipment: { downPaymentAddress: '0x123' } }
         });
     });
 
     it('should throw error if hook is used outside the provider', async () => {
-        expect(() => renderHook(() => useEthEscrow())).toThrow();
+        expect(() => renderHook(() => useEthDownPayment())).toThrow();
     });
 
-    it('should load escrow details', async () => {
+    it('should load down payment details', async () => {
         getDepositedAmount.mockResolvedValue(100);
         getTotalDepositedAmount.mockResolvedValue(200);
         getLockedAmount.mockResolvedValue(10);
@@ -73,8 +73,8 @@ describe('EthEscrowProvider', () => {
         getPercentageFee.mockResolvedValue(5);
         balanceOf.mockResolvedValue(100);
         getSymbol.mockResolvedValue('ETH');
-        const { result } = renderHook(() => useEthEscrow(), {
-            wrapper: EthEscrowProvider
+        const { result } = renderHook(() => useEthDownPayment(), {
+            wrapper: EthDownPaymentProvider
         });
         await waitFor(() => {
             expect(dispatch).toHaveBeenCalledTimes(4);
@@ -90,33 +90,33 @@ describe('EthEscrowProvider', () => {
         expect(getPercentageFee).toHaveBeenCalledTimes(1);
         expect(balanceOf).toHaveBeenCalledTimes(1);
         expect(getSymbol).toHaveBeenCalledTimes(1);
-        expect(result.current.escrowDetails.depositedAmount).toEqual(100);
-        expect(result.current.escrowDetails.totalDepositedAmount).toEqual(200);
-        expect(result.current.escrowDetails.lockedAmount).toEqual(10);
-        expect(result.current.escrowDetails.withdrawableAmount).toEqual(50);
-        expect(result.current.escrowDetails.baseFee).toEqual(10);
-        expect(result.current.escrowDetails.percentageFee).toEqual(5);
+        expect(result.current.downPaymentDetails.depositedAmount).toEqual(100);
+        expect(result.current.downPaymentDetails.totalDepositedAmount).toEqual(200);
+        expect(result.current.downPaymentDetails.lockedAmount).toEqual(10);
+        expect(result.current.downPaymentDetails.withdrawableAmount).toEqual(50);
+        expect(result.current.downPaymentDetails.baseFee).toEqual(10);
+        expect(result.current.downPaymentDetails.percentageFee).toEqual(5);
         expect(result.current.tokenDetails.balance).toEqual(100);
         expect(result.current.tokenDetails.symbol).toEqual('ETH');
     });
 
-    it('should handle load failure - escrow', async () => {
+    it('should handle load failure - down payment', async () => {
         getDepositedAmount.mockRejectedValue(new Error('Test error'));
-        const { result } = renderHook(() => useEthEscrow(), {
-            wrapper: EthEscrowProvider
+        const { result } = renderHook(() => useEthDownPayment(), {
+            wrapper: EthDownPaymentProvider
         });
         await waitFor(() => {
             expect(dispatch).toHaveBeenCalledTimes(4);
         });
         expect(dispatch).toHaveBeenCalledTimes(4);
         expect(openNotification).toHaveBeenCalledTimes(1);
-        expect(result.current.escrowDetails.depositedAmount).toEqual(0);
+        expect(result.current.downPaymentDetails.depositedAmount).toEqual(0);
     });
 
     it('should handle load failure - token', async () => {
         balanceOf.mockRejectedValue(new Error('Test error'));
-        const { result } = renderHook(() => useEthEscrow(), {
-            wrapper: EthEscrowProvider
+        const { result } = renderHook(() => useEthDownPayment(), {
+            wrapper: EthDownPaymentProvider
         });
         await waitFor(() => {
             expect(dispatch).toHaveBeenCalledTimes(4);
@@ -128,8 +128,8 @@ describe('EthEscrowProvider', () => {
     });
 
     it('should withdraw funds', async () => {
-        const { result } = renderHook(() => useEthEscrow(), {
-            wrapper: EthEscrowProvider
+        const { result } = renderHook(() => useEthDownPayment(), {
+            wrapper: EthDownPaymentProvider
         });
         await waitFor(() => {
             expect(dispatch).toHaveBeenCalledTimes(4);
@@ -146,8 +146,8 @@ describe('EthEscrowProvider', () => {
     });
     it('should handle withdraw funds failure', async () => {
         withdraw.mockRejectedValue(new Error('Test error'));
-        const { result } = renderHook(() => useEthEscrow(), {
-            wrapper: EthEscrowProvider
+        const { result } = renderHook(() => useEthDownPayment(), {
+            wrapper: EthDownPaymentProvider
         });
         await waitFor(() => {
             expect(dispatch).toHaveBeenCalledTimes(4);
@@ -162,8 +162,8 @@ describe('EthEscrowProvider', () => {
         expect(openNotification).toHaveBeenCalledTimes(1);
     });
     it('should retrieve fees', async () => {
-        const { result } = renderHook(() => useEthEscrow(), {
-            wrapper: EthEscrowProvider
+        const { result } = renderHook(() => useEthDownPayment(), {
+            wrapper: EthDownPaymentProvider
         });
         await act(async () => {
             await result.current.getFees(10);
@@ -174,8 +174,8 @@ describe('EthEscrowProvider', () => {
     });
     it('should handle fees retrieval failure', async () => {
         getFees.mockRejectedValue(new Error('Test error'));
-        const { result } = renderHook(() => useEthEscrow(), {
-            wrapper: EthEscrowProvider
+        const { result } = renderHook(() => useEthDownPayment(), {
+            wrapper: EthDownPaymentProvider
         });
         await act(async () => {
             await result.current.getFees(10);
