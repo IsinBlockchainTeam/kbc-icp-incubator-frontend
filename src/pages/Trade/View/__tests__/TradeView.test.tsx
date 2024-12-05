@@ -7,7 +7,7 @@ import { TradeType } from '@kbc-lib/coffee-trading-management-lib';
 import { paths } from '@/constants/paths';
 import { useOrder } from '@/providers/icp/OrderProvider';
 import { ShipmentPanel } from '@/components/ShipmentPanel/ShipmentPanel';
-import { EscrowPanel } from '@/components/EscrowPanel/EscrowPanel';
+import { DownPaymentPanel } from '@/components/DownPaymentPanel/DownPaymentPanel';
 import { useOrganization } from '@/providers/icp/OrganizationProvider';
 
 jest.mock('react-router-dom');
@@ -19,7 +19,7 @@ jest.mock('@/providers/icp/OrderProvider');
 jest.mock('@/providers/icp/OrganizationProvider');
 jest.mock('@/utils/notification');
 jest.mock('@/components/ShipmentPanel/ShipmentPanel');
-jest.mock('@/components/EscrowPanel/EscrowPanel');
+jest.mock('@/components/DownPaymentPanel/DownPaymentPanel');
 
 describe('Trade View', () => {
     const order = {
@@ -59,9 +59,9 @@ describe('Trade View', () => {
         await act(async () => getByText('Shipment').click());
         expect(ShipmentPanel).toHaveBeenCalledTimes(1);
 
-        expect(getByText('Down payment')).toBeInTheDocument();
-        await act(async () => getByText('Down payment').click());
-        expect(EscrowPanel).toHaveBeenCalledTimes(1);
+        expect(getByText('Down Payment')).toBeInTheDocument();
+        await act(async () => getByText('Down Payment').click());
+        expect(DownPaymentPanel).toHaveBeenCalledTimes(1);
     });
 
     // it('should render correctly - BASIC', async () => {

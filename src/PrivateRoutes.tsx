@@ -6,7 +6,7 @@ import { SignerProvider } from '@/providers/SignerProvider';
 import { SiweIdentityProvider } from '@/providers/SiweIdentityProvider';
 import { ICPProvider } from '@/providers/ICPProvider';
 import { paths } from '@/constants/paths';
-import { EthEscrowProvider } from '@/providers/entities/EthEscrowProvider';
+import { EthDownPaymentProvider } from '@/providers/entities/EthDownPaymentProvider';
 import { OrderProvider } from '@/providers/icp/OrderProvider';
 import { ProductCategoryProvider } from '@/providers/icp/ProductCategoryProvider';
 import { MaterialProvider } from '@/providers/icp/MaterialProvider';
@@ -51,7 +51,7 @@ const PrivateRoutes = () => {
                                         <MaterialProvider>
                                             <OfferProvider>
                                                 <OrderProvider>
-                                                    <EthEscrowProvider>
+                                                    <EthDownPaymentProvider>
                                                         <ShipmentProvider>
                                                             <CertificationProvider>
                                                                 <SyncDataLoader customUseContext={useOrganization}>
@@ -61,7 +61,7 @@ const PrivateRoutes = () => {
                                                                 </SyncDataLoader>
                                                             </CertificationProvider>
                                                         </ShipmentProvider>
-                                                    </EthEscrowProvider>
+                                                    </EthDownPaymentProvider>
                                                 </OrderProvider>
                                             </OfferProvider>
                                         </MaterialProvider>
