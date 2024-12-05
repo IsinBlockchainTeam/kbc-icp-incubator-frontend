@@ -30,7 +30,6 @@ import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';
 import { useMaterial } from '@/providers/icp/MaterialProvider';
 import { useShipment } from '@/providers/icp/ShipmentProvider';
 import { useOffer } from '@/providers/icp/OfferProvider';
-import { useRawCertification } from '@/providers/icp/RawCertificationProvider';
 import { useEnumeration } from '@/providers/icp/EnumerationProvider';
 
 export const App = () => {
@@ -142,14 +141,7 @@ export const App = () => {
                                                 </AsyncDataLoader>
                                             }
                                         />
-                                        <Route
-                                            path={paths.CERTIFICATIONS}
-                                            element={
-                                                <AsyncDataLoader customUseContext={useRawCertification}>
-                                                    <Certifications />
-                                                </AsyncDataLoader>
-                                            }
-                                        />
+                                        <Route path={paths.CERTIFICATIONS} element={<Certifications />} />
                                         <Route
                                             path={paths.CERTIFICATION_NEW}
                                             element={

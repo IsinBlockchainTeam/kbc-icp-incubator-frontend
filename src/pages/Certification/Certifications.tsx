@@ -8,8 +8,8 @@ import { Table, Tag } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { ICPBaseCertificate, ICPCertificateType } from '@kbc-lib/coffee-trading-management-lib';
 import DropdownButton from 'antd/es/dropdown/dropdown-button';
-import { useRawCertification } from '@/providers/icp/RawCertificationProvider';
 import { useOrganization } from '@/providers/icp/OrganizationProvider';
+import { useCertification } from '@/providers/icp/CertificationProvider';
 
 export const certificationsType = [
     {
@@ -34,7 +34,7 @@ export const certificationsType = [
 
 export const Certifications = () => {
     const navigate = useNavigate();
-    const { rawCertificates } = useRawCertification();
+    const { rawCertificates } = useCertification();
     const { getOrganization } = useOrganization();
     const columns: ColumnsType<ICPBaseCertificate> = [
         {

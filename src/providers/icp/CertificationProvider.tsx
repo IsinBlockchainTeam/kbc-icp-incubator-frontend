@@ -14,14 +14,13 @@ import { RootState } from '@/redux/store';
 import { getICPCanisterURL } from '@/utils/icp';
 import { ICP } from '@/constants/icp';
 import { NotificationType, openNotification } from '@/utils/notification';
-import { CERTIFICATE_MESSAGE } from '@/constants/message';
+import { CERTIFICATE_MESSAGE, RAW_CERTIFICATE_MESSAGE } from '@/constants/message';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
 import { useParams } from 'react-router-dom';
 import { useSiweIdentity } from '@/providers/SiweIdentityProvider';
 import { checkAndGetEnvironmentVariable } from '@/utils/env';
 import { Typography } from 'antd';
-import { useRawCertification } from '@/providers/icp/RawCertificationProvider';
 import { useICP } from '@/providers/ICPProvider';
 
 type DocumentRequest = {
@@ -57,6 +56,7 @@ export type DetailedCertificate = {
 };
 
 export type CertificationContextState = {
+    rawCertificates: ICPBaseCertificate[];
     detailedCertificate: DetailedCertificate | null;
 
     saveCompanyCertificate: (request: CompanyCertificateRequest) => Promise<void>;
@@ -83,7 +83,7 @@ export function CertificationProvider(props: { children: ReactNode }) {
     const entityManagerCanisterId = checkAndGetEnvironmentVariable(ICP.CANISTER_ID_ENTITY_MANAGER);
     const { signer, waitForTransactions } = useSigner();
     const { fileDriver } = useICP();
-    const { loadData: loadRawCertificates } = useRawCertification();
+    const [rawCertificates, setRawCertificates] = useState<ICPBaseCertificate[]>([]);
     const [detailedCertificate, setDetailedCertificate] = useState<DetailedCertificate | null>(null);
 
     const dispatch = useDispatch();
@@ -121,6 +121,22 @@ export function CertificationProvider(props: { children: ReactNode }) {
             certificate,
             documentContent: (await certificationService.getDocument(id)).fileContent
         };
+    };
+
+    const loadRawCertificates = async () => {
+        if (!certificationService) return;
+
+        try {
+            dispatch(addLoadingMessage(RAW_CERTIFICATE_MESSAGE.RETRIEVE.LOADING));
+            const rawCertificates = await certificationService.getBaseCertificatesInfoBySubject(signer._address);
+            console.log('rawCertificates', rawCertificates);
+            setRawCertificates(rawCertificates);
+        } catch (e) {
+            console.log('Error retrieving raw certificates', e);
+            openNotification('Error', RAW_CERTIFICATE_MESSAGE.RETRIEVE.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
+        } finally {
+            dispatch(removeLoadingMessage(RAW_CERTIFICATE_MESSAGE.RETRIEVE.LOADING));
+        }
     };
 
     const loadData = async () => {
@@ -379,6 +395,10 @@ export function CertificationProvider(props: { children: ReactNode }) {
     };
 
     useEffect(() => {
+        loadRawCertificates();
+    }, []);
+
+    useEffect(() => {
         if (!id || !type) return;
         if (Number(id) !== detailedCertificate?.certificate.id) {
             setDetailedCertificate(null);
@@ -389,6 +409,7 @@ export function CertificationProvider(props: { children: ReactNode }) {
     return (
         <CertificationContext.Provider
             value={{
+                rawCertificates,
                 detailedCertificate,
                 saveCompanyCertificate,
                 saveScopeCertificate,

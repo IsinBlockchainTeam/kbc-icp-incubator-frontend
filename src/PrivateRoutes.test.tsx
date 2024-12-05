@@ -20,7 +20,6 @@ import { ProductCategoryProvider } from '@/providers/icp/ProductCategoryProvider
 import NavigationBlocker from './NavigationBlocker';
 import SyncDataLoader from './dataLoaders/SyncDataLoader';
 import { CertificationProvider } from '@/providers/icp/CertificationProvider';
-import { RawCertificationProvider } from '@/providers/icp/RawCertificationProvider';
 
 jest.mock('react-router-dom');
 jest.mock('react-redux');
@@ -40,7 +39,6 @@ jest.mock('@/providers/icp/AuthenticationProvider');
 jest.mock('./NavigationBlocker');
 jest.mock('./dataLoaders/SyncDataLoader');
 jest.mock('@/providers/icp/CertificationProvider');
-jest.mock('@/providers/icp/RawCertificationProvider');
 
 describe('PrivateRoutes', () => {
     it('renders when user is logged in', () => {
@@ -63,7 +61,6 @@ describe('PrivateRoutes', () => {
         (SyncDataLoader as jest.Mock).mockImplementation(renderChildren);
 
         (CertificationProvider as jest.Mock).mockImplementation(renderChildren);
-        (RawCertificationProvider as jest.Mock).mockImplementation(renderChildren);
         render(<PrivateRoutes />);
 
         expect(SignerProvider).toHaveBeenCalled();
@@ -82,7 +79,6 @@ describe('PrivateRoutes', () => {
         expect(NavigationBlocker).toHaveBeenCalled();
         expect(SyncDataLoader).toHaveBeenCalled();
         expect(CertificationProvider).toHaveBeenCalled();
-        expect(RawCertificationProvider).toHaveBeenCalled();
         expect(Outlet).toHaveBeenCalled();
     });
 

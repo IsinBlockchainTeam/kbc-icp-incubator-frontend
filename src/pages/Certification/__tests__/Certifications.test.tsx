@@ -5,11 +5,11 @@ import { ICPCertificateType } from '@kbc-lib/coffee-trading-management-lib';
 import { Table, Tag } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
 import DropdownButton from 'antd/es/dropdown/dropdown-button';
-import { useRawCertification } from '@/providers/icp/RawCertificationProvider';
+import { useCertification } from '@/providers/icp/CertificationProvider';
 import { useOrganization } from '@/providers/icp/OrganizationProvider';
 
-jest.mock('@/providers/icp/RawCertificationProvider');
 jest.mock('@/providers/icp/OrganizationProvider');
+jest.mock('@/providers/icp/CertificationProvider');
 jest.mock('react-router-dom', () => {
     return {
         ...jest.requireActual('react-router-dom'),
@@ -43,7 +43,7 @@ describe('Certifications', () => {
         jest.spyOn(console, 'error').mockImplementation(jest.fn());
         jest.clearAllMocks();
 
-        (useRawCertification as jest.Mock).mockReturnValue({ rawCertificates: certificates });
+        (useCertification as jest.Mock).mockReturnValue({ rawCertificates: certificates });
         (useOrganization as jest.Mock).mockReturnValue({ getOrganization });
         getOrganization.mockReturnValue({ legalName: 'actor' });
         (useNavigate as jest.Mock).mockReturnValue(navigate);
