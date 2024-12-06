@@ -5,6 +5,8 @@ import { Viewer } from '@react-pdf-viewer/core';
 import PDFUploader from '@/components/PDFUploader/PDFUploader';
 import { DocumentStatus } from '@kbc-lib/coffee-trading-management-lib';
 
+import '@react-pdf-viewer/core/lib/styles/index.css';
+
 export interface PDFViewerProps {
     element: DocumentElement;
     onDocumentChange: (name: string, file?: Blob) => void;
@@ -63,15 +65,7 @@ export default function PDFViewer(props: PDFViewerProps) {
                         alignItems: 'center',
                         justifyContent: 'center'
                     }}>
-                    {!loading ? (
-                        file ? (
-                            <Viewer fileUrl={URL.createObjectURL(file)} />
-                        ) : (
-                            <Empty />
-                        )
-                    ) : (
-                        <Spin />
-                    )}
+                    {!loading ? file ? <Viewer fileUrl={URL.createObjectURL(file)} /> : <Empty /> : <Spin />}
                 </div>
                 {uploadable && (
                     <div style={{ height: '30%' }}>
