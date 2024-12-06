@@ -19,7 +19,7 @@ import { ICP } from '@/constants/icp';
 import { Typography } from 'antd';
 import { CONTRACT_ADDRESSES } from '@/constants/evm';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
-import { SHIPMENT_MESSAGE, ShipmentMessage } from '@/constants/message';
+import { DOWN_PAYMENT_MESSAGE, SHIPMENT_MESSAGE, ShipmentMessage } from '@/constants/message';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { useDispatch, useSelector } from 'react-redux';
@@ -236,7 +236,7 @@ export function ShipmentProvider(props: { children: ReactNode }) {
                 await loadTokenDetails();
                 await loadData();
                 return shipment;
-            }, SHIPMENT_MESSAGE.DEPOSIT);
+            }, DOWN_PAYMENT_MESSAGE.DEPOSIT);
         } else {
             throw new Error('Down payment address not determined');
         }
@@ -246,14 +246,14 @@ export function ShipmentProvider(props: { children: ReactNode }) {
         if (!shipmentService) throw new Error('ShipmentManager service not initialized');
         if (!detailShipment) throw new Error('Order trade not found');
 
-        await writeTransaction(async () => shipmentService.lockFunds(detailShipment.shipment.id), SHIPMENT_MESSAGE.DEPOSIT);
+        await writeTransaction(async () => shipmentService.lockFunds(detailShipment.shipment.id), DOWN_PAYMENT_MESSAGE.LOCK);
     };
 
     const unlockFunds = async () => {
         if (!shipmentService) throw new Error('ShipmentManager service not initialized');
         if (!detailShipment) throw new Error('Order trade not found');
 
-        await writeTransaction(async () => shipmentService.unlockFunds(detailShipment.shipment.id), SHIPMENT_MESSAGE.DEPOSIT);
+        await writeTransaction(async () => shipmentService.unlockFunds(detailShipment.shipment.id), DOWN_PAYMENT_MESSAGE.UNLOCK);
     };
 
     const getDocument = async (documentId: number): Promise<ShipmentCompleteDocument> => {
