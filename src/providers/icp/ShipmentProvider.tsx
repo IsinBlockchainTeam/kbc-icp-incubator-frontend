@@ -217,7 +217,7 @@ export function ShipmentProvider(props: { children: ReactNode }) {
         if (!shipmentService) throw new Error('ShipmentManager service not initialized');
         if (!detailShipment) throw new Error('Order trade not found');
         await writeTransaction(async () => {
-            const shipment = await shipmentService.determineEscrowAddress(detailShipment.shipment.id);
+            const shipment = await shipmentService.determineDownPaymentAddress(detailShipment.shipment.id);
             await loadData();
             return shipment;
         }, SHIPMENT_MESSAGE.DETERMINE_ESCROW);
@@ -226,7 +226,7 @@ export function ShipmentProvider(props: { children: ReactNode }) {
     const depositFunds = async (amount: number) => {
         if (!shipmentService) throw new Error('ShipmentManager service not initialized');
         if (!detailShipment) throw new Error('Order trade not found');
-        const escrowAddress = detailShipment.shipment.escrowAddress;
+        const escrowAddress = detailShipment.shipment.downPaymentAddress;
         if (escrowAddress) {
             await writeTransaction(async () => {
                 await tokenService.approve(escrowAddress, amount);

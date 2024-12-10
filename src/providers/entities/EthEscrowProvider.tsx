@@ -1,9 +1,4 @@
-import {
-    EscrowDriver,
-    EscrowService,
-    TokenDriver,
-    TokenService
-} from '@kbc-lib/coffee-trading-management-lib';
+import { DownPaymentDriver, DownPaymentService, TokenDriver, TokenService } from '@kbc-lib/coffee-trading-management-lib';
 import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 import { useSigner } from '@/providers/SignerProvider';
 import { useDispatch } from 'react-redux';
@@ -67,16 +62,13 @@ export function EthEscrowProvider(props: { children: ReactNode }) {
     const dispatch = useDispatch();
 
     const escrowService = useMemo(() => {
-        if (!order || !order.shipment?.escrowAddress) return undefined;
-        return new EscrowService(new EscrowDriver(signer, order.shipment.escrowAddress));
+        if (!order || !order.shipment?.downPaymentAddress) return undefined;
+        return new DownPaymentService(new DownPaymentDriver(signer, order.shipment.downPaymentAddress));
     }, [signer, order]);
 
     const exists = useMemo(() => !!escrowService, [escrowService]);
 
-    const tokenService = useMemo(
-        () => new TokenService(new TokenDriver(signer, CONTRACT_ADDRESSES.TOKEN())),
-        [signer]
-    );
+    const tokenService = useMemo(() => new TokenService(new TokenDriver(signer, CONTRACT_ADDRESSES.TOKEN())), [signer]);
 
     // Update escrow when order trades change
     useEffect(() => {
@@ -108,12 +100,7 @@ export function EthEscrowProvider(props: { children: ReactNode }) {
             });
         } catch (e) {
             console.error('Error loading escrow details', e);
-            openNotification(
-                'Error',
-                ESCROW_MESSAGE.RETRIEVE.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Error', ESCROW_MESSAGE.RETRIEVE.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
             dispatch(removeLoadingMessage(ESCROW_MESSAGE.RETRIEVE.LOADING));
         }
@@ -129,12 +116,7 @@ export function EthEscrowProvider(props: { children: ReactNode }) {
                 symbol
             });
         } catch (e) {
-            openNotification(
-                'Error',
-                TOKEN_MESSAGE.RETRIEVE.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Error', TOKEN_MESSAGE.RETRIEVE.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
             dispatch(removeLoadingMessage(TOKEN_MESSAGE.RETRIEVE.LOADING));
         }
@@ -145,21 +127,11 @@ export function EthEscrowProvider(props: { children: ReactNode }) {
         try {
             dispatch(addLoadingMessage(ESCROW_MESSAGE.WITHDRAW.LOADING));
             await escrowService.withdraw(amount);
-            openNotification(
-                'Success',
-                ESCROW_MESSAGE.WITHDRAW.OK,
-                NotificationType.SUCCESS,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Success', ESCROW_MESSAGE.WITHDRAW.OK, NotificationType.SUCCESS, NOTIFICATION_DURATION);
             await loadEscrowDetails();
             await loadTokenDetails();
         } catch (e) {
-            openNotification(
-                'Error',
-                ESCROW_MESSAGE.WITHDRAW.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Error', ESCROW_MESSAGE.WITHDRAW.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
             dispatch(removeLoadingMessage(ESCROW_MESSAGE.WITHDRAW.LOADING));
         }
@@ -170,12 +142,7 @@ export function EthEscrowProvider(props: { children: ReactNode }) {
         try {
             return await escrowService.getFees(amount);
         } catch (e) {
-            openNotification(
-                'Error',
-                ESCROW_MESSAGE.WITHDRAW.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Error', ESCROW_MESSAGE.WITHDRAW.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
             return 0;
         }
     };

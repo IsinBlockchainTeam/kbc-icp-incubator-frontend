@@ -8,6 +8,7 @@ import { NOTIFICATION_DURATION } from '@/constants/notification';
 import {
     ICPAssessmentAssuranceLevelDriver,
     ICPAssessmentAssuranceLevelService,
+    ICPAssessmentReferenceStandard,
     ICPAssessmentStandardDriver,
     ICPAssessmentStandardService,
     ICPFiatDriver,
@@ -27,7 +28,7 @@ export type EnumerableContextState = {
     fiats: string[];
     processTypes: string[];
     units: string[];
-    assessmentStandards: string[];
+    assessmentStandards: ICPAssessmentReferenceStandard[];
     assessmentAssuranceLevels: string[];
     loadData: () => Promise<void>;
 };
@@ -47,7 +48,7 @@ export function EnumerationProvider(props: { children: React.ReactNode }) {
     const [fiats, setFiats] = useState<string[]>([]);
     const [processTypes, setProcessTypes] = useState<string[]>([]);
     const [units, setUnits] = useState<string[]>([]);
-    const [assessmentStandards, setAssessmentStandards] = useState<string[]>([]);
+    const [assessmentStandards, setAssessmentStandards] = useState<ICPAssessmentReferenceStandard[]>([]);
     const [assessmentAssuranceLevel, setAssessmentAssuranceLevel] = useState<string[]>([]);
 
     const { signer } = useSigner();
@@ -108,7 +109,7 @@ export function EnumerationProvider(props: { children: React.ReactNode }) {
     const loadAssessmentStandards = async () => {
         try {
             dispatch(addLoadingMessage(ASSESSMENT_STANDARD_MESSAGE.RETRIEVE.LOADING));
-            const assessmentStandards = await assessmentStandardService.getAllValues();
+            const assessmentStandards = await assessmentStandardService.getAll();
             setAssessmentStandards(assessmentStandards);
         } catch (e) {
             openNotification('Error', ASSESSMENT_STANDARD_MESSAGE.RETRIEVE.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
