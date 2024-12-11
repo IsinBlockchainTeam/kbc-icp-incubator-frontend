@@ -60,6 +60,7 @@ before_script:
   - chmod +x install-dependencies.sh
   - ./install-dependencies.sh
   - export PATH=$PATH:$DFX_INSTALLATION_PATH:$CARGO_INSTALLATION_PATH
+  - cd $CI_PROJECT_DIR
 
 build_platform_job:
   extends: .build_job_template
