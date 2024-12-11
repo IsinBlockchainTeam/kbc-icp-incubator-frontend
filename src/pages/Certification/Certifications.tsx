@@ -53,9 +53,10 @@ export const Certifications = () => {
             )
         },
         {
-            title: 'Assessment Standard',
-            dataIndex: 'assessmentStandard',
-            sorter: (a, b) => a.assessmentStandard.localeCompare(b.assessmentStandard)
+            title: 'Assessment Reference Standard',
+            dataIndex: 'assessmentReferenceStandard',
+            render: (_, { assessmentReferenceStandard }) => assessmentReferenceStandard.name,
+            sorter: (a, b) => a.assessmentReferenceStandard.name.localeCompare(b.assessmentReferenceStandard.name)
         },
         {
             title: 'Certifier',

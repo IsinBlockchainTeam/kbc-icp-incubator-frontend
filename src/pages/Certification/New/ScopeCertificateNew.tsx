@@ -18,7 +18,7 @@ export const ScopeCertificateNew = (props: CertificateNewProps) => {
     const { commonElements } = props;
     const { signer } = useSigner();
     const navigate = useNavigate();
-    const { assessmentAssuranceLevels, assessmentStandards, processTypes } = useEnumeration();
+    const { assessmentAssuranceLevels, assessmentReferenceStandards, processTypes } = useEnumeration();
     const { saveScopeCertificate } = useCertification();
 
     const elements: FormElement[] = [
@@ -51,12 +51,12 @@ export const ScopeCertificateNew = (props: CertificateNewProps) => {
         {
             type: FormElementType.SELECT,
             span: 12,
-            name: 'assessmentStandard',
-            label: 'Assessment Standard',
+            name: 'assessmentReferenceStandard',
+            label: 'Assessment Reference Standard',
             required: true,
-            options: assessmentStandards.map((standard) => ({
-                value: standard,
-                label: standard
+            options: assessmentReferenceStandards.map((standard) => ({
+                value: standard.id,
+                label: standard.name
             }))
         },
         {
@@ -123,7 +123,7 @@ export const ScopeCertificateNew = (props: CertificateNewProps) => {
         const saveRequest: ScopeCertificateRequest = {
             issuer: values.issuer,
             subject: signer._address,
-            assessmentStandard: values.assessmentStandard,
+            assessmentReferenceStandardId: values.assessmentReferenceStandard,
             assessmentAssuranceLevel: values.assessmentAssuranceLevel,
             document: {
                 filename: values.document.name,

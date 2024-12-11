@@ -31,6 +31,7 @@ import { useMaterial } from '@/providers/icp/MaterialProvider';
 import { useShipment } from '@/providers/icp/ShipmentProvider';
 import { useOffer } from '@/providers/icp/OfferProvider';
 import { useEnumeration } from '@/providers/icp/EnumerationProvider';
+import { useCertification } from '@/providers/icp/CertificationProvider';
 
 export const App = () => {
     return (
@@ -141,7 +142,14 @@ export const App = () => {
                                                 </AsyncDataLoader>
                                             }
                                         />
-                                        <Route path={paths.CERTIFICATIONS} element={<Certifications />} />
+                                        <Route
+                                            path={paths.CERTIFICATIONS}
+                                            element={
+                                                <AsyncDataLoader customUseContext={useCertification}>
+                                                    <Certifications />
+                                                </AsyncDataLoader>
+                                            }
+                                        />
                                         <Route
                                             path={paths.CERTIFICATION_NEW}
                                             element={
@@ -157,7 +165,9 @@ export const App = () => {
                                             element={
                                                 <AsyncDataLoader customUseContext={useEnumeration}>
                                                     <AsyncDataLoader customUseContext={useMaterial}>
-                                                        <CertificateView />
+                                                        <AsyncDataLoader customUseContext={useCertification}>
+                                                            <CertificateView />
+                                                        </AsyncDataLoader>
                                                     </AsyncDataLoader>
                                                 </AsyncDataLoader>
                                             }

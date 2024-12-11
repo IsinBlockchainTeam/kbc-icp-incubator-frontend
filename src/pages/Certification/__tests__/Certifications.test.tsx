@@ -30,7 +30,7 @@ describe('Certifications', () => {
     const certificates = [
         {
             id: 1,
-            assessmentStandard: 'assessmentStandard',
+            assessmentReferenceStandard: 'assessmentReferenceStandard',
             issuer: 'issuer',
             issueDate: new Date(),
             certificateType: ICPCertificateType.COMPANY
@@ -88,7 +88,7 @@ describe('Certifications', () => {
                 title: 'Id',
                 dataIndex: 'id'
             },
-            { title: 'Assessment Standard', dataIndex: 'assessmentStandard' },
+            { title: 'Assessment Reference Standard', dataIndex: 'assessmentReferenceStandard' },
             { title: 'Certifier', dataIndex: 'issuer' },
             { title: 'Issue date', dataIndex: 'issueDate' },
             { title: 'Type', dataIndex: 'type' }
@@ -104,7 +104,7 @@ describe('Certifications', () => {
         expect(Table).toHaveBeenCalledTimes(1);
         const columns = (Table as unknown as jest.Mock).mock.calls[0][0].columns;
         expect(columns[0].sorter({ id: 1 }, { id: 2 })).toBeLessThan(0);
-        expect(columns[1].sorter({ assessmentStandard: 'c' }, { assessmentStandard: 'a' })).toEqual(1);
+        expect(columns[1].sorter({ assessmentReferenceStandard: 'c' }, { assessmentReferenceStandard: 'a' })).toEqual(1);
         expect(columns[2].sorter({ legalName: getOrganization('company1') }, { legalName: getOrganization('company2') })).toEqual(0);
         expect(columns[3].sorter({ issueDate: new Date() }, { issueDate: new Date(new Date().setDate(new Date().getDate() + 1)) })).toBeLessThan(0);
         expect(columns[4].sorter({ certificateType: ICPCertificateType.SCOPE }, { certificateType: ICPCertificateType.MATERIAL })).toEqual(1);

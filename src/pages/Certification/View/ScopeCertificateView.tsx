@@ -18,7 +18,7 @@ export const ScopeCertificateView = (props: CertificateViewProps) => {
 
     const { signer } = useSigner();
     const navigate = useNavigate();
-    const { assessmentAssuranceLevels, assessmentStandards, processTypes } = useEnumeration();
+    const { assessmentAssuranceLevels, assessmentReferenceStandards, processTypes } = useEnumeration();
     const { updateScopeCertificate } = useCertification();
 
     const elements: FormElement[] = [
@@ -51,13 +51,13 @@ export const ScopeCertificateView = (props: CertificateViewProps) => {
         {
             type: FormElementType.SELECT,
             span: 12,
-            name: 'assessmentStandard',
-            label: 'Assessment Standard',
+            name: 'assessmentReferenceStandard',
+            label: 'Assessment Reference Standard',
             required: true,
-            defaultValue: scopeCertificate.assessmentStandard,
-            options: assessmentStandards.map((standard) => ({
-                value: standard,
-                label: standard
+            defaultValue: scopeCertificate.assessmentReferenceStandard.id,
+            options: assessmentReferenceStandards.map((standard) => ({
+                value: standard.id,
+                label: standard.name
             })),
             disabled
         },
@@ -138,7 +138,7 @@ export const ScopeCertificateView = (props: CertificateViewProps) => {
         const updatedRequest: ScopeCertificateRequest = {
             issuer: values.issuer,
             subject: signer._address,
-            assessmentStandard: values.assessmentStandard,
+            assessmentReferenceStandardId: values.assessmentReferenceStandard,
             assessmentAssuranceLevel: values.assessmentAssuranceLevel,
             document: {
                 filename: values.document.name,

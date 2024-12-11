@@ -26,7 +26,7 @@ jest.mock('@/components/GenericForm/GenericForm');
 describe('MaterialCertificateView', () => {
     const signer = { _address: '0x123' };
     const navigate = jest.fn();
-    const assessmentStandards = ['assessmentStandard'];
+    const assessmentReferenceStandards = ['assessmentReferenceStandard'];
     const assessmentAssuranceLevels = ['assessmentAssuranceLevel'];
     const materials = [{ id: 3, productCategory: { name: 'productCategory' } }];
     const updateMaterialCertificate = jest.fn();
@@ -36,7 +36,7 @@ describe('MaterialCertificateView', () => {
             'issuer',
             'subject',
             'uploadedBy',
-            'assessmentStandard',
+            'assessmentReferenceStandard',
             'assessmentAssuranceLevel',
             {
                 referenceId: '123456',
@@ -81,7 +81,7 @@ describe('MaterialCertificateView', () => {
         jest.clearAllMocks();
         (useSigner as jest.Mock).mockReturnValue({ signer });
         (useNavigate as jest.Mock).mockReturnValue(navigate);
-        (useEnumeration as jest.Mock).mockReturnValue({ assessmentStandards, assessmentAssuranceLevels });
+        (useEnumeration as jest.Mock).mockReturnValue({ assessmentReferenceStandards, assessmentAssuranceLevels });
         (useMaterial as jest.Mock).mockReturnValue({ materials });
         (useCertification as jest.Mock).mockReturnValue({
             updateMaterialCertificate
@@ -107,7 +107,7 @@ describe('MaterialCertificateView', () => {
         const values = {
             issuer: 'issuer',
             subject: 'subject',
-            assessmentStandard: assessmentStandards[0],
+            assessmentReferenceStandard: assessmentReferenceStandards[0],
             assessmentAssuranceLevel: assessmentAssuranceLevels[0],
             document: new File([new Blob(['document'])], 'example.txt', {
                 type: 'application/pdf'
@@ -122,7 +122,7 @@ describe('MaterialCertificateView', () => {
         expect(updateMaterialCertificate).toHaveBeenCalledWith({
             issuer: values.issuer,
             subject: signer._address,
-            assessmentStandard: values.assessmentStandard,
+            assessmentReferenceStandard: values.assessmentReferenceStandard,
             assessmentAssuranceLevel: values.assessmentAssuranceLevel,
             document: {
                 filename: values.document.name,

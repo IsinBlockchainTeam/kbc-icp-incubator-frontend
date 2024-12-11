@@ -18,7 +18,7 @@ jest.mock('@/components/GenericForm/GenericForm');
 describe('CompanyCertificateView', () => {
     const signer = { _address: '0x123' };
     const navigate = jest.fn();
-    const assessmentStandards = ['assessmentStandard'];
+    const assessmentReferenceStandards = ['assessmentReferenceStandard'];
     const assessmentAssuranceLevels = ['assessmentAssuranceLevel'];
     const updateCompanyCertificate = jest.fn();
     const detailedCertificate: DetailedCertificate = {
@@ -27,7 +27,7 @@ describe('CompanyCertificateView', () => {
             'issuer',
             'subject',
             'uploadedBy',
-            'assessmentStandard',
+            'assessmentReferenceStandard',
             'assessmentAssuranceLevel',
             {
                 referenceId: '123456',
@@ -73,7 +73,7 @@ describe('CompanyCertificateView', () => {
         jest.clearAllMocks();
         (useSigner as jest.Mock).mockReturnValue({ signer });
         (useNavigate as jest.Mock).mockReturnValue(navigate);
-        (useEnumeration as jest.Mock).mockReturnValue({ assessmentStandards, assessmentAssuranceLevels });
+        (useEnumeration as jest.Mock).mockReturnValue({ assessmentReferenceStandards, assessmentAssuranceLevels });
         (useCertification as jest.Mock).mockReturnValue({ updateCompanyCertificate });
     });
 
@@ -95,7 +95,7 @@ describe('CompanyCertificateView', () => {
         );
         const values = {
             issuer: 'issuer',
-            assessmentStandard: assessmentStandards[0],
+            assessmentReferenceStandard: assessmentReferenceStandards[0],
             assessmentAssuranceLevel: assessmentAssuranceLevels[0],
             document: new File([new Blob(['document'])], 'example.txt', {
                 type: 'application/pdf'
@@ -111,7 +111,7 @@ describe('CompanyCertificateView', () => {
         expect(updateCompanyCertificate).toHaveBeenCalledWith({
             issuer: values.issuer,
             subject: signer._address,
-            assessmentStandard: values.assessmentStandard,
+            assessmentReferenceStandard: values.assessmentReferenceStandard,
             assessmentAssuranceLevel: values.assessmentAssuranceLevel,
             document: {
                 filename: values.document.name,

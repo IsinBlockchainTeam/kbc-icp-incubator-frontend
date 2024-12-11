@@ -26,7 +26,7 @@ jest.mock('antd', () => ({
 describe('Material Certificate New', () => {
     const signer = { _address: '0x123' };
     const navigate = jest.fn();
-    const assessmentStandards = ['assessmentStandard'];
+    const assessmentReferenceStandards = ['assessmentReferenceStandard'];
     const assessmentAssuranceLevels = ['assessmentAssuranceLevel'];
     const materials = [{ id: 1, productCategory: { name: 'Product Category 1' } }];
     const saveMaterialCertificate = jest.fn();
@@ -37,7 +37,7 @@ describe('Material Certificate New', () => {
 
         (useSigner as jest.Mock).mockReturnValue({ signer });
         (useNavigate as jest.Mock).mockReturnValue(navigate);
-        (useEnumeration as jest.Mock).mockReturnValue({ assessmentStandards, assessmentAssuranceLevels });
+        (useEnumeration as jest.Mock).mockReturnValue({ assessmentReferenceStandards, assessmentAssuranceLevels });
         (useMaterial as jest.Mock).mockReturnValue({ materials });
         (useCertification as jest.Mock).mockReturnValue({
             saveMaterialCertificate
@@ -62,7 +62,7 @@ describe('Material Certificate New', () => {
         const values = {
             issuer: 'issuer',
             subject: 'subject',
-            assessmentStandard: assessmentStandards[0],
+            assessmentReferenceStandard: assessmentReferenceStandards[0],
             assessmentAssuranceLevel: assessmentAssuranceLevels[0],
             document: new File([new Blob(['document'])], 'example.txt', {
                 type: 'application/pdf'
@@ -78,7 +78,7 @@ describe('Material Certificate New', () => {
         expect(saveMaterialCertificate).toHaveBeenCalledWith({
             issuer: values.issuer,
             subject: signer._address,
-            assessmentStandard: values.assessmentStandard,
+            assessmentReferenceStandard: values.assessmentReferenceStandard,
             assessmentAssuranceLevel: values.assessmentAssuranceLevel,
             document: {
                 filename: values.document.name,

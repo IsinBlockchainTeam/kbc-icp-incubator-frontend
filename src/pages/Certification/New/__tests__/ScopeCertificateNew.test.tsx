@@ -25,7 +25,7 @@ jest.mock('antd', () => ({
 describe('Scope Certificate New', () => {
     const signer = { _address: '0x123' };
     const navigate = jest.fn();
-    const assessmentStandards = ['assessmentStandard'];
+    const assessmentReferenceStandards = ['assessmentReferenceStandard'];
     const assessmentAssuranceLevels = ['assessmentAssuranceLevel'];
     const processTypes = ['processType'];
     const saveScopeCertificate = jest.fn();
@@ -36,7 +36,7 @@ describe('Scope Certificate New', () => {
 
         (useSigner as jest.Mock).mockReturnValue({ signer });
         (useNavigate as jest.Mock).mockReturnValue(navigate);
-        (useEnumeration as jest.Mock).mockReturnValue({ assessmentStandards, assessmentAssuranceLevels, processTypes });
+        (useEnumeration as jest.Mock).mockReturnValue({ assessmentReferenceStandards, assessmentAssuranceLevels, processTypes });
         (useCertification as jest.Mock).mockReturnValue({ saveScopeCertificate });
     });
 
@@ -57,7 +57,7 @@ describe('Scope Certificate New', () => {
         render(<ScopeCertificateNew commonElements={commonElements} />);
         const values = {
             issuer: 'issuer',
-            assessmentStandard: assessmentStandards[0],
+            assessmentReferenceStandard: assessmentReferenceStandards[0],
             assessmentAssuranceLevel: assessmentAssuranceLevels[0],
             document: new File([new Blob(['document'])], 'example.txt', {
                 type: 'application/pdf'
@@ -75,7 +75,7 @@ describe('Scope Certificate New', () => {
         expect(saveScopeCertificate).toHaveBeenCalledWith({
             issuer: values.issuer,
             subject: signer._address,
-            assessmentStandard: values.assessmentStandard,
+            assessmentReferenceStandard: values.assessmentReferenceStandard,
             assessmentAssuranceLevel: values.assessmentAssuranceLevel,
             document: {
                 filename: values.document.name,

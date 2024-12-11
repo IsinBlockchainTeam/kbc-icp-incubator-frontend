@@ -84,35 +84,22 @@ export const CertificateView = () => {
         }
     ];
 
-    if (detailedCertificate === null) {
-        return <div>No certificate found</div>;
-    } else {
-        const certificatesViewByType = [
-            <CompanyCertificateView
-                commonElements={elements}
-                editElements={editElements}
-                detailedCertificate={detailedCertificate}
-                disabled={disabled}
-            />,
-            <ScopeCertificateView
-                commonElements={elements}
-                editElements={editElements}
-                detailedCertificate={detailedCertificate}
-                disabled={disabled}
-            />,
-            <MaterialCertificateView
-                commonElements={elements}
-                editElements={editElements}
-                detailedCertificate={detailedCertificate}
-                disabled={disabled}
-            />
-        ];
-        return certificatesViewByType[
-            Number(
-                Object.keys(ICPCertificateType).indexOf(
-                    detailedCertificate?.certificate.certificateType
-                )
-            )
-        ];
-    }
+    if (!detailedCertificate) return <div>No certificate found</div>;
+
+    const certificatesViewByType = [
+        <CompanyCertificateView
+            commonElements={elements}
+            editElements={editElements}
+            detailedCertificate={detailedCertificate}
+            disabled={disabled}
+        />,
+        <ScopeCertificateView commonElements={elements} editElements={editElements} detailedCertificate={detailedCertificate} disabled={disabled} />,
+        <MaterialCertificateView
+            commonElements={elements}
+            editElements={editElements}
+            detailedCertificate={detailedCertificate}
+            disabled={disabled}
+        />
+    ];
+    return certificatesViewByType[Number(Object.keys(ICPCertificateType).indexOf(detailedCertificate?.certificate.certificateType))];
 };
