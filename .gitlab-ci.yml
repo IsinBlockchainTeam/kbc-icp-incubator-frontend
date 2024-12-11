@@ -64,6 +64,7 @@ before_script:
 build_platform_job:
   extends: .build_job_template
   script:
+    - ls -la
     - cp .npmrc.template .npmrc
     - sed -i "s/<access_token>/${CI_JOB_TOKEN}/g" .npmrc
     - npm i
