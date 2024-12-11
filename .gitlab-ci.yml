@@ -15,6 +15,8 @@ variables:
 
   NODE_MODULES_PATH: "$CI_PROJECT_DIR/node_modules/"
   PLATFORM_DIST_PATH: "$CI_PROJECT_DIR/dist/"
+  .NPMRC_PATH: "$CI_PROJECT_DIR/.npmrc"
+  .ENV_PATH: "$CI_PROJECT_DIR/.env"
 
 cache:
   key: ${CI_COMMIT_REF_SLUG}
@@ -67,19 +69,23 @@ build_platform_job:
   script:
     - cp .npmrc.template .npmrc
     - sed -i "s/<access_token>/${CI_JOB_TOKEN}/g" .npmrc
+    - chmod +x ci/scripts/merge-env-files.sh
+    - ./ci/scripts/merge-env-files.sh
+    - source .env
     - npm ci
     - npm run build
   artifacts:
       paths:
       - $PLATFORM_DIST_PATH
+      - $.NPMRC_PATH
+      - $.ENV_PATH
       expire_in: 15 min
 
 test_platform_job:
   extends: .test_job_template
   script:
+    - source .env
     - npm ci
-    - chmod +x ci/scripts/merge-env-files.sh
-    - ./ci/scripts/merge-env-files.sh
     - npm run test -- --watchAll false
 
 #deploy_icp_canisters_job:
