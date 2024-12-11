@@ -65,10 +65,9 @@ before_script:
 build_platform_job:
   extends: .build_job_template
   script:
-    - ls -la
     - cp .npmrc.template .npmrc
     - sed -i "s/<access_token>/${CI_JOB_TOKEN}/g" .npmrc
-    - npm i
+    - npm ci
     - npm run build
   artifacts:
       paths:
@@ -78,7 +77,7 @@ build_platform_job:
 test_platform_job:
   extends: .test_job_template
   script:
-    - npm i
+    - npm ci
     - chmod +x ci/scripts/merge-env-files.sh
     - ./ci/scripts/merge-env-files.sh
     - npm run test -- --watchAll false
