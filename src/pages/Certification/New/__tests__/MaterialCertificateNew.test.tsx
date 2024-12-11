@@ -9,7 +9,7 @@ import { MaterialCertificateNew } from '@/pages/Certification/New/MaterialCertif
 import { useCertification } from '@/providers/icp/CertificationProvider';
 import { useMaterial } from '@/providers/icp/MaterialProvider';
 import { useEnumeration } from '@/providers/icp/EnumerationProvider';
-import { ICPCertificateDocumentType } from '../../../../../../coffee-trading-management-lib/src/index';
+import { ICPCertificateDocumentType } from '@kbc-lib/coffee-trading-management-lib';
 
 jest.mock('@/providers/SignerProvider');
 jest.mock('react-router-dom');

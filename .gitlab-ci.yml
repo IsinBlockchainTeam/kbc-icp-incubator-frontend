@@ -1,0 +1,104 @@
+stages:
+  - build
+  - test
+  - deploy
+
+image: node:20
+
+# VARIABLES
+
+variables:
+  DFX_INSTALLATION_PATH: "/root/.local/share/dfx/bin"
+  CARGO_INSTALLATION_PATH: "/root/.cargo/bin"
+
+  CI_SCRIPTS: "$CI_PROJECT_DIR/ci/scripts"
+
+  NODE_MODULES_PATH: "$CI_PROJECT_DIR/node_modules/"
+  PLATFORM_DIST_PATH: "$CI_PROJECT_DIR/dist/"
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - "$NODE_MODULES_PATH"
+  policy: pull-push
+
+# RULES
+
+.rules_dev:
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+      when: always
+
+.rules_force_deploy:
+  rules:
+    - if: $CI_COMMIT_BRANCH == "force-deploy"
+      when: always
+
+# TEMPLATE JOBS
+
+.build_job_template:
+  stage: build
+#  rules:
+#    - !reference [ .rules_dev, rules ]
+#    - !reference [ .rules_force_deploy, rules ]
+
+.test_job_template:
+  stage: test
+#  rules:
+#    - !reference [ .rules_dev, rules ]
+
+.deploy_job_template:
+  stage: deploy
+#  rules:
+#    - !reference [ .rules_dev, rules ]
+#    - !reference [ .rules_force_deploy, rules ]
+
+# JOBS
+
+before_script:
+  - cd $CI_SCRIPTS
+  - chmod +x install-dependencies.sh
+  - ./install-dependencies.sh
+  - export PATH=$PATH:$DFX_INSTALLATION_PATH:$CARGO_INSTALLATION_PATH
+
+build_platform_job:
+  extends: .build_job_template
+  script:
+    - cp .npmrc.template .npmrc
+    - sed -i "s/<access_token>/${CI_JOB_TOKEN}/g" .npmrc
+    - npm i
+    - npm run build
+  artifacts:
+      paths:
+      - $PLATFORM_DIST_PATH
+      expire_in: 15 min
+
+test_platform_job:
+  extends: .test_job_template
+  script:
+    - npm i
+    - chmod +x ci/scripts/merge-env-files.sh
+    - ./ci/scripts/merge-env-files.sh
+    - npm run test -- --watchAll false
+
+#deploy_icp_canisters_job:
+#  extends: .deploy_job_template
+#  script:
+#    - cd $ICP_PATH/ts-canisters
+#    - npm ci
+#    - cd ../scripts
+#    - chmod +x import-identity-ic.sh deploy-ic.sh
+#    - ./import-identity-ic.sh
+#    - ./deploy-ic.sh
+#  when: manual
+#
+#reinstall_icp_canisters_job:
+#  extends: .deploy_job_template
+#  script:
+#    - cd $ICP_PATH/ts-canisters
+#    - npm ci
+#    - cd ../scripts
+#    - chmod +x import-identity-ic.sh reinstall-ic.sh
+#    - ./import-identity-ic.sh
+#    - ./reinstall-ic.sh
+#  when: manual
