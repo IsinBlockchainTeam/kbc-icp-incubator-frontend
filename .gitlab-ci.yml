@@ -40,20 +40,20 @@ cache:
 
 .build_job_template:
   stage: build
-#  rules:
-#    - !reference [ .rules_dev, rules ]
-#    - !reference [ .rules_force_deploy, rules ]
+  rules:
+    - !reference [ .rules_dev, rules ]
+    - !reference [ .rules_force_deploy, rules ]
 
 .test_job_template:
   stage: test
-#  rules:
-#    - !reference [ .rules_dev, rules ]
+  rules:
+    - !reference [ .rules_dev, rules ]
 
 .deploy_job_template:
   stage: deploy
-#  rules:
-#    - !reference [ .rules_dev, rules ]
-#    - !reference [ .rules_force_deploy, rules ]
+  rules:
+    - !reference [ .rules_dev, rules ]
+    - !reference [ .rules_force_deploy, rules ]
 
 # JOBS
 
