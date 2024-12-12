@@ -3,7 +3,7 @@
 BASE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
 echo "BASE_DIR: $BASE_DIR"
 
-cd "$CI_PROJECT_DIR/src"
+cd $CI_PROJECT_DIR
 
 # Ping dfx network
 dfx ping ic
