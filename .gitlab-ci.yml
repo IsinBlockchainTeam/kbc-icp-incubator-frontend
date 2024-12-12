@@ -68,7 +68,7 @@ build_platform_job:
   extends: .build_job_template
   script:
     - cp .npmrc.template .npmrc
-    - sed -i "s/<access_token>/$COFFEE_TRADING_LIB_REGISTRY_READ_TOKEN/g" .npmrc
+    - sed -i "s/<access_token>/${COFFEE_TRADING_LIB_REGISTRY_READ_TOKEN}/g" .npmrc
     - chmod +x ci/scripts/merge-env-files.sh
     - ./ci/scripts/merge-env-files.sh
     - source .env
