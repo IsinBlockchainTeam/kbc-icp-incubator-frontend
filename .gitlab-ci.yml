@@ -12,7 +12,6 @@ variables:
   CARGO_INSTALLATION_PATH: "/root/.cargo/bin"
 
   CI_SCRIPTS: "$CI_PROJECT_DIR/ci/scripts"
-  SCRIPTS: "$CI_PROJECT_DIR/scripts"
 
   NODE_MODULES_PATH: "$CI_PROJECT_DIR/node_modules/"
   PLATFORM_DIST_PATH: "$CI_PROJECT_DIR/build/"
@@ -94,7 +93,7 @@ deploy_icp_canisters_job:
   script:
     - source .env
     - npm ci
-    - cd $SCRIPTS
+    - cd $CI_SCRIPTS
     - chmod +x import-identity-ic.sh deploy-ic.sh
     - ./import-identity-ic.sh
     - ./deploy-ic.sh
@@ -105,7 +104,7 @@ reinstall_icp_canisters_job:
   script:
     - source .env
     - npm ci
-    - cd $SCRIPTS
+    - cd $CI_SCRIPTS
     - chmod +x import-identity-ic.sh reinstall-ic.sh
     - ./import-identity-ic.sh
     - ./reinstall-ic.sh
