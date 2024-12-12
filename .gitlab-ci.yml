@@ -71,22 +71,22 @@ build_platform_job:
     - sed -i "s/<access_token>/${COFFEE_TRADING_LIB_REGISTRY_READ_TOKEN}/g" .npmrc
     - chmod +x ci/scripts/merge-env-files.sh
     - ./ci/scripts/merge-env-files.sh
-#    - source .env
-#    - npm ci
-#    - npm run build
+    - source .env
+    - npm ci
+    - npm run build
   artifacts:
       paths:
       - $PLATFORM_DIST_PATH
       - $NPMRC_PATH
       - $ENV_PATH
       expire_in: 30 min
-#
-#test_platform_job:
-#  extends: .test_job_template
-#  script:
-#    - source .env
-#    - npm ci
-#    - npm run test -- --watchAll false
+
+test_platform_job:
+  extends: .test_job_template
+  script:
+    - source .env
+    - npm ci
+    - npm run test -- --watchAll false
 
 deploy_icp_canisters_job:
   extends: .deploy_job_template
