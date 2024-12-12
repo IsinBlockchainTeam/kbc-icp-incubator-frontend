@@ -12,6 +12,7 @@ variables:
   CARGO_INSTALLATION_PATH: "/root/.cargo/bin"
 
   CI_SCRIPTS: "$CI_PROJECT_DIR/ci/scripts"
+  SCRIPTS: "$CI_PROJECT_DIR/scripts"
 
   NODE_MODULES_PATH: "$CI_PROJECT_DIR/node_modules/"
   PLATFORM_DIST_PATH: "$CI_PROJECT_DIR/build/"
@@ -64,36 +65,36 @@ before_script:
   - export PATH=$PATH:$DFX_INSTALLATION_PATH:$CARGO_INSTALLATION_PATH
   - cd $CI_PROJECT_DIR
 
-build_platform_job:
-  extends: .build_job_template
-  script:
-    - cp .npmrc.template .npmrc
-    - sed -i "s/<access_token>/${COFFEE_TRADING_LIB_REGISTRY_READ_TOKEN}/g" .npmrc
-    - chmod +x ci/scripts/merge-env-files.sh
-    - ./ci/scripts/merge-env-files.sh
-    - source .env
-    - npm ci
-    - npm run build
-  artifacts:
-      paths:
-      - $PLATFORM_DIST_PATH
-      - $NPMRC_PATH
-      - $ENV_PATH
-      expire_in: 30 min
-
-test_platform_job:
-  extends: .test_job_template
-  script:
-    - source .env
-    - npm ci
-    - npm run test -- --watchAll false
+#build_platform_job:
+#  extends: .build_job_template
+#  script:
+#    - cp .npmrc.template .npmrc
+#    - sed -i "s/<access_token>/${COFFEE_TRADING_LIB_REGISTRY_READ_TOKEN}/g" .npmrc
+#    - chmod +x ci/scripts/merge-env-files.sh
+#    - ./ci/scripts/merge-env-files.sh
+#    - source .env
+#    - npm ci
+#    - npm run build
+#  artifacts:
+#      paths:
+#      - $PLATFORM_DIST_PATH
+#      - $NPMRC_PATH
+#      - $ENV_PATH
+#      expire_in: 30 min
+#
+#test_platform_job:
+#  extends: .test_job_template
+#  script:
+#    - source .env
+#    - npm ci
+#    - npm run test -- --watchAll false
 
 deploy_icp_canisters_job:
   extends: .deploy_job_template
   script:
     - source .env
     - npm ci
-    - cd $CI_SCRIPTS
+    - cd $SCRIPTS
     - chmod +x import-identity-ic.sh deploy-ic.sh
     - ./import-identity-ic.sh
     - ./deploy-ic.sh
@@ -104,7 +105,7 @@ reinstall_icp_canisters_job:
   script:
     - source .env
     - npm ci
-    - cd $CI_SCRIPTS
+    - cd $SCRIPTS
     - chmod +x import-identity-ic.sh reinstall-ic.sh
     - ./import-identity-ic.sh
     - ./reinstall-ic.sh

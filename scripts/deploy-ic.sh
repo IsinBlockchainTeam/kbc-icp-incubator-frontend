@@ -3,7 +3,7 @@
 BASE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
 echo "BASE_DIR: $BASE_DIR"
 
-cd ../src
+cd src
 
 # Ping dfx network
 dfx ping ic
@@ -13,7 +13,7 @@ set -o allexport
 source .env
 set +o allexport
 
-dfx canister install kbc-platform --mode reinstall --network ic --yes
+dfx deploy kbc-platform --network ic --yes
 
 # Canister status
 dfx canister status kbc-platform --network ic
