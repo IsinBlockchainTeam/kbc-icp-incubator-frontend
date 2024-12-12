@@ -79,7 +79,7 @@ build_platform_job:
       - $PLATFORM_DIST_PATH
       - $NPMRC_PATH
       - $ENV_PATH
-      expire_in: 15 min
+      expire_in: 30 min
 
 test_platform_job:
   extends: .test_job_template
