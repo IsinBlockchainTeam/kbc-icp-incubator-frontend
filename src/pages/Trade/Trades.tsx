@@ -9,14 +9,13 @@ import { paths } from '@/constants/paths';
 import { useOrder } from '@/providers/icp/OrderProvider';
 import { AsyncComponent } from '@/components/AsyncComponent/AsyncComponent';
 import { useOrganization } from '@/providers/icp/OrganizationProvider';
+import { useShipment } from '@/providers/icp/ShipmentProvider';
+import { ShipmentPhaseDisplayName } from '@/constants/shipmentPhase';
 
 export const Trades = () => {
     const { orders } = useOrder();
     const { getOrganization } = useOrganization();
-    // const { rawTrades } = useEthRawTrade();
-    // const { getSupplierAsync, getCustomerAsync, getNegotiationStatusAsync } = useEthOrderTrade();
-    // const { getShipmentPhaseAsync } = useEthShipment();
-    // const { getCompany } = useICPOrganization();
+    const { getShipmentPhaseAsync } = useShipment();
 
     const columns: ColumnsType<Order> = [
         {
@@ -33,24 +32,12 @@ export const Trades = () => {
         {
             title: 'Supplier',
             dataIndex: 'supplier',
-            render: (_, { id, supplier }) => (
-                // <AsyncComponent
-                //     asyncFunction={async () => getCompany(await getSupplierAsync(id)).legalName}
-                //     defaultElement={<>Unknown</>}
-                // />
-                <div>{getOrganization(supplier).legalName}</div>
-            )
+            render: (_, { supplier }) => <div>{getOrganization(supplier).legalName}</div>
         },
         {
             title: 'Commissioner',
             dataIndex: 'commissioner',
-            render: (_, { id, commissioner }) => (
-                // <AsyncComponent
-                //     asyncFunction={async () => getCompany(await getCustomerAsync(id)).legalName}
-                //     defaultElement={<>Unknown</>}
-                // />
-                <div>{getOrganization(commissioner).legalName}</div>
-            )
+            render: (_, { commissioner }) => <div>{getOrganization(commissioner).legalName}</div>
         },
         {
             title: 'Type',
@@ -62,12 +49,9 @@ export const Trades = () => {
         {
             title: 'Negotiation status',
             dataIndex: 'negotiationStatus',
-            render: (_, { id, status }) => (
+            render: (_, { status }) => (
                 <Tag color="geekblue">
-                    <AsyncComponent
-                        asyncFunction={async () => OrderStatus[status]}
-                        defaultElement={<>UNKNOWN</>}
-                    />
+                    <AsyncComponent asyncFunction={async () => OrderStatus[status]} defaultElement={<>UNKNOWN</>} />
                 </Tag>
             )
         },
@@ -75,15 +59,15 @@ export const Trades = () => {
             title: 'Shipment phase',
             dataIndex: 'shipmentPhase',
             render: (_, { id }) => (
-                // <Tag color="geekblue">
-                //     <AsyncComponent
-                //         asyncFunction={async () =>
-                //             ShipmentPhaseDisplayName[await getShipmentPhaseAsync(id)]
-                //         }
-                //         defaultElement={<>NOT CREATED</>}
-                //     />
-                // </Tag>
-                <div>Shipment phase</div>
+                <Tag color="geekblue">
+                    <AsyncComponent
+                        asyncFunction={async () => {
+                            const phase = await getShipmentPhaseAsync(id);
+                            return phase ? ShipmentPhaseDisplayName[phase].toUpperCase() : 'NOT CREATED';
+                        }}
+                        defaultElement={<>NOT CREATED</>}
+                    />
+                </Tag>
             )
         }
     ];

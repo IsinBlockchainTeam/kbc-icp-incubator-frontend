@@ -1,6 +1,7 @@
 import {
-    Shipment,
     DocumentType,
+    ResourceSpec,
+    Shipment,
     ShipmentDriver,
     ShipmentPhase,
     ShipmentPhaseDocument,
@@ -26,7 +27,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { getMimeType } from '@/utils/file';
 import { useCallHandler } from '@/providers/icp/CallHandlerProvider';
-import { ResourceSpec } from '@kbc-lib/coffee-trading-management-lib';
 
 export type ShipmentContextState = {
     dataLoaded: boolean;
@@ -58,6 +58,7 @@ export type ShipmentContextState = {
     addDocument: (documentType: DocumentType, documentReferenceId: string, fileName: string, fileContent: Blob) => Promise<void>;
     approveDocument: (documentId: number) => Promise<void>;
     rejectDocument: (documentId: number) => Promise<void>;
+    getShipmentPhaseAsync: (orderId: number) => Promise<ShipmentPhase | null>;
 };
 export const ShipmentContext = createContext<ShipmentContextState>({} as ShipmentContextState);
 export const useShipment = (): ShipmentContextState => {
@@ -83,7 +84,7 @@ export function ShipmentProvider(props: { children: ReactNode }) {
     const { identity } = useSiweIdentity();
     const entityManagerCanisterId = checkAndGetEnvironmentVariable(ICP.CANISTER_ID_ENTITY_MANAGER);
     const { signer } = useSigner();
-    const { order } = useOrder();
+    const { order, orderService } = useOrder();
     const { loadDownPaymentDetails, loadTokenDetails } = useEthDownPayment();
     const { fileDriver } = useICP();
     const dispatch = useDispatch();
@@ -97,20 +98,16 @@ export function ShipmentProvider(props: { children: ReactNode }) {
         return <Typography.Text>Siwe identity not initialized</Typography.Text>;
     }
 
-    const tokenService = useMemo(() => new TokenService(new TokenDriver(signer, CONTRACT_ADDRESSES.TOKEN())), [signer]);
-
-    const shipmentService = useMemo(() => {
-        if (!order) return undefined;
-
-        // TODO: remove this hardcoded value
-        const externalUrl = `https://${checkAndGetEnvironmentVariable(ICP.CANISTER_ID_STORAGE)}.localhost:4943/organization/0/transactions/${order.id}`;
-        return new ShipmentService(new ShipmentDriver(identity, entityManagerCanisterId), fileDriver, externalUrl);
-    }, [identity, order]);
-
     // Update shipments when order trades change
     useEffect(() => {
         if (order) loadData();
     }, [order]);
+
+    const shipmentService = useMemo(() => {
+        // TODO: remove this hardcoded value
+        const externalUrl = `https://${checkAndGetEnvironmentVariable(ICP.CANISTER_ID_STORAGE)}.localhost:4943/organization/0/transactions/${order?.id}`;
+        return new ShipmentService(new ShipmentDriver(identity, entityManagerCanisterId), fileDriver, externalUrl);
+    }, [identity, order]);
 
     const loadData = async () => {
         if (!shipmentService || !order || !order.shipment) return;
@@ -136,6 +133,8 @@ export function ShipmentProvider(props: { children: ReactNode }) {
         }, SHIPMENT_MESSAGE.RETRIEVE.LOADING);
         setDataLoaded(true);
     };
+
+    const tokenService = useMemo(() => new TokenService(new TokenDriver(signer, CONTRACT_ADDRESSES.TOKEN())), [signer]);
 
     const writeTransaction = async (transaction: () => Promise<Shipment>, shipmentMessage: ShipmentMessage) => {
         await handleICPCall(async () => {
@@ -316,6 +315,12 @@ export function ShipmentProvider(props: { children: ReactNode }) {
         await writeTransaction(() => shipmentService.rejectDocument(detailShipment.shipment.id, documentId), SHIPMENT_MESSAGE.REJECT_DOCUMENT);
     };
 
+    const getShipmentPhaseAsync = async (orderId: number): Promise<ShipmentPhase | null> => {
+        const order = await orderService.getOrder(orderId);
+        if (!order.shipment) return null;
+        return await shipmentService.getShipmentPhase(order.shipment.id);
+    };
+
     return (
         <ShipmentContext.Provider
             value={{
@@ -336,7 +341,8 @@ export function ShipmentProvider(props: { children: ReactNode }) {
                 getDocument,
                 addDocument,
                 approveDocument,
-                rejectDocument
+                rejectDocument,
+                getShipmentPhaseAsync
             }}>
             {props.children}
         </ShipmentContext.Provider>

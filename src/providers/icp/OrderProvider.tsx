@@ -1,10 +1,5 @@
 import React, { createContext, useMemo, useState } from 'react';
-import {
-    Order,
-    OrderDriver,
-    OrderParams,
-    OrderService
-} from '@kbc-lib/coffee-trading-management-lib';
+import { Order, OrderDriver, OrderParams, OrderService } from '@kbc-lib/coffee-trading-management-lib';
 import { useSiweIdentity } from '@/providers/SiweIdentityProvider';
 import { Typography } from 'antd';
 import { checkAndGetEnvironmentVariable } from '@/utils/env';
@@ -19,6 +14,7 @@ export type OrderContextState = {
     dataLoaded: boolean;
     orders: Order[];
     order: Order | null;
+    orderService: OrderService;
     loadData: () => Promise<void>;
     create: (params: OrderParams) => Promise<void>;
     update: (params: OrderParams) => Promise<void>;
@@ -44,17 +40,14 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
         return <Typography.Text>Siwe identity not initialized</Typography.Text>;
     }
 
-    const orderService = useMemo(
-        () => new OrderService(new OrderDriver(identity, entityManagerCanisterId)),
-        [identity]
-    );
+    const orderService = useMemo(() => new OrderService(new OrderDriver(identity, entityManagerCanisterId)), [identity]);
 
     const loadData = async () => {
         await loadOrders();
         setDataLoaded(true);
     };
 
-    const order = orders.find((order) => order.id === Number(id)) || null;
+    const order = useMemo(() => orders.find((order) => order.id === Number(id)) || null, [orders, id]);
 
     const loadOrders = async () => {
         if (!orderService) return;
@@ -68,12 +61,7 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
         await handleICPCall(async () => {
             await transaction();
             await loadOrders();
-            openNotification(
-                'Success',
-                message.OK,
-                NotificationType.SUCCESS,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Success', message.OK, NotificationType.SUCCESS, NOTIFICATION_DURATION);
         }, message.LOADING);
     };
 
@@ -86,18 +74,12 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
         if (!orderService) throw new Error('Order service not initialized');
         if (!order) throw new Error('Order not found');
 
-        await writeTransaction(
-            () => orderService.updateOrder(order.id, params),
-            ORDER_TRADE_MESSAGE.UPDATE
-        );
+        await writeTransaction(() => orderService.updateOrder(order.id, params), ORDER_TRADE_MESSAGE.UPDATE);
     };
 
     const sign = async (id: number) => {
         if (!orderService) throw new Error('Order service not initialized');
-        await writeTransaction(
-            () => orderService.signOrder(id),
-            ORDER_TRADE_MESSAGE.CONFIRM_NEGOTIATION
-        );
+        await writeTransaction(() => orderService.signOrder(id), ORDER_TRADE_MESSAGE.CONFIRM_NEGOTIATION);
     };
 
     return (
@@ -106,6 +88,7 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
                 dataLoaded,
                 orders,
                 order,
+                orderService,
                 loadData,
                 create,
                 update,
