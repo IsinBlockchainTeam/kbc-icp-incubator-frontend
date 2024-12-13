@@ -9,7 +9,7 @@ import dayjs from 'dayjs';
 import { paths } from '@/constants/paths';
 import { useCertification } from '@/providers/icp/CertificationProvider';
 import { useEnumeration } from '@/providers/icp/EnumerationProvider';
-import { ICPCertificateDocumentType } from '../../../../../../coffee-trading-management-lib/src/index';
+import { ICPCertificateDocumentType } from '@kbc-lib/coffee-trading-management-lib';
 
 jest.mock('@/providers/SignerProvider');
 jest.mock('react-router-dom');

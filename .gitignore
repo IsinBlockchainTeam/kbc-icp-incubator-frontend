@@ -10,5 +10,3 @@ junit.xml
 .idea
 
 .npmrc
-
-package-lock.json
