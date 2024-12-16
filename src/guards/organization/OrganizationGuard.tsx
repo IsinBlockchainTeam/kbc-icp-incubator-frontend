@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { useOrganization } from '@/providers/entities/icp/OrganizationProvider';
 import { paths } from '@/constants/paths';
 import SyncDataLoader from '../../data-loaders/SyncDataLoader';
@@ -8,9 +8,14 @@ import { RootState } from '@/redux/store';
 import { MenuLayout } from '@/components/structure/MenuLayout/MenuLayout';
 import { BasicLayout } from '@/components/structure/BasicLayout/BasicLayout';
 
-const OrganizationGuard = () => {
+type Props = {
+    children?: ReactNode;
+};
+
+const OrganizationGuard = ({ children }: Props) => {
+    const { getOrganization, dataLoaded } = useOrganization();
+
     const isOrganizationOnIcp = () => {
-        const { getOrganization } = useOrganization();
         const userInfo = useSelector((state: RootState) => state.userInfo);
 
         const organizationEthAddress = userInfo.roleProof.delegator;
@@ -24,14 +29,18 @@ const OrganizationGuard = () => {
         }
     };
 
+    const LoadingLayout = !dataLoaded ? BasicLayout : <></>;
+
     const Layout = isOrganizationOnIcp() ? MenuLayout : BasicLayout;
 
     return (
+        // <LoadingLayout>
         <SyncDataLoader customUseContext={useOrganization}>
             <NavigationBlocker condition={isOrganizationOnIcp} redirectPath={paths.PROFILE}>
-                <Layout />
+                <Layout>{children}</Layout>
             </NavigationBlocker>
         </SyncDataLoader>
+        // </LoadingLayout>
     );
 };
 

@@ -1,5 +1,5 @@
 import { Layout, Spin, theme } from 'antd';
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { Outlet } from 'react-router-dom';
 import styles from './ContentLayout.module.scss';
 import { useSelector } from 'react-redux';
@@ -8,7 +8,11 @@ import loadingLogo from '@/assets/coffee-loading.gif';
 
 const { Content, Footer } = Layout;
 
-export const ContentLayout = () => {
+type Props = {
+    children?: ReactNode;
+};
+
+export const ContentLayout = ({ children }: Props) => {
     const {
         token: { colorBgContainer }
     } = theme.useToken();
@@ -36,7 +40,7 @@ export const ContentLayout = () => {
                     tip={Object.keys(loading.loadingMessages).map((msg) => (
                         <div key={msg}>{msg}</div>
                     ))}>
-                    <Outlet />
+                    {children ? children : <Outlet />}
                 </Spin>
             </Content>
             <Footer style={{ textAlign: 'center' }}>Coffe Trading platform ©2024 Created by ISIN</Footer>

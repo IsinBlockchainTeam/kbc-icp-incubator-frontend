@@ -1,5 +1,5 @@
 import { Avatar, Layout, Menu, MenuProps } from 'antd';
-import React, { useState } from 'react';
+import React, { ReactNode, useState } from 'react';
 import {
     AuditOutlined,
     CloudDownloadOutlined,
@@ -67,7 +67,11 @@ const getUserItemLoggedIn = (name: string, picture: string, dispatch: any, disco
     ])
 ];
 
-export const MenuLayout = () => {
+type Props = {
+    children?: ReactNode;
+};
+
+export const MenuLayout = ({ children }: Props) => {
     const { disconnect } = useWalletConnect();
     const location = useLocation();
     const navigate = useNavigate();
@@ -116,7 +120,7 @@ export const MenuLayout = () => {
                 </div>
             </Sider>
 
-            <ContentLayout />
+            <ContentLayout>{children}</ContentLayout>
         </>
     );
 };
