@@ -1,6 +1,6 @@
 import React from 'react';
 import { act, render } from '@testing-library/react';
-import { MenuLayout } from '../MenuLayout';
+import { PageLayout } from '../PageLayout';
 import { Provider } from 'react-redux';
 import { store } from '@/redux/store';
 import { MemoryRouter } from 'react-router-dom';
@@ -32,7 +32,7 @@ describe('MenuLayout', () => {
                     v7_relativeSplatPath: true
                 }}>
                 <Provider store={store}>
-                    <MenuLayout />
+                    <PageLayout />
                 </Provider>
             </MemoryRouter>
         );
@@ -46,7 +46,6 @@ describe('MenuLayout', () => {
         expect(primaryMenuItems[3].key).toBe(paths.PARTNERS);
         expect(primaryMenuItems[4].key).toBe(paths.OFFERS);
         expect(primaryMenuItems[5].key).toBe(paths.CERTIFICATIONS);
-
 
         const secondaryMenuItems = mockedMenu.mock.calls[1][0].items;
         expect(secondaryMenuItems).toHaveLength(1);
@@ -75,7 +74,7 @@ describe('MenuLayout', () => {
                     v7_relativeSplatPath: true
                 }}>
                 <Provider store={store}>
-                    <MenuLayout />
+                    <PageLayout />
                 </Provider>
             </MemoryRouter>
         );

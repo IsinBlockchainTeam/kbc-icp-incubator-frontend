@@ -17,8 +17,8 @@ import { ShipmentProvider } from '@/providers/icp/ShipmentProvider';
 import { CallHandlerProvider } from '@/providers/icp/CallHandlerProvider';
 import { AuthenticationProvider } from '@/providers/icp/AuthenticationProvider';
 import { ProductCategoryProvider } from '@/providers/icp/ProductCategoryProvider';
-import NavigationBlocker from './NavigationBlocker';
-import SyncDataLoader from './dataLoaders/SyncDataLoader';
+import NavigationBlocker from '../../NavigationBlocker';
+import SyncDataLoader from '../../dataLoaders/SyncDataLoader';
 import { CertificationProvider } from '@/providers/icp/CertificationProvider';
 
 jest.mock('react-router-dom');
@@ -36,8 +36,8 @@ jest.mock('@/providers/icp/ShipmentProvider');
 jest.mock('@/providers/entities/EthDownPaymentProvider');
 jest.mock('@/providers/icp/CallHandlerProvider');
 jest.mock('@/providers/icp/AuthenticationProvider');
-jest.mock('./NavigationBlocker');
-jest.mock('./dataLoaders/SyncDataLoader');
+jest.mock('../../NavigationBlocker');
+jest.mock('../../dataLoaders/SyncDataLoader');
 jest.mock('@/providers/icp/CertificationProvider');
 
 describe('PrivateRoutes', () => {

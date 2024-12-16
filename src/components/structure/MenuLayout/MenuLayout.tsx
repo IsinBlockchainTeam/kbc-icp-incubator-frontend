@@ -1,4 +1,4 @@
-import { Avatar, Layout, Menu, MenuProps, Spin, theme } from 'antd';
+import { Avatar, Layout, Menu, MenuProps } from 'antd';
 import React, { useState } from 'react';
 import {
     AuditOutlined,
@@ -11,7 +11,7 @@ import {
     UserOutlined,
     FileDoneOutlined
 } from '@ant-design/icons';
-import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { defaultPictureURL } from '@/constants/misc';
 import KBCLogo from '@/assets/logo.png';
 import styles from './MenuLayout.module.scss';
@@ -21,9 +21,9 @@ import { resetUserInfo } from '@/redux/reducers/userInfoSlice';
 import { clearSiweIdentity } from '@/redux/reducers/siweIdentitySlice';
 import { paths } from '@/constants/paths';
 import { useWalletConnect } from '@/providers/WalletConnectProvider';
-import loadingLogo from '@/assets/coffee-loading.gif';
+import { ContentLayout } from '@/components/structure/ContentLayout/ContentLayout';
 
-const { Content, Footer, Sider } = Layout;
+const { Sider } = Layout;
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -54,31 +54,17 @@ const blockchainItems: MenuItem[] = [
     getItem('Certifications', paths.CERTIFICATIONS, <FileDoneOutlined />)
 ];
 
-const settingItems: MenuItem[] = [
-    getItem('Settings', 'settings', <SettingOutlined />, [
-        getItem('Login', paths.LOGIN, <UserOutlined />)
-    ])
-];
+const settingItems: MenuItem[] = [getItem('Settings', 'settings', <SettingOutlined />, [getItem('Login', paths.LOGIN, <UserOutlined />)])];
 
-const getUserItemLoggedIn = (
-    name: string,
-    picture: string,
-    dispatch: any,
-    disconnect: () => void
-) => [
-    getItem(
-        `${name}`,
-        'profile',
-        <Avatar size={30} style={{ verticalAlign: 'middle', margin: '-6px' }} src={picture} />,
-        [
-            getItem('Profile', paths.PROFILE, <UserOutlined />),
-            getItem('Logout', paths.LOGIN, <LogoutOutlined />, undefined, undefined, () => {
-                dispatch(resetUserInfo());
-                dispatch(clearSiweIdentity());
-                disconnect();
-            })
-        ]
-    )
+const getUserItemLoggedIn = (name: string, picture: string, dispatch: any, disconnect: () => void) => [
+    getItem(`${name}`, 'profile', <Avatar size={30} style={{ verticalAlign: 'middle', margin: '-6px' }} src={picture} />, [
+        getItem('Profile', paths.PROFILE, <UserOutlined />),
+        getItem('Logout', paths.LOGIN, <LogoutOutlined />, undefined, undefined, () => {
+            dispatch(resetUserInfo());
+            dispatch(clearSiweIdentity());
+            disconnect();
+        })
+    ])
 ];
 
 export const MenuLayout = () => {
@@ -86,90 +72,51 @@ export const MenuLayout = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const [collapsed, setCollapsed] = useState<boolean>(false);
-    const {
-        token: { colorBgContainer }
-    } = theme.useToken();
+
     const dispatch = useDispatch();
 
     const userInfo = useSelector((state: RootState) => state.userInfo);
-    const loading = useSelector((state: RootState) => state.loading);
 
     // @ts-ignore
     const onMenuClick = ({ key }) => {
         navigate(key);
     };
 
+    const getMenuItems = () => {
+        return (
+            <div className={styles.MenuContainer}>
+                <Menu theme="dark" mode="inline" items={blockchainItems} selectedKeys={[location.pathname]} onClick={onMenuClick} />
+                <Menu
+                    theme="dark"
+                    mode="vertical"
+                    items={
+                        userInfo.isLogged
+                            ? getUserItemLoggedIn(
+                                  userInfo.employeeClaims.lastName + ', ' + userInfo.companyClaims.legalName,
+                                  userInfo.employeeClaims.image || defaultPictureURL,
+                                  dispatch,
+                                  disconnect
+                              )
+                            : settingItems
+                    }
+                    onClick={onMenuClick}
+                />
+            </div>
+        );
+    };
+
     return (
-        <Layout className={styles.AppContainer}>
-            <Sider
-                width="max(250px, 12vw)"
-                collapsible
-                collapsed={collapsed}
-                onCollapse={(value) => setCollapsed(value)}>
-                {/*<div className="demo-logo-vertical" />*/}
+        <>
+            <Sider width="max(250px, 12vw)" collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
                 <div className={styles.Sidebar}>
                     <Link to={paths.HOME} className={styles.LogoContainer}>
-                        <img
-                            alt="KBC-Logo"
-                            src={KBCLogo}
-                            className={`${collapsed ? styles.LogoCollapsed : styles.Logo}`}
-                        />
+                        <img alt="KBC-Logo" src={KBCLogo} className={`${collapsed ? styles.LogoCollapsed : styles.Logo}`} />
                     </Link>
-                    <div className={styles.MenuContainer}>
-                        <Menu
-                            theme="dark"
-                            mode="inline"
-                            items={blockchainItems}
-                            selectedKeys={[location.pathname]}
-                            onClick={onMenuClick}
-                        />
-                        <Menu
-                            theme="dark"
-                            mode="vertical"
-                            items={
-                                userInfo.isLogged
-                                    ? getUserItemLoggedIn(
-                                          userInfo.employeeClaims.lastName +
-                                              ', ' +
-                                              userInfo.companyClaims.legalName,
-                                          userInfo.employeeClaims.image || defaultPictureURL,
-                                          dispatch,
-                                          disconnect
-                                      )
-                                    : settingItems
-                            }
-                            onClick={onMenuClick}
-                        />
-                    </div>
+                    {getMenuItems()}
                 </div>
             </Sider>
-            <Layout>
-                <Content className={styles.MainContent} style={{ background: colorBgContainer }}>
-                    <Spin
-                        indicator={
-                            <img
-                                src={loadingLogo}
-                                alt="loading..."
-                                style={{
-                                    width: 150,
-                                    height: 'auto',
-                                    marginLeft: -70,
-                                    marginTop: -100
-                                }}
-                            />
-                        }
-                        size={'large'}
-                        spinning={loading.isLoading}
-                        tip={Object.keys(loading.loadingMessages).map((msg) => (
-                            <div key={msg}>{msg}</div>
-                        ))}>
-                        <Outlet />
-                    </Spin>
-                </Content>
-                <Footer style={{ textAlign: 'center' }}>
-                    Coffe Trading platform ©2024 Created by ISIN
-                </Footer>
-            </Layout>
-        </Layout>
+
+            <ContentLayout />
+        </>
     );
 };
