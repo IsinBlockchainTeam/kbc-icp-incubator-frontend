@@ -10,11 +10,11 @@ import {
     TokenService
 } from '@kbc-lib/coffee-trading-management-lib';
 import React, { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
-import { useSigner } from '@/providers/SignerProvider';
-import { useOrder } from '@/providers/icp/OrderProvider';
-import { useEthDownPayment } from '@/providers/entities/EthDownPaymentProvider';
-import { useICP } from '@/providers/ICPProvider';
-import { useSiweIdentity } from '@/providers/SiweIdentityProvider';
+import { useSigner } from '@/providers/auth/SignerProvider';
+import { useOrder } from '@/providers/entities/icp/OrderProvider';
+import { useEthDownPayment } from '@/providers/entities/evm/EthDownPaymentProvider';
+import { useICP } from '@/providers/storage/IcpStorageProvider';
+import { useSiweIdentity } from '@/providers/auth/SiweIdentityProvider';
 import { checkAndGetEnvironmentVariable } from '@/utils/env';
 import { ICP } from '@/constants/icp';
 import { Typography } from 'antd';
@@ -26,7 +26,7 @@ import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { getMimeType } from '@/utils/file';
-import { useCallHandler } from '@/providers/icp/CallHandlerProvider';
+import { useCallHandler } from '@/providers/errors/CallHandlerProvider';
 
 export type ShipmentContextState = {
     dataLoaded: boolean;

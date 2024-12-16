@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, InputNumber, InputNumberProps, Modal, Skeleton } from 'antd';
-import { useEthDownPayment } from '@/providers/entities/EthDownPaymentProvider';
+import { useEthDownPayment } from '@/providers/entities/evm/EthDownPaymentProvider';
 
 type WithdrawModalProps = {
     isOpen: boolean;

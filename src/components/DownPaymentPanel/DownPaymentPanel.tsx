@@ -1,13 +1,13 @@
 import { Card, Col, Divider, Flex, Image, Row, Tag, Typography } from 'antd';
 import React, { useEffect } from 'react';
-import { useEthDownPayment } from '@/providers/entities/EthDownPaymentProvider';
+import { useEthDownPayment } from '@/providers/entities/evm/EthDownPaymentProvider';
 import { DepositModal } from '@/components/DownPaymentPanel/DepositModal';
 import { WithdrawModal } from '@/components/DownPaymentPanel/WithdrawModal';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { credentials } from '@/constants/ssi';
 import { FundStatus } from '@kbc-lib/coffee-trading-management-lib';
-import { useShipment } from '@/providers/icp/ShipmentProvider';
+import { useShipment } from '@/providers/entities/icp/ShipmentProvider';
 import { DownloadOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
 
 const { Paragraph, Text } = Typography;

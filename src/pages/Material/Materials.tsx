@@ -6,8 +6,8 @@ import { PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { Material, ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
 import { paths } from '@/constants/paths';
-import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';
-import { useMaterial } from '@/providers/icp/MaterialProvider';
+import { useProductCategory } from '@/providers/entities/icp/ProductCategoryProvider';
+import { useMaterial } from '@/providers/entities/icp/MaterialProvider';
 
 export const Materials = () => {
     const { productCategories } = useProductCategory();
@@ -70,11 +70,7 @@ export const Materials = () => {
                         </div>
                     </div>
                 }>
-                <Table
-                    columns={productCategoriesColumns}
-                    dataSource={productCategories}
-                    rowKey="id"
-                />
+                <Table columns={productCategoriesColumns} dataSource={productCategories} rowKey="id" />
             </CardPage>
             <div style={{ height: '16px' }} />
             <CardPage
@@ -87,10 +83,7 @@ export const Materials = () => {
                         }}>
                         Your Materials
                         <div>
-                            <Button
-                                type="primary"
-                                icon={<PlusOutlined />}
-                                onClick={() => navigate(paths.MATERIAL_NEW)}>
+                            <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate(paths.MATERIAL_NEW)}>
                                 New Material
                             </Button>
                         </div>

@@ -1,4 +1,4 @@
-import { useWalletConnect, WalletConnectProvider } from '@/providers/WalletConnectProvider';
+import { useWalletConnect, WalletConnectProvider } from '@/providers/auth/WalletConnectProvider';
 import { act, render, renderHook, screen } from '@testing-library/react';
 import { createEthereumProvider } from '@/utils/walletConnect';
 import EthereumProvider from '@walletconnect/ethereum-provider';

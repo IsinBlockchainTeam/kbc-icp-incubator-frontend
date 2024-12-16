@@ -10,9 +10,9 @@ import { CertificateDocumentNames } from '@/constants/certificationDocument';
 import { ICPCertificateDocumentType } from '@kbc-lib/coffee-trading-management-lib';
 import { validateDates } from '@/utils/date';
 import dayjs from 'dayjs';
-import { useSigner } from '@/providers/SignerProvider';
-import { CompanyCertificateRequest, useCertification } from '@/providers/icp/CertificationProvider';
-import { useEnumeration } from '@/providers/icp/EnumerationProvider';
+import { useSigner } from '@/providers/auth/SignerProvider';
+import { CompanyCertificateRequest, useCertification } from '@/providers/entities/icp/CertificationProvider';
+import { useEnumeration } from '@/providers/entities/icp/EnumerationProvider';
 
 export const CompanyCertificateNew = (props: CertificateNewProps) => {
     const { commonElements } = props;

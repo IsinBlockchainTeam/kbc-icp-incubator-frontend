@@ -11,7 +11,7 @@ import { ShipmentConfirmation } from '@/components/ShipmentPanel/phase/ShipmentC
 import { Result } from '@/components/ShipmentPanel/phase/Result';
 import { SampleApproval } from '@/components/ShipmentPanel/phase/SampleApproval';
 import { ShipmentPhaseDisplayName } from '@/constants/shipmentPhase';
-import { useShipment } from '@/providers/icp/ShipmentProvider';
+import { useShipment } from '@/providers/entities/icp/ShipmentProvider';
 
 export const ShipmentPanel = () => {
     const { detailedShipment } = useShipment();

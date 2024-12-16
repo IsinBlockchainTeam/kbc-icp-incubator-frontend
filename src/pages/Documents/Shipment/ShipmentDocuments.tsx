@@ -12,9 +12,9 @@ import { credentials } from '@/constants/ssi';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { ShipmentPhaseDisplayName } from '@/constants/shipmentPhase';
-import { DetailedShipment, useShipment } from '@/providers/icp/ShipmentProvider';
-import { useOrder } from '@/providers/icp/OrderProvider';
-import { useOrganization } from '@/providers/icp/OrganizationProvider';
+import { DetailedShipment, useShipment } from '@/providers/entities/icp/ShipmentProvider';
+import { useOrder } from '@/providers/entities/icp/OrderProvider';
+import { useOrganization } from '@/providers/entities/icp/OrganizationProvider';
 
 type SelectedOrder = {
     order: Order | null;

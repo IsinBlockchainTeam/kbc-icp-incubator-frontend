@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
 import { regex } from '@/constants/regex';
 import dayjs from 'dayjs';
-import { useSigner } from '@/providers/SignerProvider';
+import { useSigner } from '@/providers/auth/SignerProvider';
 import { paths } from '@/constants/paths';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircleOutlined, EditOutlined, FilePdfOutlined, RollbackOutlined } from '@ant-design/icons';
@@ -12,9 +12,9 @@ import { validateDates } from '@/utils/date';
 import useOrderGenerator, { OrderSpec } from '@/hooks/documentGenerator/useOrderGenerator';
 import PDFGenerationView from '@/components/PDFViewer/PDFGenerationView';
 import { incotermsMap } from '@/constants/trade';
-import { useOrder } from '@/providers/icp/OrderProvider';
-import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';
-import { useEnumeration } from '@/providers/icp/EnumerationProvider';
+import { useOrder } from '@/providers/entities/icp/OrderProvider';
+import { useProductCategory } from '@/providers/entities/icp/ProductCategoryProvider';
+import { useEnumeration } from '@/providers/entities/icp/EnumerationProvider';
 
 type OrderTradeViewProps = {
     disabled: boolean;

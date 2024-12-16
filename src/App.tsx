@@ -6,8 +6,7 @@ import { Provider as ReduxProvider } from 'react-redux/es/exports';
 import { persistor, store } from '@/redux/store';
 import { PersistGate } from 'redux-persist/integration/react';
 import { PageLayout } from '@/components/structure/PageLayout/PageLayout';
-import { WalletConnectProvider } from '@/providers/WalletConnectProvider';
-import { MenuLayout } from '@/components/structure/MenuLayout/MenuLayout';
+import { WalletConnectProvider } from '@/providers/auth/WalletConnectProvider';
 import { BasicLayout } from '@/components/structure/BasicLayout/BasicLayout';
 import publicRoutes from './routes/public/public.routes';
 import privateRoutes from './routes/private/private.routes';
@@ -21,9 +20,7 @@ export const App = () => {
                         <WalletConnectProvider>
                             <Routes>
                                 <Route element={<PageLayout />}>
-                                    <Route element={<PrivateRoutes />}>
-                                        <Route element={<MenuLayout />}>{privateRoutes}</Route>
-                                    </Route>
+                                    <Route element={<PrivateRoutes />}>{privateRoutes}</Route>
                                     <Route element={<BasicLayout />}>{publicRoutes}</Route>
                                 </Route>
                             </Routes>

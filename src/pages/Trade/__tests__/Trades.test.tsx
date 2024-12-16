@@ -4,9 +4,9 @@ import { Table, Tag } from 'antd';
 import { NegotiationStatus, Order, TradeType } from '@kbc-lib/coffee-trading-management-lib';
 import { Link } from 'react-router-dom';
 import { AsyncComponent } from '@/components/AsyncComponent/AsyncComponent';
-import { useOrder } from '@/providers/icp/OrderProvider';
-import { useOrganization } from '@/providers/icp/OrganizationProvider';
-import { useShipment } from '@/providers/icp/ShipmentProvider';
+import { useOrder } from '@/providers/entities/icp/OrderProvider';
+import { useOrganization } from '@/providers/entities/icp/OrganizationProvider';
+import { useShipment } from '@/providers/entities/icp/ShipmentProvider';
 
 jest.mock('antd', () => {
     return {
@@ -16,9 +16,9 @@ jest.mock('antd', () => {
         Tooltip: jest.fn()
     };
 });
-jest.mock('@/providers/icp/OrderProvider');
-jest.mock('@/providers/icp/OrganizationProvider');
-jest.mock('@/providers/icp/ShipmentProvider');
+jest.mock('@/providers/entities/icp/OrderProvider');
+jest.mock('@/providers/entities/icp/OrganizationProvider');
+jest.mock('@/providers/entities/icp/ShipmentProvider');
 jest.mock('@/utils/page');
 jest.mock('react-router-dom', () => {
     return {

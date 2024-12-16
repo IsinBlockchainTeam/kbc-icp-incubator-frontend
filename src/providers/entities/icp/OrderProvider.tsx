@@ -1,6 +1,6 @@
 import React, { createContext, useMemo, useState } from 'react';
 import { Order, OrderDriver, OrderParams, OrderService } from '@kbc-lib/coffee-trading-management-lib';
-import { useSiweIdentity } from '@/providers/SiweIdentityProvider';
+import { useSiweIdentity } from '@/providers/auth/SiweIdentityProvider';
 import { Typography } from 'antd';
 import { checkAndGetEnvironmentVariable } from '@/utils/env';
 import { ICP } from '@/constants/icp';
@@ -8,7 +8,7 @@ import { useParams } from 'react-router-dom';
 import { ORDER_TRADE_MESSAGE, OrderMessage } from '@/constants/message';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
-import { useCallHandler } from '@/providers/icp/CallHandlerProvider';
+import { useCallHandler } from '@/providers/errors/CallHandlerProvider';
 
 export type OrderContextState = {
     dataLoaded: boolean;

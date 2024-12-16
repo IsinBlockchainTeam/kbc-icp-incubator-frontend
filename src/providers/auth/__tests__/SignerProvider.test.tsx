@@ -3,13 +3,13 @@ import { act, render, renderHook, screen } from '@testing-library/react';
 import { SignerProvider, useSigner } from '../SignerProvider';
 import { ethers } from 'ethers';
 import { JsonRpcSigner } from '@ethersproject/providers';
-import { useWalletConnect } from '@/providers/WalletConnectProvider';
+import { useWalletConnect } from '@/providers/auth/WalletConnectProvider';
 import EthereumProvider from '@walletconnect/ethereum-provider';
 import { useDispatch } from 'react-redux';
 
 jest.mock('ethers');
 jest.mock('@ethersproject/providers');
-jest.mock('@/providers/WalletConnectProvider');
+jest.mock('@/providers/auth/WalletConnectProvider');
 jest.mock('react-redux');
 
 jest.mock('@walletconnect/ethereum-provider', () => jest.fn());
@@ -63,9 +63,7 @@ describe('SignerProvider', () => {
         expect(mockGetSigner).toHaveBeenCalled();
     });
     it('provides signer via context when user is logged in', async () => {
-        const { result } = await act(async () =>
-            renderHook(() => useSigner(), { wrapper: SignerProvider })
-        );
+        const { result } = await act(async () => renderHook(() => useSigner(), { wrapper: SignerProvider }));
         expect(result.current.signer).toEqual(mockSigner);
         expect(mockGetSigner).toHaveBeenCalled();
     });

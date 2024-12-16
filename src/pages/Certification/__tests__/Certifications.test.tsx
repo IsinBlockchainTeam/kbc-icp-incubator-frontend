@@ -5,11 +5,11 @@ import { ICPCertificateType } from '@kbc-lib/coffee-trading-management-lib';
 import { Table, Tag } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
 import DropdownButton from 'antd/es/dropdown/dropdown-button';
-import { useCertification } from '@/providers/icp/CertificationProvider';
-import { useOrganization } from '@/providers/icp/OrganizationProvider';
+import { useCertification } from '@/providers/entities/icp/CertificationProvider';
+import { useOrganization } from '@/providers/entities/icp/OrganizationProvider';
 
-jest.mock('@/providers/icp/OrganizationProvider');
-jest.mock('@/providers/icp/CertificationProvider');
+jest.mock('@/providers/entities/icp/OrganizationProvider');
+jest.mock('@/providers/entities/icp/CertificationProvider');
 jest.mock('react-router-dom', () => {
     return {
         ...jest.requireActual('react-router-dom'),

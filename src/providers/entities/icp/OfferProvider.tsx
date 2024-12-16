@@ -1,13 +1,13 @@
 import React, { createContext, ReactNode, useMemo, useState } from 'react';
 import { ICPOfferDriver, ICPOfferService, Offer } from '@kbc-lib/coffee-trading-management-lib';
-import { useSiweIdentity } from '@/providers/SiweIdentityProvider';
+import { useSiweIdentity } from '@/providers/auth/SiweIdentityProvider';
 import { checkAndGetEnvironmentVariable } from '@/utils/env';
 import { ICP } from '@/constants/icp';
 import { Typography } from 'antd';
 import { OFFER_MESSAGE, PRODUCT_CATEGORY_MESSAGE } from '@/constants/message';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
-import { useCallHandler } from '@/providers/icp/CallHandlerProvider';
+import { useCallHandler } from '@/providers/errors/CallHandlerProvider';
 
 export type OfferContextState = {
     dataLoaded: boolean;
@@ -34,10 +34,7 @@ export function OfferProvider(props: { children: ReactNode }) {
         return <Typography.Text>Siwe identity not initialized</Typography.Text>;
     }
 
-    const offerService = useMemo(
-        () => new ICPOfferService(new ICPOfferDriver(identity, entityManagerCanisterId)),
-        [identity]
-    );
+    const offerService = useMemo(() => new ICPOfferService(new ICPOfferDriver(identity, entityManagerCanisterId)), [identity]);
 
     const loadData = async () => {
         await loadOffers();
@@ -54,12 +51,7 @@ export function OfferProvider(props: { children: ReactNode }) {
     const saveOffer = async (productCategoryId: number) => {
         await handleICPCall(async () => {
             await offerService.createOffer(productCategoryId);
-            openNotification(
-                'Success',
-                PRODUCT_CATEGORY_MESSAGE.SAVE.OK,
-                NotificationType.SUCCESS,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Success', PRODUCT_CATEGORY_MESSAGE.SAVE.OK, NotificationType.SUCCESS, NOTIFICATION_DURATION);
             await loadOffers();
         }, OFFER_MESSAGE.SAVE.LOADING);
     };

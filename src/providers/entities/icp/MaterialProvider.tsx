@@ -1,10 +1,6 @@
 import React, { createContext, ReactNode, useMemo, useState } from 'react';
-import {
-    ICPMaterialDriver,
-    ICPMaterialService,
-    Material
-} from '@kbc-lib/coffee-trading-management-lib';
-import { useSiweIdentity } from '@/providers/SiweIdentityProvider';
+import { ICPMaterialDriver, ICPMaterialService, Material } from '@kbc-lib/coffee-trading-management-lib';
+import { useSiweIdentity } from '@/providers/auth/SiweIdentityProvider';
 import { Typography } from 'antd';
 import { checkAndGetEnvironmentVariable } from '@/utils/env';
 import { ICP } from '@/constants/icp';
@@ -13,7 +9,7 @@ import { MATERIAL_MESSAGE } from '@/constants/message';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { useDispatch } from 'react-redux';
-import { useCallHandler } from '@/providers/icp/CallHandlerProvider';
+import { useCallHandler } from '@/providers/errors/CallHandlerProvider';
 
 export type MaterialContextState = {
     dataLoaded: boolean;
@@ -41,10 +37,7 @@ export function MaterialProvider(props: { children: ReactNode }) {
         return <Typography.Text>Siwe identity not initialized</Typography.Text>;
     }
 
-    const materialService = useMemo(
-        () => new ICPMaterialService(new ICPMaterialDriver(identity, entityManagerCanisterId)),
-        [identity]
-    );
+    const materialService = useMemo(() => new ICPMaterialService(new ICPMaterialDriver(identity, entityManagerCanisterId)), [identity]);
 
     const loadData = async () => {
         await loadMaterials();
@@ -62,21 +55,11 @@ export function MaterialProvider(props: { children: ReactNode }) {
         try {
             dispatch(addLoadingMessage(MATERIAL_MESSAGE.SAVE.LOADING));
             await materialService.createMaterial(productCategoryId);
-            openNotification(
-                'Success',
-                MATERIAL_MESSAGE.SAVE.OK,
-                NotificationType.SUCCESS,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Success', MATERIAL_MESSAGE.SAVE.OK, NotificationType.SUCCESS, NOTIFICATION_DURATION);
             await loadMaterials();
         } catch (e: any) {
             console.log('Error while saving material', e);
-            openNotification(
-                'Error',
-                MATERIAL_MESSAGE.SAVE.ERROR,
-                NotificationType.ERROR,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Error', MATERIAL_MESSAGE.SAVE.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
             dispatch(removeLoadingMessage(MATERIAL_MESSAGE.SAVE.LOADING));
         }

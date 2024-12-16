@@ -3,7 +3,7 @@ import { createContext, type ReactNode } from 'react';
 import { ethers } from 'ethers';
 import { Typography } from 'antd';
 import { JsonRpcSigner } from '@ethersproject/providers';
-import { useWalletConnect } from '@/providers/WalletConnectProvider';
+import { useWalletConnect } from '@/providers/auth/WalletConnectProvider';
 import { useDispatch } from 'react-redux';
 import { LOGIN_MESSAGE } from '@/constants/message';
 import { removeLoadingMessage } from '@/redux/reducers/loadingSlice';

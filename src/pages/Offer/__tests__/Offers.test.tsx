@@ -6,14 +6,14 @@ import { Offer, ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
 import { useSelector } from 'react-redux';
 import { credentials } from '@/constants/ssi';
 import { useNavigate } from 'react-router-dom';
-import { useOffer } from '@/providers/icp/OfferProvider';
-import { useOrganization } from '@/providers/icp/OrganizationProvider';
+import { useOffer } from '@/providers/entities/icp/OfferProvider';
+import { useOrganization } from '@/providers/entities/icp/OrganizationProvider';
 import { UserInfoState } from '@/redux/reducers/userInfoSlice';
 
 jest.mock('react-router-dom');
 jest.mock('@/utils/notification');
-jest.mock('@/providers/icp/OfferProvider');
-jest.mock('@/providers/icp/OrganizationProvider');
+jest.mock('@/providers/entities/icp/OfferProvider');
+jest.mock('@/providers/entities/icp/OrganizationProvider');
 jest.mock('react-redux');
 
 describe('Offers', () => {
@@ -122,10 +122,7 @@ describe('Offers', () => {
         let tableRows = screen.getAllByRole('row');
         expect(tableRows).toHaveLength(3);
 
-        userEvent.type(
-            screen.getByPlaceholderText('Search by product category'),
-            'Product Category 1'
-        );
+        userEvent.type(screen.getByPlaceholderText('Search by product category'), 'Product Category 1');
         act(() => {
             userEvent.click(screen.getByLabelText('search'));
         });

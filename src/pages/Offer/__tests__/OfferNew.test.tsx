@@ -5,21 +5,21 @@ import userEvent from '@testing-library/user-event';
 import { paths } from '@/constants/paths';
 import { credentials } from '@/constants/ssi';
 import { useSelector } from 'react-redux';
-import { useSigner } from '@/providers/SignerProvider';
+import { useSigner } from '@/providers/auth/SignerProvider';
 import { GenericForm } from '@/components/GenericForm/GenericForm';
 import { ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
 import { UserInfoState } from '@/redux/reducers/userInfoSlice';
 import { JsonRpcSigner } from '@ethersproject/providers';
-import { useOrganization } from '@/providers/icp/OrganizationProvider';
-import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';
-import { useOffer } from '@/providers/icp/OfferProvider';
+import { useOrganization } from '@/providers/entities/icp/OrganizationProvider';
+import { useProductCategory } from '@/providers/entities/icp/ProductCategoryProvider';
+import { useOffer } from '@/providers/entities/icp/OfferProvider';
 
 jest.mock('react-router-dom');
-jest.mock('@/providers/SignerProvider');
+jest.mock('@/providers/auth/SignerProvider');
 jest.mock('@/components/GenericForm/GenericForm');
-jest.mock('@/providers/icp/ProductCategoryProvider');
-jest.mock('@/providers/icp/OfferProvider');
-jest.mock('@/providers/icp/OrganizationProvider');
+jest.mock('@/providers/entities/icp/ProductCategoryProvider');
+jest.mock('@/providers/entities/icp/OfferProvider');
+jest.mock('@/providers/entities/icp/OrganizationProvider');
 jest.mock('react-redux');
 
 describe('Offers New', () => {
@@ -44,10 +44,7 @@ describe('Offers New', () => {
             getOrganization
         });
         (useProductCategory as jest.Mock).mockReturnValue({
-            productCategories: [
-                new ProductCategory(1, 'Product Category 1', 1, ''),
-                new ProductCategory(2, 'Product Category 2', 2, '')
-            ]
+            productCategories: [new ProductCategory(1, 'Product Category 1', 1, ''), new ProductCategory(2, 'Product Category 2', 2, '')]
         });
         (useOffer as jest.Mock).mockReturnValue({
             saveOffer

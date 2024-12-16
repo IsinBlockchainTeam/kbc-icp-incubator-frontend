@@ -6,7 +6,7 @@ import { generate } from '@pdfme/generator';
 import OrderTemplateSchema from '../../templates/transaction/pdf-schemas/OrderTemplateSchema.json';
 import { DOWN_PAYMENT_FEE } from '@/constants/misc';
 import { fixYPositions } from '@/hooks/documentGenerator/utils';
-import { useOrganization } from '@/providers/icp/OrganizationProvider';
+import { useOrganization } from '@/providers/entities/icp/OrganizationProvider';
 import { BroadedOrganization } from '@kbc-lib/coffee-trading-management-lib';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';

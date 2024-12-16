@@ -7,10 +7,10 @@ import { CertificateDocumentNames } from '@/constants/certificationDocument';
 import { ICPCompanyCertificate, ICPCertificateDocumentType } from '@kbc-lib/coffee-trading-management-lib';
 import { validateDates } from '@/utils/date';
 import dayjs from 'dayjs';
-import { useSigner } from '@/providers/SignerProvider';
-import { CompanyCertificateRequest, useCertification } from '@/providers/icp/CertificationProvider';
+import { useSigner } from '@/providers/auth/SignerProvider';
+import { CompanyCertificateRequest, useCertification } from '@/providers/entities/icp/CertificationProvider';
 import { CertificateViewProps } from '@/pages/Certification/View/CertificateView';
-import { useEnumeration } from '@/providers/icp/EnumerationProvider';
+import { useEnumeration } from '@/providers/entities/icp/EnumerationProvider';
 
 export const CompanyCertificateView = (props: CertificateViewProps) => {
     const { commonElements, editElements, detailedCertificate, disabled } = props;

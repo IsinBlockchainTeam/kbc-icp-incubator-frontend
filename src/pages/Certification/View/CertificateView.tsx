@@ -4,7 +4,7 @@ import { CompanyCertificateView } from '@/pages/Certification/View/CompanyCertif
 import { EditOutlined, RollbackOutlined } from '@ant-design/icons';
 import { ScopeCertificateView } from '@/pages/Certification/View/ScopeCertificateView';
 import { MaterialCertificateView } from '@/pages/Certification/View/MaterialCertificateView';
-import { DetailedCertificate, useCertification } from '@/providers/icp/CertificationProvider';
+import { DetailedCertificate, useCertification } from '@/providers/entities/icp/CertificationProvider';
 import { ICPCertificateType } from '@kbc-lib/coffee-trading-management-lib';
 
 export type CertificateViewProps = {
@@ -107,12 +107,6 @@ export const CertificateView = () => {
                 disabled={disabled}
             />
         ];
-        return certificatesViewByType[
-            Number(
-                Object.keys(ICPCertificateType).indexOf(
-                    detailedCertificate?.certificate.certificateType
-                )
-            )
-        ];
+        return certificatesViewByType[Number(Object.keys(ICPCertificateType).indexOf(detailedCertificate?.certificate.certificateType))];
     }
 };

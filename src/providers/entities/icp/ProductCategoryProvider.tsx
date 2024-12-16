@@ -1,17 +1,13 @@
 import React, { createContext, ReactNode, useMemo, useState } from 'react';
-import {
-    ICPProductCategoryDriver,
-    ICPProductCategoryService,
-    ProductCategory
-} from '@kbc-lib/coffee-trading-management-lib';
-import { useSiweIdentity } from '@/providers/SiweIdentityProvider';
+import { ICPProductCategoryDriver, ICPProductCategoryService, ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
+import { useSiweIdentity } from '@/providers/auth/SiweIdentityProvider';
 import { Typography } from 'antd';
 import { checkAndGetEnvironmentVariable } from '@/utils/env';
 import { ICP } from '@/constants/icp';
 import { PRODUCT_CATEGORY_MESSAGE } from '@/constants/message';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
-import { useCallHandler } from '@/providers/icp/CallHandlerProvider';
+import { useCallHandler } from '@/providers/errors/CallHandlerProvider';
 
 export type ProductCategoryContextState = {
     dataLoaded: boolean;
@@ -19,9 +15,7 @@ export type ProductCategoryContextState = {
     loadData: () => Promise<void>;
     saveProductCategory: (name: string, quality: number, description: string) => Promise<void>;
 };
-export const ProductCategoryContext = createContext<ProductCategoryContextState>(
-    {} as ProductCategoryContextState
-);
+export const ProductCategoryContext = createContext<ProductCategoryContextState>({} as ProductCategoryContextState);
 export const useProductCategory = (): ProductCategoryContextState => {
     const context = React.useContext(ProductCategoryContext);
     if (!context || Object.keys(context).length === 0) {
@@ -41,10 +35,7 @@ export function ProductCategoryProvider(props: { children: ReactNode }) {
     }
 
     const productCategoryService = useMemo(
-        () =>
-            new ICPProductCategoryService(
-                new ICPProductCategoryDriver(identity, entityManagerCanisterId)
-            ),
+        () => new ICPProductCategoryService(new ICPProductCategoryDriver(identity, entityManagerCanisterId)),
         [identity]
     );
 
@@ -63,12 +54,7 @@ export function ProductCategoryProvider(props: { children: ReactNode }) {
     const saveProductCategory = async (name: string, quality: number, description: string) => {
         await handleICPCall(async () => {
             await productCategoryService.createProductCategory(name, quality, description);
-            openNotification(
-                'Success',
-                PRODUCT_CATEGORY_MESSAGE.SAVE.OK,
-                NotificationType.SUCCESS,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Success', PRODUCT_CATEGORY_MESSAGE.SAVE.OK, NotificationType.SUCCESS, NOTIFICATION_DURATION);
             await loadProductCategories();
         }, PRODUCT_CATEGORY_MESSAGE.SAVE.LOADING);
     };

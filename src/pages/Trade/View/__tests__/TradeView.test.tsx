@@ -5,18 +5,18 @@ import { TradeView } from '@/pages/Trade/View/TradeView';
 import { OrderTradeView } from '@/pages/Trade/View/OrderTradeView';
 import { TradeType } from '@kbc-lib/coffee-trading-management-lib';
 import { paths } from '@/constants/paths';
-import { useOrder } from '@/providers/icp/OrderProvider';
+import { useOrder } from '@/providers/entities/icp/OrderProvider';
 import { ShipmentPanel } from '@/components/ShipmentPanel/ShipmentPanel';
 import { DownPaymentPanel } from '@/components/DownPaymentPanel/DownPaymentPanel';
-import { useOrganization } from '@/providers/icp/OrganizationProvider';
+import { useOrganization } from '@/providers/entities/icp/OrganizationProvider';
 
 jest.mock('react-router-dom');
-jest.mock('@/providers/SignerProvider');
+jest.mock('@/providers/auth/SignerProvider');
 jest.mock('@/pages/Trade/View/OrderTradeView', () => ({
     OrderTradeView: jest.fn()
 }));
-jest.mock('@/providers/icp/OrderProvider');
-jest.mock('@/providers/icp/OrganizationProvider');
+jest.mock('@/providers/entities/icp/OrderProvider');
+jest.mock('@/providers/entities/icp/OrganizationProvider');
 jest.mock('@/utils/notification');
 jest.mock('@/components/ShipmentPanel/ShipmentPanel');
 jest.mock('@/components/DownPaymentPanel/DownPaymentPanel');

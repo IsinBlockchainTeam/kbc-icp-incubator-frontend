@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useMemo, useState } from 'react';
-import { useSigner } from '@/providers/SignerProvider';
+import { useSigner } from '@/providers/auth/SignerProvider';
 import { useDispatch } from 'react-redux';
 import { ASSESSMENT_ASSURANCE_LEVEL, ASSESSMENT_STANDARD_MESSAGE, FIAT_MESSAGE, PROCESS_TYPE_MESSAGE, UNIT_MESSAGE } from '@/constants/message';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
@@ -17,7 +17,7 @@ import {
     ICPUnitDriver,
     ICPUnitService
 } from '@kbc-lib/coffee-trading-management-lib';
-import { useSiweIdentity } from '@/providers/SiweIdentityProvider';
+import { useSiweIdentity } from '@/providers/auth/SiweIdentityProvider';
 import { checkAndGetEnvironmentVariable } from '@/utils/env';
 import { ICP } from '@/constants/icp';
 import { Typography } from 'antd';

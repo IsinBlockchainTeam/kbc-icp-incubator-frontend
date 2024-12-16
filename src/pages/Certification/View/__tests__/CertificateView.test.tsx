@@ -16,13 +16,13 @@ import { CertificateView } from '@/pages/Certification/View/CertificateView';
 import { CompanyCertificateView } from '@/pages/Certification/View/CompanyCertificateView';
 import { ScopeCertificateView } from '@/pages/Certification/View/ScopeCertificateView';
 import { MaterialCertificateView } from '@/pages/Certification/View/MaterialCertificateView';
-import { DetailedCertificate, useCertification } from '@/providers/icp/CertificationProvider';
+import { DetailedCertificate, useCertification } from '@/providers/entities/icp/CertificationProvider';
 
 jest.mock('react-router-dom');
 jest.mock('@/pages/Certification/View/CompanyCertificateView');
 jest.mock('@/pages/Certification/View/ScopeCertificateView');
 jest.mock('@/pages/Certification/View/MaterialCertificateView');
-jest.mock('@/providers/icp/CertificationProvider');
+jest.mock('@/providers/entities/icp/CertificationProvider');
 
 describe('CertificateView', () => {
     const detailedBaseCertificate: DetailedCertificate = {

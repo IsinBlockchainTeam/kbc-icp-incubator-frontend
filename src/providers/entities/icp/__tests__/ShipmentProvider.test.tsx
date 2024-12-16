@@ -10,26 +10,26 @@ import {
     ShipmentPhaseDocument,
     DocumentType
 } from '@kbc-lib/coffee-trading-management-lib';
-import { useSigner } from '@/providers/SignerProvider';
+import { useSigner } from '@/providers/auth/SignerProvider';
 import { useDispatch, useSelector } from 'react-redux';
-import { useSiweIdentity } from '@/providers/SiweIdentityProvider';
+import { useSiweIdentity } from '@/providers/auth/SiweIdentityProvider';
 import { checkAndGetEnvironmentVariable } from '@/utils/env';
-import { useOrder } from '@/providers/icp/OrderProvider';
-import { useEthDownPayment } from '@/providers/entities/EthDownPaymentProvider';
-import { useICP } from '@/providers/ICPProvider';
+import { useOrder } from '@/providers/entities/icp/OrderProvider';
+import { useEthDownPayment } from '@/providers/entities/evm/EthDownPaymentProvider';
+import { useICP } from '@/providers/storage/IcpStorageProvider';
 import { UserInfoState } from '@/redux/reducers/userInfoSlice';
-import { useCallHandler } from '@/providers/icp/CallHandlerProvider';
+import { useCallHandler } from '@/providers/errors/CallHandlerProvider';
 import { act, renderHook, waitFor } from '@testing-library/react';
-import { ShipmentProvider, useShipment } from '@/providers/icp/ShipmentProvider';
+import { ShipmentProvider, useShipment } from '@/providers/entities/icp/ShipmentProvider';
 import { openNotification } from '@/utils/notification';
 import { Typography } from 'antd';
 
 jest.mock('@kbc-lib/coffee-trading-management-lib');
-jest.mock('@/providers/SignerProvider');
-jest.mock('@/providers/icp/OrderProvider');
-jest.mock('@/providers/entities/EthDownPaymentProvider');
-jest.mock('@/providers/ICPProvider');
-jest.mock('@/providers/SiweIdentityProvider');
+jest.mock('@/providers/auth/SignerProvider');
+jest.mock('@/providers/entities/icp/OrderProvider');
+jest.mock('@/providers/entities/evm/EthDownPaymentProvider');
+jest.mock('@/providers/storage/IcpStorageProvider');
+jest.mock('@/providers/auth/SiweIdentityProvider');
 jest.mock('@/utils/env');
 jest.mock('antd', () => {
     const originalModule = jest.requireActual('antd');
@@ -45,7 +45,7 @@ jest.mock('@/redux/reducers/loadingSlice');
 jest.mock('@/utils/notification');
 jest.mock('react-redux');
 jest.mock('@/utils/file');
-jest.mock('@/providers/icp/CallHandlerProvider');
+jest.mock('@/providers/errors/CallHandlerProvider');
 
 describe('ShipmentProvider', () => {
     const signer = { _address: '0x123' } as JsonRpcSigner;

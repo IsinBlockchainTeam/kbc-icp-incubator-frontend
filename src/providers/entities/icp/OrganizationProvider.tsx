@@ -1,5 +1,5 @@
 import React, { createContext, ReactNode, useContext, useMemo, useState } from 'react';
-import { useSiweIdentity } from '@/providers/SiweIdentityProvider';
+import { useSiweIdentity } from '@/providers/auth/SiweIdentityProvider';
 import { checkAndGetEnvironmentVariable } from '@/utils/env';
 import { ICP } from '@/constants/icp';
 import { Typography } from 'antd';
@@ -7,7 +7,7 @@ import { Organization, OrganizationDriver, OrganizationParams, OrganizationServi
 import { ORGANIZATION_MESSAGE, OrganizationMessage } from '@/constants/message';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
-import { useCallHandler } from '@/providers/icp/CallHandlerProvider';
+import { useCallHandler } from '@/providers/errors/CallHandlerProvider';
 
 export type OrganizationContextState = {
     dataLoaded: boolean;
@@ -32,9 +32,7 @@ export function OrganizationProvider(props: { children: ReactNode }) {
     const { identity } = useSiweIdentity();
     const entityManagerCanisterId = checkAndGetEnvironmentVariable(ICP.CANISTER_ID_ENTITY_MANAGER);
     const [dataLoaded, setDataLoaded] = useState<boolean>(false);
-    const [organizations, setOrganizations] = useState<Map<string, Organization>>(
-        new Map<string, Organization>()
-    );
+    const [organizations, setOrganizations] = useState<Map<string, Organization>>(new Map<string, Organization>());
     const { handleICPCall } = useCallHandler();
 
     if (!identity) {
@@ -74,19 +72,11 @@ export function OrganizationProvider(props: { children: ReactNode }) {
         return organization;
     };
 
-    const writeTransaction = async (
-        transaction: () => Promise<Organization>,
-        message: OrganizationMessage
-    ) => {
+    const writeTransaction = async (transaction: () => Promise<Organization>, message: OrganizationMessage) => {
         await handleICPCall(async () => {
             await transaction();
             await loadData();
-            openNotification(
-                'Success',
-                message.OK,
-                NotificationType.SUCCESS,
-                NOTIFICATION_DURATION
-            );
+            openNotification('Success', message.OK, NotificationType.SUCCESS, NOTIFICATION_DURATION);
         }, message.LOADING);
     };
 

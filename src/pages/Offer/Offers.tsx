@@ -10,8 +10,8 @@ import { RootState } from '@/redux/store';
 import { paths } from '@/constants/paths';
 import { credentials } from '@/constants/ssi';
 import { ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
-import { useOffer } from '@/providers/icp/OfferProvider';
-import { useOrganization } from '@/providers/icp/OrganizationProvider';
+import { useOffer } from '@/providers/entities/icp/OfferProvider';
+import { useOrganization } from '@/providers/entities/icp/OrganizationProvider';
 
 type OfferPresentable = {
     id: number;
@@ -42,8 +42,7 @@ export const Offers = () => {
         {
             title: 'Product category',
             dataIndex: ['productCategory', 'name'],
-            sorter: (a, b) =>
-                (a.productCategory.name || '').localeCompare(b.productCategory.name || '')
+            sorter: (a, b) => (a.productCategory.name || '').localeCompare(b.productCategory.name || '')
         },
         {
             title: 'Actions',
@@ -74,9 +73,7 @@ export const Offers = () => {
     ];
 
     const filteredOffers = offers
-        .filter((offer) =>
-            offer.productCategory.name.toLowerCase().includes(productCategory.toLowerCase())
-        )
+        .filter((offer) => offer.productCategory.name.toLowerCase().includes(productCategory.toLowerCase()))
         .map((offer) => ({
             id: offer.id,
             supplierName: getOrganization(offer.owner).legalName,
@@ -96,10 +93,7 @@ export const Offers = () => {
                     Offers
                     {userInfo.companyClaims.role.toUpperCase() === credentials.ROLE_EXPORTER && (
                         <div>
-                            <Button
-                                type="primary"
-                                icon={<PlusOutlined />}
-                                onClick={() => navigate(paths.OFFERS_NEW)}>
+                            <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate(paths.OFFERS_NEW)}>
                                 New Offer
                             </Button>
                         </div>

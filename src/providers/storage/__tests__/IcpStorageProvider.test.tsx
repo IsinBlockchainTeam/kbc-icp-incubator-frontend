@@ -1,14 +1,14 @@
 import React from 'react';
 import { render, renderHook, screen } from '@testing-library/react';
-import { ICPProvider, ICPContext, useICP } from '../ICPProvider';
-import { useSiweIdentity } from '../SiweIdentityProvider';
+import { IcpStorageProvider, ICPContext, useICP } from '../storage/IcpStorageProvider';
+import { useSiweIdentity } from '../auth/SiweIdentityProvider';
 import { checkAndGetEnvironmentVariable } from '@/utils/env';
 import { FileDriver, IdentityDriver, StorageDriver } from '@kbc-lib/coffee-trading-management-lib';
 
-jest.mock('../SiweIdentityProvider', () => ({
+jest.mock('../auth/SiweIdentityProvider', () => ({
     useSiweIdentity: jest.fn()
 }));
-jest.mock('@/providers/SiweIdentityProvider', () => ({
+jest.mock('@/providers/auth/SiweIdentityProvider', () => ({
     useSiweIdentity: jest.fn()
 }));
 
@@ -29,7 +29,7 @@ jest.mock('@kbc-lib/coffee-trading-management-lib', () => ({
     StorageDriver: jest.fn()
 }));
 
-describe('ICPProvider', () => {
+describe('IcpStorageProvider', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         jest.spyOn(console, 'log').mockImplementation(jest.fn());
@@ -44,9 +44,9 @@ describe('ICPProvider', () => {
         (useSiweIdentity as jest.Mock).mockReturnValue({ identity: mockIdentity });
 
         render(
-            <ICPProvider>
+            <IcpStorageProvider>
                 <div data-testid="child-component"></div>
-            </ICPProvider>
+            </IcpStorageProvider>
         );
 
         expect(screen.getByTestId('child-component')).toBeInTheDocument();
@@ -56,9 +56,9 @@ describe('ICPProvider', () => {
         (useSiweIdentity as jest.Mock).mockReturnValue({ identity: null });
 
         render(
-            <ICPProvider>
+            <IcpStorageProvider>
                 <div data-testid="child-component"></div>
-            </ICPProvider>
+            </IcpStorageProvider>
         );
 
         expect(screen.queryByText('Siwe identity not initialized')).toBeInTheDocument();
@@ -79,9 +79,9 @@ describe('ICPProvider', () => {
         };
 
         render(
-            <ICPProvider>
+            <IcpStorageProvider>
                 <TestComponent />
-            </ICPProvider>
+            </IcpStorageProvider>
         );
     });
 
@@ -91,7 +91,7 @@ describe('ICPProvider', () => {
         (checkAndGetEnvironmentVariable as jest.Mock).mockReturnValue('mock-canister-id');
 
         const { result } = renderHook(() => useICP(), {
-            wrapper: ICPProvider
+            wrapper: IcpStorageProvider
         });
 
         expect(StorageDriver).toHaveBeenCalledWith(mockIdentity, 'mock-canister-id');
@@ -103,7 +103,7 @@ describe('ICPProvider', () => {
         (checkAndGetEnvironmentVariable as jest.Mock).mockReturnValue('mock-canister-id');
 
         const { result } = renderHook(() => useICP(), {
-            wrapper: ICPProvider
+            wrapper: IcpStorageProvider
         });
 
         expect(FileDriver).toHaveBeenCalledWith(result.current.storageDriver);
@@ -115,7 +115,7 @@ describe('ICPProvider', () => {
         (checkAndGetEnvironmentVariable as jest.Mock).mockReturnValue('mock-canister-id');
 
         const { result } = renderHook(() => useICP(), {
-            wrapper: ICPProvider
+            wrapper: IcpStorageProvider
         });
 
         expect(IdentityDriver).toHaveBeenCalledWith(mockIdentity);

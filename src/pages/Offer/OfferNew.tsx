@@ -6,12 +6,12 @@ import { DeleteOutlined } from '@ant-design/icons';
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
-import { useSigner } from '@/providers/SignerProvider';
+import { useSigner } from '@/providers/auth/SignerProvider';
 import { paths } from '@/constants/paths';
 import { credentials } from '@/constants/ssi';
-import { useOrganization } from '@/providers/icp/OrganizationProvider';
-import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';
-import { useOffer } from '@/providers/icp/OfferProvider';
+import { useOrganization } from '@/providers/entities/icp/OrganizationProvider';
+import { useProductCategory } from '@/providers/entities/icp/ProductCategoryProvider';
+import { useOffer } from '@/providers/entities/icp/OfferProvider';
 
 export const OfferNew = () => {
     const { productCategories } = useProductCategory();
@@ -67,22 +67,13 @@ export const OfferNew = () => {
                         alignItems: 'center'
                     }}>
                     New Offer
-                    <Button
-                        type="primary"
-                        danger
-                        icon={<DeleteOutlined />}
-                        onClick={() => navigate(paths.OFFERS)}>
+                    <Button type="primary" danger icon={<DeleteOutlined />} onClick={() => navigate(paths.OFFERS)}>
                         Delete Offer
                     </Button>
                 </div>
             }>
             {elements && (
-                <GenericForm
-                    elements={elements}
-                    confirmText="Are you sure you want to create this offer?"
-                    submittable={true}
-                    onSubmit={onSubmit}
-                />
+                <GenericForm elements={elements} confirmText="Are you sure you want to create this offer?" submittable={true} onSubmit={onSubmit} />
             )}
         </CardPage>
     );

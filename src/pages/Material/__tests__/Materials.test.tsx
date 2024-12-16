@@ -4,13 +4,13 @@ import userEvent from '@testing-library/user-event';
 import { useNavigate } from 'react-router-dom';
 import { paths } from '@/constants/paths';
 import { Material, ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
-import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';
-import { useMaterial } from '@/providers/icp/MaterialProvider';
+import { useProductCategory } from '@/providers/entities/icp/ProductCategoryProvider';
+import { useMaterial } from '@/providers/entities/icp/MaterialProvider';
 
 jest.mock('react-router-dom');
 jest.mock('@/components/GenericForm/GenericForm');
-jest.mock('@/providers/icp/ProductCategoryProvider');
-jest.mock('@/providers/icp/MaterialProvider');
+jest.mock('@/providers/entities/icp/ProductCategoryProvider');
+jest.mock('@/providers/entities/icp/MaterialProvider');
 
 describe('Materials', () => {
     beforeEach(() => {
@@ -18,15 +18,9 @@ describe('Materials', () => {
         jest.spyOn(console, 'error').mockImplementation(jest.fn());
         jest.clearAllMocks();
 
-        const productCategories = [
-            new ProductCategory(1, 'Product category 1', 1, ''),
-            new ProductCategory(2, 'Product category 2', 2, '')
-        ];
+        const productCategories = [new ProductCategory(1, 'Product category 1', 1, ''), new ProductCategory(2, 'Product category 2', 2, '')];
         (useMaterial as jest.Mock).mockReturnValue({
-            materials: [
-                new Material(1, productCategories[0]),
-                new Material(2, productCategories[1])
-            ]
+            materials: [new Material(1, productCategories[0]), new Material(2, productCategories[1])]
         });
         (useProductCategory as jest.Mock).mockReturnValue({
             productCategories
@@ -38,9 +32,7 @@ describe('Materials', () => {
 
         expect(screen.getByText('Product Categories')).toBeInTheDocument();
         expect(screen.getByText('Your Materials')).toBeInTheDocument();
-        expect(
-            screen.getByRole('button', { name: 'plus New Product Category' })
-        ).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'plus New Product Category' })).toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'plus New Material' })).toBeInTheDocument();
         expect(screen.getAllByText('Product category 1')[0]).toBeInTheDocument();
         expect(screen.getAllByText('Product category 1')[1]).toBeInTheDocument();

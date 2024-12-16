@@ -1,5 +1,5 @@
 import React, { createContext, type ReactNode, useMemo } from 'react';
-import { useSiweIdentity } from './SiweIdentityProvider';
+import { useSiweIdentity } from '../auth/SiweIdentityProvider';
 import { FileDriver, IdentityDriver, StorageDriver } from '@kbc-lib/coffee-trading-management-lib';
 import { Typography } from 'antd';
 import { checkAndGetEnvironmentVariable } from '@/utils/env';
@@ -14,11 +14,11 @@ export const ICPContext = createContext<ICPContextState>({} as ICPContextState);
 export const useICP = (): ICPContextState => {
     const context = React.useContext(ICPContext);
     if (!context || Object.keys(context).length === 0) {
-        throw new Error('useICP must be used within an ICPProvider.');
+        throw new Error('useICP must be used within an IcpStorageProvider.');
     }
     return context;
 };
-export function ICPProvider({ children }: { children: ReactNode }) {
+export function IcpStorageProvider({ children }: { children: ReactNode }) {
     const { identity } = useSiweIdentity();
 
     if (!identity) {

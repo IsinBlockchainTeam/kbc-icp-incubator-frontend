@@ -8,8 +8,8 @@ import { Table, Tag } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { ICPBaseCertificate, ICPCertificateType } from '@kbc-lib/coffee-trading-management-lib';
 import DropdownButton from 'antd/es/dropdown/dropdown-button';
-import { useOrganization } from '@/providers/icp/OrganizationProvider';
-import { useCertification } from '@/providers/icp/CertificationProvider';
+import { useOrganization } from '@/providers/entities/icp/OrganizationProvider';
+import { useCertification } from '@/providers/entities/icp/CertificationProvider';
 
 export const certificationsType = [
     {

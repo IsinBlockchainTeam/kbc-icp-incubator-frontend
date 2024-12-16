@@ -4,11 +4,11 @@ import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { paths } from '@/constants/paths';
 import { GenericForm } from '@/components/GenericForm/GenericForm';
-import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';
+import { useProductCategory } from '@/providers/entities/icp/ProductCategoryProvider';
 
 jest.mock('react-router-dom');
 jest.mock('@/components/GenericForm/GenericForm');
-jest.mock('@/providers/icp/ProductCategoryProvider');
+jest.mock('@/providers/entities/icp/ProductCategoryProvider');
 
 describe('Product Category New', () => {
     const saveProductCategory = jest.fn();
@@ -27,9 +27,7 @@ describe('Product Category New', () => {
         render(<ProductCategoryNew />);
 
         expect(screen.getByText('New Product Category')).toBeInTheDocument();
-        expect(
-            screen.getByRole('button', { name: 'delete Delete Product Category' })
-        ).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'delete Delete Product Category' })).toBeInTheDocument();
         expect(GenericForm).toHaveBeenCalled();
         expect(GenericForm).toHaveBeenCalledWith(
             {
@@ -56,11 +54,7 @@ describe('Product Category New', () => {
         await (GenericForm as jest.Mock).mock.calls[0][0].onSubmit(values);
 
         expect(saveProductCategory).toHaveBeenCalledTimes(1);
-        expect(saveProductCategory).toHaveBeenCalledWith(
-            values.name,
-            values.quality,
-            values.description
-        );
+        expect(saveProductCategory).toHaveBeenCalledWith(values.name, values.quality, values.description);
         expect(navigate).toHaveBeenCalledTimes(1);
         expect(navigate).toHaveBeenCalledWith(paths.MATERIALS);
     });
@@ -68,9 +62,7 @@ describe('Product Category New', () => {
     it("should navigate to 'Materials' when clicking on 'Delete Product Category' button", async () => {
         const navigate = jest.fn();
         (useNavigate as jest.Mock).mockReturnValue(navigate);
-        (saveProductCategory as jest.Mock).mockRejectedValue(
-            new Error('Error saving product category')
-        );
+        (saveProductCategory as jest.Mock).mockRejectedValue(new Error('Error saving product category'));
         render(<ProductCategoryNew />);
 
         act(() => {

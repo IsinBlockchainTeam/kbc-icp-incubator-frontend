@@ -20,7 +20,7 @@ import { RootState } from '@/redux/store';
 import { resetUserInfo } from '@/redux/reducers/userInfoSlice';
 import { clearSiweIdentity } from '@/redux/reducers/siweIdentitySlice';
 import { paths } from '@/constants/paths';
-import { useWalletConnect } from '@/providers/WalletConnectProvider';
+import { useWalletConnect } from '@/providers/auth/WalletConnectProvider';
 import { ContentLayout } from '@/components/structure/ContentLayout/ContentLayout';
 
 const { Sider } = Layout;

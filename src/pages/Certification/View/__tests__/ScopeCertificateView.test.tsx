@@ -1,4 +1,4 @@
-import { useSigner } from '@/providers/SignerProvider';
+import { useSigner } from '@/providers/auth/SignerProvider';
 import { useNavigate } from 'react-router-dom';
 import {
     CertificateDocumentType,
@@ -15,13 +15,13 @@ import React from 'react';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
 import dayjs from 'dayjs';
 import { ScopeCertificateView } from '@/pages/Certification/View/ScopeCertificateView';
-import { DetailedCertificate, useCertification } from '@/providers/icp/CertificationProvider';
-import { useEnumeration } from '@/providers/icp/EnumerationProvider';
+import { DetailedCertificate, useCertification } from '@/providers/entities/icp/CertificationProvider';
+import { useEnumeration } from '@/providers/entities/icp/EnumerationProvider';
 
-jest.mock('@/providers/SignerProvider');
+jest.mock('@/providers/auth/SignerProvider');
 jest.mock('react-router-dom');
-jest.mock('@/providers/icp/EnumerationProvider');
-jest.mock('@/providers/icp/CertificationProvider');
+jest.mock('@/providers/entities/icp/EnumerationProvider');
+jest.mock('@/providers/entities/icp/CertificationProvider');
 jest.mock('@/components/GenericForm/GenericForm');
 
 describe('ScopeCertificateView', () => {

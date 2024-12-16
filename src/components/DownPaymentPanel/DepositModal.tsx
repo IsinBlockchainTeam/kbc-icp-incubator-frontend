@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, InputNumber, InputNumberProps, Modal } from 'antd';
-import { useEthDownPayment } from '@/providers/entities/EthDownPaymentProvider';
-import { useShipment } from '@/providers/icp/ShipmentProvider';
+import { useEthDownPayment } from '@/providers/entities/evm/EthDownPaymentProvider';
+import { useShipment } from '@/providers/entities/icp/ShipmentProvider';
 
 type DepositModalProps = {
     isOpen: boolean;

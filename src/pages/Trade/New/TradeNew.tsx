@@ -3,9 +3,9 @@ import { TradeType } from '@kbc-lib/coffee-trading-management-lib';
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { paths } from '@/constants/paths';
-import { useSigner } from '@/providers/SignerProvider';
+import { useSigner } from '@/providers/auth/SignerProvider';
 import { OrderTradeNew } from '@/pages/Trade/New/OrderTradeNew';
-import { useOrganization } from '@/providers/icp/OrganizationProvider';
+import { useOrganization } from '@/providers/entities/icp/OrganizationProvider';
 
 export const TradeNew = () => {
     const { signer } = useSigner();

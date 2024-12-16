@@ -6,10 +6,10 @@ import { Link } from 'react-router-dom';
 import { Order, OrderStatus, TradeType } from '@kbc-lib/coffee-trading-management-lib';
 import { setParametersPath } from '@/utils/page';
 import { paths } from '@/constants/paths';
-import { useOrder } from '@/providers/icp/OrderProvider';
+import { useOrder } from '@/providers/entities/icp/OrderProvider';
 import { AsyncComponent } from '@/components/AsyncComponent/AsyncComponent';
-import { useOrganization } from '@/providers/icp/OrganizationProvider';
-import { useShipment } from '@/providers/icp/ShipmentProvider';
+import { useOrganization } from '@/providers/entities/icp/OrganizationProvider';
+import { useShipment } from '@/providers/entities/icp/ShipmentProvider';
 import { ShipmentPhaseDisplayName } from '@/constants/shipmentPhase';
 
 export const Trades = () => {

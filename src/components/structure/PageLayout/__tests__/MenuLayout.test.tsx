@@ -7,13 +7,13 @@ import { MemoryRouter } from 'react-router-dom';
 import { initialState, updateUserInfo, UserInfoState } from '@/redux/reducers/userInfoSlice';
 import { Menu } from 'antd';
 import { paths } from '@/constants/paths';
-import { useWalletConnect } from '@/providers/WalletConnectProvider';
+import { useWalletConnect } from '@/providers/auth/WalletConnectProvider';
 
 jest.mock('antd', () => ({
     ...jest.requireActual('antd'),
     Menu: jest.fn(() => <div>Menu</div>)
 }));
-jest.mock('@/providers/WalletConnectProvider');
+jest.mock('@/providers/auth/WalletConnectProvider');
 
 describe('MenuLayout', () => {
     const mockDisconnect = jest.fn();

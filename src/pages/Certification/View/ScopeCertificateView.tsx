@@ -7,10 +7,10 @@ import { CertificateDocumentNames } from '@/constants/certificationDocument';
 import { ICPCertificateDocumentType, ICPScopeCertificate } from '@kbc-lib/coffee-trading-management-lib';
 import { validateDates } from '@/utils/date';
 import dayjs from 'dayjs';
-import { useSigner } from '@/providers/SignerProvider';
+import { useSigner } from '@/providers/auth/SignerProvider';
 import { CertificateViewProps } from '@/pages/Certification/View/CertificateView';
-import { ScopeCertificateRequest, useCertification } from '@/providers/icp/CertificationProvider';
-import { useEnumeration } from '@/providers/icp/EnumerationProvider';
+import { ScopeCertificateRequest, useCertification } from '@/providers/entities/icp/CertificationProvider';
+import { useEnumeration } from '@/providers/entities/icp/EnumerationProvider';
 
 export const ScopeCertificateView = (props: CertificateViewProps) => {
     const { commonElements, editElements, detailedCertificate, disabled } = props;

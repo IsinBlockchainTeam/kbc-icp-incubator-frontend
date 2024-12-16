@@ -1,13 +1,13 @@
 import { DownPaymentDriver, DownPaymentService, TokenDriver, TokenService } from '@kbc-lib/coffee-trading-management-lib';
 import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
-import { useSigner } from '@/providers/SignerProvider';
+import { useSigner } from '@/providers/auth/SignerProvider';
 import { useDispatch } from 'react-redux';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
 import { DOWN_PAYMENT_MESSAGE, TOKEN_MESSAGE } from '@/constants/message';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { CONTRACT_ADDRESSES } from '@/constants/evm';
-import { useOrder } from '@/providers/icp/OrderProvider';
+import { useOrder } from '@/providers/entities/icp/OrderProvider';
 
 export type EthDownPaymentContextState = {
     exists: boolean;

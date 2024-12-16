@@ -1,19 +1,19 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { useDispatch } from 'react-redux';
-import { useSigner } from '@/providers/SignerProvider';
+import { useSigner } from '@/providers/auth/SignerProvider';
 import { openNotification } from '@/utils/notification';
-import { EthDownPaymentProvider, useEthDownPayment } from '@/providers/entities/EthDownPaymentProvider';
+import { EthDownPaymentProvider, useEthDownPayment } from '@/providers/entities/evm/EthDownPaymentProvider';
 import { DownPaymentService, TokenService } from '@kbc-lib/coffee-trading-management-lib';
 import { CONTRACT_ADDRESSES } from '@/constants/evm';
 import { JsonRpcSigner } from '@ethersproject/providers';
-import { useOrder } from '@/providers/icp/OrderProvider';
+import { useOrder } from '@/providers/entities/icp/OrderProvider';
 
 jest.mock('@kbc-lib/coffee-trading-management-lib');
-jest.mock('@/providers/SignerProvider');
+jest.mock('@/providers/auth/SignerProvider');
 jest.mock('react-redux');
 jest.mock('@/utils/notification');
 jest.mock('@/constants/evm');
-jest.mock('@/providers/icp/OrderProvider');
+jest.mock('@/providers/entities/icp/OrderProvider');
 
 describe('EthDownPaymentProvider', () => {
     const signer = { _address: '0x123' } as JsonRpcSigner;
