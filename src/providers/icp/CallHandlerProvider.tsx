@@ -1,11 +1,7 @@
 import React, { useMemo } from 'react';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
-import {
-    ICPAuthenticationDriver,
-    ICPAuthenticationService,
-    NotAuthenticatedError
-} from '@kbc-lib/coffee-trading-management-lib';
+import { ICPAuthenticationDriver, ICPAuthenticationService, NotAuthenticatedError } from '@kbc-lib/coffee-trading-management-lib';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSigner } from '@/providers/SignerProvider';
@@ -19,9 +15,7 @@ import { RootState } from '@/redux/store';
 export type CallHandlerContextState = {
     handleICPCall: (callback: () => Promise<void>, message: string) => Promise<void>;
 };
-export const CallHandlerContext = React.createContext<CallHandlerContextState>(
-    {} as CallHandlerContextState
-);
+export const CallHandlerContext = React.createContext<CallHandlerContextState>({} as CallHandlerContextState);
 export const useCallHandler = () => {
     const context = React.useContext(CallHandlerContext);
     if (!context || Object.keys(context).length === 0) {
@@ -32,7 +26,6 @@ export const useCallHandler = () => {
 export function CallHandlerProvider(props: { children: React.ReactNode }) {
     const { identity } = useSiweIdentity();
     const dispatch = useDispatch();
-    const signer = useSigner();
     const entityManagerCanisterId = checkAndGetEnvironmentVariable(ICP.CANISTER_ID_ENTITY_MANAGER);
     const roleProof = useSelector((state: RootState) => state.userInfo.roleProof);
 
@@ -40,10 +33,7 @@ export function CallHandlerProvider(props: { children: React.ReactNode }) {
         return <Typography.Text>Siwe identity not initialized</Typography.Text>;
     }
     const authenticationService = useMemo(
-        () =>
-            new ICPAuthenticationService(
-                new ICPAuthenticationDriver(identity, entityManagerCanisterId)
-            ),
+        () => new ICPAuthenticationService(new ICPAuthenticationDriver(identity, entityManagerCanisterId)),
         [identity]
     );
 
@@ -63,11 +53,7 @@ export function CallHandlerProvider(props: { children: React.ReactNode }) {
         }
     };
 
-    const handleError = async (
-        error: Error,
-        retryAfterAuth: () => Promise<void>,
-        canRetry = false
-    ) => {
+    const handleError = async (error: Error, retryAfterAuth: () => Promise<void>, canRetry = false) => {
         console.info('An error occurred', error);
         if (error instanceof NotAuthenticatedError) {
             console.info('Not authenticated, retrying after authentication');
@@ -75,13 +61,7 @@ export function CallHandlerProvider(props: { children: React.ReactNode }) {
                 dispatch(addLoadingMessage(AUTHENTICATION_MESSAGE.AUTHENTICATE.LOADING));
                 await authenticate();
                 if (canRetry) await retryAfterAuth();
-                else
-                    openNotification(
-                        'Error',
-                        "Can't authenticate",
-                        NotificationType.ERROR,
-                        NOTIFICATION_DURATION
-                    );
+                else openNotification('Error', "Can't authenticate", NotificationType.ERROR, NOTIFICATION_DURATION);
             } catch (e: any) {
                 await handleError(e, retryAfterAuth);
             } finally {
@@ -93,9 +73,5 @@ export function CallHandlerProvider(props: { children: React.ReactNode }) {
         }
     };
 
-    return (
-        <CallHandlerContext.Provider value={{ handleICPCall }}>
-            {props.children}
-        </CallHandlerContext.Provider>
-    );
+    return <CallHandlerContext.Provider value={{ handleICPCall }}>{props.children}</CallHandlerContext.Provider>;
 }

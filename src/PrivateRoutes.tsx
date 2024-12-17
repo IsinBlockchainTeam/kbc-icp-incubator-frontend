@@ -19,6 +19,7 @@ import SyncDataLoader from './dataLoaders/SyncDataLoader';
 import { CallHandlerProvider } from '@/providers/icp/CallHandlerProvider';
 import { CertificationProvider } from '@/providers/icp/CertificationProvider';
 import { EnumerationProvider } from '@/providers/icp/EnumerationProvider';
+import { RawCertificationProvider } from '@/providers/icp/RawCertificationProvider';
 
 const PrivateRoutes = () => {
     const { isLogged } = useSelector((state: RootState) => state.userInfo);
@@ -53,13 +54,17 @@ const PrivateRoutes = () => {
                                                 <OrderProvider>
                                                     <EthEscrowProvider>
                                                         <ShipmentProvider>
-                                                            <CertificationProvider>
-                                                                <SyncDataLoader customUseContext={useOrganization}>
-                                                                    <NavigationBlocker condition={isOrganizationOnIcp} redirectPath={paths.PROFILE}>
-                                                                        <Outlet />
-                                                                    </NavigationBlocker>
-                                                                </SyncDataLoader>
-                                                            </CertificationProvider>
+                                                            <RawCertificationProvider>
+                                                                <CertificationProvider>
+                                                                    <SyncDataLoader customUseContext={useOrganization}>
+                                                                        <NavigationBlocker
+                                                                            condition={isOrganizationOnIcp}
+                                                                            redirectPath={paths.PROFILE}>
+                                                                            <Outlet />
+                                                                        </NavigationBlocker>
+                                                                    </SyncDataLoader>
+                                                                </CertificationProvider>
+                                                            </RawCertificationProvider>
                                                         </ShipmentProvider>
                                                     </EthEscrowProvider>
                                                 </OrderProvider>

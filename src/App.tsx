@@ -32,6 +32,8 @@ import { useShipment } from '@/providers/icp/ShipmentProvider';
 import { useOffer } from '@/providers/icp/OfferProvider';
 import { useEnumeration } from '@/providers/icp/EnumerationProvider';
 import { useCertification } from '@/providers/icp/CertificationProvider';
+import { useRawCertification } from '@/providers/icp/RawCertificationProvider';
+import SyncDataLoader from './dataLoaders/SyncDataLoader';
 
 export const App = () => {
     return (
@@ -145,7 +147,7 @@ export const App = () => {
                                         <Route
                                             path={paths.CERTIFICATIONS}
                                             element={
-                                                <AsyncDataLoader customUseContext={useCertification}>
+                                                <AsyncDataLoader customUseContext={useRawCertification}>
                                                     <Certifications />
                                                 </AsyncDataLoader>
                                             }
@@ -165,9 +167,9 @@ export const App = () => {
                                             element={
                                                 <AsyncDataLoader customUseContext={useEnumeration}>
                                                     <AsyncDataLoader customUseContext={useMaterial}>
-                                                        <AsyncDataLoader customUseContext={useCertification}>
+                                                        <SyncDataLoader customUseContext={useCertification}>
                                                             <CertificateView />
-                                                        </AsyncDataLoader>
+                                                        </SyncDataLoader>
                                                     </AsyncDataLoader>
                                                 </AsyncDataLoader>
                                             }
