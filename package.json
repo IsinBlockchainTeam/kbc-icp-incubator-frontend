@@ -87,15 +87,7 @@
     },
     "jest": {
         "moduleNameMapper": {
-            "^@/api(.*)$": "<rootDir>/src/api$1",
-            "^@/assets(.*)$": "<rootDir>/src/assets$1",
-            "^@/components(.*)$": "<rootDir>/src/components$1",
-            "^@/constants(.*)$": "<rootDir>/src/constants$1",
-            "^@/hooks(.*)$": "<rootDir>/src/hooks$1",
-            "^@/pages(.*)$": "<rootDir>/src/pages$1",
-            "^@/providers(.*)$": "<rootDir>/src/providers$1",
-            "^@/redux(.*)$": "<rootDir>/src/redux$1",
-            "^@/utils(.*)$": "<rootDir>/src/utils$1",
+            "^@/(.*)$": "<rootDir>/src/$1",
             "@walletconnect/ethereum-provider": "<rootDir>/__mocks__/@walletconnect/ethereum-provider.js"
         },
         "setupFiles": [
