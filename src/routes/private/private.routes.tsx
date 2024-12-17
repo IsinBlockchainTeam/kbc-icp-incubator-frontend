@@ -23,6 +23,9 @@ import { Certifications } from '@/pages/Certification/Certifications';
 import { CertificateNew } from '@/pages/Certification/New/CertificateNew';
 import { CertificateView } from '@/pages/Certification/View/CertificateView';
 import GraphPage from '@/pages/Graph/GraphPage';
+import SyncDataLoader from '@/data-loaders/SyncDataLoader';
+import { useCertification } from '@/providers/entities/icp/CertificationProvider';
+import { useRawCertification } from '@/providers/entities/icp/RawCertificationProvider';
 
 const privateRoutes = (
     <>
@@ -72,7 +75,7 @@ const privateRoutes = (
                 </AsyncDataLoader>
             }
         />
-        // TODO: are the following two duplicates?
+        {/*TODO: are the following two duplicates?*/}
         <Route
             path={paths.DOCUMENTS}
             element={
@@ -125,7 +128,14 @@ const privateRoutes = (
                 </AsyncDataLoader>
             }
         />
-        <Route path={paths.CERTIFICATIONS} element={<Certifications />} />
+        <Route
+            path={paths.CERTIFICATIONS}
+            element={
+                <AsyncDataLoader customUseContext={useRawCertification}>
+                    <Certifications />
+                </AsyncDataLoader>
+            }
+        />
         <Route
             path={paths.CERTIFICATION_NEW}
             element={
@@ -141,7 +151,9 @@ const privateRoutes = (
             element={
                 <AsyncDataLoader customUseContext={useEnumeration}>
                     <AsyncDataLoader customUseContext={useMaterial}>
-                        <CertificateView />
+                        <SyncDataLoader customUseContext={useCertification}>
+                            <CertificateView />
+                        </SyncDataLoader>
                     </AsyncDataLoader>
                 </AsyncDataLoader>
             }

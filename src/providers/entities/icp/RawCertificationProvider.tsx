@@ -1,13 +1,13 @@
 import { ICPBaseCertificate, ICPCertificationDriver, ICPCertificationService } from '@kbc-lib/coffee-trading-management-lib';
 import React, { createContext, ReactNode, useContext, useMemo, useState } from 'react';
 import { RAW_CERTIFICATION_MESSAGE } from '@/constants/message';
-import { useSiweIdentity } from '@/providers/SiweIdentityProvider';
 import { checkAndGetEnvironmentVariable } from '@/utils/env';
 import { ICP } from '@/constants/icp';
 import { Typography } from 'antd';
-import { useSigner } from '@/providers/SignerProvider';
-import { useICP } from '@/providers/ICPProvider';
-import { useCallHandler } from '@/providers/icp/CallHandlerProvider';
+import { useSiweIdentity } from '@/providers/auth/SiweIdentityProvider';
+import { useICP } from '@/providers/storage/IcpStorageProvider';
+import { useSigner } from '@/providers/auth/SignerProvider';
+import { useCallHandler } from '@/providers/errors/CallHandlerProvider';
 
 export type RawCertificationContextState = {
     dataLoaded: boolean;

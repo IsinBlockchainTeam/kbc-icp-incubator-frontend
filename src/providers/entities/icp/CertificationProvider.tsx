@@ -8,7 +8,7 @@ import {
 } from '@kbc-lib/coffee-trading-management-lib';
 import React, { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 import { useSigner } from '@/providers/auth/SignerProvider';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { getICPCanisterURL } from '@/utils/icp';
 import { ICP } from '@/constants/icp';
@@ -20,8 +20,8 @@ import { useSiweIdentity } from '@/providers/auth/SiweIdentityProvider';
 import { checkAndGetEnvironmentVariable } from '@/utils/env';
 import { Typography } from 'antd';
 import { useICP } from '@/providers/storage/IcpStorageProvider';
-import { useCallHandler } from '@/providers/icp/CallHandlerProvider';
-import { useRawCertification } from '@/providers/icp/RawCertificationProvider';
+import { useRawCertification } from '@/providers/entities/icp/RawCertificationProvider';
+import { useCallHandler } from '@/providers/errors/CallHandlerProvider';
 
 type DocumentRequest = {
     documentType: ICPCertificateDocumentType;
