@@ -1,4 +1,4 @@
-import { CardPage } from '@/components/structure/CardPage/CardPage';
+import { CardPage } from '@/components/CardPage/CardPage';
 import React, { useState } from 'react';
 import { ColumnsType } from 'antd/es/table';
 import { Table } from 'antd';

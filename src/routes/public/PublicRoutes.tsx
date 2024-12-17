@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import { BasicLayout } from '@/components/structure/BasicLayout/BasicLayout';
+import { BasicLayout } from '@/layout/BasicLayout/BasicLayout';
 
 const PublicRoutes = () => {
     return (

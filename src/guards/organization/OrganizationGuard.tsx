@@ -5,9 +5,8 @@ import SyncDataLoader from '../../data-loaders/SyncDataLoader';
 import NavigationBlocker from '../../NavigationBlocker';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
-import { MenuLayout } from '@/components/structure/MenuLayout/MenuLayout';
-import { BasicLayout } from '@/components/structure/BasicLayout/BasicLayout';
-import { LimitedAccessLayout } from '@/components/structure/LimitedAccessLayout/LimitedAccessLayout';
+import { MenuLayout } from '@/layout/MenuLayout/MenuLayout';
+import { LimitedAccessLayout } from '@/layout/LimitedAccessLayout/LimitedAccessLayout';
 
 type Props = {
     children?: ReactNode;

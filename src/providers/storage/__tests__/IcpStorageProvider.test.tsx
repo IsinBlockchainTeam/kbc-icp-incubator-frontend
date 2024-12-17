@@ -1,11 +1,11 @@
 import React from 'react';
 import { render, renderHook, screen } from '@testing-library/react';
-import { IcpStorageProvider, ICPContext, useICP } from '../storage/IcpStorageProvider';
-import { useSiweIdentity } from '../auth/SiweIdentityProvider';
+import { IcpStorageProvider, ICPContext, useICP } from '../IcpStorageProvider';
+import { useSiweIdentity } from '../../auth/SiweIdentityProvider';
 import { checkAndGetEnvironmentVariable } from '@/utils/env';
 import { FileDriver, IdentityDriver, StorageDriver } from '@kbc-lib/coffee-trading-management-lib';
 
-jest.mock('../auth/SiweIdentityProvider', () => ({
+jest.mock('../../auth/SiweIdentityProvider', () => ({
     useSiweIdentity: jest.fn()
 }));
 jest.mock('@/providers/auth/SiweIdentityProvider', () => ({

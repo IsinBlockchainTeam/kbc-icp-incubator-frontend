@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Table } from 'antd';
 import { ColumnsType } from 'antd/es/table';
-import { CardPage } from '@/components/structure/CardPage/CardPage';
+import { CardPage } from '@/components/CardPage/CardPage';
 import { PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { Material, ProductCategory } from '@kbc-lib/coffee-trading-management-lib';

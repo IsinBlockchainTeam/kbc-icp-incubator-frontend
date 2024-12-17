@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { paths } from '@/constants/paths';
 import { Collapse, Typography } from 'antd';
 import { ShipmentPanel } from '@/components/ShipmentPanel/ShipmentPanel';
-import { CardPage } from '@/components/structure/CardPage/CardPage';
+import { CardPage } from '@/components/CardPage/CardPage';
 import { DownPaymentPanel } from '@/components/DownPaymentPanel/DownPaymentPanel';
 import { OrderTradeView } from '@/pages/Trade/View/OrderTradeView';
 import { useOrder } from '@/providers/entities/icp/OrderProvider';

@@ -18,7 +18,7 @@ import {
     type State,
     SiweDriver
 } from '@kbc-lib/coffee-trading-management-lib';
-import { BasicLayout } from '@/components/structure/BasicLayout/BasicLayout';
+import { BasicLayout } from '@/layout/BasicLayout/BasicLayout';
 
 /**
  * Re-export types

@@ -1,4 +1,4 @@
-import { CardPage } from '@/components/structure/CardPage/CardPage';
+import { CardPage } from '@/components/CardPage/CardPage';
 import { paths } from '@/constants/paths';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';

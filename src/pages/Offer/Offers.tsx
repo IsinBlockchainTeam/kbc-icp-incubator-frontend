@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ColumnsType } from 'antd/es/table';
 import { Button, Space, Table } from 'antd';
-import { CardPage } from '@/components/structure/CardPage/CardPage';
+import { CardPage } from '@/components/CardPage/CardPage';
 import Search from '@/components/Search/Search';
 import { PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';

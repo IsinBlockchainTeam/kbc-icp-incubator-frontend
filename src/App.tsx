@@ -5,7 +5,7 @@ import PrivateRoutes from './routes/private/PrivateRoutes';
 import { Provider as ReduxProvider } from 'react-redux/es/exports';
 import { persistor, store } from '@/redux/store';
 import { PersistGate } from 'redux-persist/integration/react';
-import { PageLayout } from '@/components/structure/PageLayout/PageLayout';
+import { PageLayout } from '@/layout/PageLayout/PageLayout';
 import { WalletConnectProvider } from '@/providers/auth/WalletConnectProvider';
 import publicRoutes from './routes/public/public.routes';
 import privateRoutes from './routes/private/private.routes';

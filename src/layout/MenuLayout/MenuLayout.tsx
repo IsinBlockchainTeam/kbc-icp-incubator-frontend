@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { paths } from '@/constants/paths';
 import { useWalletConnect } from '@/providers/auth/WalletConnectProvider';
-import { ContentLayout } from '@/components/structure/ContentLayout/ContentLayout';
+import { ContentLayout } from '@/layout/ContentLayout/ContentLayout';
 import ProfileMenuItem from '@/components/Menu/ProfileMenuItem';
 import { getItem, MenuItem } from '@/components/Menu/menu-item';
 

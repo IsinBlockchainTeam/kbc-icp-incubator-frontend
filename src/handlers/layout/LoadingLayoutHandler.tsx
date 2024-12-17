@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { BasicLayout } from '@/components/structure/BasicLayout/BasicLayout';
+import { BasicLayout } from '@/layout/BasicLayout/BasicLayout';
 import { useOrganization } from '@/providers/entities/icp/OrganizationProvider';
 
 type Props = {

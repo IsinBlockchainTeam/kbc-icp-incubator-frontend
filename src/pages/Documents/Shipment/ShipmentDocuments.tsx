@@ -1,4 +1,4 @@
-import { CardPage } from '@/components/structure/CardPage/CardPage';
+import { CardPage } from '@/components/CardPage/CardPage';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
 import React, { useMemo } from 'react';
 import { Alert, Empty, Flex, Tag, Typography } from 'antd';

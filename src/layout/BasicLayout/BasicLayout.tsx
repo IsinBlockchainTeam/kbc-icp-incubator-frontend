@@ -2,7 +2,7 @@ import { Layout } from 'antd';
 import React, { ReactNode } from 'react';
 import KBCLogo from '@/assets/logo.png';
 import styles from './BasicLayout.module.scss';
-import { ContentLayout } from '@/components/structure/ContentLayout/ContentLayout';
+import { ContentLayout } from '@/layout/ContentLayout/ContentLayout';
 
 const { Sider } = Layout;
 

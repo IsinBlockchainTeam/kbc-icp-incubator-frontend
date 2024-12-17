@@ -1,5 +1,5 @@
 import React from 'react';
-import { CardPage } from '@/components/structure/CardPage/CardPage';
+import { CardPage } from '@/components/CardPage/CardPage';
 import { ColumnsType } from 'antd/es/table';
 import { Link, useNavigate } from 'react-router-dom';
 import { setParametersPath } from '@/utils/page';
