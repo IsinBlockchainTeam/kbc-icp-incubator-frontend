@@ -7,6 +7,7 @@ import EvmToIcpProviders from '@/providers/auth/EvmToIcpProviders';
 import EntitiesProviders from '@/providers/entities/EntitiesProviders';
 import OrganizationGuard from '../../guards/organization/OrganizationGuard';
 import AuthenticationGuard from '../../guards/auth/AuthenticationGuard';
+import LoadingLayoutHandler from '../../handlers/layout/LoadingLayoutHandler';
 
 const PrivateRoutes = () => {
     return (
@@ -16,9 +17,11 @@ const PrivateRoutes = () => {
                     <CallHandlerProvider>
                         <AuthenticationProvider>
                             <EntitiesProviders>
-                                <OrganizationGuard>
-                                    <Outlet />
-                                </OrganizationGuard>
+                                <LoadingLayoutHandler>
+                                    <OrganizationGuard>
+                                        <Outlet />
+                                    </OrganizationGuard>
+                                </LoadingLayoutHandler>
                             </EntitiesProviders>
                         </AuthenticationProvider>
                     </CallHandlerProvider>

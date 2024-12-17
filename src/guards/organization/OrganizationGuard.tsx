@@ -7,13 +7,14 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { MenuLayout } from '@/components/structure/MenuLayout/MenuLayout';
 import { BasicLayout } from '@/components/structure/BasicLayout/BasicLayout';
+import { LimitedAccessLayout } from '@/components/structure/LimitedAccessLayout/LimitedAccessLayout';
 
 type Props = {
     children?: ReactNode;
 };
 
 const OrganizationGuard = ({ children }: Props) => {
-    const { getOrganization, dataLoaded } = useOrganization();
+    const { getOrganization } = useOrganization();
 
     const isOrganizationOnIcp = () => {
         const userInfo = useSelector((state: RootState) => state.userInfo);
@@ -29,18 +30,14 @@ const OrganizationGuard = ({ children }: Props) => {
         }
     };
 
-    const LoadingLayout = !dataLoaded ? BasicLayout : <></>;
-
-    const Layout = isOrganizationOnIcp() ? MenuLayout : BasicLayout;
+    const Layout = isOrganizationOnIcp() ? MenuLayout : LimitedAccessLayout;
 
     return (
-        // <LoadingLayout>
         <SyncDataLoader customUseContext={useOrganization}>
             <NavigationBlocker condition={isOrganizationOnIcp} redirectPath={paths.PROFILE}>
                 <Layout>{children}</Layout>
             </NavigationBlocker>
         </SyncDataLoader>
-        // </LoadingLayout>
     );
 };
 

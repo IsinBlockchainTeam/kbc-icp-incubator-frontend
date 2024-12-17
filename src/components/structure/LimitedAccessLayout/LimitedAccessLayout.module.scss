@@ -1,0 +1,29 @@
+.Sidebar {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.LogoContainer {
+    width: 100%;
+    height: 90px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .LogoCollapsed {
+        height: 30px;
+        display: block;
+        margin: auto;
+    }
+    .Logo {
+        height: 70px;
+        display: block;
+        margin: auto;
+    }
+}
+.MenuContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+    height: calc(100vh - 90px - 48px);
+}

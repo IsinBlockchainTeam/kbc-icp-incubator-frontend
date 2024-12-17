@@ -18,6 +18,7 @@ import {
     type State,
     SiweDriver
 } from '@kbc-lib/coffee-trading-management-lib';
+import { BasicLayout } from '@/components/structure/BasicLayout/BasicLayout';
 
 /**
  * Re-export types
@@ -358,7 +359,11 @@ export function SiweIdentityProvider({
     }
     const isLoggingIn = state.loginStatus === 'logging-in';
     if (isLoggingIn) {
-        return <ICPLoading />;
+        return (
+            <BasicLayout>
+                <ICPLoading />
+            </BasicLayout>
+        );
     }
     return (
         <SiweIdentityContext.Provider
