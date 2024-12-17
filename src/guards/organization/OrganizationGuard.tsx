@@ -2,7 +2,7 @@ import React, { ReactNode } from 'react';
 import { useOrganization } from '@/providers/entities/icp/OrganizationProvider';
 import { paths } from '@/constants/paths';
 import SyncDataLoader from '../../data-loaders/SyncDataLoader';
-import NavigationBlocker from '../../NavigationBlocker';
+import NavigationBlocker from '@/guards/navigation/NavigationBlocker';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { MenuLayout } from '@/layout/MenuLayout/MenuLayout';
