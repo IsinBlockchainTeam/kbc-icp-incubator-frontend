@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, Descriptions, DescriptionsProps, Tag, Typography } from 'antd';
 import { ShipmentPhase } from '@kbc-lib/coffee-trading-management-lib';
-import { useShipment } from '@/providers/icp/ShipmentProvider';
+import { useShipment } from '@/providers/entities/icp/ShipmentProvider';
 
 const { Paragraph } = Typography;
 

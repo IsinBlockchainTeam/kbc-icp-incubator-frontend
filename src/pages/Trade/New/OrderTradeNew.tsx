@@ -1,5 +1,5 @@
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
-import { CardPage } from '@/components/structure/CardPage/CardPage';
+import { CardPage } from '@/components/CardPage/CardPage';
 import { Button } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import { paths } from '@/constants/paths';
@@ -10,9 +10,9 @@ import { regex } from '@/constants/regex';
 import dayjs from 'dayjs';
 import { validateDates } from '@/utils/date';
 import { incotermsMap } from '@/constants/trade';
-import { useOrder } from '@/providers/icp/OrderProvider';
-import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';
-import { useEnumeration } from '@/providers/icp/EnumerationProvider';
+import { useOrder } from '@/providers/entities/icp/OrderProvider';
+import { useProductCategory } from '@/providers/entities/icp/ProductCategoryProvider';
+import { useEnumeration } from '@/providers/entities/icp/EnumerationProvider';
 
 type OrderTradeNewProps = {
     supplierAddress: string;

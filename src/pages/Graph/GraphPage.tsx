@@ -1,7 +1,7 @@
 import React, { memo, useEffect, useState } from 'react';
 import Dagre from '@dagrejs/dagre';
 import ReactFlow, { Background, BackgroundVariant, Node, Position, ReactFlowProvider, useEdgesState, useNodesState } from 'reactflow';
-import { CardPage } from '@/components/structure/CardPage/CardPage';
+import { CardPage } from '@/components/CardPage/CardPage';
 import styles from './Graph.module.scss';
 import { Radio, RadioChangeEvent } from 'antd';
 import 'reactflow/dist/style.css';

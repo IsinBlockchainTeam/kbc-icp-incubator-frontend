@@ -4,12 +4,12 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { paths } from '@/constants/paths';
 import { Collapse, Typography } from 'antd';
 import { ShipmentPanel } from '@/components/ShipmentPanel/ShipmentPanel';
-import { CardPage } from '@/components/structure/CardPage/CardPage';
-import { EscrowPanel } from '@/components/EscrowPanel/EscrowPanel';
+import { CardPage } from '@/components/CardPage/CardPage';
+import { DownPaymentPanel } from '@/components/DownPaymentPanel/DownPaymentPanel';
 import { OrderTradeView } from '@/pages/Trade/View/OrderTradeView';
-import { useOrder } from '@/providers/icp/OrderProvider';
+import { useOrder } from '@/providers/entities/icp/OrderProvider';
 import { FormElement, FormElementType } from '@/components/GenericForm/GenericForm';
-import { useOrganization } from '@/providers/icp/OrganizationProvider';
+import { useOrganization } from '@/providers/entities/icp/OrganizationProvider';
 
 export const TradeView = () => {
     const location = useLocation();
@@ -75,13 +75,7 @@ export const TradeView = () => {
                         {
                             key: '1',
                             label: 'Details',
-                            children: (
-                                <OrderTradeView
-                                    disabled={disabled}
-                                    toggleDisabled={toggleDisabled}
-                                    commonElements={elements}
-                                />
-                            )
+                            children: <OrderTradeView disabled={disabled} toggleDisabled={toggleDisabled} commonElements={elements} />
                         },
                         {
                             key: '2',
@@ -91,8 +85,8 @@ export const TradeView = () => {
 
                         {
                             key: '3',
-                            label: 'Down payment',
-                            children: <EscrowPanel />
+                            label: 'Down Payment',
+                            children: <DownPaymentPanel />
                         },
                         {
                             key: '4',

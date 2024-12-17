@@ -1,4 +1,4 @@
-import { CardPage } from '@/components/structure/CardPage/CardPage';
+import { CardPage } from '@/components/CardPage/CardPage';
 import { Button } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import { paths } from '@/constants/paths';
@@ -10,9 +10,9 @@ import { CertificateDocumentNames } from '@/constants/certificationDocument';
 import { ICPCertificateDocumentType } from '@kbc-lib/coffee-trading-management-lib';
 import { validateDates } from '@/utils/date';
 import dayjs from 'dayjs';
-import { useSigner } from '@/providers/SignerProvider';
-import { ScopeCertificateRequest, useCertification } from '@/providers/icp/CertificationProvider';
-import { useEnumeration } from '@/providers/icp/EnumerationProvider';
+import { useSigner } from '@/providers/auth/SignerProvider';
+import { ScopeCertificateRequest, useCertification } from '@/providers/entities/icp/CertificationProvider';
+import { useEnumeration } from '@/providers/entities/icp/EnumerationProvider';
 
 export const ScopeCertificateNew = (props: CertificateNewProps) => {
     const { commonElements } = props;

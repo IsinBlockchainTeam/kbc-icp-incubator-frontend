@@ -8,7 +8,6 @@ This package is written in TypeScript.
 
 -   [Git](https://git-scm.com/)
 -   [Nodejs](https://nodejs.org/en) (v.18.x recommended)
--   [kbc-icp-incubator-common](https://github.com/IsinBlockchainTeam/kbc-icp-incubator-common) project
 -   IPC network up and running with the [kbc-icp-incubator-library](https://github.com/IsinBlockchainTeam/kbc-icp-incubator-library) canisters deployed
 -   [kbc-icp-incubator-library](https://github.com/IsinBlockchainTeam/kbc-icp-incubator-library) project
 -   A pair of Verifiable Credentials useful to authenticate the user inside the platform. Please feel free to contact us if you want a pair of credentials to test the platform
@@ -48,7 +47,6 @@ To deploy the project on the ICP mainnet, follow these steps:
 | Registry name              | Description                                                                                                                                                                        |
 | -------------------------- |------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `@kbc-lib:registry`        | Needed for **installing** dependencies. It's the place where you can find the [kbc-icp-incubator-library](https://github.com/IsinBlockchainTeam/kbc-icp-incubator-library) library |
-| `@blockchain-lib:registry` | Needed for **installing** dependencies. It's the place where you can find the [kbc-icp-incubator-common](https://github.com/IsinBlockchainTeam/kbc-icp-incubator-common) library   |
 
 ### Environment Variables Configuration
 
@@ -66,6 +64,5 @@ To deploy the project on the ICP mainnet, follow these steps:
 
 If you want to develop locally:
 
--   Make sure you have built the [kbc-icp-incubator-common](https://github.com/IsinBlockchainTeam/kbc-icp-incubator-common) `package/` package
 -   Make sure you have built the [kbc-icp-incubator-library](https://github.com/IsinBlockchainTeam/kbc-icp-incubator-library) `src` package
 -   Inside file `package.json` change the `@kbc-lib/coffee-trading-management-lib` dependency to the local path of the `src` package. Use the following format: `"@kbc-lib/coffee-trading-management-lib": "file:<relative-path-to-src-package>"`

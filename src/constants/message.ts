@@ -255,16 +255,26 @@ export const AUTHENTICATION_MESSAGE = {
         ERROR: 'Error while logging out.'
     }
 };
-export const ESCROW_MESSAGE = {
+export const DOWN_PAYMENT_MESSAGE = {
+    DEPOSIT: {
+        LOADING: 'Depositing funds...',
+        OK: 'Funds deposited successfully.',
+        ERROR: 'Error while depositing funds.'
+    },
+    LOCK: {
+        LOADING: 'Locking funds...',
+        OK: 'Funds locked successfully.',
+        ERROR: 'Error while locking funds.'
+    },
+    UNLOCK: {
+        LOADING: 'Unlocking funds...',
+        OK: 'Funds unlocked successfully.',
+        ERROR: 'Error while unlocking funds.'
+    },
     RETRIEVE: {
         LOADING: 'Retrieving down payment details...',
         OK: '',
         ERROR: 'Error while retrieving down payment details.'
-    },
-    DEPOSIT: {
-        LOADING: 'Depositing...',
-        OK: 'Deposit successful.',
-        ERROR: 'Error while depositing.'
     },
     WITHDRAW: {
         LOADING: 'Withdrawing...',
@@ -320,15 +330,10 @@ export const SHIPMENT_MESSAGE = {
         OK: 'Shipment quality rejected successfully.',
         ERROR: 'Error while rejecting shipment quality.'
     },
-    DETERMINE_ESCROW: {
+    DETERMINE_DOWN_PAYMENT: {
         LOADING: 'Determining down payment...',
         OK: 'Down payment determined successfully.',
         ERROR: 'Error while determining down payment.'
-    },
-    DEPOSIT: {
-        LOADING: 'Depositing funds...',
-        OK: 'Funds deposited successfully.',
-        ERROR: 'Error while depositing funds.'
     },
     GET_DOCUMENT: {
         LOADING: 'Retrieving document...',

@@ -1,22 +1,22 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSigner } from '@/providers/SignerProvider';
+import { useSigner } from '@/providers/auth/SignerProvider';
 import { render, screen } from '@testing-library/react';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
 import { Button } from 'antd';
 import { paths } from '@/constants/paths';
 import { MaterialCertificateNew } from '@/pages/Certification/New/MaterialCertificateNew';
-import { useCertification } from '@/providers/icp/CertificationProvider';
-import { useMaterial } from '@/providers/icp/MaterialProvider';
-import { useEnumeration } from '@/providers/icp/EnumerationProvider';
-import { ICPAssessmentReferenceStandard, ICPCertificateDocumentType } from '../../../../../../coffee-trading-management-lib/src/index';
+import { useCertification } from '@/providers/entities/icp/CertificationProvider';
+import { useMaterial } from '@/providers/entities/icp/MaterialProvider';
+import { useEnumeration } from '@/providers/entities/icp/EnumerationProvider';
+import { ICPAssessmentReferenceStandard, ICPCertificateDocumentType } from '@kbc-lib/coffee-trading-management-lib';
 
-jest.mock('@/providers/SignerProvider');
+jest.mock('@/providers/auth/SignerProvider');
 jest.mock('react-router-dom');
 jest.mock('@/components/GenericForm/GenericForm');
-jest.mock('@/providers/icp/EnumerationProvider');
-jest.mock('@/providers/icp/CertificationProvider');
-jest.mock('@/providers/icp/MaterialProvider');
+jest.mock('@/providers/entities/icp/EnumerationProvider');
+jest.mock('@/providers/entities/icp/CertificationProvider');
+jest.mock('@/providers/entities/icp/MaterialProvider');
 jest.mock('@/utils/date');
 jest.mock('antd', () => ({
     ...jest.requireActual('antd'),

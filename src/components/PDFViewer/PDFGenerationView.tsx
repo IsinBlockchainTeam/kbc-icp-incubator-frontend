@@ -5,6 +5,8 @@ import { SpecialZoomLevel, Viewer } from '@react-pdf-viewer/core';
 import { createDownloadWindow } from '@/utils/page';
 import { DownloadOutlined } from '@ant-design/icons';
 
+import '@react-pdf-viewer/core/lib/styles/index.css';
+
 type Props = {
     visible: boolean;
     handleClose: () => void;
@@ -20,26 +22,12 @@ type Props = {
 };
 
 export default (props: Props) => {
-    const {
-        centered = false,
-        visible,
-        downloadable = false,
-        title,
-        filename,
-        handleClose,
-        useGeneration,
-        children
-    } = props;
-    const [loading, setLoading] = useState(false);
+    const { centered = false, visible, downloadable = false, title, filename, handleClose, useGeneration, children } = props;
     const [file, setFile] = useState<Blob | null>(null);
 
     useEffect(() => {
         if (visible) {
-            setLoading(true);
-            useGeneration.generatePdf().then((pdf) => {
-                setFile(pdf);
-                setLoading(false);
-            });
+            useGeneration.generatePdf().then((pdf) => setFile(pdf));
         }
     }, [visible]);
 
@@ -49,13 +37,10 @@ export default (props: Props) => {
             centered={centered}
             open={visible}
             onCancel={handleClose}
-            footer={(_, { CancelBtn }) => (
+            footer={(_) => (
                 <>
                     {downloadable && (
-                        <Button
-                            type="default"
-                            onClick={() => createDownloadWindow(file!, filename || 'file.pdf')}
-                            icon={<DownloadOutlined />}>
+                        <Button type="default" onClick={() => createDownloadWindow(file!, filename || 'file.pdf')} icon={<DownloadOutlined />}>
                             {' '}
                             Download
                         </Button>
@@ -69,10 +54,7 @@ export default (props: Props) => {
                         maxHeight: '65vh',
                         overflow: 'scroll'
                     }}>
-                    <Viewer
-                        defaultScale={SpecialZoomLevel.PageWidth}
-                        fileUrl={URL.createObjectURL(file)}
-                    />
+                    <Viewer defaultScale={SpecialZoomLevel.PageWidth} fileUrl={URL.createObjectURL(file)} />
                 </div>
             )}
             {children}

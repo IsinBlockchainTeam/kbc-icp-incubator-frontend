@@ -1,12 +1,12 @@
-import { CardPage } from '@/components/structure/CardPage/CardPage';
+import { CardPage } from '@/components/CardPage/CardPage';
 import { Button } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { paths } from '@/constants/paths';
-import { useMaterial } from '@/providers/icp/MaterialProvider';
-import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';
+import { useMaterial } from '@/providers/entities/icp/MaterialProvider';
+import { useProductCategory } from '@/providers/entities/icp/ProductCategoryProvider';
 
 export const MaterialNew = () => {
     const { saveMaterial } = useMaterial();
@@ -46,21 +46,12 @@ export const MaterialNew = () => {
                         alignItems: 'center'
                     }}>
                     New Material
-                    <Button
-                        type="primary"
-                        danger
-                        icon={<DeleteOutlined />}
-                        onClick={() => navigate(paths.MATERIALS)}>
+                    <Button type="primary" danger icon={<DeleteOutlined />} onClick={() => navigate(paths.MATERIALS)}>
                         Delete Material
                     </Button>
                 </div>
             }>
-            <GenericForm
-                elements={elements}
-                confirmText="Are you sure you want to create this material?"
-                submittable={true}
-                onSubmit={onSubmit}
-            />
+            <GenericForm elements={elements} confirmText="Are you sure you want to create this material?" submittable={true} onSubmit={onSubmit} />
         </CardPage>
     );
 };

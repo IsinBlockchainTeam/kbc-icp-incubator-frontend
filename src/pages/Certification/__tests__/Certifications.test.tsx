@@ -5,11 +5,11 @@ import { ICPAssessmentReferenceStandard, ICPCertificateType } from '@kbc-lib/cof
 import { Table, Tag } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
 import DropdownButton from 'antd/es/dropdown/dropdown-button';
-import { useOrganization } from '@/providers/icp/OrganizationProvider';
-import { useRawCertification } from '@/providers/icp/RawCertificationProvider';
+import { useRawCertification } from '@/providers/entities/icp/RawCertificationProvider';
+import { useOrganization } from '@/providers/entities/icp/OrganizationProvider';
 
-jest.mock('@/providers/icp/OrganizationProvider');
-jest.mock('@/providers/icp/RawCertificationProvider');
+jest.mock('@/providers/entities/icp/OrganizationProvider');
+jest.mock('@/providers/entities/icp/RawCertificationProvider');
 jest.mock('react-router-dom', () => {
     return {
         ...jest.requireActual('react-router-dom'),

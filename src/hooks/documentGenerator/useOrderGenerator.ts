@@ -4,9 +4,9 @@ import { incotermsMap } from '@/constants/trade';
 import { text, image, barcodes } from '@pdfme/schemas';
 import { generate } from '@pdfme/generator';
 import OrderTemplateSchema from '../../templates/transaction/pdf-schemas/OrderTemplateSchema.json';
-import { ESCROW_FEE } from '@/constants/misc';
+import { DOWN_PAYMENT_FEE } from '@/constants/misc';
 import { fixYPositions } from '@/hooks/documentGenerator/utils';
-import { useOrganization } from '@/providers/icp/OrganizationProvider';
+import { useOrganization } from '@/providers/entities/icp/OrganizationProvider';
 import { BroadedOrganization } from '@kbc-lib/coffee-trading-management-lib';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
@@ -144,8 +144,7 @@ export default (
             Terms: {
                 Incoterms: orderSpec.constraints.incoterms,
                 Insurance: {
-                    ResponsibleParty: incotermsMap.get(orderSpec.constraints.incoterms)!
-                        .responsibleParty,
+                    ResponsibleParty: incotermsMap.get(orderSpec.constraints.incoterms)!.responsibleParty,
                     Details: incotermsMap.get(orderSpec.constraints.incoterms)!.details
                 },
                 Arbiter: {
@@ -180,17 +179,14 @@ export default (
                 DeliveryDate: orderSpec.constraints.deliveryDate,
                 Guarantee: {
                     AmountPercent: orderSpec.constraints.guaranteePercentage,
-                    EscrowTaxPercent: ESCROW_FEE
+                    DownPaymentTaxPercent: DOWN_PAYMENT_FEE
                 },
                 PriceFixing: {
                     Mode: "Seller's Call",
                     Value: 'Average of daily closing prices from the previous month',
                     Currency: orderSpec.currency,
                     // TODO: remove this hardcoded values
-                    PriceSources: [
-                        'New York Mercantile Exchange (NYMEX)',
-                        'London Metal Exchange (LME)'
-                    ],
+                    PriceSources: ['New York Mercantile Exchange (NYMEX)', 'London Metal Exchange (LME)'],
                     SettlementConditions: 'Payment due within 30 days of price fixing date'
                 }
             },
@@ -227,8 +223,8 @@ export default (
                 itemWeight: String(jsonSpec.LineItems[0].Weight),
                 priceMode: jsonSpec.Terms.PriceFixing.Mode,
                 currency: jsonSpec.Terms.PriceFixing.Currency,
-                escrowPercentage: `${jsonSpec.Terms.Guarantee.EscrowTaxPercent}%`,
-                escrowTaxPercentage: `${jsonSpec.Terms.Guarantee.AmountPercent}%`,
+                downPaymentPercentage: `${jsonSpec.Terms.Guarantee.DownPaymentTaxPercent}%`,
+                downPaymentTaxPercentage: `${jsonSpec.Terms.Guarantee.AmountPercent}%`,
                 arbiter: jsonSpec.Terms.Arbiter.Name,
                 shipper: jsonSpec.Terms.Shipper,
                 shippingPort: jsonSpec.Terms.ShippingPort,

@@ -1,4 +1,4 @@
-import { CardPage } from '@/components/structure/CardPage/CardPage';
+import { CardPage } from '@/components/CardPage/CardPage';
 import { Button } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
@@ -6,7 +6,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { regex } from '@/constants/regex';
 import { paths } from '@/constants/paths';
-import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';
+import { useProductCategory } from '@/providers/entities/icp/ProductCategoryProvider';
 
 export const ProductCategoryNew = () => {
     const { saveProductCategory } = useProductCategory();
@@ -59,11 +59,7 @@ export const ProductCategoryNew = () => {
                         alignItems: 'center'
                     }}>
                     New Product Category
-                    <Button
-                        type="primary"
-                        danger
-                        icon={<DeleteOutlined />}
-                        onClick={() => navigate(paths.MATERIALS)}>
+                    <Button type="primary" danger icon={<DeleteOutlined />} onClick={() => navigate(paths.MATERIALS)}>
                         Delete Product Category
                     </Button>
                 </div>

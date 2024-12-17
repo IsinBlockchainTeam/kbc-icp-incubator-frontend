@@ -6,6 +6,6 @@ export const utils = {
     DATE_FORMAT: 'DD/MM/YYYY'
 };
 
-export const ESCROW_FEE: number = Number(
+export const DOWN_PAYMENT_FEE: number = Number(
     checkAndGetEnvironmentVariable(process.env.REACT_APP_DOWN_PAYMENT_FEE_PERCENT, 'Down payment fee amount percent must be defined')
 );

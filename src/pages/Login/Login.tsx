@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styles from './Login.module.scss';
 import { Card, QRCode, Space, Timeline } from 'antd';
-import { useWalletConnect } from '@/providers/WalletConnectProvider';
+import { useWalletConnect } from '@/providers/auth/WalletConnectProvider';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
@@ -108,9 +108,7 @@ export const Login = () => {
                         employeeClaims,
                         roleProof: {
                             signedProof: message.body.verifiableCredential[1].signedProof,
-                            delegator: message.body.verifiableCredential[1].issuer.id.split(
-                                DID_METHOD + ':'
-                            )[1],
+                            delegator: message.body.verifiableCredential[1].issuer.id.split(DID_METHOD + ':')[1],
                             delegateRole: message.body.verifiableCredential[1].credentialSubject.role,
                             delegateCredentialIdHash: message.body.verifiableCredential[1].id,
                             delegateCredentialExpiryDate: Math.floor(new Date(message.body.verifiableCredential[1].expirationDate).getTime() / 1000),

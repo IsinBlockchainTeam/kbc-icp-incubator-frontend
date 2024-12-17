@@ -7,9 +7,9 @@ import { paths } from '@/constants/paths';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { PreviewModal } from '@/components/PreviewModal/PreviewModal';
 import { useNavigate } from 'react-router-dom';
-import { useSigner } from '@/providers/SignerProvider';
+import { useSigner } from '@/providers/auth/SignerProvider';
 import { ConfirmButton } from '@/components/ConfirmButton/ConfirmButton';
-import { useShipment } from '@/providers/icp/ShipmentProvider';
+import { useShipment } from '@/providers/entities/icp/ShipmentProvider';
 
 interface ShipmentDocumentTableProps {
     selectedPhase: ShipmentPhase;

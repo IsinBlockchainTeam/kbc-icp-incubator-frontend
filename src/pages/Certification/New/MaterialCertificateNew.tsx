@@ -1,4 +1,4 @@
-import { CardPage } from '@/components/structure/CardPage/CardPage';
+import { CardPage } from '@/components/CardPage/CardPage';
 import { Button } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import { paths } from '@/constants/paths';
@@ -8,10 +8,10 @@ import { CertificateNewProps } from '@/pages/Certification/New/CertificateNew';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
 import { CertificateDocumentNames } from '@/constants/certificationDocument';
 import { ICPCertificateDocumentType } from '@kbc-lib/coffee-trading-management-lib';
-import { useSigner } from '@/providers/SignerProvider';
-import { useEnumeration } from '@/providers/icp/EnumerationProvider';
-import { MaterialCertificateRequest, useCertification } from '@/providers/icp/CertificationProvider';
-import { useMaterial } from '@/providers/icp/MaterialProvider';
+import { useSigner } from '@/providers/auth/SignerProvider';
+import { useEnumeration } from '@/providers/entities/icp/EnumerationProvider';
+import { MaterialCertificateRequest, useCertification } from '@/providers/entities/icp/CertificationProvider';
+import { useMaterial } from '@/providers/entities/icp/MaterialProvider';
 
 export const MaterialCertificateNew = (props: CertificateNewProps) => {
     const { commonElements } = props;

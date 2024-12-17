@@ -5,7 +5,7 @@ import { ConfirmButton } from '@/components/ConfirmButton/ConfirmButton';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { credentials } from '@/constants/ssi';
-import { useShipment } from '@/providers/icp/ShipmentProvider';
+import { useShipment } from '@/providers/entities/icp/ShipmentProvider';
 
 const { Paragraph } = Typography;
 
@@ -31,11 +31,9 @@ export const SeaTransportation = () => {
             children: (
                 <Tag
                     color={
-                        detailedShipment.shipment.qualityEvaluationStatus ===
-                        EvaluationStatus.NOT_EVALUATED
+                        detailedShipment.shipment.qualityEvaluationStatus === EvaluationStatus.NOT_EVALUATED
                             ? 'orange'
-                            : detailedShipment.shipment.qualityEvaluationStatus ===
-                                EvaluationStatus.APPROVED
+                            : detailedShipment.shipment.qualityEvaluationStatus === EvaluationStatus.APPROVED
                               ? 'green'
                               : 'red'
                     }
@@ -46,10 +44,7 @@ export const SeaTransportation = () => {
             span: 12
         }
     ];
-    if (
-        isImporter &&
-        detailedShipment.shipment.qualityEvaluationStatus !== EvaluationStatus.APPROVED
-    ) {
+    if (isImporter && detailedShipment.shipment.qualityEvaluationStatus !== EvaluationStatus.APPROVED) {
         items.push({
             key: '2',
             label: 'Have you received and are you satisfied with the goods?',
@@ -62,13 +57,7 @@ export const SeaTransportation = () => {
                         type="primary"
                         block
                     />
-                    <ConfirmButton
-                        text="Reject"
-                        confirmText="Are you sure you want to reject the goods?"
-                        onConfirm={rejectQuality}
-                        danger
-                        block
-                    />
+                    <ConfirmButton text="Reject" confirmText="Are you sure you want to reject the goods?" onConfirm={rejectQuality} danger block />
                 </Flex>
             ),
             span: 12
@@ -86,9 +75,7 @@ export const SeaTransportation = () => {
                     marginBottom: 10
                 }}
                 role="card">
-                <Paragraph>
-                    Phase from when the ship leaves port to when the importer receives it.
-                </Paragraph>
+                <Paragraph>Phase from when the ship leaves port to when the importer receives it.</Paragraph>
             </Card>
             <Descriptions title="Quality Evaluation" items={items} bordered />
         </>

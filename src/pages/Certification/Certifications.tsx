@@ -1,5 +1,5 @@
 import React from 'react';
-import { CardPage } from '@/components/structure/CardPage/CardPage';
+import { CardPage } from '@/components/CardPage/CardPage';
 import { ColumnsType } from 'antd/es/table';
 import { Link, useNavigate } from 'react-router-dom';
 import { setParametersPath } from '@/utils/page';
@@ -8,8 +8,8 @@ import { Table, Tag } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { ICPBaseCertificate, ICPCertificateType } from '@kbc-lib/coffee-trading-management-lib';
 import DropdownButton from 'antd/es/dropdown/dropdown-button';
-import { useOrganization } from '@/providers/icp/OrganizationProvider';
-import { useRawCertification } from '@/providers/icp/RawCertificationProvider';
+import { useOrganization } from '@/providers/entities/icp/OrganizationProvider';
+import { useRawCertification } from '@/providers/entities/icp/RawCertificationProvider';
 
 export const certificationsType = [
     {

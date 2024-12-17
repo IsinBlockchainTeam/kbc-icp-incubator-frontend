@@ -1,13 +1,13 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FormElement, FormElementType } from '@/components/GenericForm/GenericForm';
-import { useSigner } from '@/providers/SignerProvider';
+import { useSigner } from '@/providers/auth/SignerProvider';
 import { paths } from '@/constants/paths';
 import { CompanyCertificateNew } from '@/pages/Certification/New/CompanyCertificateNew';
 import { regex } from '@/constants/regex';
 import { ScopeCertificateNew } from '@/pages/Certification/New/ScopeCertificateNew';
 import { MaterialCertificateNew } from '@/pages/Certification/New/MaterialCertificateNew';
-import { useOrganization } from '@/providers/icp/OrganizationProvider';
+import { useOrganization } from '@/providers/entities/icp/OrganizationProvider';
 
 export type CertificateNewProps = {
     commonElements: FormElement[];
