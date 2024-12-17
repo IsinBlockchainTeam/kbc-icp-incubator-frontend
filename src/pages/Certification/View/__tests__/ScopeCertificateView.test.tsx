@@ -1,14 +1,11 @@
 import { useSigner } from '@/providers/SignerProvider';
 import { useNavigate } from 'react-router-dom';
 import {
-    CertificateDocumentType,
-    CertificateType,
-    DocumentEvaluationStatus,
     EvaluationStatus,
+    ICPAssessmentReferenceStandard,
     ICPCertificateDocumentType,
     ICPCertificateType,
-    ICPScopeCertificate,
-    ScopeCertificate
+    ICPScopeCertificate
 } from '@kbc-lib/coffee-trading-management-lib';
 import { render, screen } from '@testing-library/react';
 import React from 'react';
@@ -27,7 +24,7 @@ jest.mock('@/components/GenericForm/GenericForm');
 describe('ScopeCertificateView', () => {
     const signer = { _address: '0x123' };
     const navigate = jest.fn();
-    const assessmentReferenceStandards = ['assessmentReferenceStandard'];
+    const assessmentReferenceStandards = [{ id: 1 } as ICPAssessmentReferenceStandard];
     const assessmentAssuranceLevels = ['assessmentAssuranceLevel'];
     const processTypes = ['processType'];
     const updateScopeCertificate = jest.fn();
@@ -37,8 +34,8 @@ describe('ScopeCertificateView', () => {
             'issuer',
             'subject',
             'uploadedBy',
-            'assessmentReferenceStandard',
-            'assessmentAssuranceLevel',
+            assessmentReferenceStandards[0],
+            assessmentAssuranceLevels[0],
             {
                 referenceId: '123456',
                 documentType: ICPCertificateDocumentType.PRODUCTION_FACILITY_LICENSE,
@@ -104,7 +101,7 @@ describe('ScopeCertificateView', () => {
         render(<ScopeCertificateView commonElements={commonElements} editElements={[]} disabled={false} detailedCertificate={detailedCertificate} />);
         const values = {
             issuer: 'issuer',
-            assessmentReferenceStandard: assessmentReferenceStandards[0],
+            assessmentReferenceStandard: assessmentReferenceStandards[0].id,
             assessmentAssuranceLevel: assessmentAssuranceLevels[0],
             document: new File([new Blob(['document'])], 'example.txt', {
                 type: 'application/pdf'
@@ -121,7 +118,7 @@ describe('ScopeCertificateView', () => {
         expect(updateScopeCertificate).toHaveBeenCalledWith({
             issuer: values.issuer,
             subject: signer._address,
-            assessmentReferenceStandard: values.assessmentReferenceStandard,
+            assessmentReferenceStandardId: values.assessmentReferenceStandard,
             assessmentAssuranceLevel: values.assessmentAssuranceLevel,
             document: {
                 filename: values.document.name,

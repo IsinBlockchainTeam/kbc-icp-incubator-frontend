@@ -9,7 +9,7 @@ import dayjs from 'dayjs';
 import { paths } from '@/constants/paths';
 import { useCertification } from '@/providers/icp/CertificationProvider';
 import { useEnumeration } from '@/providers/icp/EnumerationProvider';
-import { ICPCertificateDocumentType } from '../../../../../../coffee-trading-management-lib/src/index';
+import { ICPAssessmentReferenceStandard, ICPCertificateDocumentType } from '../../../../../../coffee-trading-management-lib/src/index';
 
 jest.mock('@/providers/SignerProvider');
 jest.mock('react-router-dom');
@@ -25,7 +25,7 @@ jest.mock('antd', () => ({
 describe('Scope Certificate New', () => {
     const signer = { _address: '0x123' };
     const navigate = jest.fn();
-    const assessmentReferenceStandards = ['assessmentReferenceStandard'];
+    const assessmentReferenceStandards = [{ id: 1 } as ICPAssessmentReferenceStandard];
     const assessmentAssuranceLevels = ['assessmentAssuranceLevel'];
     const processTypes = ['processType'];
     const saveScopeCertificate = jest.fn();
@@ -57,7 +57,7 @@ describe('Scope Certificate New', () => {
         render(<ScopeCertificateNew commonElements={commonElements} />);
         const values = {
             issuer: 'issuer',
-            assessmentReferenceStandard: assessmentReferenceStandards[0],
+            assessmentReferenceStandard: assessmentReferenceStandards[0].id,
             assessmentAssuranceLevel: assessmentAssuranceLevels[0],
             document: new File([new Blob(['document'])], 'example.txt', {
                 type: 'application/pdf'
@@ -75,7 +75,7 @@ describe('Scope Certificate New', () => {
         expect(saveScopeCertificate).toHaveBeenCalledWith({
             issuer: values.issuer,
             subject: signer._address,
-            assessmentReferenceStandard: values.assessmentReferenceStandard,
+            assessmentReferenceStandardId: values.assessmentReferenceStandard,
             assessmentAssuranceLevel: values.assessmentAssuranceLevel,
             document: {
                 filename: values.document.name,

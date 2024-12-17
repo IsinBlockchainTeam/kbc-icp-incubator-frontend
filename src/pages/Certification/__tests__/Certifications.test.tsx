@@ -1,15 +1,15 @@
 import { act, render } from '@testing-library/react';
 import React from 'react';
 import { Certifications, certificationsType } from '@/pages/Certification/Certifications';
-import { ICPCertificateType } from '@kbc-lib/coffee-trading-management-lib';
+import { ICPAssessmentReferenceStandard, ICPCertificateType } from '@kbc-lib/coffee-trading-management-lib';
 import { Table, Tag } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
 import DropdownButton from 'antd/es/dropdown/dropdown-button';
-import { useCertification } from '@/providers/icp/CertificationProvider';
 import { useOrganization } from '@/providers/icp/OrganizationProvider';
+import { useRawCertification } from '@/providers/icp/RawCertificationProvider';
 
 jest.mock('@/providers/icp/OrganizationProvider');
-jest.mock('@/providers/icp/CertificationProvider');
+jest.mock('@/providers/icp/RawCertificationProvider');
 jest.mock('react-router-dom', () => {
     return {
         ...jest.requireActual('react-router-dom'),
@@ -30,7 +30,7 @@ describe('Certifications', () => {
     const certificates = [
         {
             id: 1,
-            assessmentReferenceStandard: 'assessmentReferenceStandard',
+            assessmentReferenceStandard: { id: 2 } as ICPAssessmentReferenceStandard,
             issuer: 'issuer',
             issueDate: new Date(),
             certificateType: ICPCertificateType.COMPANY
@@ -43,7 +43,7 @@ describe('Certifications', () => {
         jest.spyOn(console, 'error').mockImplementation(jest.fn());
         jest.clearAllMocks();
 
-        (useCertification as jest.Mock).mockReturnValue({ rawCertificates: certificates });
+        (useRawCertification as jest.Mock).mockReturnValue({ rawCertificates: certificates });
         (useOrganization as jest.Mock).mockReturnValue({ getOrganization });
         getOrganization.mockReturnValue({ legalName: 'actor' });
         (useNavigate as jest.Mock).mockReturnValue(navigate);
@@ -104,7 +104,7 @@ describe('Certifications', () => {
         expect(Table).toHaveBeenCalledTimes(1);
         const columns = (Table as unknown as jest.Mock).mock.calls[0][0].columns;
         expect(columns[0].sorter({ id: 1 }, { id: 2 })).toBeLessThan(0);
-        expect(columns[1].sorter({ assessmentReferenceStandard: 'c' }, { assessmentReferenceStandard: 'a' })).toEqual(1);
+        expect(columns[1].sorter({ assessmentReferenceStandard: { name: 'c' } }, { assessmentReferenceStandard: { name: 'a' } })).toEqual(1);
         expect(columns[2].sorter({ legalName: getOrganization('company1') }, { legalName: getOrganization('company2') })).toEqual(0);
         expect(columns[3].sorter({ issueDate: new Date() }, { issueDate: new Date(new Date().setDate(new Date().getDate() + 1)) })).toBeLessThan(0);
         expect(columns[4].sorter({ certificateType: ICPCertificateType.SCOPE }, { certificateType: ICPCertificateType.MATERIAL })).toEqual(1);

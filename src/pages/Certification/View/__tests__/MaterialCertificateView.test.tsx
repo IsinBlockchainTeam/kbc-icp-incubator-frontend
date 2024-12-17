@@ -2,6 +2,7 @@ import { useSigner } from '@/providers/SignerProvider';
 import { useNavigate } from 'react-router-dom';
 import {
     EvaluationStatus,
+    ICPAssessmentReferenceStandard,
     ICPCertificateDocumentType,
     ICPCertificateType,
     ICPMaterialCertificate,
@@ -26,7 +27,7 @@ jest.mock('@/components/GenericForm/GenericForm');
 describe('MaterialCertificateView', () => {
     const signer = { _address: '0x123' };
     const navigate = jest.fn();
-    const assessmentReferenceStandards = ['assessmentReferenceStandard'];
+    const assessmentReferenceStandards = [{ id: 1 } as ICPAssessmentReferenceStandard];
     const assessmentAssuranceLevels = ['assessmentAssuranceLevel'];
     const materials = [{ id: 3, productCategory: { name: 'productCategory' } }];
     const updateMaterialCertificate = jest.fn();
@@ -36,8 +37,8 @@ describe('MaterialCertificateView', () => {
             'issuer',
             'subject',
             'uploadedBy',
-            'assessmentReferenceStandard',
-            'assessmentAssuranceLevel',
+            assessmentReferenceStandards[0],
+            assessmentAssuranceLevels[0],
             {
                 referenceId: '123456',
                 documentType: ICPCertificateDocumentType.PRODUCTION_FACILITY_LICENSE,
@@ -107,7 +108,7 @@ describe('MaterialCertificateView', () => {
         const values = {
             issuer: 'issuer',
             subject: 'subject',
-            assessmentReferenceStandard: assessmentReferenceStandards[0],
+            assessmentReferenceStandard: assessmentReferenceStandards[0].id,
             assessmentAssuranceLevel: assessmentAssuranceLevels[0],
             document: new File([new Blob(['document'])], 'example.txt', {
                 type: 'application/pdf'
@@ -122,7 +123,7 @@ describe('MaterialCertificateView', () => {
         expect(updateMaterialCertificate).toHaveBeenCalledWith({
             issuer: values.issuer,
             subject: signer._address,
-            assessmentReferenceStandard: values.assessmentReferenceStandard,
+            assessmentReferenceStandardId: values.assessmentReferenceStandard,
             assessmentAssuranceLevel: values.assessmentAssuranceLevel,
             document: {
                 filename: values.document.name,

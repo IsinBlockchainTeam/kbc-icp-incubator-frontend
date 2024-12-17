@@ -9,7 +9,7 @@ import { MaterialCertificateNew } from '@/pages/Certification/New/MaterialCertif
 import { useCertification } from '@/providers/icp/CertificationProvider';
 import { useMaterial } from '@/providers/icp/MaterialProvider';
 import { useEnumeration } from '@/providers/icp/EnumerationProvider';
-import { ICPCertificateDocumentType } from '../../../../../../coffee-trading-management-lib/src/index';
+import { ICPAssessmentReferenceStandard, ICPCertificateDocumentType } from '../../../../../../coffee-trading-management-lib/src/index';
 
 jest.mock('@/providers/SignerProvider');
 jest.mock('react-router-dom');
@@ -26,7 +26,7 @@ jest.mock('antd', () => ({
 describe('Material Certificate New', () => {
     const signer = { _address: '0x123' };
     const navigate = jest.fn();
-    const assessmentReferenceStandards = ['assessmentReferenceStandard'];
+    const assessmentReferenceStandards = [{ id: 1 } as ICPAssessmentReferenceStandard];
     const assessmentAssuranceLevels = ['assessmentAssuranceLevel'];
     const materials = [{ id: 1, productCategory: { name: 'Product Category 1' } }];
     const saveMaterialCertificate = jest.fn();
@@ -62,7 +62,7 @@ describe('Material Certificate New', () => {
         const values = {
             issuer: 'issuer',
             subject: 'subject',
-            assessmentReferenceStandard: assessmentReferenceStandards[0],
+            assessmentReferenceStandard: assessmentReferenceStandards[0].id,
             assessmentAssuranceLevel: assessmentAssuranceLevels[0],
             document: new File([new Blob(['document'])], 'example.txt', {
                 type: 'application/pdf'
@@ -78,7 +78,7 @@ describe('Material Certificate New', () => {
         expect(saveMaterialCertificate).toHaveBeenCalledWith({
             issuer: values.issuer,
             subject: signer._address,
-            assessmentReferenceStandard: values.assessmentReferenceStandard,
+            assessmentReferenceStandardId: values.assessmentReferenceStandard,
             assessmentAssuranceLevel: values.assessmentAssuranceLevel,
             document: {
                 filename: values.document.name,
