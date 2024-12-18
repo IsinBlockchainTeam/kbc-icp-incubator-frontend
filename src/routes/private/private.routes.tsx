@@ -11,7 +11,6 @@ import OfferNew from '@/pages/Offer/OfferNew';
 import { useMaterial } from '@/providers/entities/icp/MaterialProvider';
 import Materials from '@/pages/Material/Materials';
 import MaterialNew from '@/pages/Material/MaterialNew';
-import ProductCategoryNew from '@/pages/Material/ProductCategoryNew';
 import { useOrder } from '@/providers/entities/icp/OrderProvider';
 import Documents from '@/pages/Documents/Shipment/ShipmentDocuments';
 import Trades from '@/pages/Trade/Trades';
@@ -64,14 +63,6 @@ const privateRoutes = (
             element={
                 <AsyncDataLoader customUseContext={useMaterial}>
                     <MaterialNew />
-                </AsyncDataLoader>
-            }
-        />
-        <Route
-            path={paths.PRODUCT_CATEGORY_NEW}
-            element={
-                <AsyncDataLoader customUseContext={useProductCategory}>
-                    <ProductCategoryNew />
                 </AsyncDataLoader>
             }
         />

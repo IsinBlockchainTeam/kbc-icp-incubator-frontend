@@ -45,7 +45,7 @@ export const OrderTradeView = ({ disabled, toggleDisabled, commonElements }: Ord
             id: `order_info_line#${index}`,
             productCategory: line.productCategory.name || '',
             productTypology: 'Green coffee beans',
-            quality: line.productCategory.quality,
+            quality: 80,
             moisture: 12,
             quantitySpecs: [
                 {

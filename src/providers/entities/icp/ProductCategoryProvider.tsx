@@ -13,7 +13,7 @@ export type ProductCategoryContextState = {
     dataLoaded: boolean;
     productCategories: ProductCategory[];
     loadData: () => Promise<void>;
-    saveProductCategory: (name: string, quality: number, description: string) => Promise<void>;
+    saveProductCategory: (name: string) => Promise<void>;
 };
 export const ProductCategoryContext = createContext<ProductCategoryContextState>({} as ProductCategoryContextState);
 export const useProductCategory = (): ProductCategoryContextState => {
@@ -51,11 +51,11 @@ export function ProductCategoryProvider(props: { children: ReactNode }) {
         }, PRODUCT_CATEGORY_MESSAGE.RETRIEVE.LOADING);
     };
 
-    const saveProductCategory = async (name: string, quality: number, description: string) => {
+    const saveProductCategory = async (name: string) => {
         await handleICPCall(async () => {
-            await productCategoryService.createProductCategory(name, quality, description);
+            await productCategoryService.createProductCategory(name);
             openNotification('Success', PRODUCT_CATEGORY_MESSAGE.SAVE.OK, NotificationType.SUCCESS, NOTIFICATION_DURATION);
-            await loadProductCategories();
+            await loadData();
         }, PRODUCT_CATEGORY_MESSAGE.SAVE.LOADING);
     };
 

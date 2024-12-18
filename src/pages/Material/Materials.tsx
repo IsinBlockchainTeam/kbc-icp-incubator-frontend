@@ -25,11 +25,6 @@ export const Materials = () => {
             title: 'Name',
             dataIndex: 'name',
             sorter: (a, b) => a.name.localeCompare(b.name)
-        },
-        {
-            title: 'Quality',
-            dataIndex: 'quality',
-            sorter: (a, b) => (a.quality && b.quality ? a.quality - b.quality : 0)
         }
     ];
 
@@ -74,15 +69,6 @@ export const Materials = () => {
                             alignItems: 'center'
                         }}>
                         Product Categories
-                        <div>
-                            <Button
-                                type="primary"
-                                icon={<PlusOutlined />}
-                                onClick={() => navigate(paths.PRODUCT_CATEGORY_NEW)}
-                                style={{ marginRight: '16px' }}>
-                                New Product Category
-                            </Button>
-                        </div>
                     </div>
                 }>
                 <Table columns={productCategoriesColumns} dataSource={productCategories} rowKey="id" />
