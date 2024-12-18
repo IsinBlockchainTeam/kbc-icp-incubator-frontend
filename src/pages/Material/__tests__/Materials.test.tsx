@@ -20,7 +20,10 @@ describe('Materials', () => {
 
         const productCategories = [new ProductCategory(1, 'Product category 1', 1, ''), new ProductCategory(2, 'Product category 2', 2, '')];
         (useMaterial as jest.Mock).mockReturnValue({
-            materials: [new Material(1, productCategories[0]), new Material(2, productCategories[1])]
+            materials: [
+                new Material(1, productCategories[0], 'typology1', 'quality1', 'moisture1'),
+                new Material(2, productCategories[1], 'typology2', 'quality2', 'moisture2')
+            ]
         });
         (useProductCategory as jest.Mock).mockReturnValue({
             productCategories
@@ -31,13 +34,19 @@ describe('Materials', () => {
         render(<Materials />);
 
         expect(screen.getByText('Product Categories')).toBeInTheDocument();
-        expect(screen.getByText('Your Materials')).toBeInTheDocument();
+        expect(screen.getByText('Materials')).toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'plus New Product Category' })).toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'plus New Material' })).toBeInTheDocument();
         expect(screen.getAllByText('Product category 1')[0]).toBeInTheDocument();
         expect(screen.getAllByText('Product category 1')[1]).toBeInTheDocument();
         expect(screen.getAllByText('Product category 2')[0]).toBeInTheDocument();
         expect(screen.getAllByText('Product category 2')[1]).toBeInTheDocument();
+        expect(screen.getAllByText('typology1')[0]).toBeInTheDocument();
+        expect(screen.getAllByText('typology2')[0]).toBeInTheDocument();
+        expect(screen.getAllByText('quality1')[0]).toBeInTheDocument();
+        expect(screen.getAllByText('quality2')[0]).toBeInTheDocument();
+        expect(screen.getAllByText('moisture1')[0]).toBeInTheDocument();
+        expect(screen.getAllByText('moisture2')[0]).toBeInTheDocument();
     });
 
     it("should call navigator functions when clicking on 'New' buttons", async () => {
@@ -85,7 +94,7 @@ describe('Materials', () => {
         expect(tableRows[2]).toHaveTextContent('2Product category 22');
 
         act(() => {
-            userEvent.click(screen.getByText('Quality'));
+            userEvent.click(screen.getAllByText('Quality')[0]);
         });
 
         tableRows = screen.getAllByRole('row');
@@ -99,8 +108,8 @@ describe('Materials', () => {
 
         let tableRows = screen.getAllByRole('row');
         expect(tableRows).toHaveLength(6);
-        expect(tableRows[4]).toHaveTextContent('1Product category 1');
-        expect(tableRows[5]).toHaveTextContent('2Product category 2');
+        expect(tableRows[4]).toHaveTextContent('1Product category 1typology1quality1moisture1');
+        expect(tableRows[5]).toHaveTextContent('2Product category 2typology2quality2moisture2');
 
         act(() => {
             userEvent.click(screen.getAllByText('Id')[1]);
@@ -108,8 +117,8 @@ describe('Materials', () => {
 
         tableRows = screen.getAllByRole('row');
         expect(tableRows).toHaveLength(6);
-        expect(tableRows[4]).toHaveTextContent('2Product category 2');
-        expect(tableRows[5]).toHaveTextContent('1Product category 1');
+        expect(tableRows[4]).toHaveTextContent('2Product category 2typology2quality2moisture2');
+        expect(tableRows[5]).toHaveTextContent('1Product category 1typology1quality1moisture1');
 
         act(() => {
             userEvent.click(screen.getByText('Product category'));
@@ -117,7 +126,34 @@ describe('Materials', () => {
 
         tableRows = screen.getAllByRole('row');
         expect(tableRows).toHaveLength(6);
-        expect(tableRows[4]).toHaveTextContent('1Product category 1');
-        expect(tableRows[5]).toHaveTextContent('2Product category 2');
+        expect(tableRows[4]).toHaveTextContent('1Product category 1typology1quality1moisture1');
+        expect(tableRows[5]).toHaveTextContent('2Product category 2typology2quality2moisture2');
+
+        act(() => {
+            userEvent.click(screen.getByText('Typology'));
+        });
+
+        tableRows = screen.getAllByRole('row');
+        expect(tableRows).toHaveLength(6);
+        expect(tableRows[4]).toHaveTextContent('1Product category 1typology1quality1moisture1');
+        expect(tableRows[5]).toHaveTextContent('2Product category 2typology2quality2moisture2');
+
+        act(() => {
+            userEvent.click(screen.getAllByText('Quality')[1]);
+        });
+
+        tableRows = screen.getAllByRole('row');
+        expect(tableRows).toHaveLength(6);
+        expect(tableRows[4]).toHaveTextContent('1Product category 1typology1quality1moisture1');
+        expect(tableRows[5]).toHaveTextContent('2Product category 2typology2quality2moisture2');
+
+        act(() => {
+            userEvent.click(screen.getByText('Moisture'));
+        });
+
+        tableRows = screen.getAllByRole('row');
+        expect(tableRows).toHaveLength(6);
+        expect(tableRows[4]).toHaveTextContent('1Product category 1typology1quality1moisture1');
+        expect(tableRows[5]).toHaveTextContent('2Product category 2typology2quality2moisture2');
     });
 });

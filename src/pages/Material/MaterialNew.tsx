@@ -17,7 +17,7 @@ export const MaterialNew = () => {
         { type: FormElementType.TITLE, span: 24, label: 'Data' },
         {
             type: FormElementType.SELECT,
-            span: 8,
+            span: 12,
             name: 'product-category-id',
             label: 'Product Category ID',
             required: true,
@@ -27,12 +27,39 @@ export const MaterialNew = () => {
             })),
             defaultValue: '',
             disabled: false
+        },
+        {
+            type: FormElementType.INPUT,
+            span: 12,
+            name: 'typology',
+            label: 'Typology',
+            required: true,
+            defaultValue: '',
+            disabled: false
+        },
+        {
+            type: FormElementType.INPUT,
+            span: 12,
+            name: 'quality',
+            label: 'Quality',
+            required: true,
+            defaultValue: '',
+            disabled: false
+        },
+        {
+            type: FormElementType.INPUT,
+            span: 12,
+            name: 'moisture',
+            label: 'Moisture',
+            required: true,
+            defaultValue: '',
+            disabled: false
         }
     ];
 
     const onSubmit = async (values: any) => {
         const productCategoryId: number = parseInt(values['product-category-id']);
-        await saveMaterial(productCategoryId);
+        await saveMaterial(productCategoryId, values.typology, values.quality, values.moisture);
         navigate(paths.MATERIALS);
     };
 
@@ -47,7 +74,7 @@ export const MaterialNew = () => {
                     }}>
                     New Material
                     <Button type="primary" danger icon={<DeleteOutlined />} onClick={() => navigate(paths.MATERIALS)}>
-                        Delete Material
+                        Cancel
                     </Button>
                 </div>
             }>

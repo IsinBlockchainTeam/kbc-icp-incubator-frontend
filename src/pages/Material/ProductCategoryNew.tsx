@@ -60,7 +60,7 @@ export const ProductCategoryNew = () => {
                     }}>
                     New Product Category
                     <Button type="primary" danger icon={<DeleteOutlined />} onClick={() => navigate(paths.MATERIALS)}>
-                        Delete Product Category
+                        Cancel
                     </Button>
                 </div>
             }>

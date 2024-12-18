@@ -27,7 +27,7 @@ describe('Product Category New', () => {
         render(<ProductCategoryNew />);
 
         expect(screen.getByText('New Product Category')).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: 'delete Delete Product Category' })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'delete Cancel' })).toBeInTheDocument();
         expect(GenericForm).toHaveBeenCalled();
         expect(GenericForm).toHaveBeenCalledWith(
             {
@@ -66,7 +66,7 @@ describe('Product Category New', () => {
         render(<ProductCategoryNew />);
 
         act(() => {
-            userEvent.click(screen.getByRole('button', { name: 'delete Delete Product Category' }));
+            userEvent.click(screen.getByRole('button', { name: 'delete Cancel' }));
         });
         expect(navigate).toHaveBeenCalledTimes(1);
         expect(navigate).toHaveBeenCalledWith(paths.MATERIALS);

@@ -45,6 +45,21 @@ export const Materials = () => {
             dataIndex: 'name',
             render: (_, { productCategory }) => productCategory.name,
             sorter: (a, b) => a.productCategory.name.localeCompare(b.productCategory.name)
+        },
+        {
+            title: 'Typology',
+            dataIndex: 'typology',
+            sorter: (a, b) => a.typology.localeCompare(b.typology)
+        },
+        {
+            title: 'Quality',
+            dataIndex: 'quality',
+            sorter: (a, b) => a.quality.localeCompare(b.quality)
+        },
+        {
+            title: 'Moisture',
+            dataIndex: 'moisture',
+            sorter: (a, b) => a.moisture.localeCompare(b.moisture)
         }
     ];
 
@@ -81,7 +96,7 @@ export const Materials = () => {
                             justifyContent: 'space-between',
                             alignItems: 'center'
                         }}>
-                        Your Materials
+                        Materials
                         <div>
                             <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate(paths.MATERIAL_NEW)}>
                                 New Material
