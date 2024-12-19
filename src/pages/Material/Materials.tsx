@@ -25,11 +25,6 @@ export const Materials = () => {
             title: 'Name',
             dataIndex: 'name',
             sorter: (a, b) => a.name.localeCompare(b.name)
-        },
-        {
-            title: 'Quality',
-            dataIndex: 'quality',
-            sorter: (a, b) => (a.quality && b.quality ? a.quality - b.quality : 0)
         }
     ];
 
@@ -45,6 +40,21 @@ export const Materials = () => {
             dataIndex: 'name',
             render: (_, { productCategory }) => productCategory.name,
             sorter: (a, b) => a.productCategory.name.localeCompare(b.productCategory.name)
+        },
+        {
+            title: 'Typology',
+            dataIndex: 'typology',
+            sorter: (a, b) => a.typology.localeCompare(b.typology)
+        },
+        {
+            title: 'Quality',
+            dataIndex: 'quality',
+            sorter: (a, b) => a.quality.localeCompare(b.quality)
+        },
+        {
+            title: 'Moisture',
+            dataIndex: 'moisture',
+            sorter: (a, b) => a.moisture.localeCompare(b.moisture)
         }
     ];
 
@@ -59,15 +69,6 @@ export const Materials = () => {
                             alignItems: 'center'
                         }}>
                         Product Categories
-                        <div>
-                            <Button
-                                type="primary"
-                                icon={<PlusOutlined />}
-                                onClick={() => navigate(paths.PRODUCT_CATEGORY_NEW)}
-                                style={{ marginRight: '16px' }}>
-                                New Product Category
-                            </Button>
-                        </div>
                     </div>
                 }>
                 <Table columns={productCategoriesColumns} dataSource={productCategories} rowKey="id" />
@@ -81,7 +82,7 @@ export const Materials = () => {
                             justifyContent: 'space-between',
                             alignItems: 'center'
                         }}>
-                        Your Materials
+                        Materials
                         <div>
                             <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate(paths.MATERIAL_NEW)}>
                                 New Material

@@ -8,6 +8,7 @@ import { OrderProvider } from '@/providers/entities/icp/OrderProvider';
 import { EthDownPaymentProvider } from '@/providers/entities/evm/EthDownPaymentProvider';
 import { ShipmentProvider } from '@/providers/entities/icp/ShipmentProvider';
 import { CertificationProvider } from '@/providers/entities/icp/CertificationProvider';
+import { RawCertificationProvider } from '@/providers/entities/icp/RawCertificationProvider';
 
 const EntitiesProviders = ({ children }: { children: ReactNode }) => (
     <OrganizationProvider>
@@ -18,7 +19,9 @@ const EntitiesProviders = ({ children }: { children: ReactNode }) => (
                         <OrderProvider>
                             <EthDownPaymentProvider>
                                 <ShipmentProvider>
-                                    <CertificationProvider>{children}</CertificationProvider>
+                                    <RawCertificationProvider>
+                                        <CertificationProvider>{children}</CertificationProvider>
+                                    </RawCertificationProvider>
                                 </ShipmentProvider>
                             </EthDownPaymentProvider>
                         </OrderProvider>

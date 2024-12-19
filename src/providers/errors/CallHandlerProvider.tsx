@@ -26,7 +26,6 @@ export const useCallHandler = () => {
 export function CallHandlerProvider(props: { children: React.ReactNode }) {
     const { identity } = useSiweIdentity();
     const dispatch = useDispatch();
-    const signer = useSigner();
     const entityManagerCanisterId = checkAndGetEnvironmentVariable(ICP.CANISTER_ID_ENTITY_MANAGER);
     const roleProof = useSelector((state: RootState) => state.userInfo.roleProof);
 

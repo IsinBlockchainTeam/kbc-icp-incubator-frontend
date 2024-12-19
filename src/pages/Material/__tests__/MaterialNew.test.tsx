@@ -33,7 +33,7 @@ describe('Materials New', () => {
         render(<MaterialNew />);
 
         expect(screen.getByText('New Material')).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: 'delete Delete Material' })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'delete Cancel' })).toBeInTheDocument();
         expect(GenericForm).toHaveBeenCalled();
         expect(GenericForm).toHaveBeenCalledWith(
             {
@@ -44,7 +44,7 @@ describe('Materials New', () => {
             },
             {}
         );
-        expect((GenericForm as jest.Mock).mock.calls[0][0].elements).toHaveLength(2);
+        expect((GenericForm as jest.Mock).mock.calls[0][0].elements).toHaveLength(5);
     });
     it('should create material on submit', async () => {
         const navigate = jest.fn();
@@ -52,11 +52,14 @@ describe('Materials New', () => {
         render(<MaterialNew />);
 
         const values = {
-            'product-category-id': 1
+            'product-category-id': 1,
+            typology: 'typology',
+            quality: 'quality',
+            moisture: 'moisture'
         };
         await (GenericForm as jest.Mock).mock.calls[0][0].onSubmit(values);
         expect(saveMaterial).toHaveBeenCalledTimes(1);
-        expect(saveMaterial).toHaveBeenCalledWith(1);
+        expect(saveMaterial).toHaveBeenCalledWith(values['product-category-id'], values.typology, values.quality, values.moisture);
         expect(navigate).toHaveBeenCalledTimes(1);
         expect(navigate).toHaveBeenCalledWith(paths.MATERIALS);
     });
@@ -66,7 +69,7 @@ describe('Materials New', () => {
         (useNavigate as jest.Mock).mockReturnValue(navigate);
         render(<MaterialNew />);
 
-        act(() => userEvent.click(screen.getByRole('button', { name: 'delete Delete Material' })));
+        act(() => userEvent.click(screen.getByRole('button', { name: 'delete Cancel' })));
 
         expect(navigate).toHaveBeenCalledTimes(1);
         expect(navigate).toHaveBeenCalledWith(paths.MATERIALS);

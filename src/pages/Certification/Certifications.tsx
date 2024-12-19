@@ -9,7 +9,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import { ICPBaseCertificate, ICPCertificateType } from '@kbc-lib/coffee-trading-management-lib';
 import DropdownButton from 'antd/es/dropdown/dropdown-button';
 import { useOrganization } from '@/providers/entities/icp/OrganizationProvider';
-import { useCertification } from '@/providers/entities/icp/CertificationProvider';
+import { useRawCertification } from '@/providers/entities/icp/RawCertificationProvider';
 
 export const certificationsType = [
     {
@@ -34,7 +34,7 @@ export const certificationsType = [
 
 export const Certifications = () => {
     const navigate = useNavigate();
-    const { rawCertificates } = useCertification();
+    const { rawCertificates } = useRawCertification();
     const { getOrganization } = useOrganization();
     const columns: ColumnsType<ICPBaseCertificate> = [
         {
@@ -53,9 +53,10 @@ export const Certifications = () => {
             )
         },
         {
-            title: 'Assessment Standard',
-            dataIndex: 'assessmentStandard',
-            sorter: (a, b) => a.assessmentStandard.localeCompare(b.assessmentStandard)
+            title: 'Assessment Reference Standard',
+            dataIndex: 'assessmentReferenceStandard',
+            render: (_, { assessmentReferenceStandard }) => assessmentReferenceStandard.name,
+            sorter: (a, b) => a.assessmentReferenceStandard.name.localeCompare(b.assessmentReferenceStandard.name)
         },
         {
             title: 'Certifier',

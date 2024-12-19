@@ -7,6 +7,7 @@ type Message = {
 export type ShipmentMessage = Message;
 export type OrderMessage = Message;
 export type OrganizationMessage = Message;
+export type CertificationMessage = Message;
 
 export const MATERIAL_MESSAGE = {
     RETRIEVE: {
@@ -173,14 +174,14 @@ export const ORDER_TRADE_MESSAGE = {
         ERROR: 'Error while notifying expiration.'
     }
 };
-export const RAW_CERTIFICATE_MESSAGE = {
+export const RAW_CERTIFICATION_MESSAGE = {
     RETRIEVE: {
         LOADING: 'Retrieving raw certifications...',
         OK: '',
         ERROR: 'Error while retrieving raw certifications.'
     }
 };
-export const CERTIFICATE_MESSAGE = {
+export const CERTIFICATION_MESSAGE = {
     RETRIEVE: {
         LOADING: 'Retrieving certification...',
         OK: '',

@@ -18,7 +18,7 @@ export const CompanyCertificateView = (props: CertificateViewProps) => {
 
     const { signer } = useSigner();
     const navigate = useNavigate();
-    const { assessmentStandards, assessmentAssuranceLevels } = useEnumeration();
+    const { assessmentReferenceStandards, assessmentAssuranceLevels } = useEnumeration();
     const { updateCompanyCertificate } = useCertification();
 
     const elements: FormElement[] = [
@@ -51,13 +51,13 @@ export const CompanyCertificateView = (props: CertificateViewProps) => {
         {
             type: FormElementType.SELECT,
             span: 12,
-            name: 'assessmentStandard',
-            label: 'Assessment Standard',
+            name: 'assessmentReferenceStandard',
+            label: 'Assessment Reference Standard',
             required: true,
-            defaultValue: companyCertificate.assessmentStandard,
-            options: assessmentStandards.map((standard) => ({
-                value: standard,
-                label: standard
+            defaultValue: companyCertificate.assessmentReferenceStandard.id,
+            options: assessmentReferenceStandards.map((standard) => ({
+                value: standard.id,
+                label: standard.name
             })),
             disabled
         },
@@ -124,7 +124,7 @@ export const CompanyCertificateView = (props: CertificateViewProps) => {
         const updatedRequest: CompanyCertificateRequest = {
             issuer: values.issuer,
             subject: signer._address,
-            assessmentStandard: values.assessmentStandard,
+            assessmentReferenceStandardId: values.assessmentReferenceStandard,
             assessmentAssuranceLevel: values.assessmentAssuranceLevel,
             document: {
                 filename: values.document.name,

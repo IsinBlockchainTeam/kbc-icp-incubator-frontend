@@ -4,18 +4,16 @@ import { useSiweIdentity } from '@/providers/auth/SiweIdentityProvider';
 import { Typography } from 'antd';
 import { checkAndGetEnvironmentVariable } from '@/utils/env';
 import { ICP } from '@/constants/icp';
-import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
 import { MATERIAL_MESSAGE } from '@/constants/message';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
-import { useDispatch } from 'react-redux';
 import { useCallHandler } from '@/providers/errors/CallHandlerProvider';
 
 export type MaterialContextState = {
     dataLoaded: boolean;
     materials: Material[];
     loadData: () => Promise<void>;
-    saveMaterial: (productCategoryId: number) => Promise<void>;
+    saveMaterial: (productCategoryId: number, typology: string, quality: string, moisture: string) => Promise<void>;
 };
 export const MaterialContext = createContext<MaterialContextState>({} as MaterialContextState);
 export const useMaterial = (): MaterialContextState => {
@@ -28,10 +26,9 @@ export const useMaterial = (): MaterialContextState => {
 export function MaterialProvider(props: { children: ReactNode }) {
     const { identity } = useSiweIdentity();
     const entityManagerCanisterId = checkAndGetEnvironmentVariable(ICP.CANISTER_ID_ENTITY_MANAGER);
+    const { handleICPCall } = useCallHandler();
     const [dataLoaded, setDataLoaded] = useState<boolean>(false);
     const [materials, setMaterials] = useState<Material[]>([]);
-    const { handleICPCall } = useCallHandler();
-    const dispatch = useDispatch();
 
     if (!identity) {
         return <Typography.Text>Siwe identity not initialized</Typography.Text>;
@@ -51,18 +48,12 @@ export function MaterialProvider(props: { children: ReactNode }) {
         }, MATERIAL_MESSAGE.RETRIEVE.LOADING);
     };
 
-    const saveMaterial = async (productCategoryId: number) => {
-        try {
-            dispatch(addLoadingMessage(MATERIAL_MESSAGE.SAVE.LOADING));
-            await materialService.createMaterial(productCategoryId);
+    const saveMaterial = async (productCategoryId: number, typology: string, quality: string, moisture: string) => {
+        await handleICPCall(async () => {
+            await materialService.createMaterial(productCategoryId, typology, quality, moisture);
             openNotification('Success', MATERIAL_MESSAGE.SAVE.OK, NotificationType.SUCCESS, NOTIFICATION_DURATION);
-            await loadMaterials();
-        } catch (e: any) {
-            console.log('Error while saving material', e);
-            openNotification('Error', MATERIAL_MESSAGE.SAVE.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
-        } finally {
-            dispatch(removeLoadingMessage(MATERIAL_MESSAGE.SAVE.LOADING));
-        }
+            await loadData();
+        }, MATERIAL_MESSAGE.SAVE.LOADING);
     };
 
     return (

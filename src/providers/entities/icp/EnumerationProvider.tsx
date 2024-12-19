@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useMemo, useState } from 'react';
-import { useSigner } from '@/providers/auth/SignerProvider';
 import { useDispatch } from 'react-redux';
 import { ASSESSMENT_ASSURANCE_LEVEL, ASSESSMENT_STANDARD_MESSAGE, FIAT_MESSAGE, PROCESS_TYPE_MESSAGE, UNIT_MESSAGE } from '@/constants/message';
 import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
@@ -8,6 +7,7 @@ import { NOTIFICATION_DURATION } from '@/constants/notification';
 import {
     ICPAssessmentAssuranceLevelDriver,
     ICPAssessmentAssuranceLevelService,
+    ICPAssessmentReferenceStandard,
     ICPAssessmentStandardDriver,
     ICPAssessmentStandardService,
     ICPFiatDriver,
@@ -27,7 +27,7 @@ export type EnumerableContextState = {
     fiats: string[];
     processTypes: string[];
     units: string[];
-    assessmentStandards: string[];
+    assessmentReferenceStandards: ICPAssessmentReferenceStandard[];
     assessmentAssuranceLevels: string[];
     loadData: () => Promise<void>;
 };
@@ -47,10 +47,9 @@ export function EnumerationProvider(props: { children: React.ReactNode }) {
     const [fiats, setFiats] = useState<string[]>([]);
     const [processTypes, setProcessTypes] = useState<string[]>([]);
     const [units, setUnits] = useState<string[]>([]);
-    const [assessmentStandards, setAssessmentStandards] = useState<string[]>([]);
-    const [assessmentAssuranceLevel, setAssessmentAssuranceLevel] = useState<string[]>([]);
+    const [assessmentReferenceStandards, setAssessmentReferenceStandards] = useState<ICPAssessmentReferenceStandard[]>([]);
+    const [assessmentAssuranceLevels, setAssessmentAssuranceLevels] = useState<string[]>([]);
 
-    const { signer } = useSigner();
     const dispatch = useDispatch();
 
     if (!identity) {
@@ -105,11 +104,11 @@ export function EnumerationProvider(props: { children: React.ReactNode }) {
         }
     };
 
-    const loadAssessmentStandards = async () => {
+    const loadAssessmentReferenceStandards = async () => {
         try {
             dispatch(addLoadingMessage(ASSESSMENT_STANDARD_MESSAGE.RETRIEVE.LOADING));
-            const assessmentStandards = await assessmentStandardService.getAllValues();
-            setAssessmentStandards(assessmentStandards);
+            const assessmentReferenceStandards = await assessmentStandardService.getAll();
+            setAssessmentReferenceStandards(assessmentReferenceStandards);
         } catch (e) {
             openNotification('Error', ASSESSMENT_STANDARD_MESSAGE.RETRIEVE.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
@@ -121,7 +120,7 @@ export function EnumerationProvider(props: { children: React.ReactNode }) {
         try {
             dispatch(addLoadingMessage(ASSESSMENT_ASSURANCE_LEVEL.RETRIEVE.LOADING));
             const assessmentAssuranceLevels = await assessmentAssuranceLevelService.getAllValues();
-            setAssessmentAssuranceLevel(assessmentAssuranceLevels);
+            setAssessmentAssuranceLevels(assessmentAssuranceLevels);
         } catch (e) {
             openNotification('Error', ASSESSMENT_ASSURANCE_LEVEL.RETRIEVE.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
         } finally {
@@ -130,7 +129,7 @@ export function EnumerationProvider(props: { children: React.ReactNode }) {
     };
 
     const loadData = async () => {
-        await Promise.all([loadFiats(), loadProcessTypes(), loadUnits(), loadAssessmentStandards(), loadAssessmentAssuranceLevel()]);
+        await Promise.all([loadFiats(), loadProcessTypes(), loadUnits(), loadAssessmentReferenceStandards(), loadAssessmentAssuranceLevel()]);
         setDataLoaded(true);
     };
 
@@ -141,8 +140,8 @@ export function EnumerationProvider(props: { children: React.ReactNode }) {
                 fiats,
                 processTypes,
                 units,
-                assessmentStandards,
-                assessmentAssuranceLevels: assessmentAssuranceLevel,
+                assessmentReferenceStandards,
+                assessmentAssuranceLevels,
                 loadData
             }}>
             {props.children}

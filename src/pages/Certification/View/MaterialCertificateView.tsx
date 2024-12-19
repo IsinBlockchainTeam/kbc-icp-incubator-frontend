@@ -17,7 +17,7 @@ export const MaterialCertificateView = (props: CertificateViewProps) => {
 
     const { signer } = useSigner();
     const navigate = useNavigate();
-    const { assessmentAssuranceLevels, assessmentStandards } = useEnumeration();
+    const { assessmentAssuranceLevels, assessmentReferenceStandards } = useEnumeration();
     const { materials } = useMaterial();
     const { updateMaterialCertificate } = useCertification();
 
@@ -31,13 +31,13 @@ export const MaterialCertificateView = (props: CertificateViewProps) => {
         {
             type: FormElementType.SELECT,
             span: 12,
-            name: 'assessmentStandard',
-            label: 'Assessment Standard',
+            name: 'assessmentReferenceStandard',
+            label: 'Assessment Reference Standard',
             required: true,
-            defaultValue: materialCertificate.assessmentStandard,
-            options: assessmentStandards.map((standard) => ({
-                value: standard,
-                label: standard
+            defaultValue: materialCertificate.assessmentReferenceStandard.id,
+            options: assessmentReferenceStandards.map((standard) => ({
+                value: standard.id,
+                label: standard.name
             })),
             disabled
         },
@@ -117,7 +117,7 @@ export const MaterialCertificateView = (props: CertificateViewProps) => {
         const updatedRequest: MaterialCertificateRequest = {
             issuer: values.issuer,
             subject: signer._address,
-            assessmentStandard: values.assessmentStandard,
+            assessmentReferenceStandardId: values.assessmentReferenceStandard,
             assessmentAssuranceLevel: values.assessmentAssuranceLevel,
             document: {
                 filename: values.document.name,

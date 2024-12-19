@@ -1,6 +1,5 @@
 import {
     ICPBaseCertificate,
-    ICPCertificateDocument,
     ICPCertificateDocumentType,
     ICPCertificationDriver,
     ICPCertificationService,
@@ -9,19 +8,20 @@ import {
 } from '@kbc-lib/coffee-trading-management-lib';
 import React, { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 import { useSigner } from '@/providers/auth/SignerProvider';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { getICPCanisterURL } from '@/utils/icp';
 import { ICP } from '@/constants/icp';
 import { NotificationType, openNotification } from '@/utils/notification';
-import { CERTIFICATE_MESSAGE, RAW_CERTIFICATE_MESSAGE } from '@/constants/message';
+import { CERTIFICATION_MESSAGE } from '@/constants/message';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
-import { addLoadingMessage, removeLoadingMessage } from '@/redux/reducers/loadingSlice';
 import { useParams } from 'react-router-dom';
 import { useSiweIdentity } from '@/providers/auth/SiweIdentityProvider';
 import { checkAndGetEnvironmentVariable } from '@/utils/env';
 import { Typography } from 'antd';
 import { useICP } from '@/providers/storage/IcpStorageProvider';
+import { useRawCertification } from '@/providers/entities/icp/RawCertificationProvider';
+import { useCallHandler } from '@/providers/errors/CallHandlerProvider';
 
 type DocumentRequest = {
     documentType: ICPCertificateDocumentType;
@@ -34,7 +34,7 @@ type DocumentRequest = {
 type BaseCertificateRequest = {
     issuer: string;
     subject: string;
-    assessmentStandard: string;
+    assessmentReferenceStandardId: number;
     assessmentAssuranceLevel: string;
     document: DocumentRequest;
 };
@@ -56,7 +56,8 @@ export type DetailedCertificate = {
 };
 
 export type CertificationContextState = {
-    rawCertificates: ICPBaseCertificate[];
+    dataLoaded: boolean;
+    loadData: () => Promise<void>;
     detailedCertificate: DetailedCertificate | null;
 
     saveCompanyCertificate: (request: CompanyCertificateRequest) => Promise<void>;
@@ -79,14 +80,15 @@ export const useCertification = (): CertificationContextState => {
 
 export function CertificationProvider(props: { children: ReactNode }) {
     const { id, type } = useParams();
+    const [dataLoaded, setDataLoaded] = useState<boolean>(false);
     const { identity } = useSiweIdentity();
     const entityManagerCanisterId = checkAndGetEnvironmentVariable(ICP.CANISTER_ID_ENTITY_MANAGER);
-    const { signer, waitForTransactions } = useSigner();
+    const { signer } = useSigner();
     const { fileDriver } = useICP();
-    const [rawCertificates, setRawCertificates] = useState<ICPBaseCertificate[]>([]);
+    const { loadData: loadCertificates } = useRawCertification();
     const [detailedCertificate, setDetailedCertificate] = useState<DetailedCertificate | null>(null);
+    const { handleICPCall } = useCallHandler();
 
-    const dispatch = useDispatch();
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const organizationId = parseInt(userInfo.companyClaims.organizationId);
 
@@ -123,39 +125,40 @@ export function CertificationProvider(props: { children: ReactNode }) {
         };
     };
 
-    const loadRawCertificates = async () => {
-        if (!certificationService) return;
-
-        try {
-            dispatch(addLoadingMessage(RAW_CERTIFICATE_MESSAGE.RETRIEVE.LOADING));
-            const rawCertificates = await certificationService.getBaseCertificatesInfoBySubject(signer._address);
-            console.log('rawCertificates', rawCertificates);
-            setRawCertificates(rawCertificates);
-        } catch (e) {
-            console.log('Error retrieving raw certificates', e);
-            openNotification('Error', RAW_CERTIFICATE_MESSAGE.RETRIEVE.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
-        } finally {
-            dispatch(removeLoadingMessage(RAW_CERTIFICATE_MESSAGE.RETRIEVE.LOADING));
-        }
+    const loadData = async () => {
+        await loadCertificate();
+        setDataLoaded(true);
     };
 
-    const loadData = async () => {
+    const loadCertificate = async () => {
         if (!certificationService) return;
 
-        try {
-            dispatch(addLoadingMessage(CERTIFICATE_MESSAGE.RETRIEVE.LOADING));
+        await handleICPCall(async () => {
             const certificateByType = [
                 () => getCompanyCertificate(Number(id)),
                 () => getScopeCertificate(Number(id)),
                 () => getMaterialCertificate(Number(id))
             ];
             setDetailedCertificate(await certificateByType[Number(type)]());
-        } catch (e: any) {
-            console.log('Error while loading certificate', e);
-            openNotification('Error', CERTIFICATE_MESSAGE.RETRIEVE.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
-        } finally {
-            dispatch(removeLoadingMessage(CERTIFICATE_MESSAGE.RETRIEVE.LOADING));
-        }
+        }, CERTIFICATION_MESSAGE.RETRIEVE.LOADING);
+    };
+
+    const writeTransaction = async (transaction: () => Promise<any>) => {
+        await handleICPCall(async () => {
+            await transaction();
+            await loadCertificates();
+            openNotification('Success', CERTIFICATION_MESSAGE.SAVE.OK, NotificationType.SUCCESS, NOTIFICATION_DURATION);
+        }, CERTIFICATION_MESSAGE.SAVE.LOADING);
+    };
+
+    const updateTransaction = async (transaction: () => Promise<any>, request: BaseCertificateRequest) => {
+        await handleICPCall(async () => {
+            await transaction();
+            await _updateDocument(request.document);
+            await loadCertificate();
+            await loadCertificates();
+            openNotification('Success', CERTIFICATION_MESSAGE.UPDATE.OK, NotificationType.SUCCESS, NOTIFICATION_DURATION);
+        }, CERTIFICATION_MESSAGE.UPDATE.LOADING);
     };
 
     const _computeDocumentStoreInfo = (
@@ -202,7 +205,7 @@ export function CertificationProvider(props: { children: ReactNode }) {
         const certificate = detailedCertificate.certificate;
         return (
             request.document.documentType !== certificate.document.documentType ||
-            request.assessmentStandard !== certificate.assessmentStandard ||
+            request.assessmentReferenceStandardId !== certificate.assessmentReferenceStandard.id ||
             request.assessmentAssuranceLevel !== certificate.assessmentAssuranceLevel ||
             JSON.stringify(request.document.documentType) !== JSON.stringify(certificate.document.documentType) ||
             certificateSpecificFields.some(
@@ -214,13 +217,12 @@ export function CertificationProvider(props: { children: ReactNode }) {
     const saveCompanyCertificate = async (request: CompanyCertificateRequest) => {
         if (!certificationService) return;
 
-        try {
-            dispatch(addLoadingMessage(CERTIFICATE_MESSAGE.SAVE.LOADING));
-            const { delegatedOrganizationIds, urlStructure, resourceSpec } = _computeDocumentStoreInfo(request.document);
-            await certificationService.registerCompanyCertificate(
+        const { delegatedOrganizationIds, urlStructure, resourceSpec } = _computeDocumentStoreInfo(request.document);
+        await writeTransaction(() =>
+            certificationService.registerCompanyCertificate(
                 request.issuer,
                 request.subject,
-                request.assessmentStandard,
+                request.assessmentReferenceStandardId,
                 request.assessmentAssuranceLevel,
                 {
                     referenceId: request.document.referenceId,
@@ -236,26 +238,19 @@ export function CertificationProvider(props: { children: ReactNode }) {
                 },
                 new Date(request.validFrom),
                 new Date(request.validUntil)
-            );
-            await loadRawCertificates();
-        } catch (e: any) {
-            console.log('Error while saving company certificate', e);
-            openNotification('Error', CERTIFICATE_MESSAGE.SAVE.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
-        } finally {
-            dispatch(removeLoadingMessage(CERTIFICATE_MESSAGE.SAVE.LOADING));
-        }
+            )
+        );
     };
 
     const saveScopeCertificate = async (request: ScopeCertificateRequest) => {
         if (!certificationService) return;
 
-        try {
-            dispatch(addLoadingMessage(CERTIFICATE_MESSAGE.SAVE.LOADING));
-            const { delegatedOrganizationIds, urlStructure, resourceSpec } = _computeDocumentStoreInfo(request.document);
-            await certificationService.registerScopeCertificate(
+        const { delegatedOrganizationIds, urlStructure, resourceSpec } = _computeDocumentStoreInfo(request.document);
+        await writeTransaction(() =>
+            certificationService.registerScopeCertificate(
                 request.issuer,
                 request.subject,
-                request.assessmentStandard,
+                request.assessmentReferenceStandardId,
                 request.assessmentAssuranceLevel,
                 {
                     referenceId: request.document.referenceId,
@@ -272,26 +267,19 @@ export function CertificationProvider(props: { children: ReactNode }) {
                 new Date(request.validFrom),
                 new Date(request.validUntil),
                 request.processTypes
-            );
-            await loadRawCertificates();
-        } catch (e: any) {
-            console.log('Error while saving scope certificate', e);
-            openNotification('Error', CERTIFICATE_MESSAGE.SAVE.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
-        } finally {
-            dispatch(removeLoadingMessage(CERTIFICATE_MESSAGE.SAVE.LOADING));
-        }
+            )
+        );
     };
 
     const saveMaterialCertificate = async (request: MaterialCertificateRequest) => {
         if (!certificationService) return;
 
-        try {
-            dispatch(addLoadingMessage(CERTIFICATE_MESSAGE.SAVE.LOADING));
-            const { delegatedOrganizationIds, urlStructure, resourceSpec } = _computeDocumentStoreInfo(request.document);
-            await certificationService.registerMaterialCertificate(
+        const { delegatedOrganizationIds, urlStructure, resourceSpec } = _computeDocumentStoreInfo(request.document);
+        await writeTransaction(() =>
+            certificationService.registerMaterialCertificate(
                 request.issuer,
                 request.subject,
-                request.assessmentStandard,
+                request.assessmentReferenceStandardId,
                 request.assessmentAssuranceLevel,
                 {
                     referenceId: request.document.referenceId,
@@ -306,110 +294,77 @@ export function CertificationProvider(props: { children: ReactNode }) {
                     }
                 },
                 request.materialId
-            );
-            await loadRawCertificates();
-        } catch (e: any) {
-            console.log('Error while saving material certificate', e);
-            openNotification('Error', CERTIFICATE_MESSAGE.SAVE.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
-        } finally {
-            dispatch(removeLoadingMessage(CERTIFICATE_MESSAGE.SAVE.LOADING));
-        }
+            )
+        );
     };
 
     const updateCompanyCertificate = async (request: CompanyCertificateRequest) => {
         if (!certificationService || !detailedCertificate) return;
 
-        try {
-            dispatch(addLoadingMessage(CERTIFICATE_MESSAGE.UPDATE.LOADING));
-
-            if (_areFieldsChanged(request, ['validFrom', 'validUntil'])) {
-                await certificationService.updateCompanyCertificate(
-                    detailedCertificate.certificate.id,
-                    request.assessmentStandard,
-                    request.assessmentAssuranceLevel,
-                    new Date(request.validFrom),
-                    new Date(request.validUntil)
-                );
-                await _updateDocument(request.document);
-                await loadData();
-                await loadRawCertificates();
-            }
-        } catch (e: any) {
-            console.log('Error while updating company certificate', e);
-            openNotification('Error', CERTIFICATE_MESSAGE.UPDATE.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
-        } finally {
-            dispatch(removeLoadingMessage(CERTIFICATE_MESSAGE.UPDATE.LOADING));
+        if (_areFieldsChanged(request, ['validFrom', 'validUntil'])) {
+            await updateTransaction(
+                () =>
+                    certificationService.updateCompanyCertificate(
+                        detailedCertificate.certificate.id,
+                        request.assessmentReferenceStandardId,
+                        request.assessmentAssuranceLevel,
+                        new Date(request.validFrom),
+                        new Date(request.validUntil)
+                    ),
+                request
+            );
         }
     };
 
     const updateScopeCertificate = async (request: ScopeCertificateRequest) => {
         if (!certificationService || !detailedCertificate) return;
 
-        try {
-            dispatch(addLoadingMessage(CERTIFICATE_MESSAGE.UPDATE.LOADING));
-
-            if (_areFieldsChanged(request, ['validFrom', 'validUntil', 'processTypes'])) {
-                await certificationService.updateScopeCertificate(
-                    detailedCertificate.certificate.id,
-                    request.assessmentStandard,
-                    request.assessmentAssuranceLevel,
-                    new Date(request.validFrom),
-                    new Date(request.validUntil),
-                    request.processTypes
-                );
-                await _updateDocument(request.document);
-                await loadData();
-                await loadRawCertificates();
-            }
-        } catch (e: any) {
-            console.log('Error while updating scope certificate', e);
-            openNotification('Error', CERTIFICATE_MESSAGE.UPDATE.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
-        } finally {
-            dispatch(removeLoadingMessage(CERTIFICATE_MESSAGE.UPDATE.LOADING));
+        if (_areFieldsChanged(request, ['validFrom', 'validUntil', 'processTypes'])) {
+            await updateTransaction(
+                () =>
+                    certificationService.updateScopeCertificate(
+                        detailedCertificate.certificate.id,
+                        request.assessmentReferenceStandardId,
+                        request.assessmentAssuranceLevel,
+                        new Date(request.validFrom),
+                        new Date(request.validUntil),
+                        request.processTypes
+                    ),
+                request
+            );
         }
     };
 
     const updateMaterialCertificate = async (request: MaterialCertificateRequest) => {
         if (!certificationService || !detailedCertificate) return;
 
-        try {
-            dispatch(addLoadingMessage(CERTIFICATE_MESSAGE.UPDATE.LOADING));
-
-            if (_areFieldsChanged(request, ['materialId'])) {
-                await certificationService.updateMaterialCertificate(
-                    detailedCertificate.certificate.id,
-                    request.assessmentStandard,
-                    request.assessmentAssuranceLevel,
-                    request.materialId
-                );
-                await _updateDocument(request.document);
-                await loadData();
-                await loadRawCertificates();
-            }
-        } catch (e: any) {
-            console.log('Error while updating material certificate', e);
-            openNotification('Error', CERTIFICATE_MESSAGE.UPDATE.ERROR, NotificationType.ERROR, NOTIFICATION_DURATION);
-        } finally {
-            dispatch(removeLoadingMessage(CERTIFICATE_MESSAGE.UPDATE.LOADING));
+        if (_areFieldsChanged(request, ['materialId'])) {
+            await updateTransaction(
+                () =>
+                    certificationService.updateMaterialCertificate(
+                        detailedCertificate.certificate.id,
+                        request.assessmentReferenceStandardId,
+                        request.assessmentAssuranceLevel,
+                        request.materialId
+                    ),
+                request
+            );
         }
     };
-
-    useEffect(() => {
-        loadRawCertificates();
-    }, []);
 
     useEffect(() => {
         if (!id || !type) return;
         if (Number(id) !== detailedCertificate?.certificate.id) {
             setDetailedCertificate(null);
-            loadData();
+            setDataLoaded(false);
         }
     }, [id, type]);
 
     return (
         <CertificationContext.Provider
             value={{
-                rawCertificates,
+                dataLoaded,
+                loadData,
                 detailedCertificate,
                 saveCompanyCertificate,
                 saveScopeCertificate,

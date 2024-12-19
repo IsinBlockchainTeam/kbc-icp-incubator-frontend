@@ -1,14 +1,11 @@
 import { useSigner } from '@/providers/auth/SignerProvider';
 import { useNavigate } from 'react-router-dom';
 import {
-    CertificateDocumentType,
-    CertificateType,
-    DocumentEvaluationStatus,
     EvaluationStatus,
+    ICPAssessmentReferenceStandard,
     ICPCertificateDocumentType,
     ICPCertificateType,
-    ICPScopeCertificate,
-    ScopeCertificate
+    ICPScopeCertificate
 } from '@kbc-lib/coffee-trading-management-lib';
 import { render, screen } from '@testing-library/react';
 import React from 'react';
@@ -27,7 +24,7 @@ jest.mock('@/components/GenericForm/GenericForm');
 describe('ScopeCertificateView', () => {
     const signer = { _address: '0x123' };
     const navigate = jest.fn();
-    const assessmentStandards = ['assessmentStandard'];
+    const assessmentReferenceStandards = [{ id: 1 } as ICPAssessmentReferenceStandard];
     const assessmentAssuranceLevels = ['assessmentAssuranceLevel'];
     const processTypes = ['processType'];
     const updateScopeCertificate = jest.fn();
@@ -37,8 +34,8 @@ describe('ScopeCertificateView', () => {
             'issuer',
             'subject',
             'uploadedBy',
-            'assessmentStandard',
-            'assessmentAssuranceLevel',
+            assessmentReferenceStandards[0],
+            assessmentAssuranceLevels[0],
             {
                 referenceId: '123456',
                 documentType: ICPCertificateDocumentType.PRODUCTION_FACILITY_LICENSE,
@@ -84,7 +81,7 @@ describe('ScopeCertificateView', () => {
         jest.clearAllMocks();
         (useSigner as jest.Mock).mockReturnValue({ signer });
         (useNavigate as jest.Mock).mockReturnValue(navigate);
-        (useEnumeration as jest.Mock).mockReturnValue({ assessmentStandards, assessmentAssuranceLevels, processTypes });
+        (useEnumeration as jest.Mock).mockReturnValue({ assessmentReferenceStandards, assessmentAssuranceLevels, processTypes });
         (useCertification as jest.Mock).mockReturnValue({
             updateScopeCertificate
         });
@@ -104,7 +101,7 @@ describe('ScopeCertificateView', () => {
         render(<ScopeCertificateView commonElements={commonElements} editElements={[]} disabled={false} detailedCertificate={detailedCertificate} />);
         const values = {
             issuer: 'issuer',
-            assessmentStandard: assessmentStandards[0],
+            assessmentReferenceStandard: assessmentReferenceStandards[0].id,
             assessmentAssuranceLevel: assessmentAssuranceLevels[0],
             document: new File([new Blob(['document'])], 'example.txt', {
                 type: 'application/pdf'
@@ -121,7 +118,7 @@ describe('ScopeCertificateView', () => {
         expect(updateScopeCertificate).toHaveBeenCalledWith({
             issuer: values.issuer,
             subject: signer._address,
-            assessmentStandard: values.assessmentStandard,
+            assessmentReferenceStandardId: values.assessmentReferenceStandard,
             assessmentAssuranceLevel: values.assessmentAssuranceLevel,
             document: {
                 filename: values.document.name,
