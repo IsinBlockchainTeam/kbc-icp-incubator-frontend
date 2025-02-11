@@ -1,4 +1,4 @@
-import { TradeType } from '@isinblockchainteam/kbc-icp-incubator-library';
+import { TradeType } from '@kbc-lib/coffee-trading-management-lib';
 import { createDownloadWindow, setParametersPath } from '@/utils/page';
 
 describe('Page utility functions', () => {
@@ -35,9 +35,9 @@ describe('Page utility functions', () => {
             const appendChildSpy = jest.spyOn(document.body, 'appendChild');
 
             const file = new Blob(['test'], { type: 'text/plain' });
-            const fileName = 'test.txt';
+            const filename = 'test.txt';
 
-            createDownloadWindow(file, fileName);
+            createDownloadWindow(file, filename);
 
             expect(createElementSpy).toHaveBeenCalledWith('a');
             expect(appendChildSpy).toHaveBeenCalled();

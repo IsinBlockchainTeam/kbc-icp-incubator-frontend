@@ -70,7 +70,7 @@ export interface JSONInvoiceTemplate extends JSONTemplate {
     ];
     Attachments?: [
         {
-            FileName: string;
+            filename: string;
             FileType: string;
             FileContent: string; // i.e. Base64 encoded file
         }

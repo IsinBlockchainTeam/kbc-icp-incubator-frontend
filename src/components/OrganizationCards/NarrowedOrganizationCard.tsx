@@ -1,6 +1,6 @@
 import { Card, Descriptions } from 'antd';
 
-import { NarrowedOrganization } from '@isinblockchainteam/kbc-icp-incubator-library';
+import { NarrowedOrganization } from '@kbc-lib/coffee-trading-management-lib';
 import React from 'react';
 
 type Props = {

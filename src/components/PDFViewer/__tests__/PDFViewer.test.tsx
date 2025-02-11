@@ -1,8 +1,7 @@
 import { fireEvent, render } from '@testing-library/react';
-import PDFViewer from '../PDFViewer';
-import { DocumentElement, FormElement, FormElementType } from '../../GenericForm/GenericForm';
-import { PDFUploaderProps } from '../../PDFUploader/PDFUploader';
-import { DocumentContent } from '@/providers/entities/EthDocumentProvider';
+import PDFViewer from '@/components/PDFViewer/PDFViewer';
+import { DocumentElement, FormElement, FormElementType, DocumentContent } from '@/components/GenericForm/GenericForm';
+import { PDFUploaderProps } from '@/components/PDFUploader/PDFUploader';
 
 jest.mock('antd', () => {
     return {

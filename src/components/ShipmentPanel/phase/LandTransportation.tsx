@@ -1,8 +1,8 @@
 import React from 'react';
 import { Card, Typography } from 'antd';
 import { ShipmentDocumentTable } from '@/components/ShipmentPanel/ShipmentDocumentTable';
-import { ShipmentPhase } from '@isinblockchainteam/kbc-icp-incubator-library';
-import { useShipment } from '@/providers/icp/ShipmentProvider';
+import { ShipmentPhase } from '@kbc-lib/coffee-trading-management-lib';
+import { useShipment } from '@/providers/entities/icp/ShipmentProvider';
 
 const { Paragraph } = Typography;
 
@@ -23,10 +23,7 @@ export const LandTransportation = () => {
                     marginBottom: 10
                 }}
                 role="card">
-                <Paragraph>
-                    Phase from when the goods leave the warehouse to when the goods are delivered to
-                    the Shipowner.
-                </Paragraph>
+                <Paragraph>Phase from when the goods leave the warehouse to when the goods are delivered to the Shipowner.</Paragraph>
             </Card>
             <ShipmentDocumentTable selectedPhase={ShipmentPhase.PHASE_4} />
         </>

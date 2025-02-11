@@ -5,21 +5,21 @@ import userEvent from '@testing-library/user-event';
 import { paths } from '@/constants/paths';
 import { credentials } from '@/constants/ssi';
 import { useSelector } from 'react-redux';
-import { useSigner } from '@/providers/SignerProvider';
+import { useSigner } from '@/providers/auth/SignerProvider';
 import { GenericForm } from '@/components/GenericForm/GenericForm';
-import { ProductCategory } from '@isinblockchainteam/kbc-icp-incubator-library';
+import { Material, ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
 import { UserInfoState } from '@/redux/reducers/userInfoSlice';
 import { JsonRpcSigner } from '@ethersproject/providers';
-import { useOrganization } from '@/providers/icp/OrganizationProvider';
-import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';
-import { useOffer } from '@/providers/icp/OfferProvider';
+import { useOffer } from '@/providers/entities/icp/OfferProvider';
+import { useSession } from '@/providers/auth/SessionProvider';
+import { useMaterial } from '@/providers/entities/icp/MaterialProvider';
 
 jest.mock('react-router-dom');
-jest.mock('@/providers/SignerProvider');
+jest.mock('@/providers/auth/SignerProvider');
+jest.mock('@/providers/auth/SessionProvider');
 jest.mock('@/components/GenericForm/GenericForm');
-jest.mock('@/providers/icp/ProductCategoryProvider');
-jest.mock('@/providers/icp/OfferProvider');
-jest.mock('@/providers/icp/OrganizationProvider');
+jest.mock('@/providers/entities/icp/MaterialProvider');
+jest.mock('@/providers/entities/icp/OfferProvider');
 jest.mock('react-redux');
 
 describe('Offers New', () => {
@@ -29,7 +29,7 @@ describe('Offers New', () => {
             role: credentials.ROLE_EXPORTER
         }
     } as UserInfoState;
-    const getOrganization = jest.fn();
+    const mockGetLoggedOrganization = jest.fn();
     const saveOffer = jest.fn();
     const navigate = jest.fn();
 
@@ -39,14 +39,14 @@ describe('Offers New', () => {
         jest.clearAllMocks();
 
         (useNavigate as jest.Mock).mockReturnValue(navigate);
-        getOrganization.mockReturnValue({ legalName: 'Supplier Name' });
-        (useOrganization as jest.Mock).mockReturnValue({
-            getOrganization
+        mockGetLoggedOrganization.mockReturnValue({ legalName: 'Supplier Name' });
+        (useSession as jest.Mock).mockReturnValue({
+            getLoggedOrganization: mockGetLoggedOrganization
         });
-        (useProductCategory as jest.Mock).mockReturnValue({
-            productCategories: [
-                new ProductCategory(1, 'Product Category 1', 1, ''),
-                new ProductCategory(2, 'Product Category 2', 2, '')
+        (useMaterial as jest.Mock).mockReturnValue({
+            materials: [
+                new Material(1, 'owner1', 'Material1', new ProductCategory(1, 'Product Category 1'), 'typology', '85', '20%', false),
+                new Material(2, 'owner2', 'Material2', new ProductCategory(2, 'Product Category 2'), 'typology2', '90', '15%', true)
             ]
         });
         (useOffer as jest.Mock).mockReturnValue({
@@ -72,14 +72,14 @@ describe('Offers New', () => {
             },
             {}
         );
-        expect((GenericForm as jest.Mock).mock.calls[0][0].elements).toHaveLength(3);
+        expect((GenericForm as jest.Mock).mock.calls[0][0].elements).toHaveLength(4);
     });
 
     it('should call onSubmit function when clicking on submit button', async () => {
         render(<OfferNew />);
 
         const values = {
-            'product-category-id': 1
+            'material-id': 1
         };
         await (GenericForm as jest.Mock).mock.calls[0][0].onSubmit(values);
 

@@ -1,14 +1,13 @@
 {
     "name": "kbc-platform",
-    "version": "0.1.0",
+    "version": "0.20.0",
     "private": true,
     "dependencies": {
-        "@isinblockchainteam/kbc-icp-incubator-common": "1.0.1",
         "@dagrejs/dagre": "^1.0.2",
         "@dfinity/agent": "1.4.0",
         "@dfinity/candid": "1.4.0",
         "@dfinity/identity": "1.4.0",
-        "@isinblockchainteam/kbc-icp-incubator-library": "1.0.1",
+        "@kbc-lib/coffee-trading-management-lib": "npm:@isinblockchainteam/coffee-trading-management-lib@1.20.0",
         "@pdfme/common": "^5.1.6",
         "@pdfme/generator": "^5.1.6",
         "@pdfme/ui": "^5.1.6",
@@ -88,15 +87,7 @@
     },
     "jest": {
         "moduleNameMapper": {
-            "^@/api(.*)$": "<rootDir>/src/api$1",
-            "^@/assets(.*)$": "<rootDir>/src/assets$1",
-            "^@/components(.*)$": "<rootDir>/src/components$1",
-            "^@/constants(.*)$": "<rootDir>/src/constants$1",
-            "^@/hooks(.*)$": "<rootDir>/src/hooks$1",
-            "^@/pages(.*)$": "<rootDir>/src/pages$1",
-            "^@/providers(.*)$": "<rootDir>/src/providers$1",
-            "^@/redux(.*)$": "<rootDir>/src/redux$1",
-            "^@/utils(.*)$": "<rootDir>/src/utils$1",
+            "^@/(.*)$": "<rootDir>/src/$1",
             "@walletconnect/ethereum-provider": "<rootDir>/__mocks__/@walletconnect/ethereum-provider.js"
         },
         "setupFiles": [

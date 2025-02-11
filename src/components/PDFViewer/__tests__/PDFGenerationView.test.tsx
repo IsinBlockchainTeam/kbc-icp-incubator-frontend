@@ -54,6 +54,8 @@ describe('PDFGenerationView', () => {
     const mockedPdf = new Blob();
 
     beforeEach(() => {
+        jest.spyOn(console, 'error').mockImplementation(jest.fn());
+
         URL.createObjectURL = mockedURLCreateObjectURL;
         mockedGeneratePdf.mockImplementation(() => Promise.resolve(mockedPdf));
         (createDownloadWindow as jest.Mock).mockImplementation(mockedCreateDownloadWindow);

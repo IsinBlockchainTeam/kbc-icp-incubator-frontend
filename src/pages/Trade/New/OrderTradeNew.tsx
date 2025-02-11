@@ -1,45 +1,51 @@
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
-import { CardPage } from '@/components/structure/CardPage/CardPage';
-import { Button } from 'antd';
+import { CardPage } from '@/components/CardPage/CardPage';
+import { Button, Empty } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import { paths } from '@/constants/paths';
-import {
-    LineRequest,
-    OrderLinePrice,
-    OrderLineRequest,
-    OrderParams
-} from '@isinblockchainteam/kbc-icp-incubator-library';
+import { Material, OrderParams } from '@kbc-lib/coffee-trading-management-lib';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { regex } from '@/constants/regex';
 import dayjs from 'dayjs';
 import { validateDates } from '@/utils/date';
-import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 import { incotermsMap } from '@/constants/trade';
-import { useOrder } from '@/providers/icp/OrderProvider';
-import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';
+import { useOrder } from '@/providers/entities/icp/OrderProvider';
+import { useProductCategory } from '@/providers/entities/icp/ProductCategoryProvider';
+import { useEnumeration } from '@/providers/entities/icp/EnumerationProvider';
+import { useMaterial } from '@/providers/entities/icp/MaterialProvider';
+import { MaterialInfoCardContent } from '@/components/CardContents/MaterialInfoCardContent';
+import { useBusinessRelation } from '@/providers/entities/icp/BusinessRelationProvider';
 
 type OrderTradeNewProps = {
     supplierAddress: string;
     customerAddress: string;
-    productCategoryId: number;
+    supplierMaterial: Material;
     commonElements: FormElement[];
 };
-export const OrderTradeNew = ({
-    supplierAddress,
-    customerAddress,
-    productCategoryId,
-    commonElements
-}: OrderTradeNewProps) => {
-    const navigate = useNavigate();
-    const { units, fiats } = useEthEnumerable();
-    const { productCategories } = useProductCategory();
-    const { create } = useOrder();
 
-    const productCategory = productCategories.find((pc) => pc.id === productCategoryId);
+export const OrderTradeNew = ({ supplierAddress, customerAddress, commonElements, supplierMaterial }: OrderTradeNewProps) => {
+    const navigate = useNavigate();
+    const { units, fiats } = useEnumeration();
+    const { productCategories } = useProductCategory();
+    const { materials } = useMaterial();
+    const { getBusinessRelation, discloseInformation } = useBusinessRelation();
+    const { createOrder } = useOrder();
+
+    if (!productCategories || productCategories.length === 0) {
+        return <div />;
+    }
 
     const disabledDate = (current: dayjs.Dayjs): boolean => {
         return current && current <= dayjs().endOf('day');
+    };
+
+    const verifyBusinessRelation = async (ethAddress: string) => {
+        try {
+            getBusinessRelation(ethAddress);
+        } catch (error) {
+            await discloseInformation(ethAddress);
+        }
     };
 
     const onSubmit = async (values: any) => {
@@ -47,33 +53,11 @@ export const OrderTradeNew = ({
         values['supplier'] = supplierAddress;
         values['customer'] = customerAddress;
         values['commissioner'] = customerAddress;
-        values['product-category-id-1'] = productCategoryId;
 
-        const tradeLines: LineRequest[] = [];
-        for (const key in values) {
-            let id: string;
-            if (key.startsWith('product-category-id-')) {
-                id = key.split('-')[3];
-                const quantity: number = parseInt(values[`quantity-${id}`]);
-                const unit: string = values[`unit-${id}`];
-                const productCategoryId: number = parseInt(values[key]);
-                const price: number = parseInt(values[`price-${id}`]);
-                const fiat: string = values[`fiat-${id}`];
-                tradeLines.push(
-                    new OrderLineRequest(
-                        productCategoryId,
-                        quantity,
-                        unit,
-                        { amount: price, fiat: fiat } as OrderLinePrice
-                    )
-                );
-            }
-        }
         const orderTrade: OrderParams = {
             supplier: supplierAddress,
             customer: customerAddress,
             commissioner: customerAddress,
-            lines: tradeLines as OrderLineRequest[],
             paymentDeadline: dayjs(values['payment-deadline']).toDate(),
             documentDeliveryDeadline: dayjs(values['document-delivery-deadline']).toDate(),
             arbiter: values['arbiter'],
@@ -84,12 +68,28 @@ export const OrderTradeNew = ({
             incoterms: values['incoterms'],
             shipper: values['shipper'],
             shippingPort: values['shipping-port'],
-            deliveryPort: values['delivery-port']
+            deliveryPort: values['delivery-port'],
+            lines: [
+                {
+                    supplierMaterialId: values['supplier-material'],
+                    commissionerMaterialId: values['commissioner-material'],
+                    quantity: parseInt(values['quantity']),
+                    unit: values['unit'],
+                    price: {
+                        amount: parseInt(values['price']),
+                        fiat: values['fiat']
+                    }
+                }
+            ]
         };
-        await create(orderTrade);
+        await createOrder(orderTrade);
+
+        await verifyBusinessRelation(orderTrade.supplier);
+
         navigate(paths.TRADES);
     };
 
+    const supplierMaterialInfoCard = <MaterialInfoCardContent material={supplierMaterial} />;
     const elements: FormElement[] = [
         ...commonElements,
         { type: FormElementType.TITLE, span: 24, label: 'Constraints' },
@@ -113,8 +113,7 @@ export const OrderTradeNew = ({
             label: 'Arbiter',
             required: true,
             defaultValue: '',
-            disabled: false,
-            regex: regex.ETHEREUM_ADDRESS
+            disabled: false
         },
         {
             type: FormElementType.DATE,
@@ -136,12 +135,7 @@ export const OrderTradeNew = ({
             defaultValue: '',
             disabled: false,
             dependencies: ['payment-deadline'],
-            validationCallback: validateDates(
-                'document-delivery-deadline',
-                'payment-deadline',
-                'greater',
-                'This must be after Payment Deadline'
-            )
+            validationCallback: validateDates('document-delivery-deadline', 'payment-deadline', 'greater', 'This must be after Payment Deadline')
         },
         {
             type: FormElementType.INPUT,
@@ -195,12 +189,7 @@ export const OrderTradeNew = ({
             defaultValue: '',
             disabled: false,
             dependencies: ['shipping-deadline'],
-            validationCallback: validateDates(
-                'delivery-deadline',
-                'shipping-deadline',
-                'greater',
-                'This must be after Shipping Deadline'
-            )
+            validationCallback: validateDates('delivery-deadline', 'shipping-deadline', 'greater', 'This must be after Shipping Deadline')
         },
         {
             type: FormElementType.INPUT,
@@ -225,21 +214,60 @@ export const OrderTradeNew = ({
         { type: FormElementType.TITLE, span: 24, label: 'Line Item' },
         {
             type: FormElementType.SELECT,
-            span: 6,
-            name: 'product-category-id-1',
-            label: 'Product Category',
-            required: false,
-            options: productCategories.map((productCategory) => ({
-                label: productCategory.name,
-                value: productCategory.id
-            })),
-            defaultValue: productCategory ? productCategory.id : -1,
+            span: 12,
+            name: `supplier-material`,
+            label: 'Supplier Material',
+            required: true,
+            options: [
+                {
+                    label: supplierMaterial.name,
+                    value: supplierMaterial.id
+                }
+            ],
+            defaultValue: supplierMaterial.id,
             disabled: true
         },
         {
+            type: FormElementType.CARD,
+            span: 12,
+            name: 'supplier-material-details',
+            title: 'Material details',
+            hidden: false,
+            content: supplierMaterialInfoCard
+        },
+        {
+            type: FormElementType.SELECT,
+            span: 12,
+            name: `commissioner-material`,
+            label: 'Commissioner Material',
+            required: true,
+            options: materials
+                .filter((material) => material.isInput)
+                .map((material) => ({
+                    label: material.name,
+                    value: material.id
+                })),
+            defaultValue: undefined,
+            disabled: false
+        },
+        {
+            type: FormElementType.CARD,
+            span: 12,
+            name: 'commissioner-material-details',
+            title: 'Material details',
+            hidden: false,
+            content: (values) => {
+                if (values && values['commissioner-material'] !== undefined) {
+                    const selectedCommissionerMaterial = materials.find((material) => material.id === values['commissioner-material']);
+                    return <MaterialInfoCardContent material={selectedCommissionerMaterial} />;
+                }
+                return <Empty />;
+            }
+        },
+        {
             type: FormElementType.INPUT,
-            span: 5,
-            name: `quantity-1`,
+            span: 6,
+            name: `quantity`,
             label: 'Quantity',
             required: true,
             regex: regex.ONLY_DIGITS,
@@ -248,8 +276,8 @@ export const OrderTradeNew = ({
         },
         {
             type: FormElementType.SELECT,
-            span: 4,
-            name: `unit-1`,
+            span: 6,
+            name: `unit`,
             label: 'Unit',
             required: true,
             options: units.map((unit) => ({ label: unit, value: unit })),
@@ -258,8 +286,8 @@ export const OrderTradeNew = ({
         },
         {
             type: FormElementType.INPUT,
-            span: 5,
-            name: `price-1`,
+            span: 6,
+            name: `price`,
             label: 'Price',
             required: true,
             defaultValue: '',
@@ -268,8 +296,8 @@ export const OrderTradeNew = ({
         },
         {
             type: FormElementType.SELECT,
-            span: 4,
-            name: `fiat-1`,
+            span: 6,
+            name: `fiat`,
             label: 'Fiat',
             required: true,
             options: fiats.map((fiat) => ({ label: fiat, value: fiat })),
@@ -287,11 +315,7 @@ export const OrderTradeNew = ({
                         alignItems: 'center'
                     }}>
                     New Trade
-                    <Button
-                        type="primary"
-                        danger
-                        icon={<DeleteOutlined />}
-                        onClick={() => navigate(paths.TRADES)}>
+                    <Button type="primary" danger icon={<DeleteOutlined />} onClick={() => navigate(paths.TRADES)}>
                         Delete Trade
                     </Button>
                 </div>

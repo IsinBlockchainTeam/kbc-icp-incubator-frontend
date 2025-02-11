@@ -7,6 +7,8 @@ type Message = {
 export type ShipmentMessage = Message;
 export type OrderMessage = Message;
 export type OrganizationMessage = Message;
+export type CertificationMessage = Message;
+export type AssetOperationMessage = Message;
 
 export const MATERIAL_MESSAGE = {
     RETRIEVE: {
@@ -53,6 +55,20 @@ export const UNIT_MESSAGE = {
         ERROR: 'Error while retrieving units.'
     }
 };
+export const ASSESSMENT_STANDARD_MESSAGE = {
+    RETRIEVE: {
+        LOADING: 'Retrieving assessment standards...',
+        OK: '',
+        ERROR: 'Error while retrieving assessment standards.'
+    }
+};
+export const ASSESSMENT_ASSURANCE_LEVEL = {
+    RETRIEVE: {
+        LOADING: 'Retrieving assessment assurance levels...',
+        OK: '',
+        ERROR: 'Error while retrieving assessment assurance levels.'
+    }
+};
 export const OFFER_MESSAGE = {
     RETRIEVE: {
         LOADING: 'Retrieving offers...',
@@ -63,6 +79,11 @@ export const OFFER_MESSAGE = {
         LOADING: 'Saving offer...',
         OK: 'Offer saved successfully.',
         ERROR: 'Error while saving offer.'
+    },
+    DELETE: {
+        LOADING: 'Deleting offer...',
+        OK: 'Offer deleted successfully.',
+        ERROR: 'Error while deleting offer.'
     }
 };
 export const SUPPLIER_MESSAGE = {
@@ -82,18 +103,6 @@ export const NAME_MESSAGE = {
         LOADING: 'Retrieving names...',
         OK: '',
         ERROR: 'Error while retrieving names.'
-    }
-};
-export const ASSET_OPERATION_MESSAGE = {
-    RETRIEVE: {
-        LOADING: 'Retrieving asset operations...',
-        OK: '',
-        ERROR: 'Error while retrieving asset operations.'
-    },
-    SAVE: {
-        LOADING: 'Creating asset operation...',
-        OK: 'The asset operation has been created.',
-        ERROR: 'Error while creating asset operation.'
     }
 };
 export const RELATIONSHIP_MESSAGE = {
@@ -127,6 +136,33 @@ export const BASIC_TRADE_MESSAGE = {
         ERROR: 'Error while updating basic trade.'
     }
 };
+export const ASSET_OPERATION_MESSAGE = {
+    RETRIEVE_MANY: {
+        LOADING: 'Retrieving asset operations...',
+        OK: '',
+        ERROR: 'Error while retrieving asset operations.'
+    },
+    RETRIEVE: {
+        LOADING: 'Retrieving asset operation...',
+        OK: '',
+        ERROR: 'Error while retrieving asset operation.'
+    },
+    SAVE: {
+        LOADING: 'Creating asset operation...',
+        OK: 'The asset operation has been created.',
+        ERROR: 'Error while creating asset operation.'
+    },
+    UPDATE: {
+        LOADING: 'Updating asset operation...',
+        OK: 'The asset operation has been updated.',
+        ERROR: 'Error while updating asset operation.'
+    },
+    DELETE: {
+        LOADING: 'Deleting asset operation...',
+        OK: 'The asset operation has been deleted.',
+        ERROR: 'Error while deleting asset operation.'
+    }
+};
 export const ORDER_TRADE_MESSAGE = {
     RETRIEVE_MANY: {
         LOADING: 'Retrieving order trades...',
@@ -157,6 +193,30 @@ export const ORDER_TRADE_MESSAGE = {
         LOADING: 'Notifying expiration...',
         OK: 'The expiration has been notified.',
         ERROR: 'Error while notifying expiration.'
+    }
+};
+export const RAW_CERTIFICATION_MESSAGE = {
+    RETRIEVE: {
+        LOADING: 'Retrieving raw certifications...',
+        OK: '',
+        ERROR: 'Error while retrieving raw certifications.'
+    }
+};
+export const CERTIFICATION_MESSAGE = {
+    RETRIEVE: {
+        LOADING: 'Retrieving certification...',
+        OK: '',
+        ERROR: 'Error while retrieving certification.'
+    },
+    SAVE: {
+        LOADING: 'Creating certification...',
+        OK: 'The certification has been created.',
+        ERROR: 'Error while creating certification.'
+    },
+    UPDATE: {
+        LOADING: 'Updating certification...',
+        OK: 'The certification has been updated.',
+        ERROR: 'Error while updating certification.'
     }
 };
 export const DOCUMENT_MESSAGE = {
@@ -216,16 +276,26 @@ export const AUTHENTICATION_MESSAGE = {
         ERROR: 'Error while logging out.'
     }
 };
-export const ESCROW_MESSAGE = {
-    RETRIEVE: {
-        LOADING: 'Retrieving escrow details...',
-        OK: '',
-        ERROR: 'Error while retrieving escrow details.'
-    },
+export const DOWN_PAYMENT_MESSAGE = {
     DEPOSIT: {
-        LOADING: 'Depositing...',
-        OK: 'Deposit successful.',
-        ERROR: 'Error while depositing.'
+        LOADING: 'Depositing funds...',
+        OK: 'Funds deposited successfully.',
+        ERROR: 'Error while depositing funds.'
+    },
+    LOCK: {
+        LOADING: 'Locking funds...',
+        OK: 'Funds locked successfully.',
+        ERROR: 'Error while locking funds.'
+    },
+    UNLOCK: {
+        LOADING: 'Unlocking funds...',
+        OK: 'Funds unlocked successfully.',
+        ERROR: 'Error while unlocking funds.'
+    },
+    RETRIEVE: {
+        LOADING: 'Retrieving down payment details...',
+        OK: '',
+        ERROR: 'Error while retrieving down payment details.'
     },
     WITHDRAW: {
         LOADING: 'Withdrawing...',
@@ -281,15 +351,10 @@ export const SHIPMENT_MESSAGE = {
         OK: 'Shipment quality rejected successfully.',
         ERROR: 'Error while rejecting shipment quality.'
     },
-    DETERMINE_ESCROW: {
-        LOADING: 'Determining escrow...',
-        OK: 'Escrow determined successfully.',
-        ERROR: 'Error while determining escrow.'
-    },
-    DEPOSIT: {
-        LOADING: 'Depositing funds...',
-        OK: 'Funds deposited successfully.',
-        ERROR: 'Error while depositing funds.'
+    DETERMINE_DOWN_PAYMENT: {
+        LOADING: 'Determining down payment...',
+        OK: 'Down payment determined successfully.',
+        ERROR: 'Error while determining down payment.'
     },
     GET_DOCUMENT: {
         LOADING: 'Retrieving document...',
@@ -338,5 +403,22 @@ export const ORGANIZATION_MESSAGE = {
         LOADING: 'Updating organization...',
         OK: 'The organization has been updated.',
         ERROR: 'Error while updating organization.'
+    },
+    INVITE: {
+        LOADING: 'Inviting organization...',
+        OK: 'Organization invited successfully.',
+        ERROR: 'Error while inviting organization.'
+    }
+};
+export const BUSINESS_RELATION_MESSAGE = {
+    RETRIEVE: {
+        LOADING: 'Retrieving business relations...',
+        OK: '',
+        ERROR: 'Error while retrieving business relations.'
+    },
+    SAVE: {
+        LOADING: 'Disclosing information...',
+        OK: 'Information disclosed successfully.',
+        ERROR: 'Error while disclosing information.'
     }
 };

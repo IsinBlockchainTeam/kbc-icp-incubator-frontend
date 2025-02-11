@@ -1,13 +1,13 @@
 import React from 'react';
 import { Button, Table } from 'antd';
 import { ColumnsType } from 'antd/es/table';
-import { CardPage } from '@/components/structure/CardPage/CardPage';
+import { CardPage } from '@/components/CardPage/CardPage';
 import { PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { Material, ProductCategory } from '@isinblockchainteam/kbc-icp-incubator-library';
+import { Material, ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
 import { paths } from '@/constants/paths';
-import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';
-import { useMaterial } from '@/providers/icp/MaterialProvider';
+import { useProductCategory } from '@/providers/entities/icp/ProductCategoryProvider';
+import { useMaterial } from '@/providers/entities/icp/MaterialProvider';
 
 export const Materials = () => {
     const { productCategories } = useProductCategory();
@@ -25,11 +25,6 @@ export const Materials = () => {
             title: 'Name',
             dataIndex: 'name',
             sorter: (a, b) => a.name.localeCompare(b.name)
-        },
-        {
-            title: 'Quality',
-            dataIndex: 'quality',
-            sorter: (a, b) => (a.quality && b.quality ? a.quality - b.quality : 0)
         }
     ];
 
@@ -41,10 +36,36 @@ export const Materials = () => {
             sortDirections: ['descend']
         },
         {
+            title: 'Name',
+            dataIndex: 'name',
+            sorter: (a, b) => a.name.localeCompare(b.name)
+        },
+        {
             title: 'Product category',
             dataIndex: 'name',
             render: (_, { productCategory }) => productCategory.name,
             sorter: (a, b) => a.productCategory.name.localeCompare(b.productCategory.name)
+        },
+        {
+            title: 'Typology',
+            dataIndex: 'typology',
+            sorter: (a, b) => a.typology.localeCompare(b.typology)
+        },
+        {
+            title: 'Quality',
+            dataIndex: 'quality',
+            sorter: (a, b) => a.quality.localeCompare(b.quality)
+        },
+        {
+            title: 'Moisture',
+            dataIndex: 'moisture',
+            sorter: (a, b) => a.moisture.localeCompare(b.moisture)
+        },
+        {
+            title: 'Type',
+            dataIndex: 'isInput',
+            render: (isInput) => (isInput ? 'Input' : 'Output'),
+            sorter: (a, b) => (a.isInput && b.isInput ? 0 : 1)
         }
     ];
 
@@ -59,22 +80,9 @@ export const Materials = () => {
                             alignItems: 'center'
                         }}>
                         Product Categories
-                        <div>
-                            <Button
-                                type="primary"
-                                icon={<PlusOutlined />}
-                                onClick={() => navigate(paths.PRODUCT_CATEGORY_NEW)}
-                                style={{ marginRight: '16px' }}>
-                                New Product Category
-                            </Button>
-                        </div>
                     </div>
                 }>
-                <Table
-                    columns={productCategoriesColumns}
-                    dataSource={productCategories}
-                    rowKey="id"
-                />
+                <Table columns={productCategoriesColumns} dataSource={productCategories} rowKey="id" />
             </CardPage>
             <div style={{ height: '16px' }} />
             <CardPage
@@ -85,12 +93,9 @@ export const Materials = () => {
                             justifyContent: 'space-between',
                             alignItems: 'center'
                         }}>
-                        Your Materials
+                        Materials
                         <div>
-                            <Button
-                                type="primary"
-                                icon={<PlusOutlined />}
-                                onClick={() => navigate(paths.MATERIAL_NEW)}>
+                            <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate(paths.MATERIAL_NEW)}>
                                 New Material
                             </Button>
                         </div>

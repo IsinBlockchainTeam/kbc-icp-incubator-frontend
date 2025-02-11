@@ -1,5 +1,5 @@
 import { checkAndGetEnvironmentVariable } from '@/utils/env';
-import { URL_SEGMENTS } from '@isinblockchainteam/kbc-icp-incubator-library';
+import { URL_SEGMENTS } from '@kbc-lib/coffee-trading-management-lib';
 import { ICP } from '@/constants/icp';
 
 export const getICPCanisterURL = (canisterId: string): string => {

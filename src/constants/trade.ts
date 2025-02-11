@@ -20,7 +20,7 @@ export const incotermsMap = new Map<string, { responsibleParty: string; details:
         {
             responsibleParty: 'Seller',
             details:
-                'CFR (Cost and Freight) - The seller is responsible for delivering the goods on board the vessel and paying the costs and freight to bring the goods to the named port of destination. The seller handles export clearance.'
+                'CFR (Cost and Freight) - The seller is responsible for delivering the goods on board the vessel and paying the costs and freight. The seller handles export clearance.'
         }
     ],
     [
@@ -28,7 +28,7 @@ export const incotermsMap = new Map<string, { responsibleParty: string; details:
         {
             responsibleParty: 'Seller',
             details:
-                'CIF (Cost, Insurance, and Freight) - The seller is responsible for delivering the goods on board the vessel, paying the costs and freight to bring the goods to the named port of destination, and providing marine insurance. The seller handles export clearance.'
+                'CIF (Cost, Insurance, and Freight) - The seller is responsible for delivering the goods on board the vessel, paying the costs and freight, and providing marine insurance. The seller handles export clearance.'
         }
     ]
 ]);

@@ -1,14 +1,8 @@
-import { CardPage } from '@/components/structure/CardPage/CardPage';
+import { CardPage } from '@/components/CardPage/CardPage';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
 import React, { useMemo } from 'react';
 import { Alert, Empty, Flex, Tag, Typography } from 'antd';
-import {
-    OrderLine,
-    EvaluationStatus,
-    ShipmentDocumentType,
-    ShipmentPhaseDocument,
-    Order
-} from '@isinblockchainteam/kbc-icp-incubator-library';
+import { EvaluationStatus, DocumentType, ShipmentPhaseDocument, Order, OrderLine } from '@kbc-lib/coffee-trading-management-lib';
 import DocumentUpload from '@/pages/Documents/DocumentUpload';
 import { ConfirmButton } from '@/components/ConfirmButton/ConfirmButton';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -18,9 +12,9 @@ import { credentials } from '@/constants/ssi';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { ShipmentPhaseDisplayName } from '@/constants/shipmentPhase';
-import { DetailedShipment, useShipment } from '@/providers/icp/ShipmentProvider';
-import { useOrder } from '@/providers/icp/OrderProvider';
-import { useOrganization } from '@/providers/icp/OrganizationProvider';
+import { DetailedShipment, useShipment } from '@/providers/entities/icp/ShipmentProvider';
+import { useOrder } from '@/providers/entities/icp/OrderProvider';
+import { useOrganization } from '@/providers/entities/icp/OrganizationProvider';
 
 type SelectedOrder = {
     order: Order | null;
@@ -35,8 +29,7 @@ export default () => {
     const { getOrganization } = useOrganization();
     const { order, orders } = useOrder();
     const { detailedShipment, addDocument } = useShipment();
-    const selectedDocumentType: ShipmentDocumentType | undefined =
-        location.state?.selectedDocumentType;
+    const selectedDocumentType: DocumentType | undefined = location.state?.selectedDocumentType;
 
     const tradeSelected: SelectedOrder | undefined = useMemo(() => {
         if (!order) return undefined;
@@ -56,27 +49,19 @@ export default () => {
     };
 
     const computeCounterpart = (trade: Order) => {
-        return isExporter
-            ? getOrganization(trade.commissioner).legalName
-            : getOrganization(trade.supplier).legalName;
+        return isExporter ? getOrganization(trade.commissioner).legalName : getOrganization(trade.supplier).legalName;
     };
 
-    const documentSubmit = async (
-        documentType: ShipmentDocumentType,
-        documentReferenceId: string,
-        filename: string,
-        fileContent: Blob
-    ) => {
+    const documentSubmit = async (documentType: DocumentType, documentReferenceId: string, filename: string, fileContent: Blob) => {
         await addDocument(documentType, documentReferenceId, filename, fileContent);
         navigate(paths.DOCUMENTS);
     };
 
-    const approvedDocumentTypes: ShipmentDocumentType[] = [];
+    const approvedDocumentTypes: DocumentType[] = [];
     const allPhasesDocuments: ShipmentPhaseDocument[] = [];
     detailedShipment?.shipment.documents.forEach((value) => {
         const documentInfo = value[0];
-        if (documentInfo.evaluationStatus === EvaluationStatus.APPROVED)
-            approvedDocumentTypes.push(documentInfo.documentType);
+        if (documentInfo.evaluationStatus === EvaluationStatus.APPROVED) approvedDocumentTypes.push(documentInfo.documentType);
     });
     detailedShipment?.phaseDocuments?.forEach((value) => {
         value.forEach((doc) => {
@@ -84,8 +69,7 @@ export default () => {
         });
     });
 
-    if (tradeSelected && !tradeSelected.order)
-        return <Typography>You have not created any order yet</Typography>;
+    if (tradeSelected && !tradeSelected.order) return <Typography>You have not created any order yet</Typography>;
 
     const elements: FormElement[] = useMemo(
         () => [
@@ -95,10 +79,7 @@ export default () => {
                 name: 'orders',
                 label: 'Orders',
                 required: false,
-                defaultValue:
-                    tradeSelected && tradeSelected.order
-                        ? tradeSelected.order.id.toString()
-                        : undefined,
+                defaultValue: tradeSelected && tradeSelected.order ? tradeSelected.order.id.toString() : undefined,
                 options: orders.map((orderDetail, index) => ({
                     value: index,
                     label: orderDetail.id.toString(),
@@ -121,8 +102,7 @@ export default () => {
                 search: {
                     showIcon: true,
                     filterOption: (input: string, option: any) =>
-                        option.label.toString().includes(input) ||
-                        option.counterpart.toLowerCase().includes(input.toLowerCase())
+                        option.label.toString().includes(input) || option.counterpart.toLowerCase().includes(input.toLowerCase())
                 }
             },
             {
@@ -141,9 +121,7 @@ export default () => {
                             <div>
                                 <span style={{ fontWeight: 'bold' }}>Issue Date: </span>
                                 {/*TODO: add issue date to order entity*/}
-                                {new Date(
-                                    tradeSelected.order.deliveryDeadline.getTime() * 1000
-                                ).toLocaleDateString()}
+                                {new Date(tradeSelected.order.deliveryDeadline.getTime() * 1000).toLocaleDateString()}
                             </div>
                             <ConfirmButton
                                 style={{ padding: 0, marginTop: 10, textAlign: 'left' }}
@@ -180,11 +158,7 @@ export default () => {
                                 <div>
                                     <span style={{ fontWeight: 'bold' }}>Status: </span>
                                     <Tag color="geekblue" style={{ margin: 0 }}>
-                                        {
-                                            ShipmentPhaseDisplayName[
-                                                tradeSelected.detailedShipment.phase
-                                            ]
-                                        }
+                                        {ShipmentPhaseDisplayName[tradeSelected.detailedShipment.phase]}
                                     </Tag>
                                 </div>
                             </Flex>
@@ -207,9 +181,7 @@ export default () => {
                                 onSubmit={documentSubmit}
                                 oldDocumentsInfo={
                                     tradeSelected?.detailedShipment
-                                        ? Array.from(
-                                              tradeSelected.detailedShipment.shipment.documents.values()
-                                          ).flat()
+                                        ? Array.from(tradeSelected.detailedShipment.shipment.documents.values()).flat()
                                         : []
                                 }
                                 selectedDocumentType={selectedDocumentType}
@@ -218,12 +190,7 @@ export default () => {
                     ) : (
                         <Alert
                             style={{ textAlign: 'center' }}
-                            message={
-                                <span>
-                                    No shipment available for this order, please continue with order
-                                    negotiation.
-                                </span>
-                            }
+                            message={<span>No shipment available for this order, please continue with order negotiation.</span>}
                             type={'warning'}
                         />
                     )
@@ -234,11 +201,7 @@ export default () => {
 
     return (
         <CardPage title="Shipment Documents">
-            <GenericForm
-                elements={elements}
-                confirmText="This will upload the document for the order selected, proceed?"
-                submittable={false}
-            />
+            <GenericForm elements={elements} confirmText="This will upload the document for the order selected, proceed?" submittable={false} />
         </CardPage>
     );
 };

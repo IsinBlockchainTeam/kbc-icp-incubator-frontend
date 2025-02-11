@@ -18,15 +18,7 @@ module.exports = function override(config, env) {
 
     // Add alias configuration
     config.resolve.alias = {
-        '@/api': path.resolve(__dirname, './src/api'),
-        '@/assets': path.resolve(__dirname, './src/assets'),
-        '@/components': path.resolve(__dirname, './src/components'),
-        '@/constants': path.resolve(__dirname, './src/constants'),
-        '@/hooks': path.resolve(__dirname, './src/hooks'),
-        '@/pages': path.resolve(__dirname, './src/pages'),
-        '@/providers': path.resolve(__dirname, './src/providers'),
-        '@/redux': path.resolve(__dirname, './src/redux'),
-        '@/utils': path.resolve(__dirname, './src/utils')
+        '@': path.resolve(__dirname, './src')
     };
 
     return config;

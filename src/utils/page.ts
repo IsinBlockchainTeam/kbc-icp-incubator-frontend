@@ -1,10 +1,6 @@
-import { TradeType } from '@isinblockchainteam/kbc-icp-incubator-library';
+import { TradeType } from '@kbc-lib/coffee-trading-management-lib';
 
-export const setParametersPath = (
-    path = '',
-    pathParams: { [key: string]: string },
-    queryParams?: { [key: string]: string | TradeType }
-) => {
+export const setParametersPath = (path = '', pathParams: { [key: string]: string }, queryParams?: { [key: string]: string | TradeType }) => {
     if (!pathParams || !path) return path;
     if (queryParams)
         path = Object.entries(queryParams)?.reduce?.((prevPath, [key, value]) => {
@@ -14,11 +10,11 @@ export const setParametersPath = (
         return prevPath.replace(`:${key}`, value);
     }, path);
 };
-export const createDownloadWindow = (file: Blob, fileName: string) => {
+export const createDownloadWindow = (file: Blob, filename: string) => {
     const url = window.URL.createObjectURL(file);
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', fileName);
+    link.setAttribute('download', filename);
     document.body.appendChild(link);
     link.click();
 };

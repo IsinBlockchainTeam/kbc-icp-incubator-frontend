@@ -5,8 +5,9 @@
 junit.xml
 .env
 .env.tmp
+.env.ci
 
 .dfx
 .idea
 
-package-lock.json
+.npmrc

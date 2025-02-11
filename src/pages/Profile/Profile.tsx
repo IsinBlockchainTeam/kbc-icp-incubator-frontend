@@ -3,14 +3,14 @@ import styles from './Profile.module.scss';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { Navigate } from 'react-router-dom';
-import { useSiweIdentity } from '@/providers/SiweIdentityProvider';
+import { useSiweIdentity } from '@/providers/auth/SiweIdentityProvider';
 import React, { useEffect, useState } from 'react';
-import { useSigner } from '@/providers/SignerProvider';
+import { useSigner } from '@/providers/auth/SignerProvider';
 import { paths } from '@/constants/paths';
 import { MailOutlined, PhoneOutlined, EnvironmentOutlined } from '@ant-design/icons';
 import { formatAddress, formatICPPrincipal } from '@/utils/format';
 import { fromDateToString } from '@/utils/date';
-import { useOrganization } from '@/providers/icp/OrganizationProvider';
+import { useOrganization } from '@/providers/entities/icp/OrganizationProvider';
 
 import {
     BroadedOrganization,
@@ -18,7 +18,7 @@ import {
     Organization,
     OrganizationParams,
     OrganizationRole
-} from '@isinblockchainteam/kbc-icp-incubator-library';
+} from '@kbc-lib/coffee-trading-management-lib';
 import { BroadedOrganizationCard } from '@/components/OrganizationCards/BroadedOrganizationCard';
 import { NarrowedOrganizationCard } from '@/components/OrganizationCards/NarrowedOrganizationCard';
 
@@ -27,8 +27,7 @@ export default function Profile() {
     const { signer } = useSigner();
     const { identity } = useSiweIdentity();
     const userInfo = useSelector((state: RootState) => state.userInfo);
-    const { getOrganization, storeOrganization, updateOrganization, organizations } =
-        useOrganization();
+    const { getOrganization, storeOrganization, updateOrganization, organizations } = useOrganization();
     const [principal, setPrincipal] = useState<string>('');
     const [icpOrganization, setIcpOrganization] = useState<Organization | undefined>();
 
@@ -89,20 +88,14 @@ export default function Profile() {
                 <Title level={5}>You are sharing the following data with the platform</Title>
                 <Row gutter={16}>
                     <Col span={12}>
-                        <BroadedOrganizationCard
-                            organization={icpOrganization as BroadedOrganization}
-                        />
+                        <BroadedOrganizationCard organization={icpOrganization as BroadedOrganization} />
                     </Col>
                     <Col span={12}>
-                        <NarrowedOrganizationCard
-                            organization={icpOrganization as NarrowedOrganization}
-                        />
+                        <NarrowedOrganizationCard organization={icpOrganization as NarrowedOrganization} />
                     </Col>
                 </Row>
                 <Row style={{ paddingTop: 8 }}>
-                    <Button
-                        size="large"
-                        onClick={() => updateOrganizationWrapper(organizationParams)}>
+                    <Button size="large" onClick={() => updateOrganizationWrapper(organizationParams)}>
                         <Text>Update organization information</Text>
                     </Button>
                 </Row>
@@ -128,9 +121,7 @@ export default function Profile() {
                                 description={companyClaims.role}
                             />
                             <Descriptions column={1} style={{ marginTop: '20px' }}>
-                                <Descriptions.Item label="Industrial Sector">
-                                    {companyClaims.industrialSector}
-                                </Descriptions.Item>
+                                <Descriptions.Item label="Industrial Sector">{companyClaims.industrialSector}</Descriptions.Item>
                                 <Descriptions.Item label="Email">
                                     <span style={{ display: 'flex', alignItems: 'center' }}>
                                         <MailOutlined style={{ marginRight: 4 }} />
@@ -149,15 +140,9 @@ export default function Profile() {
                                         {companyClaims.address}, {companyClaims.nation}
                                     </span>
                                 </Descriptions.Item>
-                                <Descriptions.Item label="Ethereum Address">
-                                    {formatAddress(userInfo.roleProof.delegator)}
-                                </Descriptions.Item>
-                                <Descriptions.Item label="Latitude">
-                                    {companyClaims.latitude}
-                                </Descriptions.Item>
-                                <Descriptions.Item label="Longitude">
-                                    {companyClaims.longitude}
-                                </Descriptions.Item>
+                                <Descriptions.Item label="Ethereum Address">{formatAddress(userInfo.roleProof.delegator)}</Descriptions.Item>
+                                <Descriptions.Item label="Latitude">{companyClaims.latitude}</Descriptions.Item>
+                                <Descriptions.Item label="Longitude">{companyClaims.longitude}</Descriptions.Item>
                             </Descriptions>
                         </Card>
                     </Col>
@@ -187,17 +172,11 @@ export default function Profile() {
                                         {employeeClaims.address}
                                     </span>
                                 </Descriptions.Item>
-                                <Descriptions.Item label="Birth Date">
-                                    {fromDateToString(new Date(employeeClaims.birthDate))}
-                                </Descriptions.Item>
-                                <Descriptions.Item label="Ethereum Address">
-                                    {formatAddress(signer._address)}
-                                </Descriptions.Item>
+                                <Descriptions.Item label="Birth Date">{fromDateToString(new Date(employeeClaims.birthDate))}</Descriptions.Item>
+                                <Descriptions.Item label="Ethereum Address">{formatAddress(signer._address)}</Descriptions.Item>
                                 {identity && (
                                     <>
-                                        <Descriptions.Item label="ICP Principal">
-                                            {formatICPPrincipal(principal)}
-                                        </Descriptions.Item>
+                                        <Descriptions.Item label="ICP Principal">{formatICPPrincipal(principal)}</Descriptions.Item>
                                     </>
                                 )}
                             </Descriptions>

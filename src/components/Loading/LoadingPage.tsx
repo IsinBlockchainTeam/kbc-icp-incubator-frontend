@@ -3,7 +3,7 @@ import React from 'react';
 
 const { Text } = Typography;
 
-const LoadingPage = () => {
+export const LoadingPage = () => {
     return (
         <Col
             style={{
@@ -35,5 +35,3 @@ const LoadingPage = () => {
         </Col>
     );
 };
-
-export default LoadingPage;

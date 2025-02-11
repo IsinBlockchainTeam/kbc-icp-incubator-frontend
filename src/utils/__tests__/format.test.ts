@@ -1,4 +1,4 @@
-import { formatDid, formatClaimName, formatAddress, formatICPPrincipal } from '@/utils/format';
+import { formatDid, formatClaimName, formatAddress, formatICPPrincipal, capitalizeFirstLetter } from '@/utils/format';
 
 describe('Format utility functions', () => {
     describe('formatDid', () => {
@@ -37,9 +37,13 @@ describe('Format utility functions', () => {
         });
 
         it('returns a formatted address when length is more than 20', () => {
-            expect(formatICPPrincipal('longPrincipal12345678901234567890')).toEqual(
-                'longPrincipa...1234567890'
-            );
+            expect(formatICPPrincipal('longPrincipal12345678901234567890')).toEqual('longPrincipa...1234567890');
+        });
+    });
+
+    describe('capitalizeFirstLetter', () => {
+        it('capitalizes the first letter of a string', () => {
+            expect(capitalizeFirstLetter('string')).toEqual('String');
         });
     });
 });

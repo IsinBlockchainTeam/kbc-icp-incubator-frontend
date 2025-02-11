@@ -5,7 +5,7 @@ export async function createEthereumProvider(): Promise<EthereumProvider> {
     return EthereumProvider.init({
         projectId: PROJECT_ID,
         metadata: {
-            name: 'KBC platform',
+            name: 'Alcomex platform',
             description: 'A portal to decentralized coffee trading',
             url: 'https://xd4om-uqaaa-aaaam-aclya-cai.icp0.io/',
             icons: [
@@ -13,9 +13,11 @@ export async function createEthereumProvider(): Promise<EthereumProvider> {
             ]
         },
         showQrModal: false,
-        optionalChains: [222],
+        optionalChains: [222, 17000, 11155420],
         rpcMap: {
-            222: 'https://testnet-3achain-rpc.noku.io'
+            222: 'https://testnet-3achain-rpc.noku.io',
+            17000: 'https://ethereum-holesky-rpc.publicnode.com',
+            11155420: 'https://sepolia.optimism.io'
         }
     });
 }

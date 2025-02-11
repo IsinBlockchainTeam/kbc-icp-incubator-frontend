@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Steps } from 'antd';
-import { ShipmentPhase } from '@isinblockchainteam/kbc-icp-incubator-library';
+import { ShipmentPhase } from '@kbc-lib/coffee-trading-management-lib';
 import { FlagOutlined, FormOutlined, InboxOutlined, TruckOutlined } from '@ant-design/icons';
 import { Cargo } from '@/components/ShipmentPanel/svg/Cargo';
 import { WaitingForLandTransportation } from '@/components/ShipmentPanel/phase/WaitingForLandTransportation';
@@ -11,7 +11,7 @@ import { ShipmentConfirmation } from '@/components/ShipmentPanel/phase/ShipmentC
 import { Result } from '@/components/ShipmentPanel/phase/Result';
 import { SampleApproval } from '@/components/ShipmentPanel/phase/SampleApproval';
 import { ShipmentPhaseDisplayName } from '@/constants/shipmentPhase';
-import { useShipment } from '@/providers/icp/ShipmentProvider';
+import { useShipment } from '@/providers/entities/icp/ShipmentProvider';
 
 export const ShipmentPanel = () => {
     const { detailedShipment } = useShipment();

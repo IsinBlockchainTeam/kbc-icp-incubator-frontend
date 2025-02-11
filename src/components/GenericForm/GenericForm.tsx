@@ -1,23 +1,9 @@
 import React, { ReactNode, useEffect } from 'react';
-import {
-    Alert,
-    AlertProps,
-    Button,
-    Card,
-    Col,
-    DatePicker,
-    Divider,
-    Form,
-    FormInstance,
-    Input,
-    Popover,
-    Row,
-    Select
-} from 'antd';
+import { Alert, AlertProps, Button, Card, Col, DatePicker, Divider, Form, FormInstance, Input, Popover, Row, Select } from 'antd';
 import PDFViewer from '../PDFViewer/PDFViewer';
-import { DownloadOutlined } from '@ant-design/icons';
+import { DownloadOutlined, EditOutlined, RollbackOutlined } from '@ant-design/icons';
 import { createDownloadWindow } from '@/utils/page';
-import { DocumentStatus } from '@isinblockchainteam/kbc-icp-incubator-library';
+import { DocumentStatus } from '@kbc-lib/coffee-trading-management-lib';
 import { ConfirmButton } from '@/components/ConfirmButton/ConfirmButton';
 import { CardSize } from 'antd/es/card/Card';
 
@@ -33,14 +19,7 @@ export enum FormElementType {
     CARD = 'card'
 }
 
-export type FormElement =
-    | BasicElement
-    | LabeledElement
-    | ClickableElement
-    | SelectableElement
-    | EditableElement
-    | DocumentElement
-    | CardElement;
+export type FormElement = BasicElement | LabeledElement | ClickableElement | SelectableElement | EditableElement | DocumentElement | CardElement;
 
 type BasicElement = {
     type: FormElementType.SPACE;
@@ -59,7 +38,6 @@ export type DocumentContent = {
     contentType: string;
     content: Blob;
     filename: string;
-    date: Date;
 };
 
 // type DisableableElement = Omit<LabeledElement, 'type'> & {
@@ -81,10 +59,7 @@ export type ClickableElement = Omit<LabeledElement, 'type'> & {
     resetFormValues?: boolean;
 };
 type AdditionalButtonProperties = 'danger' | 'ghost' | 'loading';
-const mapAdditionalPropertiesToButtonProps: Record<
-    AdditionalButtonProperties,
-    Record<string, any>
-> = {
+const mapAdditionalPropertiesToButtonProps: Record<AdditionalButtonProperties, Record<string, any>> = {
     danger: { danger: true },
     ghost: { ghost: true },
     loading: { loading: true }
@@ -143,7 +118,7 @@ type CardElement = Omit<BasicElement, 'type'> & {
     type: FormElementType.CARD;
     name: string;
     title: string;
-    content: React.ReactNode;
+    content: React.ReactNode | ((values: any) => React.ReactNode);
     actions?: React.ReactNode[];
     bordered?: boolean;
     size?: CardSize;
@@ -154,6 +129,7 @@ type Props = {
     elements: FormElement[];
     formName?: string;
     confirmText?: string;
+    toggleEditable?: () => void;
     submittable?: boolean;
     submitText?: string;
     onSubmit?: (values: any) => void;
@@ -162,11 +138,14 @@ type Props = {
 export const GenericForm = (props: Props) => {
     const [form] = Form.useForm();
     const [areFieldsValid, setAreFieldsValid] = React.useState<boolean>(false);
-    const [documents, setDocuments] = React.useState<Map<string, Blob | undefined>>(
-        new Map<string, Blob>()
-    );
+    const [documents, setDocuments] = React.useState<Map<string, Blob | undefined>>(new Map<string, Blob>());
+    const [isEditing, setIsEditing] = React.useState(false);
+
     const dateFormat = 'DD/MM/YYYY';
     const values = Form.useWatch([], form);
+
+    const checkFormValue = (form: FormInstance, fieldName: string, value: any) =>
+        form.getFieldValue(fieldName) !== undefined ? form.getFieldValue(fieldName) : value;
 
     useEffect(() => {
         props.elements.forEach((element) => {
@@ -201,10 +180,7 @@ export const GenericForm = (props: Props) => {
             element = element as LabeledElement;
             const { span, label } = element;
             return (
-                <Col
-                    span={span}
-                    key={`title_${index}`}
-                    style={{ display: `${element.hidden ? 'none' : 'block'}` }}>
+                <Col span={span} key={`title_${index}`} style={{ display: `${element.hidden ? 'none' : 'block'}` }}>
                     <Divider>{label}</Divider>
                 </Col>
             );
@@ -220,11 +196,7 @@ export const GenericForm = (props: Props) => {
                         margin: `${element.marginVertical} 0`,
                         display: `${element.hidden ? 'none' : 'block'}`
                     }}>
-                    <Alert
-                        style={{ textAlign: 'center' }}
-                        message={element.label}
-                        type={background}
-                    />
+                    <Alert style={{ textAlign: 'center' }} message={element.label} type={background} />
                 </Col>
             );
         },
@@ -242,15 +214,10 @@ export const GenericForm = (props: Props) => {
                 additionalProperties = undefined,
                 resetFormValues
             } = element;
-            const additionalProps = additionalProperties
-                ? mapAdditionalPropertiesToButtonProps[additionalProperties]
-                : {};
+            const additionalProps = additionalProperties ? mapAdditionalPropertiesToButtonProps[additionalProperties] : {};
 
             return (
-                <Col
-                    span={span}
-                    key={`button_${element.name}`}
-                    style={{ display: `${element.hidden ? 'none' : 'block'}` }}>
+                <Col span={span} key={`button_${element.name}`} style={{ display: `${element.hidden ? 'none' : 'block'}` }}>
                     <Form.Item labelCol={{ span: 24 }} label={' '} name={name}>
                         <Button
                             type={buttonType}
@@ -272,17 +239,12 @@ export const GenericForm = (props: Props) => {
             element = element as SelectableElement;
             const { disabled = false } = element;
             return (
-                <Col
-                    span={element.span}
-                    key={`select_${element.name}`}
-                    style={{ display: `${element.hidden ? 'none' : 'block'}` }}>
+                <Col span={element.span} key={`select_${element.name}`} style={{ display: `${element.hidden ? 'none' : 'block'}` }}>
                     <Form.Item
                         labelCol={{ span: 24 }}
                         label={element.label}
                         name={element.name}
-                        initialValue={
-                            element.defaultValue !== undefined ? element.defaultValue : undefined
-                        }
+                        initialValue={checkFormValue(form, element.name, element.defaultValue)}
                         rules={[
                             {
                                 required: element.required,
@@ -309,15 +271,12 @@ export const GenericForm = (props: Props) => {
             element = element as EditableElement;
             const { disabled = false, validationCallback } = element;
             return (
-                <Col
-                    span={element.span}
-                    key={`input_${element.name}`}
-                    style={{ display: `${element.hidden ? 'none' : 'block'}` }}>
+                <Col span={element.span} key={`input_${element.name}`} style={{ display: `${element.hidden ? 'none' : 'block'}` }}>
                     <Form.Item
                         labelCol={{ span: 24 }}
                         label={element.label}
                         name={element.name}
-                        initialValue={element.defaultValue}
+                        initialValue={checkFormValue(form, element.name, element.defaultValue)}
                         dependencies={element.dependencies}
                         rules={[
                             {
@@ -330,10 +289,10 @@ export const GenericForm = (props: Props) => {
                             },
                             ...(validationCallback
                                 ? [
-                                      {
-                                          validator: () => validationCallback(form)
-                                      }
-                                  ]
+                                    {
+                                        validator: () => validationCallback(form)
+                                    }
+                                ]
                                 : [])
                         ]}
                         validateTrigger="onBlur">
@@ -355,10 +314,7 @@ export const GenericForm = (props: Props) => {
             element = element as EditableElement;
             const { disabled = false, validationCallback, disableValues } = element;
             return (
-                <Col
-                    span={element.span}
-                    key={`date_${element.name}`}
-                    style={{ display: `${element.hidden ? 'none' : 'block'}` }}>
+                <Col span={element.span} key={`date_${element.name}`} style={{ display: `${element.hidden ? 'none' : 'block'}` }}>
                     <Form.Item
                         labelCol={{ span: 24 }}
                         label={element.label}
@@ -372,10 +328,10 @@ export const GenericForm = (props: Props) => {
                             },
                             ...(validationCallback
                                 ? [
-                                      {
-                                          validator: () => validationCallback(form)
-                                      }
-                                  ]
+                                    {
+                                        validator: () => validationCallback(form)
+                                    }
+                                ]
                                 : [])
                         ]}>
                         <DatePicker
@@ -395,22 +351,15 @@ export const GenericForm = (props: Props) => {
             const status = element.status!;
 
             return (
-                <Col
-                    span={element.span}
-                    key={`document_${element.name}`}
-                    style={{ display: `${element.hidden ? 'none' : 'block'}` }}>
+                <Col span={element.span} key={`document_${element.name}`} style={{ display: `${element.hidden ? 'none' : 'block'}` }}>
                     <Form.Item
                         labelCol={{ span: 24 }}
                         label={element.label}
                         name={element.name}
-                        // TODO: if document is required, it shows error message also if the document is uploaded, to fix when document uploading will be re-introduced
-                        // rules={[{required: element.required, message: `Please insert ${element.label}!`}]}
+                    // TODO: if document is required, it shows error message also if the document is uploaded, to fix when document uploading will be re-introduced
+                    // rules={[{required: element.required, message: `Please insert ${element.label}!`}]}
                     >
-                        <PDFViewer
-                            element={element}
-                            onDocumentChange={addDocument}
-                            validationStatus={status}
-                        />
+                        <PDFViewer element={element} onDocumentChange={addDocument} validationStatus={status} />
                         {element.validationCallbacks && (
                             <Popover
                                 title="Validate the document"
@@ -424,30 +373,19 @@ export const GenericForm = (props: Props) => {
                                                 style={{ marginLeft: '1rem' }}
                                                 type="default"
                                                 onClick={() => {
-                                                    const filenameSlices =
-                                                        docInfo.filename.split('/');
-                                                    createDownloadWindow(
-                                                        docInfo.content,
-                                                        filenameSlices[filenameSlices.length - 1]
-                                                    );
+                                                    const filenameSlices = docInfo.filename.split('/');
+                                                    createDownloadWindow(docInfo.content, filenameSlices[filenameSlices.length - 1]);
                                                 }}
                                                 icon={<DownloadOutlined />}
                                             />
                                         </Col>
                                         <Col span={12}>
-                                            <Button
-                                                type="primary"
-                                                style={{ width: '100%' }}
-                                                onClick={element.validationCallbacks.onApprove}>
+                                            <Button type="primary" style={{ width: '100%' }} onClick={element.validationCallbacks.onApprove}>
                                                 Approve
                                             </Button>
                                         </Col>
                                         <Col span={12}>
-                                            <Button
-                                                danger
-                                                type="primary"
-                                                style={{ width: '100%' }}
-                                                onClick={element.validationCallbacks.onReject}>
+                                            <Button danger type="primary" style={{ width: '100%' }} onClick={element.validationCallbacks.onReject}>
                                                 Reject
                                             </Button>
                                         </Col>
@@ -473,25 +411,56 @@ export const GenericForm = (props: Props) => {
             element = element as CardElement;
             const { title, content, actions, bordered = true, size = 'default', extra } = element;
 
+            const actualContent = typeof content === 'function' ? content(values) : content;
+
             return (
-                <Col
-                    span={element.span}
-                    key={`date_${element.name}`}
-                    style={{ display: `${element.hidden ? 'none' : 'block'}` }}>
+                <Col span={element.span} key={`date_${element.name}`} style={{ display: `${element.hidden ? 'none' : 'block'}` }}>
                     <Form.Item labelCol={{ span: 24 }} name={element.name}>
-                        <Card
-                            title={title}
-                            bordered={bordered}
-                            size={size}
-                            extra={extra}
-                            actions={actions}>
-                            {content}
+                        <Card title={title} bordered={bordered} size={size} extra={extra} actions={actions}>
+                            {actualContent}
                         </Card>
                     </Form.Item>
                 </Col>
             );
         }
     };
+
+    const toggleEditing = () => {
+        setIsEditing(!isEditing);
+        props.toggleEditable!();
+    };
+
+    const editElements: FormElement[] = [
+        {
+            type: FormElementType.BUTTON,
+            span: 24,
+            name: 'back',
+            label: (
+                <div>
+                    Back <RollbackOutlined />
+                </div>
+            ),
+            buttonType: 'primary',
+            hidden: !isEditing,
+            onClick: toggleEditing,
+            resetFormValues: true
+        },
+        {
+            type: FormElementType.BUTTON,
+            span: 24,
+            name: 'edit',
+            label: (
+                <div>
+                    {isEditing ? 'Editing... ' : 'Edit '}
+                    <EditOutlined style={{ fontSize: 'large' }} />
+                </div>
+            ),
+            buttonType: 'primary',
+            hidden: isEditing,
+            onClick: toggleEditing
+        }
+    ];
+
     return (
         <Form
             layout="horizontal"
@@ -506,7 +475,7 @@ export const GenericForm = (props: Props) => {
                 }
             }}>
             <Row gutter={10}>
-                {props.elements.map((element, index) => {
+                {[...props.elements, ...(props.toggleEditable ? editElements : [])].map((element, index) => {
                     return elementsComponent[element.type](element, index);
                 })}
                 {props.submittable && (
@@ -515,9 +484,7 @@ export const GenericForm = (props: Props) => {
                             <ConfirmButton
                                 text={props.submitText || 'Submit'}
                                 disabled={!areFieldsValid}
-                                confirmText={
-                                    props.confirmText || 'Are you sure you want to submit?'
-                                }
+                                confirmText={props.confirmText || 'Are you sure you want to submit?'}
                                 onConfirm={form.submit}
                                 type="primary"
                                 block

@@ -94,7 +94,7 @@ export interface JSONOrderTemplate extends JSONTemplate {
         // };
         Guarantee: {
             AmountPercent: number;
-            EscrowTaxPercent: number; // percentage of the guarantee that is paid as platform's fee
+            DownPaymentTaxPercent: number; // percentage of the guarantee that is paid as platform's fee
         };
         PriceFixing: {
             // if a fixed date is not specified, it must be specified directly the price of the item. One of two fields must be present
@@ -106,7 +106,7 @@ export interface JSONOrderTemplate extends JSONTemplate {
         };
     };
     Attachments?: {
-        FileName: string;
+        filename: string;
         FileType: string;
         FileContent: string; // i.e. Base64 encoded file
     }[];

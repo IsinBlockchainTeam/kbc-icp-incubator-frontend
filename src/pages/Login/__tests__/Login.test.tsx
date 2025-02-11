@@ -2,7 +2,7 @@ import { act, render } from '@testing-library/react';
 import Login from '@/pages/Login/Login';
 import { QRCode, Timeline } from 'antd';
 import EthereumProvider from '@walletconnect/ethereum-provider';
-import { useWalletConnect } from '@/providers/WalletConnectProvider';
+import { useWalletConnect } from '@/providers/auth/WalletConnectProvider';
 import { useDispatch, useSelector } from 'react-redux';
 import { v4 as uuid } from 'uuid';
 import { Navigate } from 'react-router-dom';
@@ -24,7 +24,7 @@ jest.mock('antd', () => ({
     QRCode: jest.fn().mockReturnValue(() => <div />),
     Timeline: jest.fn().mockReturnValue(() => <div />)
 }));
-jest.mock('@/providers/WalletConnectProvider');
+jest.mock('@/providers/auth/WalletConnectProvider');
 jest.mock('react-redux');
 jest.mock('uuid');
 jest.mock('@/utils/notification');
@@ -82,9 +82,7 @@ describe('Login', () => {
         });
 
         it('should handle connection error', async () => {
-            (mockProvider.connect as jest.Mock).mockReturnValueOnce(
-                Promise.reject(new Error('error'))
-            );
+            (mockProvider.connect as jest.Mock).mockReturnValueOnce(Promise.reject(new Error('error')));
             await act(async () => {
                 render(<Login />);
             });
@@ -100,17 +98,14 @@ describe('Login', () => {
             });
             expect(dispatch).toHaveBeenCalledTimes(1);
             expect(request).toHaveBeenCalled();
-            expect(request).toHaveBeenCalledWith(
-                `${requestPath.VERIFIER_BACKEND_URL}/presentations/create/selective-disclosure`,
-                {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        tag: 'uuid',
-                        claimType: 'legalName',
-                        reason: 'Please, authenticate yourself'
-                    })
-                }
-            );
+            expect(request).toHaveBeenCalledWith(`${requestPath.VERIFIER_BACKEND_URL}/presentations/create/selective-disclosure`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    tag: 'uuid',
+                    claimType: 'legalName',
+                    reason: 'Please, authenticate yourself'
+                })
+            });
         });
 
         it('should open a notification if auth request fails', async () => {
@@ -180,21 +175,11 @@ describe('Login', () => {
             });
             expect(dispatch).toHaveBeenCalledTimes(2);
             expect(request).toHaveBeenCalledTimes(2);
-            expect(request).toHaveBeenNthCalledWith(
-                2,
-                `${requestPath.VERIFIER_BACKEND_URL}/presentations/callback/validated?challengeId=uuid`,
-                { method: 'GET' }
-            );
-            const {
-                id: companyId,
-                subjectDid: companyDid,
-                ...companyClaims
-            } = message.body.verifiableCredential[0].credentialSubject;
-            const {
-                id: employeeId,
-                subjectDid: employeeDid,
-                ...employeeClaims
-            } = message.body.verifiableCredential[1].credentialSubject;
+            expect(request).toHaveBeenNthCalledWith(2, `${requestPath.VERIFIER_BACKEND_URL}/presentations/callback/validated?challengeId=uuid`, {
+                method: 'GET'
+            });
+            const { id: companyId, subjectDid: companyDid, ...companyClaims } = message.body.verifiableCredential[0].credentialSubject;
+            const { id: employeeId, subjectDid: employeeDid, ...employeeClaims } = message.body.verifiableCredential[1].credentialSubject;
             expect(updateUserInfo).toHaveBeenCalledWith({
                 subjectDid: employeeDid,
                 companyClaims,

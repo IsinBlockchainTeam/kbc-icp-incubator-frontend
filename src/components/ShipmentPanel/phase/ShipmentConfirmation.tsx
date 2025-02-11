@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import { EvaluationStatus, OrderLine, ShipmentPhase } from '@isinblockchainteam/kbc-icp-incubator-library';
+import { EvaluationStatus, OrderLine, ShipmentPhase } from '@kbc-lib/coffee-trading-management-lib';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
 import { regex } from '@/constants/regex';
 import React from 'react';
@@ -9,8 +9,8 @@ import { RootState } from '@/redux/store';
 import { credentials } from '@/constants/ssi';
 import dayjs from 'dayjs';
 import { ShipmentDocumentTable } from '@/components/ShipmentPanel/ShipmentDocumentTable';
-import { useShipment } from '@/providers/icp/ShipmentProvider';
-import { useOrder } from '@/providers/icp/OrderProvider';
+import { useShipment } from '@/providers/entities/icp/ShipmentProvider';
+import { useOrder } from '@/providers/entities/icp/OrderProvider';
 
 const { Paragraph } = Typography;
 
@@ -55,11 +55,8 @@ export const ShipmentConfirmation = () => {
             : await approveDetails();
     };
 
-    const isEditable =
-        detailedShipment.shipment.detailsEvaluationStatus !== EvaluationStatus.APPROVED &&
-        isExporter;
-    const isSubmittable =
-        detailedShipment.shipment.detailsEvaluationStatus !== EvaluationStatus.APPROVED;
+    const isEditable = detailedShipment.shipment.detailsEvaluationStatus !== EvaluationStatus.APPROVED && isExporter;
+    const isSubmittable = detailedShipment.shipment.detailsEvaluationStatus !== EvaluationStatus.APPROVED;
 
     const elements: FormElement[] = [
         {
@@ -94,9 +91,7 @@ export const ShipmentConfirmation = () => {
             name: 'expirationDate',
             label: 'Expiration Date',
             required: true,
-            defaultValue: detailedShipment.shipment.detailsSet
-                ? dayjs(detailedShipment.shipment.expirationDate)
-                : dayjs(),
+            defaultValue: detailedShipment.shipment.detailsSet ? dayjs(detailedShipment.shipment.expirationDate) : dayjs(),
             regex: regex.ONLY_DIGITS,
             disabled: !isEditable
         },
@@ -106,9 +101,7 @@ export const ShipmentConfirmation = () => {
             name: 'fixingDate',
             label: 'Fixing Date',
             required: true,
-            defaultValue: detailedShipment.shipment.detailsSet
-                ? dayjs(detailedShipment.shipment.fixingDate)
-                : dayjs(),
+            defaultValue: detailedShipment.shipment.detailsSet ? dayjs(detailedShipment.shipment.fixingDate) : dayjs(),
             regex: regex.ONLY_DIGITS,
             disabled: !isEditable
         },
@@ -201,13 +194,7 @@ export const ShipmentConfirmation = () => {
                         : 'Are you sure you want to approve this shipment?'
                 }
                 submittable={isSubmittable}
-                submitText={
-                    isExporter
-                        ? detailedShipment.shipment.detailsSet
-                            ? 'Edit'
-                            : 'Create'
-                        : 'Approve'
-                }
+                submitText={isExporter ? (detailedShipment.shipment.detailsSet ? 'Edit' : 'Create') : 'Approve'}
                 onSubmit={onSubmit}
             />
         </>

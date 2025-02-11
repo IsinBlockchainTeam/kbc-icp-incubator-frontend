@@ -1,26 +1,30 @@
 import React, { useState } from 'react';
 import { ColumnsType } from 'antd/es/table';
-import { Button, Space, Table } from 'antd';
-import { CardPage } from '@/components/structure/CardPage/CardPage';
+import { Button, Flex, Table } from 'antd';
+import { CardPage } from '@/components/CardPage/CardPage';
 import Search from '@/components/Search/Search';
-import { PlusOutlined } from '@ant-design/icons';
+import { ArrowRightOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { paths } from '@/constants/paths';
 import { credentials } from '@/constants/ssi';
-import { ProductCategory } from '@isinblockchainteam/kbc-icp-incubator-library';
-import { useOffer } from '@/providers/icp/OfferProvider';
-import { useOrganization } from '@/providers/icp/OrganizationProvider';
+import { Material, ProductCategory } from '@kbc-lib/coffee-trading-management-lib';
+import { useOffer } from '@/providers/entities/icp/OfferProvider';
+import { useOrganization } from '@/providers/entities/icp/OrganizationProvider';
+import { ConfirmButton } from '@/components/ConfirmButton/ConfirmButton';
+import { CertificationsInfoGroup } from '@/components/CertificationsInfo/CertificationsInfoGroup';
 
-type OfferPresentable = {
+export type OfferPresentable = {
     id: number;
+    owner: string;
     supplierAddress: string;
     supplierName: string;
+    material: Material;
     productCategory: ProductCategory;
 };
 export const Offers = () => {
-    const { offers } = useOffer();
+    const { offers, deleteOffer } = useOffer();
     const { getOrganization } = useOrganization();
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const navigate = useNavigate();
@@ -42,46 +46,68 @@ export const Offers = () => {
         {
             title: 'Product category',
             dataIndex: ['productCategory', 'name'],
-            sorter: (a, b) =>
-                (a.productCategory.name || '').localeCompare(b.productCategory.name || '')
+            sorter: (a, b) => (a.productCategory.name || '').localeCompare(b.productCategory.name || '')
+        },
+        {
+            title: 'Certifications',
+            render: (record) => {
+                return <CertificationsInfoGroup company={record.supplierAddress} materialId={2} />;
+            }
         },
         {
             title: 'Actions',
             key: 'action',
-            render: (_, record) => {
+            render: (record) => {
+                let startNegotiationAction = <></>;
+                let deleteAction = <></>;
                 if (userInfo.companyClaims.role.toUpperCase() === credentials.ROLE_IMPORTER) {
-                    return (
-                        <Space size="middle">
-                            <a
-                                role="start-negotiation"
-                                onClick={() =>
-                                    navigate(paths.TRADE_NEW, {
-                                        state: {
-                                            supplierAddress: record.supplierAddress,
-                                            productCategoryId: record.productCategory.id
-                                        }
-                                    })
-                                }>
-                                Start a negotiation →
-                            </a>
-                        </Space>
+                    startNegotiationAction = (
+                        <Button
+                            icon={<ArrowRightOutlined />}
+                            role="start-negotiation"
+                            onClick={() =>
+                                navigate(paths.TRADE_NEW, {
+                                    state: {
+                                        supplierAddress: record.supplierAddress,
+                                        material: record.material
+                                    }
+                                })
+                            }>
+                            Start a negotiation
+                        </Button>
                     );
-                } else {
-                    return <></>;
                 }
+                if (userInfo.roleProof.delegator === record.owner) {
+                    deleteAction = (
+                        <ConfirmButton
+                            danger
+                            icon={<DeleteOutlined />}
+                            role="delete-offer"
+                            confirmText={'Are you sure you want to delete this offer?'}
+                            onConfirm={() => deleteOffer(record.id)}
+                            text={'Delete'}
+                        />
+                    );
+                }
+                return (
+                    <Flex wrap gap="small">
+                        {startNegotiationAction}
+                        {deleteAction}
+                    </Flex>
+                );
             }
         }
     ];
 
     const filteredOffers = offers
-        .filter((offer) =>
-            offer.productCategory.name.toLowerCase().includes(productCategory.toLowerCase())
-        )
+        .filter((offer) => offer.material.productCategory.name.toLowerCase().includes(productCategory.toLowerCase()))
         .map((offer) => ({
             id: offer.id,
+            owner: offer.owner,
             supplierName: getOrganization(offer.owner).legalName,
             supplierAddress: offer.owner,
-            productCategory: offer.productCategory
+            material: offer.material,
+            productCategory: offer.material.productCategory
         }));
 
     return (
@@ -96,10 +122,7 @@ export const Offers = () => {
                     Offers
                     {userInfo.companyClaims.role.toUpperCase() === credentials.ROLE_EXPORTER && (
                         <div>
-                            <Button
-                                type="primary"
-                                icon={<PlusOutlined />}
-                                onClick={() => navigate(paths.OFFERS_NEW)}>
+                            <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate(paths.OFFERS_NEW)}>
                                 New Offer
                             </Button>
                         </div>

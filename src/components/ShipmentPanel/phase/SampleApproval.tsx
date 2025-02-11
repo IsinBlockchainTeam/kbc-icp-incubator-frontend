@@ -1,12 +1,12 @@
 import React from 'react';
 import { Card, Descriptions, DescriptionsProps, Flex, Tag, Typography } from 'antd';
 import { ShipmentDocumentTable } from '@/components/ShipmentPanel/ShipmentDocumentTable';
-import { EvaluationStatus, ShipmentPhase } from '@isinblockchainteam/kbc-icp-incubator-library';
+import { EvaluationStatus, ShipmentPhase } from '@kbc-lib/coffee-trading-management-lib';
 import { ConfirmButton } from '@/components/ConfirmButton/ConfirmButton';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { credentials } from '@/constants/ssi';
-import { useShipment } from '@/providers/icp/ShipmentProvider';
+import { useShipment } from '@/providers/entities/icp/ShipmentProvider';
 
 const { Paragraph } = Typography;
 
@@ -26,11 +26,9 @@ export const SampleApproval = () => {
             children: (
                 <Tag
                     color={
-                        detailedShipment.shipment.sampleEvaluationStatus ===
-                        EvaluationStatus.NOT_EVALUATED
+                        detailedShipment.shipment.sampleEvaluationStatus === EvaluationStatus.NOT_EVALUATED
                             ? 'orange'
-                            : detailedShipment.shipment.sampleEvaluationStatus ===
-                                EvaluationStatus.APPROVED
+                            : detailedShipment.shipment.sampleEvaluationStatus === EvaluationStatus.APPROVED
                               ? 'green'
                               : 'red'
                     }
@@ -41,10 +39,7 @@ export const SampleApproval = () => {
             span: 12
         }
     ];
-    if (
-        isImporter &&
-        detailedShipment.shipment.sampleEvaluationStatus !== EvaluationStatus.APPROVED
-    ) {
+    if (isImporter && detailedShipment.shipment.sampleEvaluationStatus !== EvaluationStatus.APPROVED) {
         items.push({
             key: '2',
             label: 'Have you received and are you satisfied with the sample?',
@@ -57,13 +52,7 @@ export const SampleApproval = () => {
                         type="primary"
                         block
                     />
-                    <ConfirmButton
-                        text="Reject"
-                        confirmText="Are you sure you want to reject the sample?"
-                        onConfirm={rejectSample}
-                        danger
-                        block
-                    />
+                    <ConfirmButton text="Reject" confirmText="Are you sure you want to reject the sample?" onConfirm={rejectSample} danger block />
                 </Flex>
             ),
             span: 12
@@ -81,9 +70,7 @@ export const SampleApproval = () => {
                     marginBottom: 10
                 }}
                 role="card">
-                <Paragraph>
-                    Initial stage where the exporter sends a sample of the product to the importer.
-                </Paragraph>
+                <Paragraph>Initial stage where the exporter sends a sample of the product to the importer.</Paragraph>
             </Card>
             <ShipmentDocumentTable selectedPhase={ShipmentPhase.PHASE_1} />
             <Descriptions title="Sample" items={items} bordered />

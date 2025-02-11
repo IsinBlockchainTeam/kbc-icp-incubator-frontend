@@ -1,81 +1,81 @@
-import { ShipmentDocumentType } from '@isinblockchainteam/kbc-icp-incubator-library';
+import { DocumentType } from '@kbc-lib/coffee-trading-management-lib';
 
 export const ShipmentDocumentRules: {
-    [key in ShipmentDocumentType]: { name: string; isExporterSuggestedUploader: boolean };
+    [key in DocumentType]: { name: string; isExporterSuggestedUploader: boolean };
 } = {
-    [ShipmentDocumentType.SERVICE_GUIDE]: {
+    [DocumentType.SERVICE_GUIDE]: {
         name: 'Service Guide',
         isExporterSuggestedUploader: true
     },
-    [ShipmentDocumentType.SENSORY_EVALUATION_ANALYSIS_REPORT]: {
+    [DocumentType.SENSORY_EVALUATION_ANALYSIS_REPORT]: {
         name: 'Sensory Evaluation Analysis Report',
         isExporterSuggestedUploader: true
     },
-    [ShipmentDocumentType.SUBJECT_TO_APPROVAL_OF_SAMPLE]: {
+    [DocumentType.SUBJECT_TO_APPROVAL_OF_SAMPLE]: {
         name: 'Subject to Approval of Sample',
         isExporterSuggestedUploader: true
     },
-    [ShipmentDocumentType.PRE_SHIPMENT_SAMPLE]: {
+    [DocumentType.PRE_SHIPMENT_SAMPLE]: {
         name: 'Pre-shipment Sample',
         isExporterSuggestedUploader: false
     },
-    [ShipmentDocumentType.SHIPPING_INSTRUCTIONS]: {
+    [DocumentType.SHIPPING_INSTRUCTIONS]: {
         name: 'Shipping Instructions',
         isExporterSuggestedUploader: true
     },
-    [ShipmentDocumentType.SHIPPING_NOTE]: {
+    [DocumentType.SHIPPING_NOTE]: {
         name: 'Shipping Note',
         isExporterSuggestedUploader: true
     },
-    [ShipmentDocumentType.BOOKING_CONFIRMATION]: {
+    [DocumentType.BOOKING_CONFIRMATION]: {
         name: 'Booking Confirmation',
         isExporterSuggestedUploader: true
     },
-    [ShipmentDocumentType.CARGO_COLLECTION_ORDER]: {
+    [DocumentType.CARGO_COLLECTION_ORDER]: {
         name: 'Cargo Collection Order',
         isExporterSuggestedUploader: true
     },
-    [ShipmentDocumentType.EXPORT_INVOICE]: {
+    [DocumentType.EXPORT_INVOICE]: {
         name: 'Export Invoice',
         isExporterSuggestedUploader: true
     },
-    [ShipmentDocumentType.TRANSPORT_CONTRACT]: {
+    [DocumentType.TRANSPORT_CONTRACT]: {
         name: 'Transport Contract',
         isExporterSuggestedUploader: true
     },
-    [ShipmentDocumentType.TO_BE_FREED_SINGLE_EXPORT_DECLARATION]: {
+    [DocumentType.TO_BE_FREED_SINGLE_EXPORT_DECLARATION]: {
         name: 'To Be Freed Single Export Declaration',
         isExporterSuggestedUploader: true
     },
-    [ShipmentDocumentType.EXPORT_CONFIRMATION]: {
+    [DocumentType.EXPORT_CONFIRMATION]: {
         name: 'Export Confirmation',
         isExporterSuggestedUploader: true
     },
-    [ShipmentDocumentType.FREED_SINGLE_EXPORT_DECLARATION]: {
+    [DocumentType.FREED_SINGLE_EXPORT_DECLARATION]: {
         name: 'Freed Single Export Declaration',
         isExporterSuggestedUploader: true
     },
-    [ShipmentDocumentType.CONTAINER_PROOF_OF_DELIVERY]: {
+    [DocumentType.CONTAINER_PROOF_OF_DELIVERY]: {
         name: 'Container Proof of Delivery',
         isExporterSuggestedUploader: true
     },
-    [ShipmentDocumentType.PHYTOSANITARY_CERTIFICATE]: {
+    [DocumentType.PHYTOSANITARY_CERTIFICATE]: {
         name: 'Phytosanitary Certificate',
         isExporterSuggestedUploader: true
     },
-    [ShipmentDocumentType.BILL_OF_LADING]: {
+    [DocumentType.BILL_OF_LADING]: {
         name: 'Bill of Lading',
         isExporterSuggestedUploader: true
     },
-    [ShipmentDocumentType.ORIGIN_CERTIFICATE_ICO]: {
+    [DocumentType.ORIGIN_CERTIFICATE_ICO]: {
         name: 'Origin Certificate ICO',
         isExporterSuggestedUploader: true
     },
-    [ShipmentDocumentType.WEIGHT_CERTIFICATE]: {
+    [DocumentType.WEIGHT_CERTIFICATE]: {
         name: 'Weight Certificate',
         isExporterSuggestedUploader: true
     },
-    [ShipmentDocumentType.GENERIC]: {
+    [DocumentType.GENERIC]: {
         name: 'Generic',
         isExporterSuggestedUploader: false
     }

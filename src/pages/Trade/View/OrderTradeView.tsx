@@ -1,49 +1,35 @@
-import {
-    NegotiationStatus,
-    OrderLine,
-    OrderLinePrice,
-    OrderLineRequest,
-    OrderParams,
-    OrderStatus
-} from '@isinblockchainteam/kbc-icp-incubator-library';
-import { Tooltip } from 'antd';
+import { NegotiationStatus, OrderLine, OrderParams, OrderStatus } from '@kbc-lib/coffee-trading-management-lib';
+import { Empty, Tooltip } from 'antd';
 import React, { useState } from 'react';
 import { FormElement, FormElementType, GenericForm } from '@/components/GenericForm/GenericForm';
 import { regex } from '@/constants/regex';
 import dayjs from 'dayjs';
-import { useSigner } from '@/providers/SignerProvider';
 import { paths } from '@/constants/paths';
 import { useNavigate } from 'react-router-dom';
-import {
-    CheckCircleOutlined,
-    EditOutlined,
-    FilePdfOutlined,
-    RollbackOutlined
-} from '@ant-design/icons';
+import { CheckCircleOutlined, EditOutlined, FilePdfOutlined, RollbackOutlined } from '@ant-design/icons';
 import { validateDates } from '@/utils/date';
-import { useEthEnumerable } from '@/providers/entities/EthEnumerableProvider';
 import useOrderGenerator, { OrderSpec } from '@/hooks/documentGenerator/useOrderGenerator';
 import PDFGenerationView from '@/components/PDFViewer/PDFGenerationView';
 import { incotermsMap } from '@/constants/trade';
-import { useOrder } from '@/providers/icp/OrderProvider';
-import { useProductCategory } from '@/providers/icp/ProductCategoryProvider';
+import { useOrder } from '@/providers/entities/icp/OrderProvider';
+import { useEnumeration } from '@/providers/entities/icp/EnumerationProvider';
+import { useSession } from '@/providers/auth/SessionProvider';
+import { useMaterial } from '@/providers/entities/icp/MaterialProvider';
+import { MaterialInfoCardContent } from '@/components/CardContents/MaterialInfoCardContent';
 
 type OrderTradeViewProps = {
     disabled: boolean;
     toggleDisabled: () => void;
     commonElements: FormElement[];
 };
-export const OrderTradeView = ({
-    disabled,
-    toggleDisabled,
-    commonElements
-}: OrderTradeViewProps) => {
+export const OrderTradeView = ({ disabled, toggleDisabled, commonElements }: OrderTradeViewProps) => {
     const navigate = useNavigate();
     const [isEditing, setIsEditing] = useState<boolean>(false);
-    const { signer } = useSigner();
-    const { units, fiats } = useEthEnumerable();
-    const { order, update, sign } = useOrder();
-    const { productCategories } = useProductCategory();
+    const { units, fiats } = useEnumeration();
+    const { order, updateOrder, signOrder } = useOrder();
+    const { materials } = useMaterial();
+    const { getLoggedOrganization } = useSession();
+    const loggedOrganizationAddress = getLoggedOrganization().ethAddress;
 
     if (!order) return <div>Order not available</div>;
     const status = OrderStatus[order.status];
@@ -57,11 +43,12 @@ export const OrderTradeView = ({
         commissionerAddress: order.commissioner,
         // TODO: define the currency directly in the negotiation terms, not in lines
         currency: 'USDC',
+        //TODO: update
         items: order.lines.map((line, index) => ({
             id: `order_info_line#${index}`,
-            productCategory: line.productCategory.name || '',
+            productCategory: line.supplierMaterial.name,
             productTypology: 'Green coffee beans',
-            quality: line.productCategory.quality,
+            quality: 80,
             moisture: 12,
             quantitySpecs: [
                 {
@@ -104,17 +91,6 @@ export const OrderTradeView = ({
     };
 
     const onSubmit = async (values: any) => {
-        const quantity = parseInt(values[`quantity-1`]);
-        const unit = values[`unit-1`];
-        const productCategory = productCategories.find(
-            (productCategory) => productCategory.id === values[`product-category-id-1`]
-        );
-        if (!productCategory) throw new Error('Product Category not found');
-        const productCategoryId = productCategory?.id;
-
-        const price: number = parseInt(values[`price-1`]);
-        const fiat: string = values[`fiat-1`];
-
         const updatedOrderTrade: OrderParams = {
             supplier: order.supplier,
             customer: order.customer,
@@ -131,15 +107,19 @@ export const OrderTradeView = ({
             shippingPort: values['shipping-port'],
             deliveryPort: values['delivery-port'],
             lines: [
-                new OrderLineRequest(
-                    productCategoryId!,
-                    quantity,
-                    unit,
-                    { amount: price, fiat: fiat } as OrderLinePrice
-                )
+                {
+                    supplierMaterialId: values['supplier-material'],
+                    commissionerMaterialId: values['commissioner-material'],
+                    quantity: parseInt(values['quantity']),
+                    unit: values['unit'],
+                    price: {
+                        amount: parseInt(values['price']),
+                        fiat: values['fiat']
+                    }
+                }
             ]
         };
-        await update(updatedOrderTrade);
+        await updateOrder(updatedOrderTrade);
         toggleDisabled();
         navigate(paths.TRADES);
     };
@@ -167,8 +147,7 @@ export const OrderTradeView = ({
             label: 'Arbiter',
             required: true,
             defaultValue: order.arbiter,
-            disabled,
-            regex: regex.ETHEREUM_ADDRESS
+            disabled
         },
         {
             type: FormElementType.DATE,
@@ -190,12 +169,7 @@ export const OrderTradeView = ({
             defaultValue: dayjs(order.documentDeliveryDeadline),
             disabled,
             dependencies: ['payment-deadline'],
-            validationCallback: validateDates(
-                'document-delivery-deadline',
-                'payment-deadline',
-                'greater',
-                'This must be after Payment Deadline'
-            )
+            validationCallback: validateDates('document-delivery-deadline', 'payment-deadline', 'greater', 'This must be after Payment Deadline')
         },
         {
             type: FormElementType.INPUT,
@@ -249,12 +223,7 @@ export const OrderTradeView = ({
             defaultValue: dayjs(order.deliveryDeadline),
             disabled,
             dependencies: ['shipping-deadline'],
-            validationCallback: validateDates(
-                'delivery-deadline',
-                'shipping-deadline',
-                'greater',
-                'This must be after Shipping Deadline'
-            )
+            validationCallback: validateDates('delivery-deadline', 'shipping-deadline', 'greater', 'This must be after Shipping Deadline')
         },
         {
             type: FormElementType.INPUT,
@@ -278,63 +247,115 @@ export const OrderTradeView = ({
         },
         { type: FormElementType.TITLE, span: 24, label: 'Line Items' }
     ];
-    order.lines.forEach((line, index) => {
-        elements.push(
-            {
-                type: FormElementType.SELECT,
-                span: 6,
-                name: `product-category-id-${index + 1}`,
-                label: 'Product Category Id',
-                required: true,
-                options: productCategories.map((productCategory) => ({
-                    label: productCategory.name,
-                    value: productCategory.id
-                })),
-                defaultValue: line.productCategory.name,
-                disabled
-            },
-            {
-                type: FormElementType.INPUT,
-                span: 5,
-                name: `quantity-${index + 1}`,
-                label: 'Quantity',
-                required: true,
-                regex: regex.ONLY_DIGITS,
-                defaultValue: line.quantity?.toString(),
-                disabled
-            },
-            {
-                type: FormElementType.SELECT,
-                span: 4,
-                name: `unit-${index + 1}`,
-                label: 'Unit',
-                required: true,
-                options: units.map((unit) => ({ label: unit, value: unit })),
-                defaultValue: line.unit!,
-                disabled
-            },
-            {
-                type: FormElementType.INPUT,
-                span: 5,
-                name: `price-${index + 1}`,
-                label: 'Price',
-                required: true,
-                regex: regex.ONLY_DIGITS,
-                defaultValue: (line as OrderLine).price?.amount.toString(),
-                disabled
-            },
-            {
-                type: FormElementType.SELECT,
-                span: 4,
-                name: `fiat-${index + 1}`,
-                label: 'Fiat',
-                required: true,
-                options: fiats.map((fiat) => ({ label: fiat, value: fiat })),
-                defaultValue: (line as OrderLine).price!.fiat,
-                disabled
+
+    const line = order.lines[0];
+    elements.push(
+        {
+            type: FormElementType.SELECT,
+            span: 12,
+            name: `supplier-material`,
+            label: 'Supplier Material',
+            required: true,
+            options: (order.supplier !== loggedOrganizationAddress ? [line.supplierMaterial] : materials.filter((material) => !material.isInput)).map(
+                (material) => ({
+                    label: material.name,
+                    value: material.id
+                })
+            ),
+            defaultValue: line.supplierMaterial.id,
+            disabled: disabled || order.supplier !== loggedOrganizationAddress
+        },
+        {
+            type: FormElementType.CARD,
+            span: 12,
+            name: 'supplier-material-details',
+            title: 'Material details',
+            hidden: false,
+            content: (values) => {
+                if (order.supplier !== loggedOrganizationAddress) {
+                    return <MaterialInfoCardContent material={line.supplierMaterial} />;
+                }
+                if (values && values['supplier-material'] !== undefined) {
+                    const selectedSupplierMaterial = materials.find((material) => material.id === values['supplier-material']);
+                    return <MaterialInfoCardContent material={selectedSupplierMaterial} />;
+                }
+                return <div></div>;
             }
-        );
-    });
+        },
+        {
+            type: FormElementType.SELECT,
+            span: 12,
+            name: `commissioner-material`,
+            label: 'Commissioner Material',
+            required: true,
+            options: (order.commissioner !== loggedOrganizationAddress
+                ? [line.commissionerMaterial]
+                : materials.filter((material) => material.isInput)
+            ).map((material) => ({
+                label: material.name,
+                value: material.id
+            })),
+            defaultValue: line.commissionerMaterial.id,
+            disabled: disabled || order.commissioner !== loggedOrganizationAddress
+        },
+        {
+            type: FormElementType.CARD,
+            span: 12,
+            name: 'commissioner-material-details',
+            title: 'Material details',
+            hidden: false,
+            content: (values) => {
+                if (order.commissioner !== loggedOrganizationAddress) {
+                    return <MaterialInfoCardContent material={line.commissionerMaterial} />;
+                }
+                if (values && values['commissioner-material'] !== undefined) {
+                    const selectedCommissionerMaterial = materials.find((material) => material.id === values['commissioner-material']);
+                    return <MaterialInfoCardContent material={selectedCommissionerMaterial} />;
+                }
+                return <Empty />;
+            }
+        },
+        {
+            type: FormElementType.INPUT,
+            span: 6,
+            name: `quantity`,
+            label: 'Quantity',
+            required: true,
+            regex: regex.ONLY_DIGITS,
+            defaultValue: line.quantity?.toString(),
+            disabled
+        },
+        {
+            type: FormElementType.SELECT,
+            span: 6,
+            name: `unit`,
+            label: 'Unit',
+            required: true,
+            options: units.map((unit) => ({ label: unit, value: unit })),
+            defaultValue: line.unit!,
+            disabled
+        },
+        {
+            type: FormElementType.INPUT,
+            span: 6,
+            name: `price`,
+            label: 'Price',
+            required: true,
+            regex: regex.ONLY_DIGITS,
+            defaultValue: (line as OrderLine).price?.amount.toString(),
+            disabled
+        },
+        {
+            type: FormElementType.SELECT,
+            span: 6,
+            name: `fiat`,
+            label: 'Fiat',
+            required: true,
+            options: fiats.map((fiat) => ({ label: fiat, value: fiat })),
+            defaultValue: (line as OrderLine).price!.fiat,
+            disabled
+        }
+    );
     if (status !== NegotiationStatus[NegotiationStatus.CONFIRMED]) {
         elements.push(
             {
@@ -367,8 +388,8 @@ export const OrderTradeView = ({
             }
         );
         if (
-            !order.signatures.includes(signer._address) &&
-            (order.supplier !== signer._address || order.commissioner !== signer._address)
+            !order.signatures.includes(loggedOrganizationAddress) &&
+            (order.supplier !== loggedOrganizationAddress || order.commissioner !== loggedOrganizationAddress)
         ) {
             elements.push({
                 type: FormElementType.BUTTON,
@@ -381,7 +402,7 @@ export const OrderTradeView = ({
                 ),
                 buttonType: 'primary',
                 hidden: isEditing,
-                onClick: () => sign(order.id)
+                onClick: () => signOrder(order.id)
             });
         }
     }
@@ -402,12 +423,7 @@ export const OrderTradeView = ({
 
     return (
         <>
-            <GenericForm
-                elements={elements}
-                confirmText="Are you sure you want to proceed?"
-                submittable={!disabled}
-                onSubmit={onSubmit}
-            />
+            <GenericForm elements={elements} confirmText="Are you sure you want to proceed?" submittable={!disabled} onSubmit={onSubmit} />
             <PDFGenerationView
                 title={'Generated Order'}
                 centered={true}

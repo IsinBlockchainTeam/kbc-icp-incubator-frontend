@@ -9,18 +9,10 @@ type ConfirmButtonProps = {
     style?: React.CSSProperties;
     [x: string]: any;
 };
-export const ConfirmButton = ({
-    text,
-    confirmText,
-    disabled,
-    onConfirm,
-    style,
-    ...props
-}: ConfirmButtonProps) => {
+export const ConfirmButton = ({ text, confirmText, disabled, onConfirm, style, ...props }: ConfirmButtonProps) => {
     return (
         <Button
             style={style}
-            type="primary"
             disabled={disabled}
             onClick={() => {
                 Modal.confirm({

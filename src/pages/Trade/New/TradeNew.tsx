@@ -1,19 +1,19 @@
 import { FormElement, FormElementType } from '@/components/GenericForm/GenericForm';
-import { TradeType } from '@isinblockchainteam/kbc-icp-incubator-library';
+import { Material } from '@kbc-lib/coffee-trading-management-lib';
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { paths } from '@/constants/paths';
-import { useSigner } from '@/providers/SignerProvider';
 import { OrderTradeNew } from '@/pages/Trade/New/OrderTradeNew';
-import { useOrganization } from '@/providers/icp/OrganizationProvider';
+import { useOrganization } from '@/providers/entities/icp/OrganizationProvider';
+import { useSession } from '@/providers/auth/SessionProvider';
 
 export const TradeNew = () => {
-    const { signer } = useSigner();
     const navigate = useNavigate();
     const location = useLocation();
     const { getOrganization } = useOrganization();
+    const { getLoggedOrganization } = useSession();
 
-    const type = TradeType.ORDER;
+    // const type = TradeType.ORDER;
 
     if (location?.state === undefined) {
         console.error('No supplier address or product category id provided');
@@ -22,10 +22,12 @@ export const TradeNew = () => {
 
     const elements: FormElement[] = [];
     const supplierAddress: string = location.state.supplierAddress;
-    const customerAddress: string = signer._address;
-    const productCategoryId: number = location.state.productCategoryId;
+    const customerAddress: string = getLoggedOrganization().ethAddress;
+    const materialJson: any = location.state.material;
+    // This is a workaround to fix the issue with the material not being passed correctly
+    const supplierMaterial = Material.fromJson(materialJson);
     const supplierName = getOrganization(supplierAddress).legalName;
-    const commissionerName = getOrganization(customerAddress).legalName;
+    const commissionerName = getLoggedOrganization().legalName;
 
     elements.push(
         { type: FormElementType.TITLE, span: 24, label: 'Actors' },
@@ -62,7 +64,7 @@ export const TradeNew = () => {
         <OrderTradeNew
             supplierAddress={supplierAddress}
             customerAddress={customerAddress}
-            productCategoryId={productCategoryId}
+            supplierMaterial={supplierMaterial}
             commonElements={elements}
         />
     );
