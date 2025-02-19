@@ -1,7 +1,7 @@
 import { CardPage } from '@/components/CardPage/CardPage';
 import React from 'react';
 import { ColumnsType } from 'antd/es/table';
-import { Avatar, Button, Table } from 'antd';
+import { Avatar, Button, Table, Typography } from 'antd';
 import { useBusinessRelation } from '@/providers/entities/icp/BusinessRelationProvider';
 import { BusinessRelation, Organization, OrganizationVisibilityLevel } from '@kbc-lib/coffee-trading-management-lib';
 import { useSelector } from 'react-redux';
@@ -10,12 +10,43 @@ import { useOrganization } from '@/providers/entities/icp/OrganizationProvider';
 import { EnvironmentOutlined, MailOutlined, PhoneOutlined, PlusOutlined, StopOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { paths } from '@/constants/paths';
+import { InfoCard } from '@/components/InfoCard/InfoCard';
+
+const { Text } = Typography;
 
 export const Partners = () => {
     const { businessRelations } = useBusinessRelation();
     const { getOrganization } = useOrganization();
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const navigate = useNavigate();
+
+    const partnerInfo = {
+        title: 'Business Partners Network',
+        items: [
+            <Text>
+                This table show all partnerships established with other organizations in your organization's network.
+            </Text>,
+            <>
+                <Text strong>
+                    {'Partnership Meaning: '}
+                </Text>
+                <ul style={{ margin: 0, paddingLeft: '20px' }}>
+                    <li>
+                        Verified business identities
+                    </li>
+                    <li>
+                        Access to partner certifications
+                    </li>
+                    <li>
+                        Access to partner complete identity data
+                    </li>
+                </ul>
+            </>
+        ],
+        marginTop: '0px',
+        collapsed: true,
+        image: './assets/partnership.png'
+    };
 
     const columns: ColumnsType<Organization> = [
         {
@@ -97,6 +128,7 @@ export const Partners = () => {
                     </div>
                 </div>
             }>
+            <InfoCard {...partnerInfo} />
             <Table columns={columns} dataSource={partners} rowKey={'legalName'} />
         </CardPage>
     );

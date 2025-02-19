@@ -14,6 +14,7 @@ jest.mock('react-router-dom');
 jest.mock('@/providers/entities/icp/BusinessRelationProvider');
 jest.mock('@/providers/entities/icp/OrganizationProvider');
 jest.mock('react-redux');
+jest.mock('@/components/InfoCard/InfoCard');
 describe('Partners', () => {
     const partners = [
         new BroadedOrganization(

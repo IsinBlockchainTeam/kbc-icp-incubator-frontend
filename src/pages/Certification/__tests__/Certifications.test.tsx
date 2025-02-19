@@ -23,6 +23,7 @@ jest.mock('antd', () => {
     };
 });
 jest.mock('antd/es/dropdown/dropdown-button', () => jest.fn());
+jest.mock('@/components/InfoCard/InfoCard');
 
 describe('Certifications', () => {
     const certificates = [

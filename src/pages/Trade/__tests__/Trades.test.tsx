@@ -29,6 +29,7 @@ jest.mock('react-router-dom', () => {
 jest.mock('@/components/AsyncComponent/AsyncComponent', () => ({
     AsyncComponent: jest.fn()
 }));
+jest.mock('@/components/InfoCard/InfoCard');
 
 describe('Trades', () => {
     const orders = [{ id: 1 } as Order, { id: 2 } as Order];

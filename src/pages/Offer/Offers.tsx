@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ColumnsType } from 'antd/es/table';
-import { Button, Flex, Table } from 'antd';
+import { Button, Flex, Table, Typography } from 'antd';
 import { CardPage } from '@/components/CardPage/CardPage';
 import Search from '@/components/Search/Search';
 import { ArrowRightOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
@@ -14,6 +14,9 @@ import { useOffer } from '@/providers/entities/icp/OfferProvider';
 import { useOrganization } from '@/providers/entities/icp/OrganizationProvider';
 import { ConfirmButton } from '@/components/ConfirmButton/ConfirmButton';
 import { CertificationsInfoGroup } from '@/components/CertificationsInfo/CertificationsInfoGroup';
+import { InfoCard } from '@/components/InfoCard/InfoCard';
+
+const { Text } = Typography;
 
 export type OfferPresentable = {
     id: number;
@@ -23,12 +26,60 @@ export type OfferPresentable = {
     material: Material;
     productCategory: ProductCategory;
 };
+
 export const Offers = () => {
     const { offers, deleteOffer } = useOffer();
     const { getOrganization } = useOrganization();
     const userInfo = useSelector((state: RootState) => state.userInfo);
     const navigate = useNavigate();
     const [productCategory, setProductCategory] = useState<string>('');
+
+    const offerInfo = {
+        title: 'Coffee Trading Offers',
+        items: [
+            <Text>
+                This table contains all offers created by exporters. It is a marketplace for trade between exporters and importers.
+            </Text>,
+            <>
+                <Text strong>
+                    {'Roles & Actions: '}
+                </Text>
+                <ul style={{ margin: 0, paddingLeft: '20px' }}>
+                    <li>
+                        Exporters can create and manage offers
+                    </li>
+                    <li>
+                        Importers can view offers and start negotiations
+                    </li>
+                    <li>
+                        Both parties can track certifications and product details
+                    </li>
+                </ul>
+            </>,
+            <>
+                <Text strong>
+                    {'Trading Process: '}
+                </Text>
+                <ol style={{ margin: 0, paddingLeft: '20px' }}>
+                    <li>
+                        Exporter creates offer with product specifications
+                    </li>
+                    <li>
+                        Importer reviews available offers and certifications
+                    </li>
+                    <li>
+                        Negotiation begins when importer selects an offer
+                    </li>
+                    <li>
+                        Both parties proceed with trade documentation
+                    </li>
+                </ol>
+            </>,
+        ],
+        marginTop: '0px',
+        collapsed: true,
+        image: './assets/marketplace.png'
+    };
 
     const columns: ColumnsType<OfferPresentable> = [
         {
@@ -129,6 +180,7 @@ export const Offers = () => {
                     )}
                 </div>
             }>
+            <InfoCard {...offerInfo} />
             <Search placeholder="Search by product category" onSearchFn={setProductCategory} />
             <Table columns={columns} dataSource={filteredOffers} rowKey="id" />
         </CardPage>

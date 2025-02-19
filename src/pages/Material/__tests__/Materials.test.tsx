@@ -9,6 +9,7 @@ jest.mock('react-router-dom');
 jest.mock('@/components/GenericForm/GenericForm');
 jest.mock('@/providers/entities/icp/ProductCategoryProvider');
 jest.mock('@/providers/entities/icp/MaterialProvider');
+jest.mock('@/components/InfoCard/InfoCard');
 
 describe('Materials', () => {
     beforeEach(() => {

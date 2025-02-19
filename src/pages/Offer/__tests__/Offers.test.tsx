@@ -19,6 +19,7 @@ jest.mock('@/providers/entities/icp/OrganizationProvider');
 jest.mock('react-redux');
 jest.mock('@/components/ConfirmButton/ConfirmButton');
 jest.mock('@/components/CertificationsInfo/CertificationsInfoGroup');
+jest.mock('@/components/InfoCard/InfoCard');
 jest.mock('antd', () => {
     return {
         ...jest.requireActual('antd'),

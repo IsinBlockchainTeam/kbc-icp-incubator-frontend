@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { DocumentElement } from '@/components/GenericForm/GenericForm';
 import { Viewer } from '@react-pdf-viewer/core';
 import PDFUploader from '@/components/PDFUploader/PDFUploader';
-import { DocumentStatus } from '@isinblockchainteam/kbc-icp-incubator-library';
+import { DocumentStatus } from '@kbc-lib/coffee-trading-management-lib';
 
 import '@react-pdf-viewer/core/lib/styles/index.css';
 

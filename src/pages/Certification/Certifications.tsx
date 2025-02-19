@@ -4,11 +4,14 @@ import { ColumnsType } from 'antd/es/table';
 import { Link, useNavigate } from 'react-router-dom';
 import { setParametersPath } from '@/utils/page';
 import { paths } from '@/constants/paths';
-import { Table, Tag } from 'antd';
+import { Table, Tag, Typography } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { ICPBaseCertificate, ICPCertificateType } from '@kbc-lib/coffee-trading-management-lib';
 import DropdownButton from 'antd/es/dropdown/dropdown-button';
 import { useRawCertification } from '@/providers/entities/icp/RawCertificationProvider';
+import { InfoCard } from '@/components/InfoCard/InfoCard';
+
+const { Text } = Typography;
 
 export const certificationsType = [
     {
@@ -34,6 +37,38 @@ export const certificationsType = [
 export const Certifications = () => {
     const navigate = useNavigate();
     const { rawCertificates } = useRawCertification();
+
+    const certificationInfo = {
+        title: 'Certification Types & Standards',
+        items: [
+            <Text>
+                This page displays all certifications that your company have received.
+            </Text>,
+            <>
+                <Text strong>
+                    {'Certification Categories: '}
+                </Text>
+                <ul style={{ margin: 0, paddingLeft: '20px' }}>
+                    <li>
+                        <Text strong>Company: </Text>
+                        <Text>Validates organizational compliance and standards.</Text>
+                    </li>
+                    <li>
+                        <Text strong>Scope: </Text>
+                        <Text>Defines the range of certified activities.</Text>
+                    </li>
+                    <li>
+                        <Text strong>Material: </Text>
+                        <Text>Ensures product quality and authenticity.</Text>
+                    </li>
+                </ul>
+            </>,
+        ],
+        marginTop: '0px',
+        collapsed: true,
+        image: './assets/business-certificate.png'
+    };
+
     const columns: ColumnsType<ICPBaseCertificate> = [
         {
             title: 'Id',
@@ -97,6 +132,7 @@ export const Certifications = () => {
                     </div>
                 </div>
             }>
+            <InfoCard {...certificationInfo} />
             <Table columns={columns} dataSource={rawCertificates} />
         </CardPage>
     );

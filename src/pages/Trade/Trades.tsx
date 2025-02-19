@@ -1,6 +1,6 @@
 import React from 'react';
 import { CardPage } from '@/components/CardPage/CardPage';
-import { Table, Tag } from 'antd';
+import { Table, Tag, Typography } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { Link } from 'react-router-dom';
 import { Order, OrderStatus, TradeType } from '@kbc-lib/coffee-trading-management-lib';
@@ -11,6 +11,9 @@ import { AsyncComponent } from '@/components/AsyncComponent/AsyncComponent';
 import { useOrganization } from '@/providers/entities/icp/OrganizationProvider';
 import { useShipment } from '@/providers/entities/icp/ShipmentProvider';
 import { ShipmentPhaseDisplayName } from '@/constants/shipmentPhase';
+import { InfoCard } from '@/components/InfoCard/InfoCard';
+
+const { Text } = Typography;
 
 export const Trades = () => {
     const { orders } = useOrder();
@@ -72,20 +75,53 @@ export const Trades = () => {
         }
     ];
 
+    const tradeInfo = {
+        title: 'Trade Process Information',
+        items: [
+            <Text>This table contains all trades where the company is involved. To start a trade an importer should accept a counterpart offer.</Text>,
+            <>
+                <Text strong>
+                    {'Negotiation status: '}
+                </Text>
+                <Text>
+                    PENDING (initial negotiation) → CONFIRMED (deal agreed) → EXPIRED (negotiation expired).
+                </Text>
+            </>,
+            <>
+                <Text strong>
+                    {'Shipment phases track the physical movement: '}
+                </Text>
+                <Text>
+                    SAMPLE APPROVAL → SHIPMENT CONFIRMATION → WAITING FOR LAND TRANSPORTATION → LAND TRANSPORTATION → SEA TRANSPORTATION → CONFIRMED → ARBITRATION.
+                </Text>
+            </>,
+            <Text>
+                Each trade is uniquely identified and associated to a Supplier and a Commissioner for complete traceability.
+            </Text>
+        ],
+        marginTop: '0px',
+        collapsed: true,
+        image: './assets/trade.png',
+    };
+
     return (
-        <CardPage
-            title={
-                <div
-                    style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center'
-                    }}>
-                    Trades
-                </div>
-            }>
-            <Table columns={columns} dataSource={orders.sort((o1, o2) => o1.id - o2.id)} />
-        </CardPage>
+        <>
+            <CardPage
+                title={
+                    <div
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                        }}>
+                        Trades
+                    </div>
+                }>
+                <InfoCard {...tradeInfo} />
+
+                <Table columns={columns} dataSource={orders.sort((o1, o2) => o1.id - o2.id)} />
+            </CardPage>
+        </>
     );
 };
 

@@ -14,6 +14,7 @@ import { updateUserInfo } from '@/redux/reducers/userInfoSlice';
 import { EventEmitter } from 'events';
 import { DID_METHOD } from '@/constants/ssi';
 
+jest.mock('@/components/InfoCard/InfoCard');
 jest.mock('antd', () => ({
     ...jest.requireActual('antd'),
     Card: ({ children, ...props }: any) => (

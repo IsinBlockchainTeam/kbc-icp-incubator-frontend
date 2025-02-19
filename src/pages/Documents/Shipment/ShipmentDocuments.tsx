@@ -15,6 +15,9 @@ import { ShipmentPhaseDisplayName } from '@/constants/shipmentPhase';
 import { DetailedShipment, useShipment } from '@/providers/entities/icp/ShipmentProvider';
 import { useOrder } from '@/providers/entities/icp/OrderProvider';
 import { useOrganization } from '@/providers/entities/icp/OrganizationProvider';
+import { InfoCard } from '@/components/InfoCard/InfoCard';
+
+const { Text } = Typography;
 
 type SelectedOrder = {
     order: Order | null;
@@ -30,6 +33,48 @@ export default () => {
     const { order, orders } = useOrder();
     const { detailedShipment, addDocument } = useShipment();
     const selectedDocumentType: DocumentType | undefined = location.state?.selectedDocumentType;
+
+    const shipmentDocInfo = {
+        title: 'Shipment Documents Information',
+        items: [
+            <Text>
+                Inside this page you can upload and see documents related to shipments.
+            </Text>,
+            <>
+                <Text strong>
+                    {'Required documents by phase: '}
+                </Text>
+                <Text>
+                    Each shipment phase requires specific documents to be uploaded and approved.
+                </Text>
+            </>,
+            <>
+                <Text strong>
+                    {'Document workflow: '}
+                </Text>
+                <ol style={{ margin: 0, paddingLeft: '20px' }}>
+                    <li>
+                        <Text>
+                            Upload required documents for current phase
+                        </Text>
+                    </li>
+                    <li>
+                        <Text>
+                            Wait for counterparty approval
+                        </Text>
+                    </li>
+                    <li>
+                        <Text>
+                            Proceed to next phase when all documents are approved
+                        </Text>
+                    </li>
+                </ol>
+            </>,
+        ],
+        marginTop: '0px',
+        collapsed: true,
+        image: './assets/shipment-documents.png'
+    };
 
     const tradeSelected: SelectedOrder | undefined = useMemo(() => {
         if (!order) return undefined;
@@ -201,6 +246,7 @@ export default () => {
 
     return (
         <CardPage title="Shipment Documents">
+            <InfoCard {...shipmentDocInfo} />
             <GenericForm elements={elements} confirmText="This will upload the document for the order selected, proceed?" submittable={false} />
         </CardPage>
     );

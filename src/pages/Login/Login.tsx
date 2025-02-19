@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import styles from './Login.module.scss';
-import { Card, QRCode, Space, Timeline } from 'antd';
+import { Card, QRCode, Space, Timeline, Typography } from 'antd';
 import { useWalletConnect } from '@/providers/auth/WalletConnectProvider';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
@@ -12,9 +12,12 @@ import { requestPath } from '@/constants/url';
 import { NotificationType, openNotification } from '@/utils/notification';
 import { NOTIFICATION_DURATION } from '@/constants/notification';
 import { updateUserInfo } from '@/redux/reducers/userInfoSlice';
-import { Navigate } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { paths } from '@/constants/paths';
 import { DID_METHOD } from '@/constants/ssi';
+import { InfoCard } from '@/components/InfoCard/InfoCard';
+
+const { Text } = Typography;
 
 export const Login = () => {
     const { provider } = useWalletConnect();
@@ -133,6 +136,28 @@ export const Login = () => {
     if (userInfo.isLogged) {
         return <Navigate to={paths.PROFILE} />;
     }
+
+    const techInfo = {
+        title: "Technical Standards & Infrastructure",
+        items: [
+            <Text>
+                This qr code represent the request to disclose your veriable credentials and then use them to derive your internet identity.
+            </Text>,
+            <Text>
+                Verifiable credentials respect the standard <Link to="https://www.w3.org/TR/vc-overview/" target="_blank">W3C</Link>.
+            </Text>,
+            <Text>
+                Ethereum to Internet Identity connection powered by <Link to="https://github.com/kristoferlund/ic-siwe" target="_blank">SIWE</Link>.
+            </Text>,
+            <Text>
+                Logic deployed on <Link to="https://internetcomputer.org/" target="_blank">ICP</Link>.
+            </Text>
+        ],
+        collapsed: true,
+        marginBottom: '0px',
+        image: './assets/tech-architecture.png'
+    };
+
     return (
         <div className={styles.LoginContainer}>
             <Card>
@@ -152,6 +177,8 @@ export const Login = () => {
                     </Space>
                 </div>
             </Card>
+
+            <InfoCard {...techInfo} />
         </div>
     );
 };

@@ -43,7 +43,7 @@ export const ContentLayout = ({ children }: Props) => {
                     {children ? children : <Outlet />}
                 </Spin>
             </Content>
-            <Footer style={{ textAlign: 'center' }}>Coffe Trading platform ©2024 Created by ISIN</Footer>
+            <Footer style={{ textAlign: 'center' }}>Coffee Trading platform ©2025 Created by ISIN</Footer>
         </Layout>
     );
 };

@@ -22,6 +22,7 @@ jest.mock('antd', () => {
     };
 });
 jest.mock('@/providers/entities/icp/AssetOperationProvider');
+jest.mock('@/components/InfoCard/InfoCard');
 
 describe('Asset Operations', () => {
     const navigate = jest.fn();

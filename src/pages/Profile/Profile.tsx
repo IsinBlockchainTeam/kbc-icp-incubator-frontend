@@ -1,10 +1,10 @@
-import { Avatar, Button, Card, Col, Descriptions, Row, Typography } from 'antd';
+import { Avatar, Button, Card, Col, Descriptions, Row, Tooltip, Typography } from 'antd';
 import styles from './Profile.module.scss';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { Navigate } from 'react-router-dom';
 import { useSiweIdentity } from '@/providers/auth/SiweIdentityProvider';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSigner } from '@/providers/auth/SignerProvider';
 import { paths } from '@/constants/paths';
 import { MailOutlined, PhoneOutlined, EnvironmentOutlined } from '@ant-design/icons';
@@ -80,9 +80,11 @@ export default function Profile() {
         };
 
         return icpOrganization === undefined ? (
-            <Button size="large" onClick={() => storeOrganizationWrapper(organizationParams)}>
-                <Text>Share organization information</Text>
-            </Button>
+            <Tooltip title={'Share organization information base on your company claims'}>
+                <Button size="large" onClick={() => storeOrganizationWrapper(organizationParams)}>
+                    <Text>Share organization information</Text>
+                </Button>
+            </Tooltip>
         ) : (
             <Col>
                 <Title level={5}>You are sharing the following data with the platform</Title>
@@ -95,9 +97,11 @@ export default function Profile() {
                     </Col>
                 </Row>
                 <Row style={{ paddingTop: 8 }}>
-                    <Button size="large" onClick={() => updateOrganizationWrapper(organizationParams)}>
-                        <Text>Update organization information</Text>
-                    </Button>
+                    <Tooltip title={'Update organization information base on your company claims'}>
+                        <Button size="large" onClick={() => updateOrganizationWrapper(organizationParams)}>
+                            <Text>Update organization information</Text>
+                        </Button>
+                    </Tooltip>
                 </Row>
             </Col>
         );
